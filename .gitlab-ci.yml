@@ -4,7 +4,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  IMAGE_NAME: boiledsteak/infinity-cleaner-app
+  IMAGE_NAME: boiledsteak/fyp-auction-app
 
 # Build Stage: Build the frontend using Node.js
 build:
