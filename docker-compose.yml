@@ -1,12 +1,13 @@
 services:
   infinity-cleaner-app:
-    image: boiledsteak/fyp-auction-app:latest
+    image: boiledsteak/infinity-cleaner-app:latest
     ports:
       - "4433:8080"  # Expose port 4433 externally and map it to internal port 8080
     networks:
       - app-network
     environment:
       - NODE_ENV=production  # Add any environment variables if needed
+      - DATABASE_URL=postgresql://neondb_owner:npg_pYfzbFt4xe3i@ep-old-feather-a1y20uxd-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
 
 networks:
   app-network:

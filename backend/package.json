@@ -1,5 +1,5 @@
 {
-    "name": "infinity-cleaner-backend",
+    "name": "fyp-auction-backend",
     "version": "1.0.0",
     "type": "module",
     "main": "server.js",
@@ -9,12 +9,13 @@
     },
     "dependencies": {
       "express": "^5.1.0",
-      "path": "^0.12.7"
+      "path": "^0.12.7",
+      "@neondatabase/serverless":"^1.0.0"
     },
     "devDependencies": {
       "nodemon": "^3.1.9"
     },
-    "author": "infinity",
+    "author": "timothy mah",
     "license": "ISC"
   }
   
