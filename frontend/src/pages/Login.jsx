@@ -19,7 +19,7 @@ const Login = () => {
 		</h2>
 
 		<h3>
-			<span style="color: red;">TEST TEST - Shilong</span>
+			<text>TEST TEST - Shilong</text>
 		</h3>
 
 			
