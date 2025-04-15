@@ -4,13 +4,17 @@ import { NavLink } from "react-router-dom";
 
 
 const Login = () => {
+	const [numA, setNumA] = useState("");
+	const [numB, setNumB] = useState("");
 	const [average, setAverage] = useState(null);
 	const [loading, setLoading] = useState(false);
 
 	const handleGetAverage = async () => {
 		setLoading(true);
+		setAverage(null);
+	
 		try {
-		  const response = await fetch("/api/average");
+		  const response = await fetch(`/api/average?a=${numA}&b=${numB}`);
 		  const data = await response.json();
 		  setAverage(data.average);
 		} catch (error) {
@@ -19,7 +23,7 @@ const Login = () => {
 		} finally {
 		  setLoading(false);
 		}
-	};
+	  };
 
 	return (
 		<div id="b1" style={{
@@ -31,29 +35,22 @@ const Login = () => {
 			"You're a website" - Saud
         </h1>
 
-		<h2>
-			<text>This is a TEST - react  RAYDON</text>
-		</h2>
+		<div style={{ marginBottom: "10px" }}>
+			<label>
+          		A: <input type="number" value={numA} onChange={e => setNumA(e.target.value)} />
+        	</label>
+			<label style={{ marginLeft: "10px" }}>
+          		B: <input type="number" value={numB} onChange={e => setNumB(e.target.value)} />
+        	</label>
+		</div>
 
-		<h3>
-			<text>TEST TEST - Shilong</text>
-		</h3>
-
-		<h4>
-			<span>TT EE SS TT - Shilong</span>
-		</h4>
-		
-		<h5>
-			<text>TEST12312312- Qingyuan</text>
-		</h5>
-
-		<button onClick={handleGetAverage}>
-			{loading ? "Loading..." : "Get Average"}
-		</button>
+		<button onClick={handleGetAverage} disabled={!numA || !numB}>
+        	{loading ? "Calculating..." : "Get Average"}
+     	</button>
 		
 		{average !== null && (
         	<p style={{ marginTop: "10px" }}>
-          	📊 Average result: <strong>{average}</strong>
+          		📊 Average result: <strong>{average}</strong>
         	</p>
       	)}
 		
