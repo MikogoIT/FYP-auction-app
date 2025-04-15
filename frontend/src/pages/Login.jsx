@@ -9,6 +9,16 @@ const Login = () => {
 	const [average, setAverage] = useState(null);
 	const [loading, setLoading] = useState(false);
 
+
+	const [email, setEmail] = useState("");
+  	const [password, setPassword] = useState("");
+  	const [loginLoading, setLoginLoading] = useState(false);
+  	const [loginError, setLoginError] = useState("");
+
+	const navigate = useNavigate();
+
+
+	// Avg
 	const handleGetAverage = async () => {
 		setLoading(true);
 		setAverage(null);
@@ -24,6 +34,32 @@ const Login = () => {
 		  setLoading(false);
 		}
 	  };
+
+	// Login test-----------------------------------------
+	const handleLogin = async () => {
+		setLoginLoading(true);
+		setLoginError("");
+		try {
+		  const res = await fetch("/api/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email, password }),
+		  });
+		  const data = await res.json();
+		  if (!res.ok) {
+			throw new Error(data.message || "Login Failed");
+		  }
+		  // Save token and redirect
+		  localStorage.setItem("token", data.token);
+		  navigate("/dashboard");
+		} catch (err) {
+		  setLoginError(err.message);
+		} finally {
+		  setLoginLoading(false);
+		}
+	  };
+
+	// test end---------------------------------------------
 
 	return (
 		<div id="b1" style={{
@@ -54,6 +90,54 @@ const Login = () => {
         	</p>
       	)}
 		
+		//login test-------------------------------------------------------------
+		<h2 style={{ marginBottom: "15px", textAlign: "center" }}>
+          User login
+        </h2>
+		<div style={{ marginBottom: "10px" }}>
+			<label>
+				Email:{" "}
+            	<input
+              	 type="email"
+                 value={email}
+                 onChange={(e) => setEmail(e.target.value)}
+                 placeholder="Please enter your email address"
+                 style={{ width: "100%", marginTop: "4px" }}
+            	/>
+			</label>
+		</div>
+
+		<div style={{ marginBottom: "10px" }}>
+			<label>
+            	Password:{" "}
+            	<input
+              	 type="password"
+              	 value={password}
+              	 onChange={(e) => setPassword(e.target.value)}
+              	 placeholder="Please enter your password"
+              	 style={{ width: "100%", marginTop: "4px" }}
+            	/>
+          	</label>
+		</div>
+
+		<button
+          onClick={handleLogin}
+          disabled={loginLoading || !email || !password}
+          style={{ width: "100%", padding: "8px" }}
+        >
+			{loginLoading ? "Logging in..." : "Log in"}
+		</button>
+
+		{loginError && (
+          <p style={{ color: "red", marginTop: "10px", textAlign: "center" }}>
+            ❌ {loginError}
+          </p>
+        )}
+		<p style={{ marginTop: "15px", textAlign: "center" }}>
+		No account yet?<NavLink to="/register">Go to register</NavLink>
+        </p>
+
+		// end----------------------------------------------------------------------------------
 		</div>
 	);
 };
