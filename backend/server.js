@@ -6,7 +6,7 @@ import { neon } from "@neondatabase/serverless";
 
 import { formatDbVersion, average, isValidEmail } from "./utils/functions.js";
 
-import userRoutes from "userRoutes.js";
+import userRoutes from "./userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
