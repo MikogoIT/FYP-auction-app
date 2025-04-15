@@ -46,7 +46,16 @@ const Login = () => {
 		<h5>
 			<text>TEST12312312- Qingyuan</text>
 		</h5>
-			
+
+		<button onClick={handleGetAverage}>
+			{loading ? "Loading..." : "Get Average"}
+		</button>
+		
+		{average !== null && (
+        	<p style={{ marginTop: "10px" }}>
+          	📊 Average result: <strong>{average}</strong>
+        	</p>
+      	)}
 		
 		</div>
 	);
