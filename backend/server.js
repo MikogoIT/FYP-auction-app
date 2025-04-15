@@ -31,16 +31,7 @@ app.get("/api/version", async (req, res) => {
 });
 
 //-------------------------TEST START---------------------//
-app.get("/api/average", (req, res) => {
-  const avg = average(6, 10); // 示例数值
-  res.json({ average: avg });
-});
 
-app.get("/api/check-email", (req, res) => {
-  const testEmail = "test@example.com";
-  const valid = isValidEmail(testEmail);
-  res.json({ email: testEmail, valid });
-});
 //-------------------------TEST END-----------------//
 
 // Fallback to React app
