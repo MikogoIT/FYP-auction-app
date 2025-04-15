@@ -18,7 +18,7 @@ const Login = () => {
 	const navigate = useNavigate();
 
 
-	{/* // Avg // */}
+	// Avg
 	const handleGetAverage = async () => {
 		setLoading(true);
 		setAverage(null);
