@@ -1,7 +1,7 @@
-# INFINITY-cleaner-app
+# FYP-auction-app
 
 
-mini fyp cleaning service platform
+fyp auction app
 
 app deployed to dockerhub
 https://hub.docker.com/r/boiledsteak/infinity-cleaner-app
