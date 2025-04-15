@@ -42,16 +42,13 @@ export async function registerUser(req, res) {
     }
   
     try {
-      // 检查 email 是否已存在
       const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
       if (existing.length > 0) {
         return res.status(409).json({ message: "Email already registered" });
       }
   
-      // 加密密码
       const passwordHash = hashPassword(password);
   
-      // 插入数据库
       const newUser = await sql`
         INSERT INTO users (username, email, password, role)
         VALUES (${username}, ${email}, ${passwordHash}, 'user')
