@@ -1,5 +1,5 @@
 // controllers/authController.js
-import { sql } from "../utils/db.js"; 
+import { sql } from "../db.js"; 
 import { comparePassword } from "../utils/auth.js";
 import { hashPassword } from "../utils/auth.js";
 
