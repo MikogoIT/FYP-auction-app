@@ -21,6 +21,9 @@ const sql = neon(process.env.DATABASE_URL);
 // Serve static frontend
 app.use(express.static(path.join(__dirname, '../frontend', 'dist')));
 
+// **Enable JSON body parsing in advance**
+app.use(express.json());
+
 // Example API route that queries Neon DB
 app.get("/api/version", async (req, res) => {
   try {
@@ -51,6 +54,46 @@ app.get("/api/check-email", (req, res) => {
   res.json({ email: testEmail, valid });
 });
 //-------------------------TEST END-----------------//
+
+//-------------------TEST Login--------------------//
+
+// POST /api/login
+app.post("/api/login", async (req, res) => {
+  const { email, password } = req.body;
+  // Simple verification
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and Password are both required" });
+  }
+
+  try {
+    // Check User
+    const users = await sql`
+      SELECT id, password, role
+      FROM users
+      WHERE email = ${email}
+    `;
+    if (users.length === 0) {
+      return res.status(401).json({ message: "Wrong account or password" });
+    }
+
+    const user = users[0];
+    // Verify Password
+    const match = await comparePassword(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: "Wrong account or password" });
+    }
+
+    // Generating JWT
+    const token = generateToken({ id: user.id, role: user.role });
+    res.json({ message: "Login successful", token });
+  } catch (err) {
+    console.error("Login exception: ", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+//---------------------Test end--------------------//
 
 // Testing Database - UserModel
 app.use(express.json());
