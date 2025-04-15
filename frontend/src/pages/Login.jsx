@@ -35,7 +35,7 @@ const Login = () => {
 		}
 	  };
 
-	{/* //-------------------TEST Login--------------------// */}
+	//-------------------TEST Login------------
 	const handleLogin = async () => {
 		setLoginLoading(true);
 		setLoginError("");
@@ -59,7 +59,7 @@ const Login = () => {
 		}
 	  };
 
-	{/* //---------------------Test end--------------------// */}
+	//------------------Test end--------
 
 	return (
 		<div id="b1" style={{
