@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 
-import { formatDbVersion, average, isValidEmail } from "./utils/functions.js";
+//import { formatDbVersion, average, isValidEmail } from "./utils/functions.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
