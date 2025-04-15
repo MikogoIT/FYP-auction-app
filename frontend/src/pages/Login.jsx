@@ -4,6 +4,23 @@ import { NavLink } from "react-router-dom";
 
 
 const Login = () => {
+	const [average, setAverage] = useState(null);
+	const [loading, setLoading] = useState(false);
+
+	const handleGetAverage = async () => {
+		setLoading(true);
+		try {
+		  const response = await fetch("/api/average");
+		  const data = await response.json();
+		  setAverage(data.average);
+		} catch (error) {
+		  console.error("Error fetching average:", error);
+		  setAverage("Error");
+		} finally {
+		  setLoading(false);
+		}
+	};
+
 	return (
 		<div id="b1" style={{
 			backgroundColor: '#efeed8'
