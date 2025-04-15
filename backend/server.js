@@ -4,6 +4,8 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 
+import { formatDbVersion, average, isValidEmail } from "./utils/functions.js";
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -27,6 +29,19 @@ app.get("/api/version", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
+
+//-------------------------TEST START---------------------//
+app.get("/api/average", (req, res) => {
+  const avg = average(6, 10); // 示例数值
+  res.json({ average: avg });
+});
+
+app.get("/api/check-email", (req, res) => {
+  const testEmail = "test@example.com";
+  const valid = isValidEmail(testEmail);
+  res.json({ email: testEmail, valid });
+});
+//-------------------------TEST END-----------------//
 
 // Fallback to React app
 app.get("*name", (req, res) => {
