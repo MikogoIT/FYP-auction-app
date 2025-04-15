@@ -6,6 +6,8 @@ import { neon } from "@neondatabase/serverless";
 
 import { formatDbVersion, average, isValidEmail } from "./utils/functions.js";
 
+import userRoutes from "userRoutes.js";
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -42,6 +44,10 @@ app.get("/api/check-email", (req, res) => {
   res.json({ email: testEmail, valid });
 });
 //-------------------------TEST END-----------------//
+
+// Testing Database - UserModel
+app.use(express.json());
+app.use("/api/users", userRoutes);
 
 // Fallback to React app
 app.get("*name", (req, res) => {
