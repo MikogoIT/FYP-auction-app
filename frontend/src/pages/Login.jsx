@@ -18,7 +18,7 @@ const Login = () => {
 	const navigate = useNavigate();
 
 
-	// Avg
+	{/* // Avg // */}
 	const handleGetAverage = async () => {
 		setLoading(true);
 		setAverage(null);
@@ -35,7 +35,7 @@ const Login = () => {
 		}
 	  };
 
-	// Login test-----------------------------------------
+	{/* //-------------------TEST Login--------------------// */}
 	const handleLogin = async () => {
 		setLoginLoading(true);
 		setLoginError("");
@@ -59,7 +59,7 @@ const Login = () => {
 		}
 	  };
 
-	// test end---------------------------------------------
+	{/* //---------------------Test end--------------------// */}
 
 	return (
 		<div id="b1" style={{
@@ -90,7 +90,7 @@ const Login = () => {
         	</p>
       	)}
 		
-		//login test-------------------------------------------------------------
+		{/* //-------------------TEST Login--------------------// */}
 		<h2 style={{ marginBottom: "15px", textAlign: "center" }}>
           User login
         </h2>
@@ -137,7 +137,7 @@ const Login = () => {
 		No account yet?<NavLink to="/register">Go to register</NavLink>
         </p>
 
-		// end----------------------------------------------------------------------------------
+		{/* //---------------------Test end--------------------// */}
 		</div>
 	);
 };
