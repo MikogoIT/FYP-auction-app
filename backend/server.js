@@ -5,6 +5,7 @@ import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 
 import userRoutes from "./userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;

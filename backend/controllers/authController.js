@@ -1,7 +1,9 @@
 // controllers/authController.js
 import { sql } from "../utils/db.js"; 
 import { comparePassword } from "../utils/auth.js";
+import { hashPassword } from "../utils/auth.js";
 
+//login
 export async function loginUser(req, res) {
   const { email, password } = req.body;
 
@@ -30,3 +32,38 @@ export async function loginUser(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+//register
+export async function registerUser(req, res) {
+    const { username, email, password } = req.body;
+  
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+  
+    try {
+      // 检查 email 是否已存在
+      const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
+      if (existing.length > 0) {
+        return res.status(409).json({ message: "Email already registered" });
+      }
+  
+      // 加密密码
+      const passwordHash = hashPassword(password);
+  
+      // 插入数据库
+      const newUser = await sql`
+        INSERT INTO users (username, email, password, role)
+        VALUES (${username}, ${email}, ${passwordHash}, 'user')
+        RETURNING id, username, email, role
+      `;
+  
+      res.status(201).json({
+        message: "User registered successfully",
+        user: newUser[0]
+      });
+    } catch (err) {
+      console.error("Register error:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
