@@ -40,7 +40,7 @@ app.get("/api/version", async (req, res) => {
 app.get("/api/getAllUsers", async (req, res) => {
   try {
     const result = await sql`SELECT * FROM users`;
-    res.json({ version: result[0].version });
+    res.json();
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Database error" });
