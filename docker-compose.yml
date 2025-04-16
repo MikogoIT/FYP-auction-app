@@ -1,6 +1,6 @@
 services:
-  infinity-cleaner-app:
-    image: boiledsteak/infinity-cleaner-app:latest
+  fyp-auction-app:
+    image: boiledsteak/fyp-auction-app:latest
     ports:
       - "4433:8080"  # Expose port 4433 externally and map it to internal port 8080
     networks:
