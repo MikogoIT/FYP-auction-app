@@ -20,7 +20,7 @@ function App() {
       <Router>
         <Header />
         <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
