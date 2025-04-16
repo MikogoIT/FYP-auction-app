@@ -4,7 +4,7 @@ import { getAllUsers, createUser } from "./userModel.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/getAllUsers", async (req, res) => {
     try {
         const users = await getAllUsers();
         res.json(users);
@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/createUser", async (req, res) => {
     const { username, email, password } = req.body;
     try {
         const newUser = await createUser(username, email, password);

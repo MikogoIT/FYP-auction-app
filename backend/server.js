@@ -34,22 +34,17 @@ app.get("/api/version", async (req, res) => {
   }
 });
 
-
 // testing route 123
 // Example API route that queries Neon DB
-app.get("/api/getAllUsers", async (req, res) => {
-  try {
-    const result = await sql`SELECT * FROM users`;
-    res.json(result);
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-});
-
-
-
-
+// app.get("/api/getAllUsers", async (req, res) => {
+//   try {
+//     const result = await sql`SELECT * FROM users`;
+//     res.json(result);
+//   } catch (error) {
+//     console.error("Database error:", error);
+//     res.status(500).json({ error: "Database error" });
+//   }
+// });
 
 //-------------------TEST Login--------------------//
 
@@ -59,7 +54,6 @@ app.use("/api/users", userRoutes);
 //---------------------Test end--------------------//
 
 // Testing Database - UserModel
-app.use(express.json());
 app.get("/api/users", userRoutes);
 
 // Fallback to React app

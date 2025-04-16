@@ -1,3 +1,4 @@
+// userModel.js
 import sql from "./db.js";
 
 // Get all users
