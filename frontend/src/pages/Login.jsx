@@ -67,25 +67,6 @@ const Login = () => {
             Hello this is our website
 			"You're a website" - Saud
         </h1>
-
-		<div style={{ marginBottom: "10px" }}>
-			<label>
-          		A: <input type="number" value={numA} onChange={e => setNumA(e.target.value)} />
-        	</label>
-			<label style={{ marginLeft: "10px" }}>
-          		B: <input type="number" value={numB} onChange={e => setNumB(e.target.value)} />
-        	</label>
-		</div>
-
-		<button onClick={handleGetAverage} disabled={!numA || !numB}>
-        	{loading ? "Calculating..." : "Get Average"}
-     	</button>
-		
-		{average !== null && (
-        	<p style={{ marginTop: "10px" }}>
-          		📊 Average result: <strong>{average}</strong>
-        	</p>
-      	)}
 		
 		{/* //-------------------TEST Login--------------------// */}
 		<h2 style={{ textAlign: "center", marginBottom: "20px" }}>User Login</h2>
