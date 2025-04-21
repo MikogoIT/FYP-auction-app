@@ -13,14 +13,14 @@ export async function loginUser(req, res) {
 
   try {
     const result = await sql`
-      SELECT id, email, password, role FROM users WHERE email = ${email}
+      SELECT id, email, password_hash, role FROM users WHERE email = ${email}
     `;
     if (result.length === 0) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
     const user = result[0];
-    const match = await comparePassword(password, user.password);
+    const match = await comparePassword(password, user.password_hash);
 
     if (!match) {
       return res.status(401).json({ message: "Wrong account or password" });
@@ -59,7 +59,7 @@ export async function registerUser(req, res) {
     const passwordHash = hashPassword(password);
 
     const newUser = await sql`
-      INSERT INTO users (username, email, password, role, full_name, phone_number, address)
+      INSERT INTO users (username, email, password_hash, role, full_name, phone_number, address)
       VALUES (${username}, ${email}, ${passwordHash}, 'user', ${full_name}, ${phone_number}, ${address})
       RETURNING id, username, email, role, full_name, phone_number, address
     `;
