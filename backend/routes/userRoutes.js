@@ -5,7 +5,7 @@ import { verifyToken } from "../utils/token.js";
 
 const router = express.Router();
 
-router.get("/profile", (req, res) => {
+router.get("/profile", async (req, res) => {
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(" ")[1];
   
