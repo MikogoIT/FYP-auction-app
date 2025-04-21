@@ -13,7 +13,7 @@ export async function loginUser(req, res) {
 
   try {
     const result = await sql`
-      SELECT id, email, password_hash, role FROM users WHERE email = ${email}
+      SELECT id, email, password_hash FROM users WHERE email = ${email}
     `;
     if (result.length === 0) {
       return res.status(401).json({ message: "Wrong account or password" });
@@ -26,7 +26,7 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
-    res.json({ message: "Login successful", user: { id: user.id, email: user.email, role: user.role } });
+    res.json({ message: "Login successful", user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Internal server error" });
