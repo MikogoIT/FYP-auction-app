@@ -2,6 +2,7 @@
 import { sql } from "../utils/db.js"; 
 import { comparePassword } from "../utils/auth.js";
 import { hashPassword } from "../utils/auth.js";
+import { createToken } from "../utils/token.js";
 
 //login
 export async function loginUser(req, res) {
@@ -26,7 +27,7 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
-    res.json({ message: "Login successful", user: { id: user.id, email: user.email } });
+    res.json({ message: "Login successful", user: { id: user.id, token, email: user.email } });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Internal server error" });
