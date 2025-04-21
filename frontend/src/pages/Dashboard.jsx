@@ -8,19 +8,32 @@ const Dashboard = () => {
       localStorage.removeItem("token");
       navigate("/login"); 
     };
+
+    const goToProfile = () => {
+        navigate("/profile");
+      };
   
     return (
-      <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px" }}>
-        <h2 style={{ textAlign: "center" }}>
-          ✅ Welcome to the Dashboard
-        </h2>
-  
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+        <button
+          onClick={goToProfile}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#6c757d",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Profile
+        </button>
+
         <button
           onClick={handleLogout}
           style={{
-            marginTop: "20px",
-            width: "100%",
-            padding: "10px",
+            padding: "8px 16px",
             backgroundColor: "#d9534f",
             color: "white",
             border: "none",
@@ -28,10 +41,15 @@ const Dashboard = () => {
             cursor: "pointer"
           }}
         >
-          Log Out
+          Logout
         </button>
       </div>
-    );
-  };
+
+      <h2 style={{ textAlign: "center", marginTop: "100px" }}>
+        ✅ This is the dashboard page
+      </h2>
+    </div>
+  );
+};
 
 export default Dashboard;

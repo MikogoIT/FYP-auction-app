@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -24,6 +25,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/login" replace />} />
