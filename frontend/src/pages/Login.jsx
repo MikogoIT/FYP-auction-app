@@ -62,11 +62,6 @@ const Login = () => {
 
 	return (
 		<div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
-
-		<h1>
-            Hello this is our website
-			"You're a website" - Saud
-        </h1>
 		
 		{/* //-------------------TEST Login--------------------// */}
 		<h2 style={{ textAlign: "center", marginBottom: "20px" }}>User Login</h2>
