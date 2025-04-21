@@ -27,7 +27,9 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
-    res.json({ message: "Login successful", user: { id: user.id, token, email: user.email } });
+    const token = createToken(user.id);
+
+    res.json({ message: "Login successful", token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Internal server error" });
