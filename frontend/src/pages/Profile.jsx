@@ -10,22 +10,29 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Server did not return JSON");
+        try {
+          const token = localStorage.getItem("token"); // ✅ 从 localStorage 拿到 token
+      
+          const res = await fetch("/api/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ 设置 token 到请求头
+            },
+          });
+      
+          const contentType = res.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Server did not return JSON");
+          }
+      
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
+      
+          setUser(data.user);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
         }
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
-
-        setUser(data.user);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
     };
 
     fetchProfile();
