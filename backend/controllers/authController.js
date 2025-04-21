@@ -59,9 +59,9 @@ export async function registerUser(req, res) {
     const passwordHash = hashPassword(password);
 
     const newUser = await sql`
-      INSERT INTO users (username, email, password_hash, role, full_name, phone_number, address)
-      VALUES (${username}, ${email}, ${passwordHash}, 'user', ${full_name}, ${phone_number}, ${address})
-      RETURNING id, username, email, role, full_name, phone_number, address
+      INSERT INTO users (username, email, password_hash, full_name, phone_number, address)
+      VALUES (${username}, ${email}, ${passwordHash}, ${full_name}, ${phone_number}, ${address})
+      RETURNING id, username, email, full_name, phone_number, address
     `;
 
     res.status(201).json({
