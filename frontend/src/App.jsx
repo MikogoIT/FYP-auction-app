@@ -22,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/login" replace />} />
