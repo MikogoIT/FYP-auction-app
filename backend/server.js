@@ -4,8 +4,8 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 
-import userRoutes from "./userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -49,7 +49,8 @@ app.get("/api/version", async (req, res) => {
 //-------------------TEST Login--------------------//
 
 app.use("/api", authRoutes);      
-app.use("/api/users", userRoutes); 
+app.use("/api/users", userRoutes);
+app.use("/api", userRoutes); 
 
 //---------------------Test end--------------------//
 
