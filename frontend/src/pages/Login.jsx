@@ -61,9 +61,7 @@ const Login = () => {
 	//------------------Test end--------
 
 	return (
-		<div id="b1" style={{
-			backgroundColor: '#efeed8'
-		}}>
+		<div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
 
 		<h1>
             Hello this is our website
@@ -90,42 +88,47 @@ const Login = () => {
       	)}
 		
 		{/* //-------------------TEST Login--------------------// */}
-		<h2 style={{ marginBottom: "15px", textAlign: "center" }}>
-          User login
-        </h2>
-		<div style={{ marginBottom: "10px" }}>
-			<label>
-				Email:{" "}
-            	<input
+		<h2 style={{ textAlign: "center", marginBottom: "20px" }}>User Login</h2>
+
+		<form onSubmit={ (e) => { e.preventDefault(); handleLogin(); } }>
+			{/*Email*/}
+			<div style={{ marginBottom: "12px" }}>
+				<label style={{ display: "block", marginBottom: "4px" }}>Email:</label>
+				<input
               	 type="email"
                  value={email}
                  onChange={(e) => setEmail(e.target.value)}
                  placeholder="Please enter your email address"
                  style={{ width: "100%", marginTop: "4px" }}
             	/>
-			</label>
-		</div>
-
-		<div style={{ marginBottom: "10px" }}>
-			<label>
-            	Password:{" "}
-            	<input
+			</div>
+			{/*Password*/}
+			<div style={{ marginBottom: "12px" }}>
+				<label style={{ display: "block", marginBottom: "4px" }}>Password:</label>
+				<input
               	 type="password"
               	 value={password}
               	 onChange={(e) => setPassword(e.target.value)}
               	 placeholder="Please enter your password"
               	 style={{ width: "100%", marginTop: "4px" }}
             	/>
-          	</label>
-		</div>
-
-		<button
-          onClick={handleLogin}
-          disabled={loginLoading || !email || !password}
-          style={{ width: "100%", padding: "8px" }}
-        >
-			{loginLoading ? "Logging in..." : "Log in"}
-		</button>
+			</div>
+			{/*Submit button */}
+			<button
+    			type="submit"
+    			disabled={loginLoading || !email || !password}
+    			style={{
+      				width: "100%",
+      				padding: "10px",
+      				backgroundColor: "#4CAF50",
+      				color: "white",
+      				border: "none",
+      				cursor: loginLoading ? "not-allowed" : "pointer"
+    			}}
+  			>
+				{loginLoading ? "Logging in..." : "Log in"}
+			</button>
+		</form>
 
 		{loginError && (
           <p style={{ color: "red", marginTop: "10px", textAlign: "center" }}>
