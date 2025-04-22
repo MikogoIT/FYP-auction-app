@@ -7,6 +7,7 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [editableUser, setEditableUser] = useState(null);
+  const [editing, setEditing] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,11 +46,23 @@ const Profile = () => {
     navigate("/dashboard");
   };
 
-  const handleChange = (field, value) => {
-    setEditableUser((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field, value) => setEditableUser({ ...editableUser, [field]: value });
+  const handleCancel = () => {
+    setEditableUser(user);
+    setEditing(false);
   };
 
   const handleSave = async () => {
+
+    if (!editableUser.phone_number || editableUser.phone_number.trim() === "") {
+      alert("❌ Phone number is required");
+      return;
+    }
+    if (!user.email || user.email.trim() === "") {
+      alert("❌ Email is required");
+      return;
+    }
+
     setSaving(true);
     const token = localStorage.getItem("token");
 
@@ -68,6 +81,7 @@ const Profile = () => {
 
       setUser(data.user);
       setEditableUser(data.user);
+      setEditing(false);
       alert("✅ Profile updated successfully!");
     } catch (err) {
       alert("❌ Update failed: " + err.message);
@@ -81,71 +95,114 @@ const Profile = () => {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      {/* Dashboard button */}
-      <button
-        onClick={handleGoBack}
-        style={{
-          padding: "8px 16px",
-          marginBottom: "20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}
-      >
-        Dashboard
-      </button>
+      {/* button list */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <button
+          onClick={handleGoBack}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Dashboard
+        </button>
 
-
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#6c757d",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Change
+          </button>
+        )}
+      </div>
 
       {/* profile card */}
-      <div style={{
-        maxWidth: "500px",
-        margin: "0 auto",
-        padding: "20px",
-        border: "1px solid #ddd",
-        borderRadius: "8px"
-      }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👤 Edit Profile</h2>
+      <div
+        style={{
+          maxWidth: "500px",
+          margin: "0 auto",
+          padding: "20px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+        }}
+      >
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👤 User Profile</h2>
 
         <p><strong>Email:</strong> {user.email}</p>
 
-        <label>Username:</label>
-        <input
-          value={editableUser.username}
-          onChange={(e) => handleChange("username", e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
+        {editing ? (
+          <>
+            <label>Username:</label>
+            <input
+              value={editableUser.username}
+              onChange={(e) => handleChange("username", e.target.value)}
+              style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+            />
 
-        <label>Phone Number:</label>
-        <input
-          value={editableUser.phone_number}
-          onChange={(e) => handleChange("phone_number", e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
+            <label>Phone Number:</label>
+            <input
+              value={editableUser.phone_number}
+              onChange={(e) => handleChange("phone_number", e.target.value)}
+              style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+            />
 
-        <label>Address:</label>
-        <input
-          value={editableUser.address}
-          onChange={(e) => handleChange("address", e.target.value)}
-          style={{ width: "100%", marginBottom: "20px", padding: "8px" }}
-        />
+            <label>Address:</label>
+            <input
+              value={editableUser.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              style={{ width: "100%", marginBottom: "20px", padding: "8px" }}
+            />
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{
-            width: "100%",
-            padding: "10px",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px"
-          }}
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
+              <button
+                onClick={handleCancel}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  backgroundColor: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p><strong>Username:</strong> {user.username}</p>
+            <p><strong>Phone Number:</strong> {user.phone_number}</p>
+            <p><strong>Address:</strong> {user.address}</p>
+          </>
+        )}
       </div>
     </div>
   );
