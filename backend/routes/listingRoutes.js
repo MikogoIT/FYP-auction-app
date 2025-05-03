@@ -115,5 +115,40 @@ router.put("/listings/:id", async (req, res) => {
       res.status(500).json({ message: "Failed to update listing" });
     }
   });
+
+// Delete listing (authentication required)
+router.delete("/listings/:id", async (req, res) => {
+  const listingId = req.params.id;
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ message: "Invalid or missing token" });
+  }
+
+  try {
+    const existing = await sql`
+      SELECT seller_id FROM auction_listings WHERE id = ${listingId}
+    `;
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    if (Number(existing[0].seller_id) !== Number(payload.userId)) {
+      return res.status(403).json({ message: "Unauthorized to delete this listing" });
+    }
+
+    await sql`
+      DELETE FROM auction_listings WHERE id = ${listingId}
+    `;
+
+    res.json({ message: "Listing deleted successfully" });
+  } catch (err) {
+    console.error("Delete listing error:", err);
+    res.status(500).json({ message: "Failed to delete listing" });
+  }
+});
+
   
   export default router;
