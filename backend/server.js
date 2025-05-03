@@ -7,6 +7,7 @@ import { neon } from "@neondatabase/serverless";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import listingRoutes from "./routes/listingRoutes.js";
+import bidRoutes from "./routes/bidRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -26,6 +27,9 @@ app.use(express.json());
 
 //listing router
 app.use("/api", listingRoutes);
+
+//bid router
+app.use("/api/bids", bidRoutes);
 
 // Example API route that queries Neon DB
 app.get("/api/version", async (req, res) => {

@@ -21,6 +21,10 @@ const Dashboard = () => {
       navigate("/sell");
     };
 
+    const handleBidClick = (auctionId) => {
+      navigate(`/bid/${auctionId}`);
+    };
+
     useEffect(() => {
       const fetchListings = async () => {
         try {
@@ -143,6 +147,21 @@ const Dashboard = () => {
                   >
                     ✏️ Edit
                   </button>
+                ):(
+                  <button
+                  onClick={() => handleBidClick(item.id)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "6px 12px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
+                  💰 Bid
+                </button>
                 )}
               </div>
             );
