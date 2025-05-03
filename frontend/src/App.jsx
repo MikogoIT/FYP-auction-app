@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import SellItem from "./pages/SellItem";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -26,6 +27,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/sell" element={<SellItem />} />
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/login" replace />} />

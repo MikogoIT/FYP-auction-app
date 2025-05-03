@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+
+    const [listings, setListings] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const navigate = useNavigate();
   
     const handleLogout = () => {
@@ -11,11 +15,46 @@ const Dashboard = () => {
 
     const goToProfile = () => {
         navigate("/profile");
+    };
+
+    const goToSell = () => {
+      navigate("/sell");
+    };
+
+    useEffect(() => {
+      const fetchListings = async () => {
+        try {
+          const res = await fetch("/api/listings");
+          const data = await res.json();
+          setListings(data.listings);
+        } catch (err) {
+          console.error("Failed to fetch listings:", err);
+        } finally {
+          setLoading(false);
+        }
       };
+  
+      fetchListings();
+    }, []);
   
     return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+
+      <button
+          onClick={goToSell}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Sell Item
+        </button>
+
         <button
           onClick={goToProfile}
           style={{
@@ -45,9 +84,42 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <h2 style={{ textAlign: "center", marginTop: "100px" }}>
-        ✅ This is the dashboard page
+      <h2 style={{ textAlign: "center", marginTop: "40px" }}>
+        🛒 Active Auction Listings
       </h2>
+
+      {loading ? (
+        <p style={{ textAlign: "center" }}>Loading listings...</p>
+      ) : listings.length === 0 ? (
+        <p style={{ textAlign: "center" }}>No listings available.</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "20px",
+            marginTop: "30px"
+          }}
+        >
+          {listings.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: "16px",
+                backgroundColor: "#f9f9f9"
+              }}
+            >
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <p><strong>Min Bid:</strong> ${item.min_bid}</p>
+              <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
+              <p><strong>Seller:</strong> {item.seller}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
