@@ -132,7 +132,7 @@ const Dashboard = () => {
                 <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
                 <p><strong>Seller:</strong> {item.seller}</p>
 
-                {isOwner && (
+                {isOwner ? (
                   <button
                     onClick={() => navigate(`/edit/${item.id}`)}
                     style={{
