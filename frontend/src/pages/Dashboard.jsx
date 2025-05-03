@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -10,6 +9,7 @@ const Dashboard = () => {
   
     const handleLogout = () => {
       localStorage.removeItem("token");
+      localStorage.removeItem("userId")
       navigate("/login"); 
     };
 
@@ -25,10 +25,6 @@ const Dashboard = () => {
       const fetchListings = async () => {
         try {
           const res = await fetch("/api/listings");
-          console.log("Status:", res.status)
-          const contentType = res.headers.get("content-type")
-          console.log("content-Type:", contentType)
-
           if(!res.ok){
             const text = await res.text();
             console.error("Error response text:", text);
@@ -36,7 +32,6 @@ const Dashboard = () => {
           }
 
           const data = await res.json();
-          console.log("Fetched listings:", data);
           setListings(data.listings);
         } catch (err) {
           console.error("Failed to fetch listings:", err);
@@ -127,6 +122,23 @@ const Dashboard = () => {
               <p><strong>Min Bid:</strong> ${item.min_bid}</p>
               <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
               <p><strong>Seller:</strong> {item.seller}</p>
+
+              {isOwner && (
+                  <button
+                  onClick={() => navigate(`/edit/${item.id}`)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "6px 12px",
+                    backgroundColor: "#ffc107",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+              )}
             </div>
           ))}
         </div>
