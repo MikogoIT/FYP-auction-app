@@ -107,40 +107,45 @@ const Dashboard = () => {
             marginTop: "30px"
           }}
         >
-          {listings.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "16px",
-                backgroundColor: "#f9f9f9"
-              }}
-            >
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-              <p><strong>Min Bid:</strong> ${item.min_bid}</p>
-              <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
-              <p><strong>Seller:</strong> {item.seller}</p>
+          {listings.map((item) => {
+            const currentUserId = parseInt(localStorage.getItem("userId"));
+            const isOwner = item.seller_id === currentUserId;
 
-              {isOwner && (
+            return (
+              <div
+                key={item.id}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  backgroundColor: "#f9f9f9"
+                }}
+              >
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <p><strong>Min Bid:</strong> ${item.min_bid}</p>
+                <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
+                <p><strong>Seller:</strong> {item.seller}</p>
+
+                {isOwner && (
                   <button
-                  onClick={() => navigate(`/edit/${item.id}`)}
-                  style={{
-                    marginTop: "10px",
-                    padding: "6px 12px",
-                    backgroundColor: "#ffc107",
-                    color: "#333",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                  ✏️ Edit
-                </button>
-              )}
-            </div>
-          ))}
+                    onClick={() => navigate(`/edit/${item.id}`)}
+                    style={{
+                      marginTop: "10px",
+                      padding: "6px 12px",
+                      backgroundColor: "#ffc107",
+                      color: "#333",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    ✏️ Edit
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
