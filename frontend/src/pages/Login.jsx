@@ -50,6 +50,7 @@ const Login = () => {
 		  }
 		  // Save token and redirect
 		  localStorage.setItem("token", data.token);
+		  localStorage.setItem("userId", data.user.id);
 		  navigate("/dashboard");
 		} catch (err) {
 		  setLoginError(err.message);
