@@ -113,6 +113,45 @@ const EditListing = () => {
           Update Listing
         </button>
 
+        <button
+            type="button"
+            onClick={async () => {
+                const confirmDelete = window.confirm("Are you sure you want to delete this listing?");
+                if (!confirmDelete) return;
+
+                const token = localStorage.getItem("token");
+
+                try {
+                    const res = await fetch(`/api/listings/${id}`, {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message);
+
+                    alert("✅ Listing deleted successfully.");
+                    navigate("/dashboard");
+                } catch (err) {
+                    alert("❌ Failed to delete listing: " + err.message);
+                }
+            }}
+            style={{
+                marginTop: "10px",
+                padding: "10px",
+                width: "100%",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px"
+            }}
+        >
+            🗑️ Delete Listing
+        </button>
+
+
         {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
         {success && <p style={{ color: "green", marginTop: "10px" }}>{success}</p>}
       </form>
