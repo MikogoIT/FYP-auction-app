@@ -25,7 +25,18 @@ const Dashboard = () => {
       const fetchListings = async () => {
         try {
           const res = await fetch("/api/listings");
+          console.log("Status:", res.status)
+          const contentType = res.headers.get("content-type")
+          console.log("content-Type:", contentType)
+
+          if(!res.ok){
+            const text = await res.text();
+            console.error("Error response text:", text);
+            throw new Error("Failed to fetch listings");
+          }
+
           const data = await res.json();
+          console.log("Fetched listings:", data);
           setListings(data.listings);
         } catch (err) {
           console.error("Failed to fetch listings:", err);
