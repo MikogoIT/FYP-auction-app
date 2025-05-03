@@ -33,6 +33,7 @@ const Dashboard = () => {
 
           const data = await res.json();
           setListings(data.listings);
+          console.log("Fetched listings:", data.listings);
         } catch (err) {
           console.error("Failed to fetch listings:", err);
         } finally {

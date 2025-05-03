@@ -32,8 +32,6 @@ router.post("/listings", async (req, res) => {
       res.status(500).json({ message: "Failed to create listing" });
     }
   });
-  
-  export default router;
 
   router.get("/listings", async (req, res) => {
     try {
@@ -118,4 +116,4 @@ router.put("/listings/:id", async (req, res) => {
     }
   });
   
-  
+  export default router;

@@ -29,8 +29,6 @@ router.get("/profile", async (req, res) => {
     res.json({ user: result[0] });
   });
 
-export default router;
-
 router.put("/profile", async (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
@@ -59,3 +57,5 @@ router.put("/profile", async (req, res) => {
     res.status(500).json({ message: "Failed to update profile" });
   }
 });
+
+export default router;
