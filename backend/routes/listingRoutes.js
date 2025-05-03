@@ -95,9 +95,9 @@ router.put("/listings/:id", async (req, res) => {
       if (existing.length === 0) {
         return res.status(404).json({ message: "Listing not found" });
       }
-      if (existing[0].seller_id !== payload.userId) {
+      if (Number(existing[0].seller_id) !== Number(payload.userId)) {
         return res.status(403).json({ message: "Unauthorized to edit this listing" });
-      }
+      }      
   
       // Update product information
       await sql`
