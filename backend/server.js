@@ -22,7 +22,7 @@ const sql = neon(process.env.DATABASE_URL);
 // Serve static frontend
 app.use(express.static(path.join(__dirname, '../frontend', 'dist')));
 
-// **Enable JSON body parsing in advance**
+// Enable JSON body parsing in advance
 app.use(express.json());
 
 //listing router
