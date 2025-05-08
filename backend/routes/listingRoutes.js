@@ -150,5 +150,28 @@ router.delete("/listings/:id", async (req, res) => {
   }
 });
 
+router.get("/mylistings", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ message: "Invalid or missing token" });
+  }
+
+  try {
+    const listings = await sql`
+      SELECT id, title, description, min_bid, end_date
+      FROM auction_listings
+      WHERE seller_id = ${payload.userId}
+      ORDER BY end_date ASC
+    `;
+    res.json({ listings });
+  } catch (err) {
+    console.error("Fetch my listings error:", err);
+    res.status(500).json({ message: "Failed to fetch listings" });
+  }
+});
+
+
   
-  export default router;
+export default router;

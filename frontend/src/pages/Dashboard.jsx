@@ -93,6 +93,22 @@ const Dashboard = () => {
         >
           Logout
         </button>
+
+
+        <button
+          onClick={() => navigate("/mylistings")}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#17a2b8",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          My Listings
+        </button>
+        
       </div>
 
       <h2 style={{ textAlign: "center", marginTop: "40px" }}>
