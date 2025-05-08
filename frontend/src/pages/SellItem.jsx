@@ -23,6 +23,16 @@ const SellItem = () => {
       return;
     }
 
+    if (parseFloat(min_bid) <= 0) {
+      setError("❌ Minimum bid must be greater than 0.");
+      return;
+    }
+  
+    if (new Date(end_date) < new Date()) {
+      setError("❌ End date must be in the future.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/listings", {
         method: "POST",

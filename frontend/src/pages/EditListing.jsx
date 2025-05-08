@@ -36,6 +36,17 @@ const EditListing = () => {
 
     const token = localStorage.getItem("token");
 
+    if (parseFloat(listing.min_bid) <= 0) {
+      setError("❌ Minimum bid must be greater than 0.");
+      return;
+    }
+    
+    if (new Date(listing.end_date) < new Date()) {
+      setError("❌ End date must be in the future.");
+      return;
+    }
+    
+
     try {
       const res = await fetch(`/api/listings/${id}`, {
         method: "PUT",
