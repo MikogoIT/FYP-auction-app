@@ -2,3 +2,35 @@
 {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
+
+/* ----------------------------------------------
+
+universal page styling
+
+------------------------------------------------*/
+
+
+
+.headerBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    font-family: 'Roboto';
+    border-bottom: 1px solid darkgrey;
+    margin-bottom: 30px;
+  }
+  
+  .headerTitle {
+    margin: 0;
+  }
+  
+  .logoutIconButton {
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logoutIconButton:hover {
+    background-color: #e0e0e0;
+  }
+  

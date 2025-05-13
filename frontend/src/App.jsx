@@ -13,7 +13,6 @@ import MyListings from "./pages/MyListings";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import TestYR from "./components/YRtest";
 
 
 function App() {
@@ -39,7 +38,6 @@ function App() {
             <Route path="*" element={<Navigate to="/login" replace />} />
           )}
         </Routes>
-        <TestYR />
         <Footer />
       </Router>
     </div>

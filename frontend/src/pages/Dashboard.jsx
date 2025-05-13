@@ -80,7 +80,7 @@ const Dashboard = () => {
           Profile
         </button>
 
-        <button
+        {/* <button
           onClick={handleLogout}
           style={{
             padding: "8px 16px",
@@ -92,7 +92,7 @@ const Dashboard = () => {
           }}
         >
           Logout
-        </button>
+        </button> */}
 
 
         <button
