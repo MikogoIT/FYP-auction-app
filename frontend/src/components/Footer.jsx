@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 
 const Footer = () => {
   return (
-    <Typography variant="subtitle1"> 
+    <div className="footerCon">
         AUCTIONEER - an online auction platform with telegram integration. Final Year Project (FYP)
         <br></br>
         CSIT321 - PROJECT
@@ -16,7 +16,7 @@ const Footer = () => {
         Timothy (8750634), Saud (8576919), Shi Long (8552186), Qing Yuan (8561655), Raydon (8466385), Yang Run (7771642)
         <br></br>
         Assessor: Mr Premarajan , Supervisor: Mr Aaron Yeo 
-    </Typography>
+    </div>
   );
 };
 

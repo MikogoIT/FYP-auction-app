@@ -1,5 +1,5 @@
 # Stage 1: Final image
-FROM node:18-alpine
+FROM node:23.11.0-alpine3.21
 WORKDIR /app
 
 # Copy only the necessary backend files

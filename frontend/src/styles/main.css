@@ -21,16 +21,24 @@ universal page styling
     margin-bottom: 30px;
   }
   
-  .headerTitle {
-    margin: 0;
-  }
-  
-  .logoutIconButton {
-    background-color: #f0f0f0;
-    transition: background-color 0.3s ease;
-  }
-  
-  .logoutIconButton:hover {
-    background-color: #e0e0e0;
-  }
+.headerTitle {
+margin: 0;
+}
+
+.logoutIconButton {
+background-color: #f0f0f0;
+transition: background-color 0.3s ease;
+}
+
+.logoutIconButton:hover {
+background-color: #e0e0e0;
+}
+
+.footerCon
+{
+  font-family: 'Roboto';
+  color: grey;
+  text-align: center;
+}
+
   

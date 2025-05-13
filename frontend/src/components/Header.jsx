@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IconButton, Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import Typography from '@mui/material/Typography';
 
 const Header = () => {
   const navigate = useNavigate();
