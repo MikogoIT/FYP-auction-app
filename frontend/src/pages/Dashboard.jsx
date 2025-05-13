@@ -7,11 +7,11 @@ const Dashboard = () => {
 
     const navigate = useNavigate();
   
-    const handleLogout = () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId")
-      navigate("/login"); 
-    };
+    // const handleLogout = () => {
+    //   localStorage.removeItem("token");
+    //   localStorage.removeItem("userId")
+    //   navigate("/login"); 
+    // };
 
     const goToProfile = () => {
         navigate("/profile");

@@ -24,7 +24,7 @@ const Header = () => {
         <Tooltip title="Logout">
           <IconButton
             className="logoutIconButton"
-            onClick={() => handleLogout}
+            onClick={handleLogout}
             color="secondary"
           >
             <LogoutIcon />
