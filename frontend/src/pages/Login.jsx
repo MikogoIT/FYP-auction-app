@@ -11,7 +11,6 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Paper from "@mui/material/Paper";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 export default function Login() {
@@ -77,13 +76,13 @@ export default function Login() {
           justifyContent: "center",
         }}
       >
-        <Paper
-          elevation={3}
+        <Box
           sx={{
-            p: 4,
-            borderRadius: 3,
             width: "100%",
-            background: "linear-gradient(135deg, #eae6df 0%, #f5f0e8 100%)",
+            p: 4,
+            border: 1,
+            borderColor: "grey.300",
+            borderRadius: 2
           }}
         >
           <Box
@@ -156,7 +155,7 @@ export default function Login() {
               </Grid>
             </Box>
           </Box>
-        </Paper>
+        </Box>
       </Box>
     </Container>
   );
