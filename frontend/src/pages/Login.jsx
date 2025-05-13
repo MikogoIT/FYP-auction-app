@@ -1,124 +1,177 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
+// MUI components
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const Login = () => {
-	const [numA, setNumA] = useState("");
-	const [numB, setNumB] = useState("");
-	const [average, setAverage] = useState(null);
-	const [loading, setLoading] = useState(false);
+function Copyright(props) {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"© "}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
+}
 
+export default function Login() {
+  // — your “avg” demo state (still here, just unused) —
+  const [numA, setNumA] = useState("");
+  const [numB, setNumB] = useState("");
+  const [average, setAverage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const handleGetAverage = async () => {
+    setLoading(true);
+    setAverage(null);
+    try {
+      const res = await fetch(`/api/average?a=${numA}&b=${numB}`);
+      const data = await res.json();
+      setAverage(data.average);
+    } catch {
+      setAverage("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	const [email, setEmail] = useState("");
-  	const [password, setPassword] = useState("");
-  	const [loginLoading, setLoginLoading] = useState(false);
-  	const [loginError, setLoginError] = useState("");
+  // — your login state & handler —
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const navigate = useNavigate();
 
-	const navigate = useNavigate();
+  const handleLogin = async () => {
+    setLoginLoading(true);
+    setLoginError("");
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user.id);
+      navigate("/dashboard");
+    } catch (err) {
+      setLoginError(err.message);
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
+  const onSubmit = (e) => {
+    e.preventDefault();
+    handleLogin();
+  };
 
-	// Avg
-	const handleGetAverage = async () => {
-		setLoading(true);
-		setAverage(null);
-	
-		try {
-		  const response = await fetch(`/api/average?a=${numA}&b=${numB}`);
-		  const data = await response.json();
-		  setAverage(data.average);
-		} catch (error) {
-		  console.error("Error fetching average:", error);
-		  setAverage("Error");
-		} finally {
-		  setLoading(false);
-		}
-	  };
-
-	//-------------------TEST Login------------
-	const handleLogin = async () => {
-		setLoginLoading(true);
-		setLoginError("");
-		try {
-		  const res = await fetch("/api/login", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, password }),
-		  });
-		  const data = await res.json();
-		  if (!res.ok) {
-			throw new Error(data.message || "Login Failed");
-		  }
-		  // Save token and redirect
-		  localStorage.setItem("token", data.token);
-		  localStorage.setItem("userId", data.user.id);
-		  navigate("/dashboard");
-		} catch (err) {
-		  setLoginError(err.message);
-		} finally {
-		  setLoginLoading(false);
-		}
-	  };
-
-	//------------------Test end--------
-
-	return (
-		<div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
-		
-		{/* //-------------------TEST Login--------------------// */}
-		<h2 style={{ textAlign: "center", marginBottom: "20px" }}>User Login</h2>
-
-		<form onSubmit={ (e) => { e.preventDefault(); handleLogin(); } }>
-			{/*Email*/}
-			<div style={{ marginBottom: "12px" }}>
-				<label style={{ display: "block", marginBottom: "4px" }}>Email:</label>
-				<input
-              	 type="email"
-                 value={email}
-                 onChange={(e) => setEmail(e.target.value)}
-                 placeholder="Please enter your email address"
-                 style={{ width: "100%", marginTop: "4px" }}
-            	/>
-			</div>
-			{/*Password*/}
-			<div style={{ marginBottom: "12px" }}>
-				<label style={{ display: "block", marginBottom: "4px" }}>Password:</label>
-				<input
-              	 type="password"
-              	 value={password}
-              	 onChange={(e) => setPassword(e.target.value)}
-              	 placeholder="Please enter your password"
-              	 style={{ width: "100%", marginTop: "4px" }}
-            	/>
-			</div>
-			{/*Submit button */}
-			<button
-    			type="submit"
-    			disabled={loginLoading || !email || !password}
-    			style={{
-      				width: "100%",
-      				padding: "10px",
-      				backgroundColor: "#4CAF50",
-      				color: "white",
-      				border: "none",
-      				cursor: loginLoading ? "not-allowed" : "pointer"
-    			}}
-  			>
-				{loginLoading ? "Logging in..." : "Log in"}
-			</button>
-		</form>
-
-		{loginError && (
-          <p style={{ color: "red", marginTop: "10px", textAlign: "center" }}>
-            ❌ {loginError}
-          </p>
-        )}
-		<p style={{ marginTop: "15px", textAlign: "center" }}>
-		No account yet?<NavLink to="/register">Go to register</NavLink>
-        </p>
-
-		{/* //---------------------Test end--------------------// */}
-		</div>
-	);
-};
-
-export default Login;
+  return (
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={onSubmit}
+          noValidate
+          sx={{ mt: 1 }}
+        >
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <FormControlLabel
+            control={<Checkbox value="remember" color="primary" />}
+            label="Remember me"
+          />
+          {loginError && (
+            <Typography color="error" sx={{ mt: 1 }}>
+              {loginError}
+            </Typography>
+          )}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={loginLoading}
+            sx={{ mt: 3, mb: 2 }}
+          >
+            {loginLoading ? "Logging in…" : "Sign In"}
+          </Button>
+          <Grid container>
+            <Grid item xs>
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link
+                component={NavLink}
+                to="/register"
+                variant="body2"
+              >
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+      <Box sx={{ mt: 8, mb: 4 }}>
+        <Copyright />
+      </Box>
+    </Container>
+  );
+}
