@@ -6,32 +6,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"© "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
 
 export default function Login() {
   // — your “avg” demo state (still here, just unused) —
@@ -93,84 +74,89 @@ export default function Login() {
         sx={{
           marginTop: 8,
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={onSubmit}
-          noValidate
-          sx={{ mt: 1 }}
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            width: "100%",
+            background: "linear-gradient(135deg, #eae6df 0%, #f5f0e8 100%)",
+          }}
         >
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          {loginError && (
-            <Typography color="error" sx={{ mt: 1 }}>
-              {loginError}
-            </Typography>
-          )}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={loginLoading}
-            sx={{ mt: 3, mb: 2 }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            {loginLoading ? "Logging in…" : "Sign In"}
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link
-                component={NavLink}
-                to="/register"
-                variant="body2"
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Welcome!
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={onSubmit}
+              noValidate
+              sx={{ mt: 1 }}
+            >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {loginError && (
+                <Typography color="error" sx={{ mt: 1 }}>
+                  {loginError}
+                </Typography>
+              )}
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                disabled={loginLoading}
+                sx={{ mt: 3, mb: 2 }}
               >
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Copyright />
+                {loginLoading ? "Logging in…" : "Log In"}
+              </Button>
+              <Grid container justifyContent="center">
+                <Grid item>
+                  <Link
+                    component={NavLink}
+                    to="/register"
+                    variant="body2"
+                  >
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Paper>
       </Box>
     </Container>
   );
