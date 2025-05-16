@@ -20,3 +20,14 @@ variable "region" {
   type        = string
   default     = "ap-southeast-1"
 }
+
+
+
+resource "aws_s3_bucket" "cdn" {
+  bucket = "auctioneer-cdn"
+  force_destroy = true
+
+  tags = {
+    Name = "Auctioneer CDN"
+  }
+}
