@@ -21,6 +21,9 @@ variable "region" {
   default     = "ap-southeast-1"
 }
 
+provider "aws" {
+  region = var.region
+}
 
 
 resource "aws_s3_bucket" "cdn" {
