@@ -4,7 +4,7 @@ terraform {
     organization = "tim1" 
 
     workspaces { 
-      name = "314-workspace" 
+      name = "auctioneer-tf" 
     } 
   }
   required_providers {
