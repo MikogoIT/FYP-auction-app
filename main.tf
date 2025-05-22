@@ -65,7 +65,9 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
   template {
     containers {
       image = var.image_url
-      port = 4433
+      ports {
+        container_port = 8080
+      }
       env {
         name  = "DATABASE_URL"
         value = var.DATABASE_URL
@@ -78,11 +80,6 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         }
       }
     }
-  }
-
-  traffic {
-    percent         = 100
-    latest_revision = true
   }
 
   # ensure we've enabled the API first
