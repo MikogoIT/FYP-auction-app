@@ -31,7 +31,6 @@ terraform:
      TF_TOKEN_app_terraform_io: ${HCP_TF_TKN}
   script:
     - terraform init
-    - terraform plan
     - terraform apply -auto-approve
 
 
