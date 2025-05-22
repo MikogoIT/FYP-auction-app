@@ -15,6 +15,11 @@ terraform {
   }
 }
 
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
 variable "region" {
   description = "gcp Region"
   type        = string
@@ -27,15 +32,16 @@ variable "project_id" {
   default     = "auctioneer-460605"
 }
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
 variable "image_url" {
   description = "Docker Hub image URI"
   type        = string
   default     = "docker.io/boiledsteak/fyp-auction-app:latest"
+}
+
+variable "DATABASE_URL" {
+  description = "Connection string for NeonDB"
+  type        = string
+  sensitive   = true
 }
 
 
