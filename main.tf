@@ -59,7 +59,7 @@ resource "google_project_service" "run_api" {
 # actual cloud run definition
 #————————————————————————————————————
 resource "google_cloud_run_v2_service" "cloud_run_app" {
-  name     = auctioneer-app
+  name     = "auctioneer-app"
   location = var.region
 
   template {
