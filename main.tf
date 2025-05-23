@@ -1,101 +1,106 @@
-terraform { 
-  cloud { 
-    
-    organization = "tim1" 
+stages:
+  - build
+  - IAC
+  - deploy
 
-    workspaces { 
-      name = "auctioneer-tf" 
-    } 
-  }
-  required_providers {
-        google = {
-      source  = "hashicorp/google"
-      version = "~> 6.35"
-    }
-   
-  }
-}
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_NAME: boiledsteak/fyp-auction-app
+  GCP_REGION: asia-southeast1
+  
 
+#----------------------------------------------------------------
+# 1. Build frontend
+#----------------------------------------------------------------
+build-app:
+  stage: build
+  image: node:23.11.0-alpine3.21
+  script:
+    - npm install --prefix frontend
+    - npm run build --prefix frontend
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 hour
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
+#----------------------------------------------------------------
+# 2. Terraform
+#----------------------------------------------------------------
+terraform:
+  stage: IAC
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: ["/bin/sh","-c"]
+  variables:
+    TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
+  script:
+    - terraform init
+    - terraform apply -auto-approve
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
-variable "region" {
-  description = "gcp Region"
-  type        = string
-  default     = "asia-southeast1"
-}
+#----------------------------------------------------------------
+# 3. Build & Deploy to GCP Cloud Run / Dockerhub via GCP OIDC
+#----------------------------------------------------------------
+deploy:
+  stage: deploy
+  image: google/cloud-sdk:slim
+  services:
+    - docker:dind
 
-variable "project_id" {
-  description = "Your GCP project ID"
-  type        = string
-  default     = "auctioneer-460605"
-}
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
 
-variable "image_url" {
-  description = "Docker Hub image URI"
-  type        = string
-  default     = "docker.io/boiledsteak/fyp-auction-app:latest"
-}
+  # 1️⃣ ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      audience: "${GCP_WORKLOAD_PROVIDER_NAME}"
 
-variable "DATABASE_URL" {
-  description = "Connection string for NeonDB"
-  type        = string
-  sensitive   = true
-}
+  before_script:
+    # 2️⃣ build & push to Docker Hub
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:latest
 
+    # 3️⃣ install jq for JSON parsing
+    - apt-get update -qq && apt-get install -y jq
 
+    # 4️⃣ exchange the OIDC token for a federated GCP access token
+    - |
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d '{
+          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+          "scope":"https://www.googleapis.com/auth/cloud-platform",
+          "audience":"'"$GCP_WORKLOAD_PROVIDER_NAME"'"
+        }' | jq -r .access_token)
 
-#————————————————————————————————————
-# Enable the Cloud Run API
-#————————————————————————————————————
-resource "google_project_service" "run_api" {
-  service = "run.googleapis.com"
-  project = var.project_id
-  disable_on_destroy = false
-}
+    # 5️⃣ impersonate your GCP service account
+    - |
+      ACCESS_TOKEN=$(curl -s -X POST \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -H "Authorization: Bearer $FED_TOKEN" \
+        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+        | jq -r .accessToken)
 
-#————————————————————————————————————
-# actual cloud run definition
-#————————————————————————————————————
-resource "google_cloud_run_v2_service" "cloud_run_app" {
-  name     = "auctioneer-app"
-  location = var.region
+    # 6️⃣ configure gcloud to use that token
+    - echo "$ACCESS_TOKEN" | gcloud auth activate-service-account --key-file=/dev/null --brief --access-token=-
+    - gcloud config set project "$GCP_PROJECT_ID"
+    - gcloud config set run/region "$GCP_REGION"
+    - gcloud config set run/platform managed
 
-  template {
-    containers {
-      image = var.image_url
-      ports {
-        container_port = 8080
-      }
-      env {
-        name  = "DATABASE_URL"
-        value = var.DATABASE_URL
-      }
+  script:
+    # 7️⃣ tell Cloud Run to pull and deploy the new :latest image
+    - gcloud run deploy "$CLOUD_RUN_SERVICE" \
+        --image "docker.io/${IMAGE_NAME}:latest" \
+        --allow-unauthenticated
 
-      resources {
-        limits = {
-          cpu    = "1"      # 1 vCPU
-          memory = "512Mi"  # 512 MiB RAM
-        }
-      }
-    }
-  }
-
-  # ensure we've enabled the API first
-  depends_on = [google_project_service.run_api]
-}
-
-
-
-#————————————————————————————————————
-# allow public access to website
-#————————————————————————————————————
-resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
-  location = google_cloud_run_v2_service.cloud_run_app.location
-  name     = google_cloud_run_v2_service.cloud_run_app.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
