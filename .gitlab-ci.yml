@@ -7,7 +7,7 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: boiledsteak/fyp-auction-app
   GCP_REGION: asia-southeast1
-  CLOUD_RUN_SERVICE: "auctioneer-app"
+  CLOUD_RUN_SERVICE: auctioneer-app
   
 
 #----------------------------------------------------------------
