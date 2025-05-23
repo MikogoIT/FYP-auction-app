@@ -156,10 +156,10 @@ resource "cloudflare_dns_record" "auctioneer_CNAME_record" {
   name    = split(".", var.custom_domain)[0]
 
   # GCP tells us the record type (usually "CNAME") here:
-  type    = google_cloud_run_domain_mapping.custom.status[0].resource_records[0].type
+  type    = google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0].type
 
   # and the actual host target (e.g. "ghs.googlehosted.com.")
-  content = google_cloud_run_domain_mapping.custom.status[0].resource_records[0].rrdata
+  content = google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0].rrdata
 
   ttl     = 3600
   proxied = false
