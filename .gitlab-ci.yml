@@ -61,6 +61,8 @@ deploy:
 
   before_script:
     # 2️⃣ build & push to Docker Hub
+    - export DOCKER_BUILDKIT=1
+    - export DOCKER_CLI_EXPERIMENTAL=enabled
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker build -t $IMAGE_NAME:latest .
     - docker push $IMAGE_NAME:latest
@@ -103,9 +105,7 @@ deploy:
 
   script:
     # 7️⃣ tell Cloud Run to pull and deploy the new :latest image
-    - gcloud run deploy "$CLOUD_RUN_SERVICE" \
-        --image "docker.io/${IMAGE_NAME}:latest" \
-        --allow-unauthenticated
+    - gcloud run deploy "$CLOUD_RUN_SERVICE" --image="docker.io/${IMAGE_NAME}:latest" --allow-unauthenticated
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
