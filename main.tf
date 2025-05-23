@@ -142,11 +142,10 @@ resource "google_site_verification_web_resource" "verify_auctioneer_domain" {
   depends_on = [google_project_service.site_verification_api]
 
   site {
-    type       = "SITE"
+    type       = "INET_DOMAIN"
     identifier = var.custom_domain
   }
 
-  # Use DNS‐TXT method; Google will expect you to publish a TXT record.
   verification_method = "DNS_TXT"
 }
 
