@@ -150,7 +150,7 @@ output "gcp_dns_records" {
 
 # Create the CNAME in Cloudflare for you
 resource "cloudflare_dns_record" "auctioneer_CNAME_record" {
-  zone_id = var.cf-zone
+  zone_id = var.cf_zone
 
   # strip off the "auctioneer" label from "auctioneer.timothy-mah.com"
   name    = split(".", var.custom_domain)[0]
