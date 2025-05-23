@@ -6,15 +6,18 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: boiledsteak/fyp-auction-app
+  GCP_REGION: asia-southeast1
+  
 
-# Build Stage: Build the frontend using Node.js
+#----------------------------------------------------------------
+# 1. Build frontend
+#----------------------------------------------------------------
 build-app:
   stage: build
   image: node:23.11.0-alpine3.21
   script:
     - npm install --prefix frontend
     - npm run build --prefix frontend
-    - ls -la frontend/dist
   artifacts:
     paths:
       - frontend/dist
@@ -22,27 +25,82 @@ build-app:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
+#----------------------------------------------------------------
+# 2. Terraform
+#----------------------------------------------------------------
 terraform:
   stage: IAC
   image:
     name: hashicorp/terraform:latest
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/sh","-c"]
   variables:
-     TF_TOKEN_app_terraform_io: ${HCP_TF_TKN}
+    TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
   script:
     - terraform init
     - terraform apply -auto-approve
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
-
+#----------------------------------------------------------------
+# 3. Build & Deploy to GCP Cloud Run / Dockerhub via GCP OIDC
+#----------------------------------------------------------------
 deploy:
   stage: deploy
-  image: docker:24
+  image: google/cloud-sdk:slim
   services:
     - docker:dind
+
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+
+  # 1️⃣ ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      audience: "${GCP_WORKLOAD_PROVIDER_NAME}"
+
   before_script:
+    # 2️⃣ build & push to Docker Hub
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  script:
     - docker build -t $IMAGE_NAME:latest .
     - docker push $IMAGE_NAME:latest
+
+    # 3️⃣ install jq for JSON parsing
+    - apt-get update -qq && apt-get install -y jq
+
+    # 4️⃣ exchange the OIDC token for a federated GCP access token
+    - |
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d '{
+          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+          "scope":"https://www.googleapis.com/auth/cloud-platform",
+          "audience":"'"$GCP_WORKLOAD_PROVIDER_NAME"'"
+        }' | jq -r .access_token)
+
+    # 5️⃣ impersonate your GCP service account
+    - |
+      ACCESS_TOKEN=$(curl -s -X POST \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -H "Authorization: Bearer $FED_TOKEN" \
+        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+        | jq -r .accessToken)
+
+    # 6️⃣ configure gcloud to use that token
+    - echo "$ACCESS_TOKEN" | gcloud auth activate-service-account --key-file=/dev/null --brief --access-token=-
+    - gcloud config set project "$GCP_PROJECT_ID"
+    - gcloud config set run/region "$GCP_REGION"
+    - gcloud config set run/platform managed
+
+  script:
+    # 7️⃣ tell Cloud Run to pull and deploy the new :latest image
+    - gcloud run deploy "$CLOUD_RUN_SERVICE" \
+        --image "docker.io/${IMAGE_NAME}:latest" \
+        --allow-unauthenticated
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
