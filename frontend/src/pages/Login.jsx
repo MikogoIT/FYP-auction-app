@@ -144,13 +144,12 @@ export default function Login() {
               </Button>
               <Grid container justifyContent="center">
                 <Grid item>
-                  <Link
-                    component={NavLink}
-                    to="/register"
-                    variant="body2"
-                  >
-                    {"Don't have an account? Sign Up"}
-                  </Link>
+                  <Typography variant="body2">
+                    Don't have an account?{" "}
+                    <Link component={NavLink} to="/register" underline="none">
+                      Sign Up
+                    </Link>
+                  </Typography>
                 </Grid>
               </Grid>
             </Box>

@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 6.35"
     }
+        cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.5.0"
+    }
    
   }
 }
@@ -21,6 +25,7 @@ provider "google" {
   project = var.project_id
   region  = var.region
 }
+
 
 variable "region" {
   description = "gcp Region"
