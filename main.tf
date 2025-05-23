@@ -39,6 +39,13 @@ variable "project_id" {
   default     = "auctioneer-460605"
 }
 
+variable "cf_zone" {
+  description = "my cloudflare zone ID for timothy-mah.com"
+  type        = string
+  default     = "9437947d39eb903fb917bf7620872267"
+}
+
+
 variable "image_url" {
   description = "Docker Hub image URI"
   type        = string
@@ -50,6 +57,14 @@ variable "DATABASE_URL" {
   type        = string
   sensitive   = true
 }
+
+variable "custom_domain" {
+  description = "Custom domain to map to Cloud Run"
+  type        = string
+  default     = "auctioneer.timothy-mah.com"
+}
+
+
 
 
 
@@ -103,4 +118,48 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   name     = google_cloud_run_v2_service.cloud_run_app.name
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+
+
+#————————————————————————————————————
+# use cloudflare custom domain
+#————————————————————————————————————
+
+# Map your custom domain in GCP
+resource "google_cloud_run_domain_mapping" "cloud_run_custom_domain_mapping" {
+  location = var.region
+  name     = var.custom_domain
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.cloud_run_app.name
+  }
+
+  depends_on = [google_cloud_run_v2_service.cloud_run_app]
+}
+
+# Show you the DNS records to create (name, type, value)
+output "gcp_dns_records" {
+  description = "DNS records needed for your custom domain"
+  value       = google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records
+}
+
+# Create the CNAME in Cloudflare for you
+resource "cloudflare_record" "auctioneer_CNAME_record" {
+  zone_id = var.cf-zone
+  name    = split(".", var.custom_domain)[0]
+  type    = lookup(
+    google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0],
+    "type"
+  )
+  value   = lookup(
+    google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0],
+    "rrdata"
+  )
+  ttl     = 3600
+  proxied = false
 }
