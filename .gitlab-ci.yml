@@ -57,7 +57,7 @@ deploy:
   # 1️⃣ ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
   id_tokens:
     GITLAB_OIDC_TOKEN:
-      audience: "${GCP_WORKLOAD_PROVIDER_NAME}"
+      aud: "${GCP_WORKLOAD_PROVIDER_NAME}"
 
   before_script:
     # 2️⃣ build & push to Docker Hub
