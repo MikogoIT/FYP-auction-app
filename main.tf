@@ -149,17 +149,18 @@ output "gcp_dns_records" {
 }
 
 # Create the CNAME in Cloudflare for you
-resource "cloudflare_record" "auctioneer_CNAME_record" {
+resource "cloudflare_dns_record" "auctioneer_CNAME_record" {
   zone_id = var.cf-zone
+
+  # strip off the "auctioneer" label from "auctioneer.timothy-mah.com"
   name    = split(".", var.custom_domain)[0]
-  type    = lookup(
-    google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0],
-    "type"
-  )
-  value   = lookup(
-    google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records[0],
-    "rrdata"
-  )
+
+  # GCP tells us the record type (usually "CNAME") here:
+  type    = google_cloud_run_domain_mapping.custom.status[0].resource_records[0].type
+
+  # and the actual host target (e.g. "ghs.googlehosted.com.")
+  content = google_cloud_run_domain_mapping.custom.status[0].resource_records[0].rrdata
+
   ttl     = 3600
   proxied = false
 }
