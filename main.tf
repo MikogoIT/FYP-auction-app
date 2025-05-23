@@ -126,6 +126,37 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
 # use cloudflare custom domain
 #————————————————————————————————————
 
+
+# Enable the Site Verification API in GCP
+resource "google_project_service" "site_verification_api" {
+  project = var.project_id
+  service = "siteverification.googleapis.com"
+}
+
+# Request ownership verification for your custom domain
+resource "google_site_verification_web_resource" "verify_auctioneer_domain" {
+  depends_on = [google_project_service.site_verification_api]
+
+  site {
+    type       = "SITE"
+    identifier = var.custom_domain
+  }
+
+  # Use DNS‐TXT method; Google will expect you to publish a TXT record.
+  verification_method = "DNS_TXT"
+}
+
+
+#  Publish the TXT token into Cloudflare DNS
+resource "cloudflare_dns_record" "auctioneer_verification" {
+  zone_id = var.cf_zone
+  name    = split(".", var.custom_domain)[0]
+  type    = "TXT"
+  content = "google-site-verification=${google_site_verification_web_resource.verify_auctioneer_domain.id}"
+  ttl     = 300
+  proxied = false
+}
+
 # Map your custom domain in GCP
 resource "google_cloud_run_domain_mapping" "cloud_run_custom_domain_mapping" {
   location = var.region
@@ -139,7 +170,11 @@ resource "google_cloud_run_domain_mapping" "cloud_run_custom_domain_mapping" {
     route_name = google_cloud_run_v2_service.cloud_run_app.name
   }
 
-  depends_on = [google_cloud_run_v2_service.cloud_run_app]
+  depends_on = [
+    google_cloud_run_v2_service.cloud_run_app,
+    google_site_verification_web_resource.verify_auctioneer_domain,
+    cloudflare_dns_record.auctioneer_verification,
+  ]
 }
 
 # Show you the DNS records to create (name, type, value)
@@ -147,6 +182,7 @@ output "gcp_dns_records" {
   description = "DNS records needed for your custom domain"
   value       = google_cloud_run_domain_mapping.cloud_run_custom_domain_mapping.status[0].resource_records
 }
+
 
 # Create the CNAME in Cloudflare for you
 resource "cloudflare_dns_record" "auctioneer_CNAME_record" {
