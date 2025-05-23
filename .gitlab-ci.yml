@@ -57,7 +57,7 @@ deploy:
   # 1️⃣ ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
   id_tokens:
     GITLAB_OIDC_TOKEN:
-      aud: "${GCP_WORKLOAD_PROVIDER_NAME}"
+      aud: "https://gitlab.com"
 
   before_script:
     # 2️⃣ build & push to Docker Hub
@@ -78,8 +78,9 @@ deploy:
           "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
           "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
           "scope":"https://www.googleapis.com/auth/cloud-platform",
-          "audience":"'"$GCP_WORKLOAD_PROVIDER_NAME"'"
+          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
         }' | jq -r .access_token)
+
 
     # 5️⃣ impersonate your GCP service account
     - |
@@ -91,10 +92,14 @@ deploy:
         | jq -r .accessToken)
 
     # 6️⃣ configure gcloud to use that token
-    - echo "$ACCESS_TOKEN" | gcloud auth activate-service-account --key-file=/dev/null --brief --access-token=-
+    # 1) Export the token so gcloud uses it automatically
+    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+
+    # 2) Configure your project & region
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
     - gcloud config set run/platform managed
+
 
   script:
     # 7️⃣ tell Cloud Run to pull and deploy the new :latest image
