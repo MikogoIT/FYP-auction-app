@@ -65,10 +65,6 @@ export async function registerUser(req, res) {
 
   // Check if the mailbox already exists
   try {
-    if (existingUsername.length > 0) {
-      return res.status(409).json({ message: "Username already exists, please change it" });
-    }
-    
     const existing = await sql`
       SELECT id FROM users WHERE email = ${email}
     `;
@@ -80,7 +76,9 @@ export async function registerUser(req, res) {
     const existingUsername = await sql`
       SELECT id FROM users WHERE username = ${username}
     `;
-    
+    if (existingUsername.length > 0) {
+      return res.status(409).json({ message: "Username already exists, please change it" });
+    }
 
     const passwordHash = hashPassword(password);
 

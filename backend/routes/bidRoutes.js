@@ -4,7 +4,7 @@ import { verifyToken } from "../utils/token.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/auction", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   const payload = verifyToken(token);
 
@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
       VALUES (${payload.userId}, ${auction_id}, ${bid_amount})
       RETURNING *
     `;
-    
+
     res.status(201).json({ bid: result[0] });
 
 
