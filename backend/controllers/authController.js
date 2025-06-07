@@ -51,12 +51,33 @@ export async function registerUser(req, res) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  // Email format verification 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "The email format is incorrect, please try again" });
+  }
+
+  // Phone number format validation (8 digits)
+  const phoneRegex = /^\d{8}$/;
+  if (!phoneRegex.test(phone_number)) {
+    return res.status(400).json({ message: "Phone number must be 8 digits" });
+  }
+
+  // Check if the mailbox already exists
   try {
     const existing = await sql`
       SELECT id FROM users WHERE email = ${email}
     `;
     if (existing.length > 0) {
       return res.status(409).json({ message: "Email already registered" });
+    }
+    
+    // Check if the username already exists
+    const existingUsername = await sql`
+      SELECT id FROM users WHERE username = ${username}
+    `;
+    if (existingUsername.length > 0) {
+      return res.status(409).json({ message: "Username already exists, please change it" });
     }
 
     const passwordHash = hashPassword(password);
