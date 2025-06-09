@@ -149,6 +149,11 @@ resource "google_storage_bucket_iam_member" "cloud_run_can_upload" {
   member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
+resource "google_storage_bucket_iam_member" "public_read_access" {
+  bucket = google_storage_bucket.upl_dp_img_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
 
 resource "google_project_service" "storage_api" {
   project = var.project_id
