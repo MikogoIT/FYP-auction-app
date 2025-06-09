@@ -31,6 +31,11 @@ provider "google" {
 }
 
 
+variable "image_url" {
+  description = "Docker image with tag"
+  type        = string
+}
+
 variable "region" {
   description = "gcp Region"
   type        = string
@@ -51,13 +56,6 @@ variable "cf_zone" {
   description = "my cloudflare zone ID for timothy-mah.com"
   type        = string
   default     = "9437947d39eb903fb917bf7620872267"
-}
-
-
-variable "image_url" {
-  description = "Docker Hub image URI"
-  type        = string
-  default     = "docker.io/boiledsteak/fyp-auction-app:latest"
 }
 
 variable "DATABASE_URL" {

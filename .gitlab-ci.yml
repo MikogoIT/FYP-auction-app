@@ -1,14 +1,12 @@
 stages:
   - build
-  - IAC
-  - deploy
+  - deploy      
 
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: boiledsteak/fyp-auction-app
   GCP_REGION: asia-southeast1
   CLOUD_RUN_SERVICE: auctioneer-app
-  
 
 #----------------------------------------------------------------
 # 1. Build frontend
@@ -27,84 +25,43 @@ build-app:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 #----------------------------------------------------------------
-# 2. Terraform
+# 2. Docker push BEFORE Terraform
+#----------------------------------------------------------------
+docker-push:
+  stage: deploy
+  image: docker:24.0.5
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # 🔑 Use Git commit hash as version tag
+    - TAG=$CI_COMMIT_SHORT_SHA
+
+    # 🐳 Build and tag image
+    - docker build --no-cache -t $IMAGE_NAME:$TAG .
+
+    # 🛳️ Push the versioned image
+    - docker push $IMAGE_NAME:$TAG
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+#----------------------------------------------------------------
+# 3. Terraform now runs AFTER Docker image is pushed
 #----------------------------------------------------------------
 terraform:
-  stage: IAC
+  stage: deploy
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
+    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"  # 👈 pass tag into terraform
   script:
     - terraform init
-    - terraform apply -auto-approve
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-#----------------------------------------------------------------
-# 3. Build & Deploy to GCP Cloud Run / Dockerhub via GCP OIDC
-#----------------------------------------------------------------
-deploy:
-  stage: deploy
-  image: google/cloud-sdk:slim
-  services:
-    - docker:dind
-
-  variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-
-  # 1️⃣ ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
-  id_tokens:
-    GITLAB_OIDC_TOKEN:
-      aud: "https://gitlab.com"
-
-  before_script:
-    # 2️⃣ build & push to Docker Hub
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker build --no-cache -t $IMAGE_NAME:latest .
-    - docker push $IMAGE_NAME:latest
-
-    # 3️⃣ install jq for JSON parsing
-    - apt-get update -qq && apt-get install -y jq
-
-    # 4️⃣ exchange the OIDC token for a federated GCP access token
-    - |
-      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -d '{
-          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
-          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
-          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
-          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
-          "scope":"https://www.googleapis.com/auth/cloud-platform",
-          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
-        }' | jq -r .access_token)
-
-
-    # 5️⃣ impersonate your GCP service account
-    - |
-      ACCESS_TOKEN=$(curl -s -X POST \
-        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -H "Authorization: Bearer $FED_TOKEN" \
-        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
-        | jq -r .accessToken)
-
-    # 6️⃣ configure gcloud to use that token
-    # 1) Export the token so gcloud uses it automatically
-    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
-
-    # 2) Configure your project & region
-    - gcloud config set project "$GCP_PROJECT_ID"
-    - gcloud config set run/region "$GCP_REGION"
-    - gcloud config set run/platform managed
-
-
-  script:
-    # 7️⃣ tell Cloud Run to pull and deploy the new :latest image
-    - gcloud run deploy "$CLOUD_RUN_SERVICE" --image="docker.io/${IMAGE_NAME}:latest" --allow-unauthenticated
-
+    - terraform apply -auto-approve -var="image_url=docker.io/$IMAGE_NAME:$IMAGE_TAG"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
