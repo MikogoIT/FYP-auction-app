@@ -10,6 +10,7 @@ import SellItem from "./pages/SellItem";
 import EditListing from "./pages/EditListing";
 import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
+import ImageUploadPage from "./pages/upl";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -33,6 +34,8 @@ function App() {
           <Route path="/edit/:id" element={<EditListing />} />
           <Route path="/bid/:id" element={<BidPage />} />
           <Route path="/mylistings" element={<MyListings />} />
+          <Route path="/uploadImgTest" element={<ImageUploadPage />} />
+
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/login" replace />} />

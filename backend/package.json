@@ -10,7 +10,9 @@
     "dependencies": {
       "express": "^5.1.0",
       "path": "^0.12.7",
-      "@neondatabase/serverless":"^1.0.0"
+      "@neondatabase/serverless":"^1.0.0",
+      "multer": "^2.0.1",
+      "@google-cloud/storage": "^7.16.0"
     },
     "devDependencies": {
       "nodemon": "^3.1.9"

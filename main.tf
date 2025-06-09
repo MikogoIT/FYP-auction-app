@@ -43,6 +43,10 @@ variable "project_id" {
   default     = "auctioneer-460605"
 }
 
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 variable "cf_zone" {
   description = "my cloudflare zone ID for timothy-mah.com"
   type        = string
@@ -130,3 +134,42 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
 # use cloudflare custom domain
 #————————————————————————————————————
 # doesnt work... had to do manually
+
+
+
+
+#————————————————————————————————————
+# google cloud storage (GCS) stuff
+#————————————————————————————————————
+
+
+# Grant storage access to the Cloud Run service account
+resource "google_storage_bucket_iam_member" "cloud_run_can_upload" {
+  bucket = google_storage_bucket.upl_dp_img_bucket.name
+  role   = "roles/storage.objectAdmin"
+
+  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+
+resource "google_project_service" "storage_api" {
+  project = var.project_id
+  service = "storage.googleapis.com"
+}
+
+resource "google_storage_bucket" "upl_dp_img_bucket" {
+  name     = "auctioneer-dp-images"
+  location = google_cloud_run_v2_service.cloud_run_app.location
+  uniform_bucket_level_access = true
+
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 30
+    }
+  }
+
+  force_destroy = true
+}
