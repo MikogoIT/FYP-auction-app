@@ -54,6 +54,8 @@ docker-push:
 #----------------------------------------------------------------
 terraform:
   stage: deploy
+  needs:
+    - job: docker-push   # 👈 Enforce sequential order
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
