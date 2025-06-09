@@ -13,16 +13,34 @@ export default function ImageUploadPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("/api/getDP"); // Assumes your API returns { profile_image_url: "..." }
+        const token = localStorage.getItem("token");
+  
+        const res = await fetch("/api/getDP", {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ add auth header
+          },
+        });
+  
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server did not return JSON");
+        }
+  
         const data = await res.json();
+  
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to fetch profile image");
+        }
+  
         setCurrentProfileUrl(data.profile_image_url || null);
       } catch (err) {
-        console.error("Failed to fetch user profile", err);
+        console.error("Failed to fetch user profile image", err);
       }
     };
-
+  
     fetchProfile();
   }, []);
+  
 
   const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -49,29 +67,40 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
     setPreviewUrl(URL.createObjectURL(file));
     };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("image", selectedFile);
-
-    try {
-      const res = await fetch("/api/uploadDpImgTest", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      setUploadedUrl(data.imageUrl);
-      setCurrentProfileUrl(data.imageUrl); // update live
-    } catch (err) {
-      console.error("Upload failed", err);
-      alert("Upload failed!");
-    } finally {
-      setUploading(false);
-    }
-  };
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+      
+        setUploading(true);
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+      
+        const token = localStorage.getItem("token"); // ✅ get JWT from local storage
+      
+        try {
+          const res = await fetch("/api/uploadDpImgTest", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ attach JWT like your profile page
+            },
+            body: formData,
+          });
+      
+          const data = await res.json();
+      
+          if (!res.ok) {
+            throw new Error(data.message || "Upload failed");
+          }
+      
+          setUploadedUrl(data.imageUrl);
+          setCurrentProfileUrl(data.imageUrl); // update avatar
+        } catch (err) {
+          console.error("Upload failed", err);
+          alert("Upload failed: " + err.message);
+        } finally {
+          setUploading(false);
+        }
+      };
+      
 
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "auto" }}>
