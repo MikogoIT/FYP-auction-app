@@ -45,7 +45,7 @@ app.get("/api/version", async (req, res) => {
 //--=============-TEST display photo image upload-=============-//
 
 // TEST - get the display photo URL
-router.get("/api/getDP", async (req, res) => {
+app.get("/api/getDP", async (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
 
@@ -102,7 +102,7 @@ const upload = multer({
   },
 });
 
-router.post("/api/uploadDpImgTest", upload.single("image"), async (req, res) => {
+app.post("/api/uploadDpImgTest", upload.single("image"), async (req, res) => {
   try {
     // ✅ Verify token
     const authHeader = req.headers.authorization;
