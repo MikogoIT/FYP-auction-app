@@ -135,7 +135,6 @@ app.post("/api/uploadDpImgTest", upload.single("image"), async (req, res) => {
     });
 
     stream.on("finish", async () => {
-      await file.makePublic();
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
 
       try {
