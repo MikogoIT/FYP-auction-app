@@ -140,26 +140,13 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
 # google cloud storage (GCS) stuff
 #————————————————————————————————————
 
-
-# Grant storage access to the Cloud Run service account
-resource "google_storage_bucket_iam_member" "cloud_run_can_upload" {
-  bucket = google_storage_bucket.upl_dp_img_bucket.name
-  role   = "roles/storage.objectAdmin"
-
-  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-}
-
-resource "google_storage_bucket_iam_member" "public_read_access" {
-  bucket = google_storage_bucket.upl_dp_img_bucket.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
-}
-
+# Enable the Storage API
 resource "google_project_service" "storage_api" {
   project = var.project_id
   service = "storage.googleapis.com"
 }
 
+# 1️⃣ User-uploaded display photo bucket
 resource "google_storage_bucket" "upl_dp_img_bucket" {
   name     = "auctioneer-dp-images"
   location = google_cloud_run_v2_service.cloud_run_app.location
@@ -175,4 +162,31 @@ resource "google_storage_bucket" "upl_dp_img_bucket" {
   }
 
   force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "cloud_run_can_upload" {
+  bucket = google_storage_bucket.upl_dp_img_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_storage_bucket_iam_member" "public_read_access" {
+  bucket = google_storage_bucket.upl_dp_img_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
+
+# 2️⃣ Developer static asset bucket (for /images folder)
+resource "google_storage_bucket" "dev_static_images_bucket" {
+  name     = "auctioneer-static-assets"
+  location = google_cloud_run_v2_service.cloud_run_app.location
+  uniform_bucket_level_access = true
+
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "dev_assets_public_read" {
+  bucket = google_storage_bucket.dev_static_images_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
 }

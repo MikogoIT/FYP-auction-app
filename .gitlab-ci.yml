@@ -1,12 +1,13 @@
 stages:
   - build
-  - deploy      
+  - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: boiledsteak/fyp-auction-app
   GCP_REGION: asia-southeast1
   CLOUD_RUN_SERVICE: auctioneer-app
+  GCS_DEV_BUCKET_NAME: auctioneer-static-assets
 
 #----------------------------------------------------------------
 # 1. Build frontend
@@ -21,7 +22,6 @@ build-app:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  
 
 #----------------------------------------------------------------
 # 2. Docker push BEFORE Terraform
@@ -37,37 +37,76 @@ docker-push:
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-    # 🏷 Determine tag: use commit hash for main, branch name for others
+    # 🏷 Determine tag
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         TAG=$CI_COMMIT_SHORT_SHA
       else
-        # Sanitize branch name for Docker tag
         TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
       fi
       echo "Using tag: $TAG"
 
-    # 🐳 Build and tag image
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
-
-    # 🛳️ Push the image
     - docker push $IMAGE_NAME:$TAG
-
-
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
 
 #----------------------------------------------------------------
-# 3. Terraform now runs AFTER Docker image is pushed
+# 3. Upload images folder to GCS
+#----------------------------------------------------------------
+upload-images-to-gcs:
+  stage: deploy
+  image: google/cloud-sdk:slim
+  needs:
+    - job: docker-push
+  before_script:
+    - apt-get update && apt-get install -y jq
+
+    # Request GitLab OIDC token
+    - |
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d '{
+          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+          "scope":"https://www.googleapis.com/auth/cloud-platform",
+          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
+        }' | jq -r .access_token)
+
+    # Get access token for SA
+    - |
+      ACCESS_TOKEN=$(curl -s -X POST \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -H "Authorization: Bearer $FED_TOKEN" \
+        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+        | jq -r .accessToken)
+
+    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+    - gcloud config set project "$GCP_PROJECT_ID"
+
+  script:
+    - echo "Uploading images/ folder to GCS"
+    - gsutil -m cp -r images/* gs://$GCS_DEV_BUCKET_NAME/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+#----------------------------------------------------------------
+# 4. Terraform
 #----------------------------------------------------------------
 terraform:
   stage: deploy
   needs:
-    - job: docker-push   # 👈 Enforce sequential order
+    - job: docker-push
+    - job: upload-images-to-gcs
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
-    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"  # 👈 pass tag into terraform
+    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   script:
     - terraform init
     - terraform apply -auto-approve -var="image_url=docker.io/$IMAGE_NAME:$IMAGE_TAG"
