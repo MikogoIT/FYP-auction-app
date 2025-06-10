@@ -20,26 +20,24 @@ build-app:
   script:
     - npm install --prefix frontend
     - npm run build --prefix frontend
+    - echo "BUILD_EXECUTED=true" >> build.env
   artifacts:
     paths:
       - frontend/dist
+    reports:
+      dotenv: build.env
     expire_in: 1 hour
-  # rules:
-  #   - changes:
-  #       - backend
-  #       - frontend
+  rules:
+    - changes:
+        - backend/**
+        - frontend/**
 
 #----------------------------------------------------------------
-#  Docker push BEFORE Terraform
+# Docker push BEFORE Terraform
 #----------------------------------------------------------------
 docker-push:
   stage: deploy 1
   image: docker:24.0.5
- 
-  artifacts:
-    paths:
-      - docker-flag
-   
   services:
     - docker:dind
   variables:
@@ -47,8 +45,6 @@ docker-push:
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-    # 🏷 Determine tag
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         TAG=$CI_COMMIT_SHORT_SHA
@@ -59,12 +55,18 @@ docker-push:
 
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
-  
+    - echo "DOCKER_PUSH_EXECUTED=true" >> docker.env
 
+  artifacts:
+    reports:
+      dotenv: docker.env
 
+  rules:
+    - if: '$BUILD_EXECUTED == "true"'
+    - when: never
 
 #----------------------------------------------------------------
-#  Terraform
+# Terraform
 #----------------------------------------------------------------
 terraform:
   stage: deploy 2   
@@ -77,25 +79,27 @@ terraform:
   script:
     - terraform init
     - terraform apply -auto-approve -var="image_url=docker.io/$IMAGE_NAME:$IMAGE_TAG"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - echo "TERRAFORM_EXECUTED=true" >> terraform.env
+  artifacts:
+    reports:
+      dotenv: terraform.env
 
+  rules:
+    - if: '$DOCKER_PUSH_EXECUTED == "true" && $CI_COMMIT_BRANCH == "main"'
+    - when: never
 
 #----------------------------------------------------------------
-#  Upload images folder to GCS
+# Upload images folder to GCS
 #----------------------------------------------------------------
 upload-images-to-gcs:
   stage: deploy 3
   image: google/cloud-sdk:slim
-  #  ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
   id_tokens:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
 
   before_script:
     - apt-get update && apt-get install -y jq
-
-     #  exchange the OIDC token for a federated GCP access token
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
@@ -108,8 +112,6 @@ upload-images-to-gcs:
           "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
         }' | jq -r .access_token)
 
-
-    #  impersonate your GCP service account
     - |
       ACCESS_TOKEN=$(curl -s -X POST \
         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
@@ -118,20 +120,17 @@ upload-images-to-gcs:
         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
         | jq -r .accessToken)
 
-    #  configure gcloud to use that token
-    # -- 1) Export the token so gcloud uses it automatically
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
-
-    # -- 2) Configure your project & region
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
     - gcloud config set run/platform managed
 
-
   script:
     - echo "Uploading images/ folder to GCS"
     - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
+    - echo "Removing files from images folder"
+    - find images/ -type f -delete
+
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-    changes:                            # AND something under images/ changed
-      - images/**
+    - changes:
+        - images/**
