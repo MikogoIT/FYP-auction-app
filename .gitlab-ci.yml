@@ -132,6 +132,6 @@ upload-images-to-gcs:
     - echo "Uploading images/ folder to GCS"
     - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - changes:
-        - images
+  - if: '$CI_COMMIT_BRANCH == "main"'
+    changes:                            # AND something under images/ changed
+      - images/**
