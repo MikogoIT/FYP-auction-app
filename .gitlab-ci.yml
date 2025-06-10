@@ -1,6 +1,8 @@
 stages:
   - build
-  - deploy
+  - deploy 1
+  - deploy 2
+  - deploy 3
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -31,11 +33,14 @@ build-app:
 # 2. Docker push BEFORE Terraform
 #----------------------------------------------------------------
 docker-push:
-  stage: deploy
+  stage: deploy 1
   image: docker:24.0.5
   rules:
     - exists:
         - /frontend/dist
+  artifacts:
+    paths:
+      - docker-flag
    
   services:
     - docker:dind
@@ -62,7 +67,7 @@ docker-push:
 # 3. Upload images folder to GCS
 #----------------------------------------------------------------
 upload-images-to-gcs:
-  stage: deploy
+  stage: deploy 2
   image: google/cloud-sdk:slim
   #  ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
   id_tokens:
@@ -110,15 +115,14 @@ upload-images-to-gcs:
     - gsutil -m cp -r images/* gs://$GCS_DEV_BUCKET_NAME/
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+    - changes:
+        - images
 
 #----------------------------------------------------------------
 # 4. Terraform
 #----------------------------------------------------------------
 terraform:
-  stage: deploy
-  needs:
-    - job: docker-push
-    - job: upload-images-to-gcs
+  stage: deploy 3    
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
@@ -130,3 +134,5 @@ terraform:
     - terraform apply -auto-approve -var="image_url=docker.io/$IMAGE_NAME:$IMAGE_TAG"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+    - exists:
+        - docker-flag
