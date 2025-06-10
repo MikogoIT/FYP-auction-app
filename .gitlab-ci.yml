@@ -62,7 +62,7 @@ upload-images-to-gcs:
   before_script:
     - apt-get update && apt-get install -y jq
 
-    # Request GitLab OIDC token
+     #  exchange the OIDC token for a federated GCP access token
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
@@ -75,7 +75,8 @@ upload-images-to-gcs:
           "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
         }' | jq -r .access_token)
 
-    # Get access token for SA
+
+    #  impersonate your GCP service account
     - |
       ACCESS_TOKEN=$(curl -s -X POST \
         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
@@ -84,8 +85,15 @@ upload-images-to-gcs:
         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
         | jq -r .accessToken)
 
+    #  configure gcloud to use that token
+    # -- 1) Export the token so gcloud uses it automatically
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+
+    # -- 2) Configure your project & region
     - gcloud config set project "$GCP_PROJECT_ID"
+    - gcloud config set run/region "$GCP_REGION"
+    - gcloud config set run/platform managed
+
 
   script:
     - echo "Uploading images/ folder to GCS"
