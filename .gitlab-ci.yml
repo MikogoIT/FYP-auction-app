@@ -33,9 +33,10 @@ build-app:
 docker-push:
   stage: deploy
   image: docker:24.0.5
-  needs:
-    - job: build-app
-      optional: true
+  rules:
+    - exists:
+        - /frontend/dist
+   
   services:
     - docker:dind
   variables:
