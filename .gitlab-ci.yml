@@ -112,7 +112,7 @@ upload-images-to-gcs:
 
   script:
     - echo "Uploading images/ folder to GCS"
-    - gsutil -m cp -r images/* gs://$GCS_DEV_BUCKET_NAME/
+    - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - changes:
