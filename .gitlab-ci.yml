@@ -35,9 +35,7 @@ build-app:
 docker-push:
   stage: deploy 1
   image: docker:24.0.5
-  rules:
-    - exists:
-        - /frontend/dist
+ 
   artifacts:
     paths:
       - docker-flag
