@@ -18,7 +18,7 @@ const Header = () => {
 
   return (
     <div className="headerBar">
-      <img src={`${IMG_BASE_URL}full-logo.png`} style="width: 150px" />
+      <img src={`${IMG_BASE_URL}full-logo.png`} style={{width: '150px'}} />
       {!hideLogout && (
         <Tooltip title="Logout">
           <IconButton
