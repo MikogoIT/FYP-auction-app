@@ -1,0 +1,1 @@
+export const IMG_BASE_URL = "https://storage.googleapis.com/auctioneer-static-assets/";

@@ -1,8 +1,7 @@
-import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IconButton, Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import Typography from '@mui/material/Typography';
+import { IMG_BASE_URL } from "@src/global-vars.jsx";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const Header = () => {
 
   return (
     <div className="headerBar">
-      <h3 className="headerTitle">AUCTIONEER</h3>
+      <img src={`${IMG_BASE_URL}full-logo.png`} />
       {!hideLogout && (
         <Tooltip title="Logout">
           <IconButton
