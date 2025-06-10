@@ -24,10 +24,10 @@ build-app:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  rules:
-    - changes:
-        - backend
-        - frontend
+  # rules:
+  #   - changes:
+  #       - backend
+  #       - frontend
 
 #----------------------------------------------------------------
 #  Docker push BEFORE Terraform
