@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { IconButton, Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { IMG_BASE_URL } from "@src/global-vars.jsx";
+import { IMG_BASE_URL } from "../global-vars.jsx";
 
 const Header = () => {
   const navigate = useNavigate();
