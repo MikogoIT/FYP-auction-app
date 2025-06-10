@@ -35,6 +35,7 @@ docker-push:
   image: docker:24.0.5
   needs:
     - job: build-app
+      optional: true
   services:
     - docker:dind
   variables:
