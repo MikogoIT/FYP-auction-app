@@ -22,6 +22,10 @@ build-app:
     paths:
       - frontend/dist
     expire_in: 1 hour
+  rules:
+    - changes:
+        - backend
+        - frontend
 
 #----------------------------------------------------------------
 # 2. Docker push BEFORE Terraform
@@ -97,7 +101,7 @@ upload-images-to-gcs:
 
   script:
     - echo "Uploading images/ folder to GCS"
-    - gsutil -m cp -r images/* gs://$GCS_DEV_BUCKET_NAME/
+    # - gsutil -m cp -r images/* gs://$GCS_DEV_BUCKET_NAME/
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
