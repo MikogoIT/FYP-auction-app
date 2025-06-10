@@ -62,6 +62,11 @@ docker-push:
 upload-images-to-gcs:
   stage: deploy
   image: google/cloud-sdk:slim
+  #  ask GitLab for an OIDC ID token, audience = your Workload Identity Provider
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: "https://gitlab.com"
+
   before_script:
     - apt-get update && apt-get install -y jq
 
