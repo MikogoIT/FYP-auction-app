@@ -46,8 +46,6 @@ docker-push:
     # 🛳️ Push the versioned image
     - docker push $IMAGE_NAME:$TAG
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
 
 #----------------------------------------------------------------
 # 3. Terraform now runs AFTER Docker image is pushed
