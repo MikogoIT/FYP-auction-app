@@ -36,14 +36,23 @@ docker-push:
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    # 🔑 Use Git commit hash as version tag
-    - TAG=$CI_COMMIT_SHORT_SHA
+
+    # 🏷 Determine tag: use commit hash for main, branch name for others
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        TAG=$CI_COMMIT_SHORT_SHA
+      else
+        # Sanitize branch name for Docker tag
+        TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
+      fi
+      echo "Using tag: $TAG"
 
     # 🐳 Build and tag image
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
 
-    # 🛳️ Push the versioned image
+    # 🛳️ Push the image
     - docker push $IMAGE_NAME:$TAG
+
 
 
 #----------------------------------------------------------------
