@@ -33,6 +33,8 @@ build-app:
 docker-push:
   stage: deploy
   image: docker:24.0.5
+  needs:
+    - job: build-app
   services:
     - docker:dind
   variables:
@@ -52,8 +54,7 @@ docker-push:
 
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
+  
 
 #----------------------------------------------------------------
 # 3. Upload images folder to GCS
@@ -61,8 +62,6 @@ docker-push:
 upload-images-to-gcs:
   stage: deploy
   image: google/cloud-sdk:slim
-  needs:
-    - job: docker-push
   before_script:
     - apt-get update && apt-get install -y jq
 
