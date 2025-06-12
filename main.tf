@@ -75,12 +75,42 @@ variable "custom_domain" {
 
 
 #————————————————————————————————————
-# Enable the Cloud Run API
+# Enable the APIs we need
 #————————————————————————————————————
 resource "google_project_service" "run_api" {
-  service = "run.googleapis.com"
   project = var.project_id
-  disable_on_destroy = false
+  service = "run.googleapis.com"
+}
+
+resource "google_project_service" "artifact_registry_api" {
+  project = var.project_id
+  service = "artifactregistry.googleapis.com"
+}
+
+#————————————————————————————————————
+# Create a GAR Docker repository
+#————————————————————————————————————
+resource "google_artifact_registry_repository" "fyp_docker_repo" {
+  provider      = google
+  project       = var.project_id
+  location      = var.region
+  repository_id = "fyp-auction-app"
+  format        = "DOCKER"
+  description   = "GAR Docker repo for Auctioneer app"
+}
+
+#————————————————————————————————————
+# Allow Cloud Run to pull images from GAR
+#————————————————————————————————————
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
+resource "google_artifact_registry_repository_iam_member" "cloud_run_pull" {
+  repository = google_artifact_registry_repository.fyp_docker_repo.repository_id
+  location   = var.region
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 #————————————————————————————————————

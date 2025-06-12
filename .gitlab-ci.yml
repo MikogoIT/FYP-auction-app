@@ -5,10 +5,24 @@ stages:
   - deploy 3
 
 variables:
+  # Docker-in-Docker driver
   DOCKER_DRIVER: overlay2
-  IMAGE_NAME: boiledsteak/fyp-auction-app
+
+  # GCP settings
   GCP_REGION: asia-southeast1
+  GCP_PROJECT_ID: "$GCP_PROJECT_ID"        # ensure this is defined in CI/CD settings
+  GCP_PROJECT_NUMBER: "$GCP_PROJECT_NUMBER"
+  GCP_SERVICE_ACCOUNT_EMAIL: "$GCP_SERVICE_ACCOUNT_EMAIL"
+
+  # GAR settings
+  GAR_REGISTRY: "$GCP_REGION-docker.pkg.dev"
+  GAR_REPOSITORY: "fyp-auction-app"
+  IMAGE_NAME: "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPOSITORY"
+
+  # Cloud Run
   CLOUD_RUN_SERVICE: auctioneer-app
+
+  # Static assets
   GCS_DEV_BUCKET_NAME: auctioneer-static-assets
 
 #----------------------------------------------------------------
@@ -33,26 +47,54 @@ build-app:
         - frontend/**
 
 #----------------------------------------------------------------
-# Docker push BEFORE Terraform
+# 2. Build & Push to GAR
 #----------------------------------------------------------------
 docker-push:
   stage: deploy 1
-  image: docker:24.0.5
+  image: google/cloud-sdk:slim
   services:
     - docker:dind
+  id_tokens:
+    # allow gcloud to exchange GitLab’s OIDC token
+    GITLAB_OIDC_TOKEN:
+      aud: "https://gitlab.com"
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
+    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+  before_script:
+    - apt-get update && apt-get install -y jq
+    # exchange OIDC for short-lived GCP access token
+    - |
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d '{
+          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+          "scope":"https://www.googleapis.com/auth/cloud-platform",
+          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
+        }' | jq -r .access_token)
+    - |
+      ACCESS_TOKEN=$(curl -s -X POST \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -H "Authorization: Bearer $FED_TOKEN" \
+        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+        | jq -r .accessToken)
+    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+    # configure Docker to push to GAR
+    - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
+
   script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         TAG=$CI_COMMIT_SHORT_SHA
       else
         TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
       fi
-      echo "Using tag: $TAG"
-
+    - echo "Using tag: $TAG"
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
     - echo "DOCKER_PUSH_EXECUTED=true" >> docker.env
@@ -66,10 +108,10 @@ docker-push:
     - when: never
 
 #----------------------------------------------------------------
-# Terraform
+# 3. Terraform apply
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 2   
+  stage: deploy 2
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
@@ -78,18 +120,18 @@ terraform:
     IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   script:
     - terraform init
-    - terraform apply -auto-approve -var="image_url=docker.io/$IMAGE_NAME:$IMAGE_TAG"
+    - terraform apply -auto-approve \
+        -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
     - echo "TERRAFORM_EXECUTED=true" >> terraform.env
   artifacts:
     reports:
       dotenv: terraform.env
-
   rules:
     - if: '$DOCKER_PUSH_EXECUTED == "true" && $CI_COMMIT_BRANCH == "main"'
     - when: never
 
 #----------------------------------------------------------------
-# Upload images folder to GCS
+# 4. Upload images folder to GCS
 #----------------------------------------------------------------
 upload-images-to-gcs:
   stage: deploy 3
@@ -97,7 +139,6 @@ upload-images-to-gcs:
   id_tokens:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
-
   before_script:
     - apt-get update && apt-get install -y jq
     - |
@@ -111,7 +152,6 @@ upload-images-to-gcs:
           "scope":"https://www.googleapis.com/auth/cloud-platform",
           "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
         }' | jq -r .access_token)
-
     - |
       ACCESS_TOKEN=$(curl -s -X POST \
         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
@@ -119,7 +159,6 @@ upload-images-to-gcs:
         -H "Authorization: Bearer $FED_TOKEN" \
         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
         | jq -r .accessToken)
-
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
