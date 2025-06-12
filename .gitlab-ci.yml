@@ -47,7 +47,7 @@ build-app:
 # 2. Build & Push to GAR
 #----------------------------------------------------------------
 docker-push:
-  stage: deploy 1
+  stage: deploy 2
   image: google/cloud-sdk:slim
   services:
     - docker:dind
@@ -98,7 +98,7 @@ docker-push:
 # 3. Terraform apply
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 2
+  stage: deploy 1
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]

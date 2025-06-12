@@ -7,8 +7,8 @@ const Header = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Hide logout on both the login page and the suspended page
-  const hideLogout = pathname === "/login" || pathname === "/ursuspended";
+  // Hide logout on both the login page
+  const hideLogout = pathname === "/login";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
