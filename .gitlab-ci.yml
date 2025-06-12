@@ -38,10 +38,6 @@ build-app:
     paths:
       - frontend/dist
     expire_in: 1 hour
-  rules:
-    - changes:
-        - backend/**
-        - frontend/**
 
 #----------------------------------------------------------------
 # 2. Build & Push to GAR
@@ -89,11 +85,6 @@ docker-push:
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
 
-  rules:
-    - changes:
-        - backend/**
-        - frontend/**
-
 #----------------------------------------------------------------
 # 3. Terraform apply
 #----------------------------------------------------------------
@@ -110,11 +101,6 @@ terraform:
     # - terraform apply -auto-approve \
     #     -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
     - terraform apply -auto-approve
-
-  rules:
-    - changes:
-        - backend/**
-        - frontend/**
 
 #----------------------------------------------------------------
 # 4. Upload images folder to GCS

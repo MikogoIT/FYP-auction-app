@@ -31,10 +31,10 @@ provider "google" {
 }
 
 
-variable "image_url" {
-  description = "Docker image with tag"
-  type        = string
-}
+# variable "image_url" {
+#   description = "Docker image with tag"
+#   type        = string
+# }
 
 variable "region" {
   description = "gcp Region"
