@@ -31,10 +31,10 @@ provider "google" {
 }
 
 
-# variable "image_url" {
-#   description = "Docker image with tag"
-#   type        = string
-# }
+variable "image_url" {
+  description = "Docker image with tag"
+  type        = string
+}
 
 variable "region" {
   description = "gcp Region"
@@ -118,8 +118,7 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
 
   template {
     containers {
-      # image = var.image_url
-       image = "boiledsteak/fyp-auction-app:76207396"
+      image = var.image_url
       ports {
         container_port = 8080
       }

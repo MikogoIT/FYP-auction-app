@@ -43,7 +43,7 @@ build-app:
 # 2. Build & Push to GAR
 #----------------------------------------------------------------
 docker-push:
-  stage: deploy 2
+  stage: deploy 1
   image: google/cloud-sdk:slim
   services:
     - docker:dind
@@ -79,21 +79,19 @@ docker-push:
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
     # configure Docker to push to GAR
     - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
-    - export IMAGE_NAME="${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPOSITORY}"
-    - echo "→ Full image name will be, $IMAGE_NAME"
+
 
   script:
     - 'if [ "$CI_COMMIT_BRANCH" = "main" ]; then TAG=$CI_COMMIT_SHORT_SHA; else TAG=$(echo "$CI_COMMIT_BRANCH" | sed "s/[^a-zA-Z0-9_.-]/-/g"); fi'
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
-    - echo "IMAGE_NAME=${IMAGE_NAME}  TAG=${TAG}"
-    - docker images
     - docker push ${IMAGE_NAME}:${TAG}
+    
 
 #----------------------------------------------------------------
 # 3. Terraform apply
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 1
+  stage: deploy 2
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
@@ -102,9 +100,11 @@ terraform:
     IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   script:
     - terraform init
-    # - terraform apply -auto-approve \
-    #     -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
-    - terraform apply -auto-approve
+    - terraform apply -auto-approve \
+        -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
+  
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
 
 #----------------------------------------------------------------
 # 4. Upload images folder to GCS
@@ -147,5 +147,8 @@ upload-images-to-gcs:
     - find images/ -type f -delete
 
   rules:
-    - changes:
-        - images/**
+  - if: '$CI_COMMIT_BRANCH == "main"'
+    changes:
+      - images/**
+  - when: never
+
