@@ -88,13 +88,7 @@ docker-push:
     - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
 
   script:
-    - |
-      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        TAG=$CI_COMMIT_SHORT_SHA
-      else
-        TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
-      fi
-    - echo "Using tag: $TAG"
+    - 'if [ "$CI_COMMIT_BRANCH" = "main" ]; then TAG=$CI_COMMIT_SHORT_SHA; else TAG=$(echo "$CI_COMMIT_BRANCH" | sed "s/[^a-zA-Z0-9_.-]/-/g"); fi'
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
     - echo "DOCKER_PUSH_EXECUTED=true" >> docker.env
