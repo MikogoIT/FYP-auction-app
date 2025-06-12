@@ -17,7 +17,7 @@ variables:
   # GAR settings
   GAR_REGISTRY: "$GCP_REGION-docker.pkg.dev"
   GAR_REPOSITORY: "fyp-auction-app"
-  IMAGE_NAME: "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPOSITORY"
+  IMAGE_NAME:      "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPOSITORY/auctioneer-app"
 
   # Cloud Run
   CLOUD_RUN_SERVICE: auctioneer-app
