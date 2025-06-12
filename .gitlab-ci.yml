@@ -34,12 +34,9 @@ build-app:
   script:
     - npm install --prefix frontend
     - npm run build --prefix frontend
-    - echo "BUILD_EXECUTED=true" >> build.env
   artifacts:
     paths:
       - frontend/dist
-    reports:
-      dotenv: build.env
     expire_in: 1 hour
   rules:
     - changes:
@@ -92,10 +89,6 @@ docker-push:
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
 
-  artifacts:
-    reports:
-      dotenv: docker.env
-
   rules:
     - changes:
         - backend/**
@@ -116,10 +109,7 @@ terraform:
     - terraform init
     - terraform apply -auto-approve \
         -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
-    - echo "TERRAFORM_EXECUTED=true" >> terraform.env
-  artifacts:
-    reports:
-      dotenv: terraform.env
+
   rules:
     - changes:
         - backend/**

@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Connect to Neon
+// Connect to Neon db
 const sql = neon(process.env.DATABASE_URL);
 
 // Serve static frontend
