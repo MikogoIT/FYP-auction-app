@@ -122,7 +122,8 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
 
   template {
     containers {
-      image = var.image_url
+      # image = var.image_url
+       image = "boiledsteak/fyp-auction-app:76207396"
       ports {
         container_port = 8080
       }
