@@ -92,7 +92,7 @@ const bucket = storage.bucket("auctioneer-dp-images");
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max file size
   fileFilter: (req, file, cb) => {
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
