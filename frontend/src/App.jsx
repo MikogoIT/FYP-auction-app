@@ -1,7 +1,6 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-
+// pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
@@ -11,7 +10,7 @@ import EditListing from "./pages/EditListing";
 import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
-
+// components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
