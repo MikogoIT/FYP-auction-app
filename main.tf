@@ -102,10 +102,6 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
 #————————————————————————————————————
 # Allow Cloud Run to pull images from GAR
 #————————————————————————————————————
-data "google_project" "project" {
-  project_id = var.project_id
-}
-
 resource "google_artifact_registry_repository_iam_member" "cloud_run_pull" {
   repository = google_artifact_registry_repository.fyp_docker_repo.repository_id
   location   = var.region
