@@ -91,15 +91,15 @@ docker-push:
     - 'if [ "$CI_COMMIT_BRANCH" = "main" ]; then TAG=$CI_COMMIT_SHORT_SHA; else TAG=$(echo "$CI_COMMIT_BRANCH" | sed "s/[^a-zA-Z0-9_.-]/-/g"); fi'
     - docker build --no-cache -t $IMAGE_NAME:$TAG .
     - docker push $IMAGE_NAME:$TAG
-    - echo "DOCKER_PUSH_EXECUTED=true" >> docker.env
 
   artifacts:
     reports:
       dotenv: docker.env
 
   rules:
-    - if: '$BUILD_EXECUTED == "true"'
-    - when: never
+    - changes:
+        - backend/**
+        - frontend/**
 
 #----------------------------------------------------------------
 # 3. Terraform apply
@@ -121,8 +121,9 @@ terraform:
     reports:
       dotenv: terraform.env
   rules:
-    - if: '$DOCKER_PUSH_EXECUTED == "true" && $CI_COMMIT_BRANCH == "main"'
-    - when: never
+    - changes:
+        - backend/**
+        - frontend/**
 
 #----------------------------------------------------------------
 # 4. Upload images folder to GCS
