@@ -81,7 +81,7 @@ app.get("/api/getDP", async (req, res) => {
 
 
 
-// TEST - upload the display photo
+// TEST - upload the display photo ok
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import { verifyToken } from "./utils/token.js";
