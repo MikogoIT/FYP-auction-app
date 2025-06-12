@@ -100,8 +100,7 @@ terraform:
     IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   script:
     - terraform init
-    - terraform apply -auto-approve \
-        -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
+    - terraform apply -auto-approve -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
   
   rules:
   - if: '$CI_COMMIT_BRANCH == "main"'
