@@ -94,18 +94,20 @@ docker-push:
 #----------------------------------------------------------------
 terraform:
   stage: deploy 2
-  image: hashicorp/terraform:latest
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
   script:
-    - init                       # <-- calls “terraform init”
-    - apply -auto-approve        # <-- calls “terraform apply -auto-approve”
+    - terraform init
+    - terraform apply -auto-approve
+  
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
-
 
 
 #----------------------------------------------------------------
