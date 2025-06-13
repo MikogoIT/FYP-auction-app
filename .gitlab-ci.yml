@@ -1,8 +1,8 @@
 stages:
   - build
-  - deploy 1
-  - deploy 2
-  - deploy 3
+  - deploy 1     # Docker → GAR
+  - deploy 2     # Terraform
+  - deploy 3     # GCS upload
 
 variables:
   # Docker-in-Docker driver
@@ -10,14 +10,13 @@ variables:
 
   # GCP settings
   GCP_REGION: asia-southeast1
-  GCP_PROJECT_ID: "$GCP_PROJECT_ID"        # ensure this is defined in CI/CD settings
+  GCP_PROJECT_ID: "$GCP_PROJECT_ID"
   GCP_PROJECT_NUMBER: "$GCP_PROJECT_NUMBER"
   GCP_SERVICE_ACCOUNT_EMAIL: "$GCP_SERVICE_ACCOUNT_EMAIL"
 
   # GAR settings
   GAR_REGISTRY: "$GCP_REGION-docker.pkg.dev"
-  GAR_REPOSITORY: "fyp-auction-app"
-  IMAGE_NAME:      "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPOSITORY/auctioneer-app"
+  GAR_REPO_BASE: "fyp-auction-app"
 
   # Cloud Run
   CLOUD_RUN_SERVICE: auctioneer-app
@@ -26,21 +25,21 @@ variables:
   GCS_DEV_BUCKET_NAME: auctioneer-static-assets
 
 #----------------------------------------------------------------
-# 1. Build frontend
+# 1. Build frontend (always runs)
 #----------------------------------------------------------------
 build-app:
   stage: build
   image: node:23.11.0-alpine3.21
   script:
     - npm install --prefix frontend
-    - npm run build --prefix frontend
+    - npm run build    --prefix frontend
   artifacts:
     paths:
       - frontend/dist
     expire_in: 1 hour
 
 #----------------------------------------------------------------
-# 2. Build & Push to GAR
+# 2. Build & Push to GAR (all branches → same repo)
 #----------------------------------------------------------------
 docker-push:
   stage: deploy 1
@@ -48,16 +47,14 @@ docker-push:
   services:
     - docker:dind
   id_tokens:
-    # allow gcloud to exchange GitLab’s OIDC token
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
-    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   before_script:
     - apt-get update && apt-get install -y jq
-    # exchange OIDC for short-lived GCP access token
+    # Exchange OIDC → short-lived GCP token
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
@@ -77,36 +74,45 @@ docker-push:
         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
         | jq -r .accessToken)
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
-    # configure Docker to push to GAR
     - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
 
-
   script:
-    - 'if [ "$CI_COMMIT_BRANCH" = "main" ]; then TAG=$CI_COMMIT_SHORT_SHA; else TAG=$(echo "$CI_COMMIT_BRANCH" | sed "s/[^a-zA-Z0-9_.-]/-/g"); fi'
-    - docker build --no-cache -t $IMAGE_NAME:$TAG .
-    - docker push ${IMAGE_NAME}:${TAG}
-    
+    - |
+      # single GAR repo exists (provisioned via main/Terraform)
+      REPO="$GAR_REPO_BASE"
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        TAG="$CI_COMMIT_SHORT_SHA"
+      else
+        TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
+      fi
+      IMAGE_PATH="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-app"
+    - docker build --no-cache -t "${IMAGE_PATH}:${TAG}" .
+    - docker push "${IMAGE_PATH}:${TAG}"
 
 #----------------------------------------------------------------
-# 3. Terraform apply
+# 3. Terraform apply (only on main)
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 2
-  image:
-    name: hashicorp/terraform:latest
-    entrypoint: ["/bin/sh","-c"]
+  stage: deploy 1
+  image: hashicorp/terraform:latest
+  entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
-    IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+    # CI already set IMAGE_PATH & TAG in docker-push, but you may recompute here:
+    IMAGE_PATH: "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPO_BASE/auctioneer-app"
+    IMAGE_TAG:   "$CI_COMMIT_SHORT_SHA"  # or branch-slug
+    TF_VAR_image_url: "${IMAGE_PATH}:${IMAGE_TAG}"
   script:
     - terraform init
-    - terraform apply -auto-approve -var="image_url=${IMAGE_NAME}:${IMAGE_TAG}"
-  
+    - terraform apply -auto-approve
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never
+
 
 #----------------------------------------------------------------
-# 4. Upload images folder to GCS
+# 4. Upload images to GCS (only on main)
 #----------------------------------------------------------------
 upload-images-to-gcs:
   stage: deploy 3
@@ -116,38 +122,21 @@ upload-images-to-gcs:
       aud: "https://gitlab.com"
   before_script:
     - apt-get update && apt-get install -y jq
+    # Exchange OIDC → GCP token (same as docker-push)…
     - |
-      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -d '{
-          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
-          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
-          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
-          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
-          "scope":"https://www.googleapis.com/auth/cloud-platform",
-          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
-        }' | jq -r .access_token)
-    - |
-      ACCESS_TOKEN=$(curl -s -X POST \
-        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -H "Authorization: Bearer $FED_TOKEN" \
-        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
-        | jq -r .accessToken)
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token … )
+      ACCESS_TOKEN=$(curl -s -X POST https://iamcredentials.googleapis.com/v1/… )
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
     - gcloud config set run/platform managed
-
   script:
     - echo "Uploading images/ folder to GCS"
     - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
-    - echo "Removing files from images folder"
+    - echo "Cleaning up images folder"
     - find images/ -type f -delete
-
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-    changes:
-      - images/**
-  - when: never
-
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - images/**
+    - when: never
