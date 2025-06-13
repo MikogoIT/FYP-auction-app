@@ -97,17 +97,15 @@ terraform:
   image: hashicorp/terraform:latest
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
-    # CI already set IMAGE_PATH & TAG in docker-push, but you may recompute here:
-    IMAGE_PATH: "$GAR_REGISTRY/$GCP_PROJECT_ID/$GAR_REPO_BASE/auctioneer-app"
-    IMAGE_TAG:   "$CI_COMMIT_SHORT_SHA"  # or branch-slug
-    TF_VAR_image_url: "${IMAGE_PATH}:${IMAGE_TAG}"
+    TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
   script:
-    - terraform init
-    - terraform apply -auto-approve
+    - init                       # <-- calls “terraform init”
+    - apply -auto-approve        # <-- calls “terraform apply -auto-approve”
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
+
 
 
 #----------------------------------------------------------------
