@@ -93,9 +93,8 @@ docker-push:
 # 3. Terraform apply (only on main)
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 1
+  stage: deploy 2
   image: hashicorp/terraform:latest
-  entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     # CI already set IMAGE_PATH & TAG in docker-push, but you may recompute here:
