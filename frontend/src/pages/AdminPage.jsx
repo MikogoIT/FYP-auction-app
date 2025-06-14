@@ -7,6 +7,40 @@ const AdminPage = () => {
   const [page, setPage] = useState(1);
   const USERS_PER_PAGE = 10;
 
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    setCategoryMsg("");
+
+    if (!newCategory.trim()) {
+        setCategoryMsg("❌ Category name is required");
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/categories", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ name: newCategory }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            setCategoryMsg("✅ Category created successfully");
+            setNewCategory("");
+        } else {
+            setCategoryMsg("❌ " + (data.message || "Creation failed"));
+        }
+    } catch (err) {
+        console.error("Create category error:", err);
+        setCategoryMsg("❌ Server error");
+    }
+  };
+
+
   const fetchUsers = async (query = "", page = 1) => {
     setLoading(true);
     try {
@@ -91,6 +125,25 @@ const AdminPage = () => {
   return (
     <div style={{ padding: "40px" }}>
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👑 Admin Panel - Manage Users</h2>
+      
+      <h3>🗂️ Create New Category</h3>
+      <form onSubmit={handleCreateCategory} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <input
+            type="text"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="Enter category name"
+            style={{ flex: 1, padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+        />
+        <button type="submit" style={{ padding: "8px 16px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px" }}>
+            Create
+        </button>
+    </form>
+    {categoryMsg && (
+        <p style={{ color: categoryMsg.startsWith("✅") ? "green" : "red", marginTop: "8px" }}>
+            {categoryMsg}
+        </p>
+    )}
 
       <div style={{ display: "flex", marginBottom: "20px", gap: "10px" }}>
         <input
@@ -190,6 +243,7 @@ const AdminPage = () => {
         </>
       )}
     </div>
+    
   );
 };
 

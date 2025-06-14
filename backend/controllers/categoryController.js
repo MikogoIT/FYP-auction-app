@@ -1,17 +1,17 @@
-import { sql } from "../utils/db.js";
+// controllers/categoryController.js
 import { verifyToken } from "../utils/token.js";
+import { getAllCategories, insertCategory } from "../models/categoryModel.js";
 
 // get all categories
 export async function getCategories(_, res) {
   try {
-    const result = await sql`SELECT id, name FROM listing_categories ORDER BY name`;
+    const result = await getAllCategories();
     res.json({ categories: result });
   } catch (err) {
     console.error("Fetch categories error:", err);
     res.status(500).json({ message: "Failed to fetch categories" });
   }
 }
-
 
 // create a new category
 export async function createCategory(req, res) {
@@ -29,11 +29,7 @@ export async function createCategory(req, res) {
   if (!name) return res.status(400).json({ message: "Category name is required" });
 
   try {
-    const result = await sql`
-      INSERT INTO listing_categories (name)
-      VALUES (${name})
-      RETURNING id, name
-    `;
+    const result = await insertCategory(name);
     res.status(201).json({ category: result[0] });
   } catch (err) {
     console.error("Create category error:", err);
