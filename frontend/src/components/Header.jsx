@@ -29,7 +29,7 @@ const Header = () => {
         })
         .catch((err) => console.error("Error checking admin status:", err));
     }
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
