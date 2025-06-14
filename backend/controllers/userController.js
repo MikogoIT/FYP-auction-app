@@ -89,3 +89,62 @@ export async function toggleUserFreezeController(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+export async function deleteUserController(req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const me = await getUserById(payload.userId);
+    if (!me[0]?.is_admin) {
+      return res.status(403).json({ message: "Only admins can delete users" });
+    }
+
+    const { id } = req.params;
+    const userToDelete = await getUserById(id);
+
+    if (userToDelete.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (userToDelete[0].is_admin) {
+      return res.status(403).json({ message: "Cannot delete admin accounts" });
+    }
+
+    await sql`DELETE FROM users WHERE id = ${id}`;
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    console.error("Delete user error:", err);
+    res.status(500).json({ message: "Failed to delete user" });
+  }
+}
+
+export async function searchUsersController(req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const me = await getUserById(payload.userId);
+    if (!me[0]?.is_admin) {
+      return res.status(403).json({ message: "Admins only" });
+    }
+
+    const keyword = req.query.q?.trim() || "";
+
+    const results = await sql`
+      SELECT id, username, email, phone_number, is_admin, is_frozen
+      FROM users
+      WHERE username ILIKE ${'%' + keyword + '%'} OR email ILIKE ${'%' + keyword + '%'}
+      ORDER BY id ASC
+    `;
+
+    res.json({ users: results });
+  } catch (err) {
+    console.error("Search users error:", err);
+    res.status(500).json({ message: "Search failed" });
+  }
+}
