@@ -16,3 +16,10 @@ export async function insertCategory(name) {
     RETURNING id, name
   `;
 }
+
+export async function isAdmin(userId) {
+  const result = await sql`
+    SELECT is_admin FROM users WHERE id = ${userId}
+  `;
+  return result[0]?.is_admin || false;
+}

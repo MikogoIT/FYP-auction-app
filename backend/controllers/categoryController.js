@@ -1,6 +1,6 @@
 // controllers/categoryController.js
 import { verifyToken } from "../utils/token.js";
-import { getAllCategories, insertCategory } from "../models/categoryModel.js";
+import { getAllCategories, insertCategory, isAdmin } from "../models/categoryModel.js";
 
 // get all categories
 export async function getCategories(_, res) {
@@ -20,8 +20,9 @@ export async function createCategory(req, res) {
 
   if (!payload) return res.status(401).json({ message: "Unauthorized" });
 
-  const user = await sql`SELECT is_admin FROM users WHERE id = ${payload.userId}`;
-  if (!user[0]?.is_admin) {
+  // Check if user is admin
+  const isAdminUser = await isAdmin(payload.userId);
+  if (!isAdminUser) {
     return res.status(403).json({ message: "Admins only" });
   }
 
