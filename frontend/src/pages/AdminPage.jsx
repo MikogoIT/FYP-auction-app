@@ -4,6 +4,7 @@ const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [categoryMsg, setCategoryMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const USERS_PER_PAGE = 10;
