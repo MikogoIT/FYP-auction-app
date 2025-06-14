@@ -23,12 +23,12 @@ const SellItem = () => {
       return;
     }
 
-    if (parseFloat(minbid) <= 0) {
+    if (parseFloat(minBid) <= 0) {
       setError("❌ Minimum bid must be greater than 0.");
       return;
     }
   
-    if (new Date(enddate) < new Date()) {
+    if (new Date(endDate) < new Date()) {
       setError("❌ End date must be in the future.");
       return;
     }
