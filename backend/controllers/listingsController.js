@@ -16,13 +16,13 @@ export async function postListing(req, res) {
   const payload = verifyToken(token);
   if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
 
-  const { title, description, min_bid, end_date } = req.body;
-  if (!title || !min_bid || !end_date) {
+  const { title, description, min_bid, end_date, category_id } = req.body;
+  if (!title || !min_bid || !end_date || !category_id) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
-    const result = await createListing(payload.userId, title, description, min_bid, end_date);
+    const result = await createListing(payload.userId, title, description, min_bid, end_date, category_id);
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);

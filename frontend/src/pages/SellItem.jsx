@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SellItem = () => {
@@ -8,6 +8,15 @@ const SellItem = () => {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+  fetch("/api/categories")
+    .then((res) => res.json())
+    .then((data) => setCategories(data.categories || []))
+    .catch((err) => console.error("Failed to load categories:", err));
+  }, []);
 
   const navigate = useNavigate();
 
@@ -33,6 +42,11 @@ const SellItem = () => {
       return;
     }
 
+    if (!categoryId) {
+      setError("Please select a category");
+      return;
+    }
+
     try {
       const res = await fetch("/api/listings", {
         method: "POST",
@@ -45,6 +59,7 @@ const SellItem = () => {
           description,
           min_bid: parseFloat(minBid),
           end_date: endDate,
+          category_id: categoryId,
         }),
       });
 
@@ -65,6 +80,19 @@ const SellItem = () => {
       <h2 style={{ textAlign: "center" }}>📦 Sell an Item</h2>
 
       <form onSubmit={handleSubmit}>
+        <label>Category *</label>
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          required
+          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+        >
+          <option value="">-- Select a category --</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+
         <label>Title *</label>
         <input
           type="text"

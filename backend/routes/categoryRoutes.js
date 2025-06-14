@@ -1,25 +1,8 @@
-// create listing Category
-// return success/error message
+// routes/categoryRoutes.js
+import express from "express";
+import { createCategory, getCategories } from "../controllers/categoryController.js";
 
-
-
-
-
-
-
-
-
-// edit listing Category
-// return success/error message
-// have save button and suspend button
-
-
-
-
-
-// suspend listing Category
-// return success message
-
-
-
-
+const router = express.Router();
+router.post("/", createCategory);
+router.get("/", getCategories);
+export default router;

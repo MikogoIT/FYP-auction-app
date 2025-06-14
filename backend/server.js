@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import listingRoutes from "./routes/listingRoutes.js";
 import bidRoutes from "./routes/bidRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -30,6 +31,9 @@ app.use("/api", listingRoutes);
 
 //bid router
 app.use("/api/bids", bidRoutes);
+
+// category router
+app.use("/api/categories", categoryRoutes);
 
 // Example API route that queries Neon DB
 app.get("/api/version", async (req, res) => {
