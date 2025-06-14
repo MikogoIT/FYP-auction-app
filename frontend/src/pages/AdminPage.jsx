@@ -42,6 +42,45 @@ const AdminPage = () => {
     }
   };
 
+  const toggleFreeze = async (userId) => {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert("Status updated");
+      fetchUsers(); 
+    } else {
+      alert("Error: " + data.message);
+    }
+  } catch (err) {
+    alert("Request failed");
+  }
+ };
+
+  const deleteUser = async (userId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`/api/users/admin/delete/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) fetchUsers();
+      else alert(data.message || "Failed to delete user");
+    } catch (err) {
+      console.error("Delete user failed:", err);
+    }
+  };
+
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
 
