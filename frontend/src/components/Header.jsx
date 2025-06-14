@@ -28,13 +28,15 @@ const Header = () => {
           }
         })
         .catch((err) => console.error("Error checking admin status:", err));
+    } else {
+      setIsAdmin(false);
     }
   }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userId")
-    navigate("/login"); 
+    localStorage.removeItem("userId");
+    navigate("/login");
   };
 
   const goToAdminPage = () => {
