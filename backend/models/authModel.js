@@ -3,7 +3,7 @@ import { sql } from "../utils/db.js";
 
 export async function findUserByEmail(email) {
   const result = await sql`
-    SELECT id, email, password_hash FROM users WHERE email = ${email}
+    SELECT id, email, username, password_hash, is_admin, is_frozen FROM users WHERE email = ${email}
   `;
   return result[0];
 }

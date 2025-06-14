@@ -1,6 +1,6 @@
 // controllers/userController.js
 import { verifyToken } from "../utils/token.js";
-import { getUserById, updateUserById, getAllUsers } from "../models/userModel.js";
+import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from "../models/userModel.js";
 
 export async function getProfile(req, res) {
   const authHeader = req.headers.authorization;
@@ -64,5 +64,28 @@ export async function getAllUsersController(req, res) {
   } catch (err) {
     console.error("Fetch all users error:", err);
     res.status(500).json({ message: "Failed to fetch users" });
+  }
+}
+
+export async function toggleUserFreezeController(req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const requester = await getUserById(payload.userId);
+    if (!requester[0]?.is_admin) {
+      return res.status(403).json({ message: "Only admins can perform this action" });
+    }
+
+    const targetUserId = req.params.id;
+    const updated = await toggleUserFrozenStatus(targetUserId);
+    res.json({ message: "User status updated", user: updated[0] });
+  } catch (err) {
+    console.error("Freeze/unfreeze error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 }

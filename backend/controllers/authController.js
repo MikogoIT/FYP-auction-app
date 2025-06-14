@@ -17,6 +17,10 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
+    if (user.is_frozen) {
+      return res.status(403).json({ message: "Account is frozen. Please contact admin." });
+    }
+
     const match = await comparePassword(password, user.password_hash);
 
     if (!match) {
