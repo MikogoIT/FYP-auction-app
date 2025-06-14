@@ -133,12 +133,17 @@ export async function searchUsersController(req, res) {
       return res.status(403).json({ message: "Admins only" });
     }
 
-    const keyword = req.query.q?.trim() || "";
+    const raw = req.query.q;
+    const keyword = typeof raw === "string" ? raw.trim() : "";
+
+    if (keyword.length < 2) {
+      return res.status(400).json({ message: "Please enter at least 2 characters to search" });
+    }
 
     const results = await sql`
       SELECT id, username, email, phone_number, is_admin, is_frozen
       FROM users
-      WHERE username ILIKE ${'%' + keyword + '%'} OR email ILIKE ${'%' + keyword + '%'}
+      WHERE username ILIKE ${`%${keyword}%`} OR email ILIKE ${`%${keyword}%`}
       ORDER BY id ASC
     `;
 
@@ -148,3 +153,4 @@ export async function searchUsersController(req, res) {
     res.status(500).json({ message: "Search failed" });
   }
 }
+
