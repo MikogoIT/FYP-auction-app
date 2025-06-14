@@ -1,6 +1,8 @@
 // controllers/userController.js
 import { verifyToken } from "../utils/token.js";
 import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from "../models/userModel.js";
+import { sql } from "../utils/db.js";
+
 
 export async function getProfile(req, res) {
   const authHeader = req.headers.authorization;
