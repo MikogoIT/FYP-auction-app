@@ -9,6 +9,26 @@ import {
   getMyListings
 } from "../models/listingsModel.js";
 import { verifyToken } from "../utils/token.js";
+import { sql } from "../utils/db.js";
+import multer from "multer";
+import { Storage } from "@google-cloud/storage";
+import path from "path";
+
+// FOR LISTING COVER PHOTO UPLOAD
+// ——— configure GCS bucket ———
+const gcs = new Storage();
+const bucket = gcs.bucket("auctioneer-dp-images");
+
+// ——— configure Multer ———
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+  fileFilter(req, file, cb) {
+    if (allowedMimeTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE", "Only .jpg, .png, .webp allowed"));
+  },
+});
 
 // POST /listings
 export async function postListing(req, res) {
