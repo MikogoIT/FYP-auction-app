@@ -23,26 +23,44 @@ export default function Profile() {
   const navigate = useNavigate();
 
   // Fetch profile (data + current photo URL)
-  useEffect(() => {
-    const fetchProfile = async () => {
+    useEffect(() => {
+    const fetchProfileAndPhoto = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
+        const headers = { Authorization: `Bearer ${token}` };
 
-        setUser(data.user);
-        setEditableUser(data.user);
+        // fire both requests in parallel
+        const [profileRes, photoRes] = await Promise.all([
+          fetch("/api/profile", { headers }),
+          fetch("/api/displayPhoto", { headers })
+        ]);
+
+        const [profileData, photoData] = await Promise.all([
+          profileRes.json(),
+          photoRes.json()
+        ]);
+
+        if (!profileRes.ok) throw new Error(profileData.message);
+        if (!photoRes.ok)   throw new Error(photoData.message);
+
+        // merge the photo URL into your user object
+        const mergedUser = {
+          ...profileData.user,
+          profile_image_url: photoData.profile_image_url
+        };
+
+        setUser(mergedUser);
+        setEditableUser(mergedUser);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfile();
+
+    fetchProfileAndPhoto();
   }, []);
+
 
   const handleGoBack = () => navigate("/dashboard");
   const handleChange = (field, value) =>
@@ -109,7 +127,7 @@ export default function Profile() {
       formData.append("image", selectedFile);
 
       const res = await fetch("/api/displayPhoto", {
-        method: "POST",
+        method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
