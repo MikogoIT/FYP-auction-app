@@ -4,7 +4,6 @@ import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from
 import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
-import { verifyToken } from "./utils/token.js";
 import path from "path";
 
 
