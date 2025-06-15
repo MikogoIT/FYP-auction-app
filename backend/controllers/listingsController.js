@@ -114,3 +114,81 @@ export async function getMyListingsHandler(req, res) {
     res.status(500).json({ message: "Failed to fetch listings" });
   }
 }
+
+
+// GET /api/listingimg?listingId=<id>
+export async function getListingImg(req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  const payload = verifyToken(token);
+  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
+
+  const listingId = req.query.listingId;
+  if (!listingId) return res.status(400).json({ message: "Missing listingId parameter" });
+
+  try {
+    const result = await sql`
+      SELECT image_url
+      FROM auction_listings
+      WHERE id = ${listingId}
+    `;
+
+    if (result.length === 0) return res.status(404).json({ message: "Listing not found" });
+    res.json({ imageUrl: result[0].image_url });
+  } catch (err) {
+    console.error("Fetch listing image error:", err);
+    res.status(500).json({ message: "Failed to fetch listing image" });
+  }
+}
+
+// PUT /api/listingimg
+export async function uplListingImg(req, res) {
+  // --- AUTH FIRST ---
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(" ")[1];
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ message: "Invalid or missing token" });
+  }
+  
+  // --- THEN MULTER UPLOAD ---
+  upload.single("image")(req, res, async (uploadErr) => {
+    if (uploadErr instanceof multer.MulterError) {
+      return res.status(400).json({ message: uploadErr.message });
+    }
+    if (uploadErr) {
+      console.error("Upload middleware error:", uploadErr);
+      return res.status(500).json({ message: "Upload middleware failure" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      if (![".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
+        return res.status(400).json({ message: "Invalid file extension." });
+      }
+
+      const filename = `listing_${req.body.listingId}_${Date.now()}${ext}`;
+      const file = bucket.file(filename);
+      await file.save(req.file.buffer, {
+        metadata: { contentType: req.file.mimetype },
+        resumable: false,
+      });
+
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+      await sql`
+        UPDATE auction_listings
+        SET image_url = ${publicUrl}
+        WHERE id = ${req.body.listingId}
+      `;
+
+      return res.json({ imageUrl: publicUrl });
+    } catch (err) {
+      console.error("uplListingImg handler error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+}
+
