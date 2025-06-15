@@ -30,17 +30,25 @@ variables:
 build-app:
   stage: build
   image: node:23.11.0-alpine3.21
+
+  before_script:
+    # ensure the cache path exists
+    - mkdir -p frontend/node_modules
+
   cache:
-    key: ${CI_COMMIT_REF_SLUG}
+    key: cache-frontend-${CI_COMMIT_REF_SLUG}
     paths:
       - frontend/node_modules/
+
   script:
-    - npm ci --prefix frontend  
-    - npm run build    --prefix frontend
+    - npm ci --prefix frontend
+    - npm run build --prefix frontend
+
   artifacts:
     paths:
       - frontend/dist
     expire_in: 1 hour
+
 
 #----------------------------------------------------------------
 # 2. Build & Push to GAR (all branches → same repo)
@@ -90,7 +98,7 @@ docker-push:
         TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
       fi
       IMAGE_PATH="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-app"
-    - docker build --no-cache -t "${IMAGE_PATH}:${TAG}" .
+    - docker build -t "${IMAGE_PATH}:${TAG}" .
     - docker push "${IMAGE_PATH}:${TAG}"
 
 #----------------------------------------------------------------
