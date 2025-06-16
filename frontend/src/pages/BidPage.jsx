@@ -9,13 +9,29 @@ const BidPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  async function fetchMinAllowed() {
-    const res = await fetch(`/api/auctions/${id}/min-bid`);
-    const data = await res.json();
-    setMinPrice(data.min_allowed);
-  }
-  fetchMinAllowed();
-}, [id]);
+    async function fetchMinAllowed() {
+      try {
+        const res = await fetch(`/api/auctions/${id}/min-bid`);
+
+        const contentType = res.headers.get("content-type");
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Fetch failed: ${text}`);
+        }
+
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setMinPrice(data.min_allowed);
+        } else {
+          throw new Error("Response is not JSON");
+        }
+      } catch (err) {
+        console.error("Error fetching min bid:", err);
+      }
+    }
+
+    fetchMinAllowed();
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
