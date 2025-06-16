@@ -4,7 +4,7 @@ import { getMinBidAmount } from "../controllers/auctionController.js";
 
 const router = express.Router();
 
-// GET /api/auctions/:id/minbid
-router.get("/:id/minbid", getMinBidAmount);
+// GET /api/auctions/:id/min-bid
+router.get("/:id/min-bid", getMinBidAmount);
 
 export default router;
