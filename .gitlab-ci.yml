@@ -29,7 +29,7 @@ variables:
 # 0. scan code
 #----------------------------------------------------------------
 snyk-SCA+SAST-scan:
-  stage: security-test
+  stage: security test
   image: 
     name: snyk/snyk-cli:npm
     entrypoint: [""]
