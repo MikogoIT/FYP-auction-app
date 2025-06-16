@@ -41,6 +41,11 @@ const BidPage = () => {
       setMessage(`❌ Bid must be at least $${minPrice.toFixed(2)}`);
       return;
     }
+
+    if (minPrice > 99999999.99) {
+      alert("The bid amount cannot exceed 99999999.99");
+      return;
+    }
   
     try {
       const res = await fetch("/api/bids", {
