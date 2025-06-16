@@ -33,6 +33,8 @@ snyk-full-scan:
   image:
     name: snyk/snyk-cli:npm
     entrypoint: [""]
+  before_script:
+    - apk add --no-cache jq
   script:
     - echo "Starting Snyk scans..."
 
@@ -75,6 +77,7 @@ snyk-full-scan:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
+
 
 
 #----------------------------------------------------------------
