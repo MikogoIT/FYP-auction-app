@@ -24,10 +24,12 @@ export const getActiveListings = async () => {
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.listing_id
     WHERE l.is_active = true
-    GROUP BY l.id, u.username
+    GROUP BY 
+      l.id, l.title, l.description, l.min_bid, l.end_date, l.seller_id, u.username
     ORDER BY l.end_date ASC
   `;
 };
+
 
 
 export const getListingById = async (id) => {
