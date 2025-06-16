@@ -35,9 +35,6 @@ app.use("/api/bids", bidRoutes);
 // category router
 app.use("/api/categories", categoryRoutes);
 
-// listing router
-app.use("/api/listings", listingRoutes);
-
 // Example API route that queries Neon DB
 app.get("/api/version", async (req, res) => {
   try {
