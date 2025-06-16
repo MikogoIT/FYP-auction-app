@@ -6,9 +6,13 @@ import {
   getSellerId,
   updateListing,
   deleteListing,
-  getMyListings
+  getMyListings,
+  getListingsWithFilters
 } from "../models/listingsModel.js";
+import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
+
 import { verifyToken } from "../utils/token.js";
+
 
 // POST /listings
 export async function postListing(req, res) {
@@ -117,21 +121,13 @@ export async function getMyListingsHandler(req, res) {
 
 export async function getRecentListings(req, res) {
   try {
-    const result = await sql`
-      SELECT l.*, u.username AS seller
-      FROM auction_listings l
-      JOIN users u ON l.seller_id = u.id
-      WHERE is_active = true
-      ORDER BY end_date ASC
-      LIMIT 5
-    `;
-    res.json({ listings: result });
+    const listings = await fetchRecentListings();
+    res.json({ listings });
   } catch (err) {
     console.error("Fetch recent listings error:", err);
     res.status(500).json({ message: "Failed to fetch listings" });
   }
 }
-
 export async function getAllListings(req, res) {
   const { q = "", category = "" } = req.query;
 

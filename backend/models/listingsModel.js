@@ -68,7 +68,7 @@ export async function getListingsWithFilters(searchTerm, categoryId) {
   `;
 }
 
-export async function getLatestListings(limit = 5) {
+export async function getRecentListings(limit = 5) {
   return await sql`
     SELECT l.*, u.username AS seller
     FROM auction_listings l
