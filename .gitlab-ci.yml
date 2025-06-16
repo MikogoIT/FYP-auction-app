@@ -28,29 +28,54 @@ variables:
 #----------------------------------------------------------------
 # 0. scan code
 #----------------------------------------------------------------
-snyk-SCA+SAST-scan:
+snyk-full-scan:
   stage: security test
-  image: 
+  image:
     name: snyk/snyk-cli:npm
     entrypoint: [""]
   script:
-    # SCA: Software Composition Analysis (dependencies)
-    - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+    - echo "Starting Snyk scans..."
+
+    # --- SCA ---
+    - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --json > sca-results.json || true
     - snyk monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
 
-    # SAST: Static Application Security Testing
-    - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+    # --- SAST ---
+    - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --json > code-results.json || true
     - snyk code monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
 
-    # IaC: Infrastructure as Code
-    - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} ./main.tf
-    - snyk iac monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} ./main.tf
+    # --- IaC ---
+    - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf --json > iac-results.json || true
+    - snyk iac monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
 
+    # --- Severity Gate ---
+    - |
+      echo "Checking for high severity issues..."
+      HIGH_COUNT=$(
+        jq '[.vulnerabilities[] | select(.severity == "high" or .severity == "critical")] | length' sca-results.json
+      )
+      CODE_HIGH_COUNT=$(
+        jq '[.runs[].results[] | select(.severity=="high" or .severity=="critical")] | length' code-results.json
+      )
+      IAC_HIGH_COUNT=$(
+        jq '[.results[].result.cloudConfigResults[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length' iac-results.json
+      )
+
+      TOTAL=$((HIGH_COUNT + CODE_HIGH_COUNT + IAC_HIGH_COUNT))
+
+      echo "High/Critical Issues Found: $TOTAL"
+      if [ "$TOTAL" -gt 0 ]; then
+        echo "❌ High severity vulnerabilities found."
+        exit 1
+      else
+        echo "✅ No high/critical issues found."
+      fi
   allow_failure: false
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
+
 
 #----------------------------------------------------------------
 # 1. Build frontend (always runs)
