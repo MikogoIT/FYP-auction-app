@@ -34,6 +34,16 @@ transition: background-color 0.3s ease;
 background-color: #e0e0e0;
 }
 
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+}
+
 .footerCon
 {
     margin-top: 50px;

@@ -24,26 +24,26 @@ function App() {
 
 
   return (
-    <div>
+    <div className="appContainer">
       <Router>
         <Header />
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/sell" element={<SellItem />} />
-          <Route path="/edit/:id" element={<EditListing />} />
-          <Route path="/bid/:id" element={<BidPage />} />
-          <Route path="/mylistings" element={<MyListings />} />
-          <Route path="/uploadImgTest" element={<ImageUploadPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-
-          {/* Only add the catch-all route if not an API request */}
-          {!isApiRoute && (
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          )}
-        </Routes>
+        <div className="mainContent">
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/sell" element={<SellItem />} />
+            <Route path="/edit/:id" element={<EditListing />} />
+            <Route path="/bid/:id" element={<BidPage />} />
+            <Route path="/mylistings" element={<MyListings />} />
+            <Route path="/uploadImgTest" element={<ImageUploadPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            {!isApiRoute && (
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            )}
+          </Routes>
+        </div>
         <Footer />
       </Router>
     </div>
