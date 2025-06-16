@@ -31,7 +31,7 @@ variables:
 snyk-full-scan:
   stage: security test
   image:
-    name: nyk/snyk:node-18
+    name: snyk/snyk:node-18
     entrypoint: [""]
   before_script:
     - apt-get update && apt-get install -y jq
