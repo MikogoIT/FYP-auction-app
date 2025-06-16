@@ -33,48 +33,18 @@ snyk-full-scan:
   image:
     name: snyk/snyk:node-22
     entrypoint: [""]
-  before_script:
-    - apt-get update && apt-get install -y jq
   script:
     - echo "Starting Snyk scans..."
 
     # --- SCA ---
-    - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --json > sca-results.json || true
-    - snyk monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+    - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
 
     # --- SAST ---
-    - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --json > code-results.json || true
-    - snyk code monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+    - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
 
     # --- IaC ---
-    - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf --json > iac-results.json || true
-    - snyk iac monitor --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
+    - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
 
-    # --- Severity Gate ---
-    - |
-      echo "Checking for high severity issues..."
-
-      HIGH_COUNT=$(
-        test -s sca-results.json && jq '[.vulnerabilities[] | select(.severity == "high" or .severity == "critical")] | length' sca-results.json 2>/dev/null || echo 0
-      )
-
-      CODE_HIGH_COUNT=$(
-        test -s code-results.json && jq '[.runs[].results[] | select(.severity=="high" or .severity=="critical")] | length' code-results.json 2>/dev/null || echo 0
-      )
-
-      IAC_HIGH_COUNT=$(
-        test -s iac-results.json && jq '[.results[].result.cloudConfigResults[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length' iac-results.json 2>/dev/null || echo 0
-      )
-
-      TOTAL=$((HIGH_COUNT + CODE_HIGH_COUNT + IAC_HIGH_COUNT))
-
-      echo "High/Critical Issues Found: $TOTAL"
-      if [ "$TOTAL" -gt 0 ]; then
-        echo "❌ High severity vulnerabilities found."
-        exit 1
-      else
-        echo "✅ No high/critical issues found."
-      fi
 
   allow_failure: false
   rules:

@@ -17,7 +17,7 @@ import path from "path";
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
 const gcs = new Storage();
-const bucket = gcs.bucket("auctioneer-dp-images");
+const bucket = gcs.bucket(" auctioneer-static-assets");
 
 // ——— configure Multer ———
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
