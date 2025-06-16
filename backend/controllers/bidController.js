@@ -6,6 +6,7 @@ export async function createBid(req, res) {
   const token = req.headers.authorization?.split(" ")[1];
   const payload = verifyToken(token);
 
+  
   if (!payload) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -16,6 +17,13 @@ export async function createBid(req, res) {
   }
 
   try {
+    const { min_price, highest_bid } = await getMinAllowedBid(auction_id);
+    const minAllowed = Math.max(min_price, highest_bid || 0);
+
+    if (bid_amount < minAllowed) {
+      return res.status(400).json({ message: `Bid must be at least $${minAllowed.toFixed(2)}` });
+    }
+
     const result = await insertBid(payload.userId, auction_id, bid_amount);
     res.status(201).json({ bid: result[0] });
   } catch (err) {

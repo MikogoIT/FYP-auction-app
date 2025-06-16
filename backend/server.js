@@ -9,6 +9,8 @@ import userRoutes from "./routes/userRoutes.js";
 import listingRoutes from "./routes/listingRoutes.js";
 import bidRoutes from "./routes/bidRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import auctionRoutes from "./routes/auctionRoutes.js";
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -34,6 +36,10 @@ app.use("/api/bids", bidRoutes);
 
 // category router
 app.use("/api/categories", categoryRoutes);
+
+// auction router
+app.use("/api/auctions", auctionRoutes);
+
 
 // 
 
