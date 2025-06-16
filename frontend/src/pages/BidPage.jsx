@@ -9,14 +9,13 @@ const BidPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMinPrice = async () => {
-      const res = await fetch(`/api/auctions/${id}`);
-      const data = await res.json();
-      setMinPrice(data.highest_bid || data.min_price);
-    };
-    fetchMinPrice();
-  }, [id]);
-
+  async function fetchMinAllowed() {
+    const res = await fetch(`/api/auctions/${id}/min-bid`);
+    const data = await res.json();
+    setMinAllowedBid(data.min_allowed);
+  }
+  fetchMinAllowed();
+}, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
