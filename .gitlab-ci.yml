@@ -31,10 +31,10 @@ variables:
 snyk-full-scan:
   stage: security test
   image:
-    name: snyk/snyk-cli:npm
+    name: nyk/snyk:node-18
     entrypoint: [""]
   before_script:
-    - apk add --no-cache jq
+    - apt-get update && apt-get install -y jq
   script:
     - echo "Starting Snyk scans..."
 
