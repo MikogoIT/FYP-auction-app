@@ -38,6 +38,7 @@ function App() {
           <Route path="/mylistings" element={<MyListings />} />
           <Route path="/uploadImgTest" element={<ImageUploadPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/ListingPage" element={<ListingPage />} />
 
           {/* Only add the catch-all route if not an API request */}
           {!isApiRoute && (
