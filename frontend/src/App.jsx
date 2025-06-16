@@ -11,6 +11,7 @@ import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
+import ListingPage from "./pages/ListingPage";
 
 
 // components
