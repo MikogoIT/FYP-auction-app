@@ -19,7 +19,7 @@ export const getActiveListings = async () => {
       l.end_date, 
       l.seller_id, 
       u.username AS seller,
-      COALESCE(MAX(b.amount), 0) AS current_bid
+      COALESCE(MAX(b.bid_amount), 0) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.listing_id
@@ -29,7 +29,6 @@ export const getActiveListings = async () => {
     ORDER BY l.end_date ASC
   `;
 };
-
 
 
 export const getListingById = async (id) => {
