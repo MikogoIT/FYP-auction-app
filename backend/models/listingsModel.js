@@ -55,3 +55,26 @@ export const getMyListings = async (userId) => {
     ORDER BY end_date ASC
   `;
 };
+
+export async function getListingsWithFilters(searchTerm, categoryId) {
+  return await sql`
+    SELECT l.*, u.username AS seller
+    FROM auction_listings l
+    JOIN users u ON l.seller_id = u.id
+    WHERE l.is_active = true
+      AND (${searchTerm} = '' OR l.title ILIKE ${"%" + searchTerm + "%"} OR l.description ILIKE ${"%" + searchTerm + "%"})
+      AND (${categoryId} = '' OR l.category_id::text = ${categoryId})
+    ORDER BY l.end_date ASC
+  `;
+}
+
+export async function getLatestListings(limit = 5) {
+  return await sql`
+    SELECT l.*, u.username AS seller
+    FROM auction_listings l
+    JOIN users u ON l.seller_id = u.id
+    WHERE l.is_active = true
+    ORDER BY l.end_date ASC
+    LIMIT ${limit}
+  `;
+}

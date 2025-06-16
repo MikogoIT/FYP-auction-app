@@ -6,7 +6,9 @@ import {
   getListing,
   putListing,
   deleteListingById,
-  getMyListingsHandler
+  getMyListingsHandler,
+  getRecentListings,
+  getAllListings
 } from "../controllers/listingsController.js";
 
 const router = express.Router();
@@ -17,5 +19,7 @@ router.get("/listings/:id", getListing);
 router.put("/listings/:id", putListing);
 router.delete("/listings/:id", deleteListingById);
 router.get("/mylistings", getMyListingsHandler);
+router.get("/recent", getRecentListings);
+router.get("/", getAllListings);
 
 export default router;

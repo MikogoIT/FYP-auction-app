@@ -1,0 +1,158 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const ITEMS_PER_PAGE = 6;
+
+const ListingPage = () => {
+  const [listings, setListings] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [filteredListings, setFilteredListings] = useState([]);
+  const [page, setPage] = useState(1);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const res = await fetch("/api/listings");
+        const data = await res.json();
+        if (res.ok) {
+          setListings(data.listings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch listings:", err);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        if (res.ok) {
+          setCategories(data.categories);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchListings();
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    let filtered = listings;
+
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(
+        (item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (item) => item.category_id === parseInt(selectedCategory)
+      );
+    }
+
+    setFilteredListings(filtered);
+    setPage(1); // Reset to first page when filters change
+  }, [searchTerm, selectedCategory, listings]);
+
+  const paginated = filteredListings.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>📋 All Auction Listings</h2>
+
+      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+        <input
+          type="text"
+          placeholder="🔍 Search by title or description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ padding: "8px", width: "250px", borderRadius: "4px", border: "1px solid #ccc" }}
+        />
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+        >
+          <option value="">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {paginated.length === 0 ? (
+        <p style={{ textAlign: "center" }}>No listings found.</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "20px"
+          }}
+        >
+          {paginated.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: "16px",
+                backgroundColor: "#f9f9f9"
+              }}
+            >
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <p><strong>Min Bid:</strong> ${item.min_bid}</p>
+              <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
+              <button
+                onClick={() => navigate(`/bid/${item.id}`)}
+                style={{
+                  marginTop: "10px",
+                  padding: "6px 12px",
+                  backgroundColor: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
+              >
+                💰 Bid
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {filteredListings.length > ITEMS_PER_PAGE && (
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
+          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+            ◀ Prev
+          </button>
+          <span>
+            Page {page} of {Math.ceil(filteredListings.length / ITEMS_PER_PAGE)}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(Math.ceil(filteredListings.length / ITEMS_PER_PAGE), p + 1))}
+            disabled={page === Math.ceil(filteredListings.length / ITEMS_PER_PAGE)}
+          >
+            Next ▶
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ListingPage;

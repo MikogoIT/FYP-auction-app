@@ -114,3 +114,32 @@ export async function getMyListingsHandler(req, res) {
     res.status(500).json({ message: "Failed to fetch listings" });
   }
 }
+
+export async function getRecentListings(req, res) {
+  try {
+    const result = await sql`
+      SELECT l.*, u.username AS seller
+      FROM auction_listings l
+      JOIN users u ON l.seller_id = u.id
+      WHERE is_active = true
+      ORDER BY end_date ASC
+      LIMIT 5
+    `;
+    res.json({ listings: result });
+  } catch (err) {
+    console.error("Fetch recent listings error:", err);
+    res.status(500).json({ message: "Failed to fetch listings" });
+  }
+}
+
+export async function getAllListings(req, res) {
+  const { q = "", category = "" } = req.query;
+
+  try {
+    const listings = await getListingsWithFilters(q, category);
+    res.json({ listings });
+  } catch (err) {
+    console.error("Fetch listings error:", err);
+    res.status(500).json({ message: "Failed to fetch listings" });
+  }
+}
