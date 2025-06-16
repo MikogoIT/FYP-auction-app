@@ -41,6 +41,11 @@ const BidPage = () => {
       setMessage(`❌ Bid must be at least $${minPrice.toFixed(2)}`);
       return;
     }
+
+    if (price > 99999999.99) {
+      alert("The bid amount cannot exceed 99999999.99");
+      return;
+    }
   
     try {
       const res = await fetch("/api/bids", {
@@ -67,6 +72,13 @@ const BidPage = () => {
 
   return (
     <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        className="bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 px-4 rounded mb-4"
+      >
+        ← Back
+      </button>
+
       <h2 style={{ textAlign: "center" }}>💰 Place Your Bid</h2>
       {minPrice !== null ? (
         <>

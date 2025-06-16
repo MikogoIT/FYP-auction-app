@@ -26,6 +26,10 @@ export async function createBid(req, res) {
       return res.status(400).json({ message: `Bid must be at least $${minBid}` });
     }
 
+    if (bidValue > 99999999.99) {
+      return res.status(400).json({ message: "Bid amount too high, must be less than 100 million" });
+    }
+
     const result = await insertBid(payload.userId, auction_id, bid_amount);
     res.status(201).json({ bid: result[0] });
   } catch (err) {

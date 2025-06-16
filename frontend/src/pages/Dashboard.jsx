@@ -139,8 +139,11 @@ const Dashboard = () => {
                   border: "1px solid #ccc",
                   borderRadius: "8px",
                   padding: "16px",
-                  backgroundColor: "#f9f9f9"
+                  backgroundColor: "#f9f9f9",
+                  cursor: "pointer",
+                  position: "relative"
                 }}
+                onClick={() => handleBidClick(item.id)}
               >
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
@@ -150,7 +153,10 @@ const Dashboard = () => {
 
                 {isOwner ? (
                   <button
-                    onClick={() => navigate(`/edit/${item.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/edit/${item.id}`);
+                    }}
                     style={{
                       marginTop: "10px",
                       padding: "6px 12px",
@@ -163,25 +169,29 @@ const Dashboard = () => {
                   >
                     ✏️ Edit
                   </button>
-                ):(
+                ) : (
                   <button
-                  onClick={() => handleBidClick(item.id)}
-                  style={{
-                    marginTop: "10px",
-                    padding: "6px 12px",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                  💰 Bid
-                </button>
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBidClick(item.id);
+                    }}
+                    style={{
+                      marginTop: "10px",
+                      padding: "6px 12px",
+                      backgroundColor: "#28a745",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    💰 Bid
+                  </button>
                 )}
               </div>
             );
           })}
+
         </div>
       )}
     </div>
