@@ -12,7 +12,7 @@ const BidPage = () => {
   async function fetchMinAllowed() {
     const res = await fetch(`/api/auctions/${id}/min-bid`);
     const data = await res.json();
-    setMinAllowedBid(data.min_allowed);
+    setMinPrice(data.min_allowed);
   }
   fetchMinAllowed();
 }, [id]);
