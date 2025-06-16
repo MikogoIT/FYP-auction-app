@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
-import { IMG_BASE_URL } from "../global-vars.jsx";
-
 
 const Dashboard = () => {
   const [listings, setListings] = useState([]);
@@ -50,14 +48,9 @@ const Dashboard = () => {
     fetchListings();
   }, []);
 
-<<<<<<< HEAD
-    const goToSell = () => {
-      navigate("/sell");
-    };
+ 
 
-    const handleBidClick = (auctionId) => {
-      navigate(`/bid/${auctionId}`);
-    };
+ 
 
     useEffect(() => {
       const fetchListings = async () => {
@@ -83,9 +76,6 @@ const Dashboard = () => {
     }, []);
   
     return (
-=======
-  return (
->>>>>>> 649ee69 (try listings have cover img)
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
         <button onClick={goToSell} style={buttonStyleBlue}>Sell Item</button>
@@ -105,24 +95,10 @@ const Dashboard = () => {
             const currentUserId = parseInt(localStorage.getItem("userId"));
             const isOwner = item.seller_id === currentUserId;
             return (
-<<<<<<< HEAD
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  backgroundColor: "#f9f9f9",
-                  cursor: "pointer",
-                  position: "relative"
-                }}
-                onClick={() => handleBidClick(item.id)}
-              >
-=======
-              <div key={item.id} style={cardStyle}>
+              <div key={item.id} style={cardStyle} onClick={() => handleBidClick(item.id)}>
                 {/* Cover Image */}
                 <div style={{ marginBottom: "12px" }}>
-                  {item.image_url && item.image_url.startsWith(IMG_BASE_URL) ? (
+                  {item.image_url ? (
                     <img
                       src={item.image_url}
                       alt={item.title}
@@ -135,11 +111,6 @@ const Dashboard = () => {
                   )}
                 </div>
 
-<<<<<<< HEAD
->>>>>>> 649ee69 (try listings have cover img)
-=======
-
->>>>>>> 0f54bb3 (test snyk ignore and did some fixes)
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p><strong>Min Bid:</strong> ${item.min_bid}</p>
@@ -153,21 +124,12 @@ const Dashboard = () => {
                 <p><strong>Seller:</strong> {item.seller}</p>
 
                 {isOwner ? (
-<<<<<<< HEAD
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/edit/${item.id}`);
                     }}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 12px",
-                      backgroundColor: "#ffc107",
-                      color: "#333",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
+                    style={buttonStyleEdit}
                   >
                     ✏️ Edit
                   </button>
@@ -177,23 +139,10 @@ const Dashboard = () => {
                       e.stopPropagation();
                       handleBidClick(item.id);
                     }}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 12px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
+                    style={buttonStyleBid}
                   >
                     💰 Bid
                   </button>
-=======
-                  <button onClick={() => navigate(`/edit/${item.id}`)} style={buttonStyleEdit}>✏️ Edit</button>
-                ) : (
-                  <button onClick={() => handleBidClick(item.id)} style={buttonStyleBid}>💰 Bid</button>
->>>>>>> 649ee69 (try listings have cover img)
                 )}
               </div>
             );
