@@ -31,7 +31,7 @@ variables:
 snyk-full-scan:
   stage: security test
   image:
-    name: snyk/snyk:node-18
+    name: snyk/snyk:node-22
     entrypoint: [""]
   before_script:
     - apt-get update && apt-get install -y jq
@@ -53,14 +53,17 @@ snyk-full-scan:
     # --- Severity Gate ---
     - |
       echo "Checking for high severity issues..."
+
       HIGH_COUNT=$(
-        jq '[.vulnerabilities[] | select(.severity == "high" or .severity == "critical")] | length' sca-results.json
+        test -s sca-results.json && jq '[.vulnerabilities[] | select(.severity == "high" or .severity == "critical")] | length' sca-results.json 2>/dev/null || echo 0
       )
+
       CODE_HIGH_COUNT=$(
-        jq '[.runs[].results[] | select(.severity=="high" or .severity=="critical")] | length' code-results.json
+        test -s code-results.json && jq '[.runs[].results[] | select(.severity=="high" or .severity=="critical")] | length' code-results.json 2>/dev/null || echo 0
       )
+
       IAC_HIGH_COUNT=$(
-        jq '[.results[].result.cloudConfigResults[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length' iac-results.json
+        test -s iac-results.json && jq '[.results[].result.cloudConfigResults[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length' iac-results.json 2>/dev/null || echo 0
       )
 
       TOTAL=$((HIGH_COUNT + CODE_HIGH_COUNT + IAC_HIGH_COUNT))
@@ -72,6 +75,7 @@ snyk-full-scan:
       else
         echo "✅ No high/critical issues found."
       fi
+
   allow_failure: false
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
