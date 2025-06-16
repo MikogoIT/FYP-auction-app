@@ -159,7 +159,7 @@ const Dashboard = () => {
 
           <div style={{ textAlign: "center", marginTop: "30px" }}>
             <button
-              onClick={() => navigate("/listingPage")}
+              onClick={() => navigate("/ListingPage")}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "#007bff",
