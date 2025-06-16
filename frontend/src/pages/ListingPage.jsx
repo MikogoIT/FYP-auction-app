@@ -8,23 +8,11 @@ const ListingPage = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [filteredListings, setFilteredListings] = useState([]);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
 
+  // get all categories for the filter dropdown
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const res = await fetch("/api/listings");
-        const data = await res.json();
-        if (res.ok) {
-          setListings(data.listings);
-        }
-      } catch (err) {
-        console.error("Failed to fetch listings:", err);
-      }
-    };
-
     const fetchCategories = async () => {
       try {
         const res = await fetch("/api/categories");
@@ -37,32 +25,32 @@ const ListingPage = () => {
       }
     };
 
-    fetchListings();
     fetchCategories();
   }, []);
 
+  // Filter listings based on search and category
   useEffect(() => {
-    let filtered = listings;
+    const fetchListings = async () => {
+      try {
+        const params = new URLSearchParams();
+        if (searchTerm.trim()) params.append("q", searchTerm.trim());
+        if (selectedCategory) params.append("category", selectedCategory);
 
-    if (searchTerm.trim()) {
-      filtered = filtered.filter(
-        (item) =>
-          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+        const res = await fetch(`/api/listings?${params.toString()}`);
+        const data = await res.json();
+        if (res.ok) {
+          setListings(data.listings);
+          setPage(1); // Reset pagination
+        }
+      } catch (err) {
+        console.error("Failed to fetch listings:", err);
+      }
+    };
 
-    if (selectedCategory) {
-      filtered = filtered.filter(
-        (item) => item.category_id === parseInt(selectedCategory)
-      );
-    }
+    fetchListings();
+  }, [searchTerm, selectedCategory]);
 
-    setFilteredListings(filtered);
-    setPage(1); // Reset to first page when filters change
-  }, [searchTerm, selectedCategory, listings]);
-
-  const paginated = filteredListings.slice(
+  const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
@@ -134,18 +122,20 @@ const ListingPage = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
-      {filteredListings.length > ITEMS_PER_PAGE && (
+      {/* Pagination controls */}
+      {listings.length > ITEMS_PER_PAGE && (
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
             ◀ Prev
           </button>
           <span>
-            Page {page} of {Math.ceil(filteredListings.length / ITEMS_PER_PAGE)}
+            Page {page} of {Math.ceil(listings.length / ITEMS_PER_PAGE)}
           </span>
           <button
-            onClick={() => setPage((p) => Math.min(Math.ceil(filteredListings.length / ITEMS_PER_PAGE), p + 1))}
-            disabled={page === Math.ceil(filteredListings.length / ITEMS_PER_PAGE)}
+            onClick={() =>
+              setPage((p) => Math.min(Math.ceil(listings.length / ITEMS_PER_PAGE), p + 1))
+            }
+            disabled={page === Math.ceil(listings.length / ITEMS_PER_PAGE)}
           >
             Next ▶
           </button>
