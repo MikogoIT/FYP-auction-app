@@ -45,7 +45,12 @@ const Header = () => {
 
   return (
     <div className="headerBar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" }}>
-      <img src={`${IMG_BASE_URL}full-logo.png`} style={{ width: "150px" }} />
+      <img
+        src={`${IMG_BASE_URL}full-logo.png`}
+        style={{ width: "150px", cursor: "pointer" }}
+        alt="Logo"
+        onClick={() => navigate("/dashboard")}
+      />
 
       {!hideLogout && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
