@@ -148,6 +148,7 @@ const Dashboard = () => {
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p><strong>Min Bid:</strong> ${item.min_bid}</p>
+                <p><strong>Current Bid:</strong> ${item.current_bid ?? "No bids yet"}</p>
                 <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
                 <p><strong>Seller:</strong> {item.seller}</p>
 
