@@ -42,7 +42,7 @@ const BidPage = () => {
       return;
     }
 
-    if (price > 99999999.99) {
+    if (minPrice > 99999999.99) {
       alert("The bid amount cannot exceed 99999999.99");
       return;
     }
