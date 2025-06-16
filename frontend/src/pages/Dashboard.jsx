@@ -149,8 +149,8 @@ const Dashboard = () => {
                 <p>{item.description}</p>
                 <p><strong>Min Bid:</strong> ${item.min_bid}</p>
                 <p>
-                  <strong>Current Bid:</strong> {item.current_bid !== null && item.current_bid !== undefined 
-                    ? `$${item.current_bid}` 
+                  <strong>Current Bid:</strong> {item.bid_amount !== null && item.bid_amount !== undefined 
+                    ? `$${item.bid_amount}` 
                     : "No bids yet"}
                 </p>
 
