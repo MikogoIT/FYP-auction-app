@@ -63,6 +63,7 @@ export default function Profile() {
 
   // 2) Inject Telegram widget immediately
   useEffect(() => {
+    console.log("I'm in here!")
     // Define global callback
     window.onTelegramAuth = async function (user) {
       alert(`✅ Connected as @${user.username}`);
@@ -71,6 +72,7 @@ export default function Profile() {
 
     // Inject Telegram login script
     if (!document.getElementById("telegram-login-script")) {
+      console.log("No script exists yet!")
       const script = document.createElement("script");
       script.src = "https://telegram.org/js/telegram-widget.js?22";
       script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
@@ -82,14 +84,6 @@ export default function Profile() {
       script.async = true;
       const container = document.getElementById("telegram-container");
       if (container) container.appendChild(script);
-    }
-
-    return () => {
-      // Cleanup script & container if you want
-      const container = document.getElementById("telegram-container");
-      if (container) container.innerHTML = "";
-      const script = document.getElementById("telegram-login-script");
-      if (script) script.remove();
     };
   }, []);
 
