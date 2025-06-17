@@ -63,24 +63,22 @@ export default function Profile() {
 
   // 2) Inject Telegram widget immediately
   useEffect(() => {
-    console.log("I'm in here!");
+    if (!user) return; // Don't run if user isn't ready yet
 
-    // Define global callback for Telegram
-    window.onTelegramAuth = async function (user) {
-      alert(`✅ Connected as @${user.username}`);
-      console.log("Telegram user:", user);
+    console.log("User is loaded, injecting Telegram widget...");
+
+    window.onTelegramAuth = async function (telegramUser) {
+      alert(`✅ Connected as @${telegramUser.username}`);
+      console.log("Telegram user:", telegramUser);
     };
 
-    // Check for existing script
-    const existingScript = document.getElementById("telegram-login-script");
-    if (existingScript) return; // Already exists, do nothing
-
-    // Try to find container immediately
     const container = document.getElementById("telegram-container");
-    console.log("Trying to find container:", container);
+    if (!container) {
+      console.warn("Container not found yet!");
+      return;
+    }
 
-    // Function to create and inject script
-    const injectScript = () => {
+    if (!document.getElementById("telegram-login-script")) {
       const script = document.createElement("script");
       script.src = "https://telegram.org/js/telegram-widget.js?22";
       script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
@@ -90,22 +88,9 @@ export default function Profile() {
       script.setAttribute("data-onauth", "onTelegramAuth(user)");
       script.id = "telegram-login-script";
       script.async = true;
-      container?.appendChild(script);
-    };
-
-    if (container) {
-      injectScript(); // Inject immediately
-    } else {
-      // Retry after short delay
-      setTimeout(() => {
-        const delayedContainer = document.getElementById("telegram-container");
-        console.log("Delayed container check:", delayedContainer);
-        if (delayedContainer && !document.getElementById("telegram-login-script")) {
-          injectScript();
-        }
-      }, 500);
+      container.appendChild(script);
     }
-  }, []);
+  }, [user]); // <-- Run only when `user` changes
 
 
   const handleGoBack = () => navigate("/dashboard");
