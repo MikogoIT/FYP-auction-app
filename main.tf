@@ -192,15 +192,6 @@ resource "google_storage_bucket" "upl_dp_img_bucket" {
   location = google_cloud_run_v2_service.cloud_run_app.location
   uniform_bucket_level_access = true
 
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-    condition {
-      age = 30
-    }
-  }
-
   force_destroy = true
 }
 

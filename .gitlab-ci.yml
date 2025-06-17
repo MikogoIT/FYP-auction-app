@@ -1,4 +1,5 @@
 stages:
+  - security test
   - build
   - deploy 1     # Docker → GAR
   - deploy 2     # Terraform
@@ -23,6 +24,35 @@ variables:
 
   # Static assets
   GCS_DEV_BUCKET_NAME: auctioneer-static-assets
+
+#----------------------------------------------------------------
+# 0. scan code
+#----------------------------------------------------------------
+snyk-full-scan:
+  stage: security test
+  image:
+    name: snyk/snyk:node-22
+    entrypoint: [""]
+  script:
+    - echo "Starting Snyk scans..."
+
+    # --- SCA ---
+    - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+
+    # --- SAST ---
+    - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+
+    # --- IaC ---
+    - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
+
+
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never
+
+
 
 #----------------------------------------------------------------
 # 1. Build frontend (always runs)
