@@ -58,6 +58,25 @@ export default function Profile() {
       }
     };
 
+    // Define the global callback Telegram will call
+    window.onTelegramAuth = async function(user) {
+      try {
+        // const res = await fetch("/api/auth/telegram", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(user),
+        // });
+
+        // const data = await res.json();
+        // if (!res.ok) throw new Error(data.message || "Auth failed");
+
+        alert(`✅ Connected as @${user.username}`);
+      } catch (err)
+      {
+        alert("❌ Telegram auth failed: " + err.message);
+      }
+    }
+
     const injectTelegramLogin = () => {
       if (document.getElementById("telegram-login-script")) return;
 
@@ -74,10 +93,6 @@ export default function Profile() {
       if (container) container.appendChild(script);
 
     };
-
-    window.onTelegramAuth = function(user) {
-      alert(`Logged in as (@${user.username})`)
-    }
 
     injectTelegramLogin();
     fetchProfileAndPhoto();
