@@ -59,23 +59,10 @@ export default function Profile() {
     };
 
     // Define the global callback Telegram will call
-    window.onTelegramAuth = async function(user) {
-      try {
-        // const res = await fetch("/api/auth/telegram", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(user),
-        // });
-
-        // const data = await res.json();
-        // if (!res.ok) throw new Error(data.message || "Auth failed");
-
-        alert(`✅ Connected as @${user.username}`);
-      } catch (err)
-      {
-        alert("❌ Telegram auth failed: " + err.message);
-      }
-    }
+    window.onTelegramAuth = async function (user) {
+      alert(`✅ Connected as @${user.username}`);
+      console.log("Telegram user:", user);
+    };
 
     const injectTelegramLogin = () => {
       if (document.getElementById("telegram-login-script")) return;
@@ -84,8 +71,9 @@ export default function Profile() {
       script.src = "https://telegram.org/js/telegram-widget.js?22";
       script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
       script.setAttribute("data-size", "large");
-      script.setAttribute("data-onauth", "onTelegramAuth(user)");
+      script.setAttribute("data-userpic", "true")
       script.setAttribute("data-request-access", "write");
+      script.setAttribute("data-onauth", "onTelegramAuth(user)");
       script.id = "telegram-login-script";
       script.async = true;
 
@@ -95,6 +83,7 @@ export default function Profile() {
     };
 
     injectTelegramLogin();
+    console.log("Telegram script injected?", document.getElementById("telegram-login-script"));
     fetchProfileAndPhoto();
   }, []);
 
@@ -386,9 +375,9 @@ export default function Profile() {
             <p>
               <strong>Address:</strong> {user.address}
             </p>
-            <div id="telegram-container" style={{ textAlign: "center", marginTop: "30px" }} />
           </>
         )}
+        <div id="telegram-container"></div>
       </div>
     </div>
   );
