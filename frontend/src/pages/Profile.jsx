@@ -63,16 +63,24 @@ export default function Profile() {
 
   // 2) Inject Telegram widget immediately
   useEffect(() => {
-    console.log("I'm in here!")
-    // Define global callback
+    console.log("I'm in here!");
+
+    // Define global callback for Telegram
     window.onTelegramAuth = async function (user) {
       alert(`✅ Connected as @${user.username}`);
       console.log("Telegram user:", user);
     };
 
-    // Inject Telegram login script
-    if (!document.getElementById("telegram-login-script")) {
-      console.log("No script exists yet!")
+    // Check for existing script
+    const existingScript = document.getElementById("telegram-login-script");
+    if (existingScript) return; // Already exists, do nothing
+
+    // Try to find container immediately
+    const container = document.getElementById("telegram-container");
+    console.log("Trying to find container:", container);
+
+    // Function to create and inject script
+    const injectScript = () => {
       const script = document.createElement("script");
       script.src = "https://telegram.org/js/telegram-widget.js?22";
       script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
@@ -82,9 +90,21 @@ export default function Profile() {
       script.setAttribute("data-onauth", "onTelegramAuth(user)");
       script.id = "telegram-login-script";
       script.async = true;
-      const container = document.getElementById("telegram-container");
-      if (container) container.appendChild(script);
+      container?.appendChild(script);
     };
+
+    if (container) {
+      injectScript(); // Inject immediately
+    } else {
+      // Retry after short delay
+      setTimeout(() => {
+        const delayedContainer = document.getElementById("telegram-container");
+        console.log("Delayed container check:", delayedContainer);
+        if (delayedContainer && !document.getElementById("telegram-login-script")) {
+          injectScript();
+        }
+      }, 500);
+    }
   }, []);
 
 
