@@ -58,6 +58,28 @@ export default function Profile() {
       }
     };
 
+    const injectTelegramLogin = () => {
+      if (document.getElementById("telegram-login-script")) return;
+
+      const script = document.createElement("script");
+      script.src = "https://telegram.org/js/telegram-widget.js?22";
+      script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
+      script.setAttribute("data-size", "large");
+      script.setAttribute("data-onauth", "onTelegramAuth(user)");
+      script.setAttribute("data-request-access", "write");
+      script.id = "telegram-login-script";
+      script.async = true;
+
+      const container = document.getElementById("telegram-container");
+      if (container) container.appendChild(script);
+
+    };
+
+    window.onTelegramAuth = function(user) {
+      alert(`Logged in as (@${user.username})`)
+    }
+
+    injectTelegramLogin();
     fetchProfileAndPhoto();
   }, []);
 
@@ -349,6 +371,7 @@ export default function Profile() {
             <p>
               <strong>Address:</strong> {user.address}
             </p>
+            <div id="telegram-container" style={{ textAlign: "center", marginTop: "30px" }} />
           </>
         )}
       </div>
