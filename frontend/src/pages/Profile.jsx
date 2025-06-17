@@ -58,33 +58,39 @@ export default function Profile() {
       }
     };
 
-    // Define the global callback Telegram will call
+    fetchProfileAndPhoto();
+  }, []);
+
+  // 2) Inject Telegram widget immediately
+  useEffect(() => {
+    // Define global callback
     window.onTelegramAuth = async function (user) {
       alert(`✅ Connected as @${user.username}`);
       console.log("Telegram user:", user);
     };
 
-    const injectTelegramLogin = () => {
-      if (document.getElementById("telegram-login-script")) return;
-
+    // Inject Telegram login script
+    if (!document.getElementById("telegram-login-script")) {
       const script = document.createElement("script");
       script.src = "https://telegram.org/js/telegram-widget.js?22";
       script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
       script.setAttribute("data-size", "large");
-      script.setAttribute("data-userpic", "true")
+      script.setAttribute("data-userpic", "true");
       script.setAttribute("data-request-access", "write");
       script.setAttribute("data-onauth", "onTelegramAuth(user)");
       script.id = "telegram-login-script";
       script.async = true;
-
       const container = document.getElementById("telegram-container");
       if (container) container.appendChild(script);
+    }
 
+    return () => {
+      // Cleanup script & container if you want
+      const container = document.getElementById("telegram-container");
+      if (container) container.innerHTML = "";
+      const script = document.getElementById("telegram-login-script");
+      if (script) script.remove();
     };
-
-    injectTelegramLogin();
-    console.log("Telegram script injected?", document.getElementById("telegram-login-script"));
-    fetchProfileAndPhoto();
   }, []);
 
 
