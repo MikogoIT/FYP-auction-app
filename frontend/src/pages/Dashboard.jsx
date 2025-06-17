@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
+import { IMG_BASE_URL } from "../global-vars.jsx";
+
 
 const Dashboard = () => {
   const [listings, setListings] = useState([]);
@@ -120,7 +122,7 @@ const Dashboard = () => {
               <div key={item.id} style={cardStyle}>
                 {/* Cover Image */}
                 <div style={{ marginBottom: "12px" }}>
-                  {item.image_url ? (
+                  {item.image_url && item.image_url.startsWith(IMG_BASE_URL) ? (
                     <img
                       src={item.image_url}
                       alt={item.title}
@@ -133,7 +135,11 @@ const Dashboard = () => {
                   )}
                 </div>
 
+<<<<<<< HEAD
 >>>>>>> 649ee69 (try listings have cover img)
+=======
+
+>>>>>>> 0f54bb3 (test snyk ignore and did some fixes)
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <p><strong>Min Bid:</strong> ${item.min_bid}</p>
