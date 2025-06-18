@@ -55,6 +55,35 @@ variables:
 
 
 #----------------------------------------------------------------
+# 0. scan code
+#----------------------------------------------------------------
+# snyk-full-scan:
+#   stage: security test
+#   image:
+#     name: snyk/snyk:node-22
+#     entrypoint: [""]
+#   script:
+#     - echo "Starting Snyk scans..."
+
+#     # --- SCA ---
+#     - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
+
+#     # --- SAST ---
+#     - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
+
+#     # --- IaC ---
+#     - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf --severity-threshold=high  
+
+
+#   allow_failure: false
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       when: on_success
+#     - when: never
+
+
+
+#----------------------------------------------------------------
 # 1. Build frontend (always runs)
 #----------------------------------------------------------------
 build-app:
