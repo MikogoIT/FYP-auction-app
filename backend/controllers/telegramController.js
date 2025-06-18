@@ -1,29 +1,39 @@
 // controllers/telegramController.js
-import { isTelegramDataValid } from "../utils/telegramUtils";
-import db from "../utils/db.js";
+import { linkTelegramToUser, getTelegramLinkStatus } from "../models/telegramModel.js";
+import { verifyToken } from "../utils/token.js";
 
-export async function linkTelegram(req, res) {
-    const telegramUser = req.body;
+export async function linkTelegramAccount(req, res) {
+    const { token, telegram_id, telegram_username } = req.body;
 
-    const isValid = isTelegramDataValid(telegramUser, process.env.TELEGRAM_BOT_TOKEN);
-    if (!isValid) {
-        return res.status(401).json({ message: "Invalid Telegram data" });
+    // Verify token
+    const tokenData = verifyToken(token);
+    if (!tokenData || !tokenData.userId) {
+        return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    const userId = req.user.id; // JWT Token (need to check this)
+    const userId = parseInt(tokenData.userId);
 
+    // Link Telegram to user
     try {
-        await db.User.update(
-            {
-                telegram_id: telegramUser.id,
-                telegram_username: telegramUser.username,
-            },
-            { where: { id: userId } }
-        );
-
-        res.json({ message: "Telegram account linked!" });
+        await linkTelegramToUser(userId, telegram_id, telegram_username);
+        res.json({ message: "Telegram account linked successfully" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Telegram linking error: ", err);
+        res.status(500).json({ message: "Failed to link Telegram account" });
+    }
+}
+
+export async function getTelegramStatus(req, res) {
+    const { token } = req.body;
+    const tokenData = verifyToken(token);
+    if (!tokenData || !tokenData.userId) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const result = await getTelegramLinkStatus(parseInt(tokenData.userId));
+    if (result) {
+        res.json({ linked: true, telegram_username: result.telegram_username });
+    } else {
+        res.json({ linked: false });
     }
 }

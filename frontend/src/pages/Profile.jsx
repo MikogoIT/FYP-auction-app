@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
+import TelegramConnect from "./TelegramConnect";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -19,6 +20,11 @@ export default function Profile() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  // Telegram link status
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [telegramUsername, setTelegramUsername] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,32 +66,6 @@ export default function Profile() {
 
     fetchProfileAndPhoto();
   }, []);
-
-  // Add "Connect to Telegram" button to profile page
-  useEffect(() => {
-    if (!user) return; // Don't run if user isn't ready yet
-
-    // Display Telegram username that is connected
-    window.onTelegramAuth = async function (telegramUser) {
-      alert(`✅ Connected as @${telegramUser.username}`);
-    };
-
-    const container = document.getElementById("telegram-container");
-
-    if (!document.getElementById("telegram-login-script")) {
-      const script = document.createElement("script");
-      script.src = "https://telegram.org/js/telegram-widget.js?22";
-      script.setAttribute("data-telegram-login", "AuctioneerFYPBot");
-      script.setAttribute("data-size", "large");
-      script.setAttribute("data-userpic", "true");
-      script.setAttribute("data-request-access", "write");
-      script.setAttribute("data-onauth", "onTelegramAuth(user)");
-      script.id = "telegram-login-script";
-      script.async = true;
-      container.appendChild(script);
-    }
-  }, [user]); // <-- Run only when `user` changes
-
 
   const handleGoBack = () => navigate("/dashboard");
   const handleChange = (field, value) =>
@@ -376,7 +356,7 @@ export default function Profile() {
             </p>
           </>
         )}
-        <div id="telegram-container"></div>
+        <TelegramConnect user={user} />
       </div>
     </div>
   );
