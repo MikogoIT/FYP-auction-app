@@ -207,7 +207,7 @@ const AdminPage = () => {
                             cursor: "pointer",
                           }}
                         >
-                          {user.is_frozen ? "Unfreeze" : "Freeze"}
+                          {user.is_frozen ? "Unsuspend" : "Suspend"}
                         </button>
                         <button
                           onClick={() => deleteUser(user.id)}
