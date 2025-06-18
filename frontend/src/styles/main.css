@@ -103,7 +103,14 @@ background-color: #e0e0e0;
 #landingBlock2
 {
   background-color: #f1f0f0;
-  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  width: 320px;
+}
+
+#landingBlock2 img
+{
+  width: 100%;
 }
 
 .headerSpacing
