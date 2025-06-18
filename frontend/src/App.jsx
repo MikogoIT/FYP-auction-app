@@ -13,7 +13,6 @@ import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
 import Landing from "./pages/landing";
 
-
 // components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
