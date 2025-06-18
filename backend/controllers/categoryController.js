@@ -11,9 +11,9 @@ import {
 } from "../models/categoryModel.js";
 
 // get all categories
-export async function getCategories(_, res) {
+export async function getCategories(req, res) {
   try {
-    const result = await getAllCategories();
+    const result = await sql`SELECT * FROM categories WHERE is_suspended = FALSE`;
     res.json({ categories: result });
   } catch (err) {
     console.error("Fetch categories error:", err);

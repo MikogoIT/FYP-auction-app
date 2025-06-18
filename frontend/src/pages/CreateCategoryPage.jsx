@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateCategoryPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [msg, setMsg] = useState("");
-
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +30,9 @@ const CreateCategoryPage = () => {
       const data = await res.json();
       if (res.ok) {
         setMsg("✅ Category created.");
-        setName("");
-        setDescription("");
-
+        setTimeout(() => {
+          navigate(-1);
+        }, 1000);
       } else {
         setMsg("❌ " + (data.message || "Creation failed"));
       }
@@ -42,6 +43,7 @@ const CreateCategoryPage = () => {
 
   return (
     <div style={styles.container}>
+      <button onClick={() => navigate(-1)} style={styles.backButton}>← Back</button> {/* ← 返回按钮 */}
       <h2 style={styles.title}>Create New Category</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input
@@ -87,6 +89,18 @@ const styles = {
     boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
     backgroundColor: "#fff",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    background: "#f0f0f0",
+    border: "1px solid #ccc",
+    padding: "6px 12px",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontWeight: "bold",
   },
   title: {
     textAlign: "center",

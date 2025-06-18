@@ -7,6 +7,7 @@ const CategoryDetailPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -73,6 +74,7 @@ const CategoryDetailPage = () => {
 
   return (
     <div style={styles.container}>
+      <button onClick={() => navigate(-1)} style={styles.backButton}>← Back</button>
       <h2 style={styles.title}>Category Detail</h2>
       <p style={styles.status}>
         <strong>Status:</strong>{" "}

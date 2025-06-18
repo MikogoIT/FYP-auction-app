@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ListingCategoryPage = () => {
   const [query, setQuery] = useState("");
   const [categories, setCategories] = useState([]);
   const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = async () => {
     setMsg("");
@@ -35,6 +36,7 @@ const ListingCategoryPage = () => {
 
   return (
     <div style={styles.container}>
+      <button onClick={() => navigate(-1)} style={styles.backButton}>← Back</button>
       <h2 style={styles.title}>Search Categories</h2>
       <div style={styles.searchBox}>
         <input
@@ -72,6 +74,18 @@ const styles = {
     boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
     backgroundColor: "#fff",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    background: "#f0f0f0",
+    border: "1px solid #ccc",
+    padding: "6px 12px",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontWeight: "bold",
   },
   title: {
     textAlign: "center",
