@@ -44,7 +44,7 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
-            <Route path="/admin/category" element={<CategoryDetailPage />} />
+            <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
             
             {!isApiRoute && (
               <Route path="*" element={<Navigate to="/login" replace />} />

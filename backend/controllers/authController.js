@@ -10,6 +10,9 @@ export async function loginUser(req, res) {
     return res.status(400).json({ message: "Email and Password are required" });
   }
 
+  //Convert input to lowercase
+  email = email.toLowerCase();
+
   try {
     const user = await AuthModel.findUserByEmail(email);
 
@@ -38,6 +41,7 @@ export async function loginUser(req, res) {
 
 export async function registerUser(req, res) {
   const { username, email, password, full_name, phone_number, address } = req.body;
+  const emailLower = email.toLowerCase();
 
   if (!username || !email || !password || !full_name || !phone_number || !address) {
     return res.status(400).json({ message: "All fields are required" });
@@ -66,7 +70,7 @@ export async function registerUser(req, res) {
     const passwordHash = hashPassword(password);
     const newUser = await AuthModel.createUser({
       username,
-      email,
+      email: emailLower,
       passwordHash,
       full_name,
       phone_number,
