@@ -15,7 +15,7 @@ export default function Profile() {
           <div className="title">
             <div>Auctioneer</div>
           </div>
-          <div className="subtext" style={{ textAlign: 'center' }}>
+          <div className="subtext">
             <div>Your Auctions, One Telegram Away</div>
 
             {/* Material Web "filled" button */}
