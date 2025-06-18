@@ -13,31 +13,22 @@ const Header = () => {
   const hideLogout = pathname === "/login";
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      fetch("/api/users/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    fetch("/api/users/profile", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.is_admin) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.user?.is_admin) {
-            setIsAdmin(true);
-          }
-        })
-        .catch((err) => console.error("Error checking admin status:", err));
-    } else {
-      setIsAdmin(false);
-    }
+      .catch((err) => {
+        setIsAdmin(false);
+        console.error("Error checking admin status:", err);
+      });
   }, [pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    navigate("/login");
-  };
 
   const goToAdminPage = () => {
     navigate("/admin");

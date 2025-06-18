@@ -5,6 +5,7 @@ import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -60,6 +61,12 @@ app.use(express.static(path.join(__dirname, '../frontend', 'dist')));
 
 // Enable JSON body parsing in advance
 app.use(express.json());
+
+// Enable CORS
+app.use(cors({
+  origin: "http://localhost:4433", 
+  credentials: true
+}));
 
 //listing router
 app.use("/api", listingRoutes);

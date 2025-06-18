@@ -32,6 +32,7 @@ export async function loginUser(req, res) {
       email: user.email,
       username: user.username
     };
+    req.session.userId = user.id;
 
     res.json({
       message: "Login successful",
