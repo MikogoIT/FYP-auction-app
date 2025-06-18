@@ -21,11 +21,6 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  // Telegram link status
-  const [telegramLinked, setTelegramLinked] = useState(false);
-  const [telegramUsername, setTelegramUsername] = useState(null);
-  const [isHovered, setIsHovered] = useState(false);
-
   const navigate = useNavigate();
 
   // Fetch profile (data + current photo URL)
