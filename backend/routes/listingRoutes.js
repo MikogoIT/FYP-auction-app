@@ -23,7 +23,7 @@ router.get("/listings/:id", getListing);
 router.put("/listings/:id", requireLogin, putListing);
 router.delete("/listings/:id", requireLogin, deleteListingById);
 
-router.get("/mylistings", getMyListingsHandler);
+router.get("/mylistings", requireLogin, getMyListingsHandler);
 router.get("/", getAllListings);
 
 export default router;
