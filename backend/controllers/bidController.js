@@ -1,12 +1,10 @@
 // controllers/bidController.js
-import { verifyToken } from "../utils/token.js";
 import { insertBid } from "../models/bidModel.js";
 
 export async function createBid(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
+  const userId = req.session.userId;
 
-  if (!payload) {
+  if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -16,7 +14,7 @@ export async function createBid(req, res) {
   }
 
   try {
-    const result = await insertBid(payload.userId, auction_id, bid_amount);
+    const result = await insertBid(userId, auction_id, bid_amount);
     res.status(201).json({ bid: result[0] });
   } catch (err) {
     console.error("Bid error:", err);

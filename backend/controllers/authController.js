@@ -1,7 +1,6 @@
 // controllers/authController.js
 import * as AuthModel from "../models/authModel.js";
 import { comparePassword, hashPassword } from "../utils/auth.js";
-import { createToken } from "../utils/token.js";
 
 export async function loginUser(req, res) {
   const { email, password } = req.body;

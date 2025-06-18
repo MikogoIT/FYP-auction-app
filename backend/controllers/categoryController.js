@@ -1,5 +1,4 @@
 // controllers/categoryController.js
-import { verifyToken } from "../utils/token.js";
 import { getAllCategories, insertCategory, isAdmin } from "../models/categoryModel.js";
 
 // get all categories
@@ -15,13 +14,13 @@ export async function getCategories(_, res) {
 
 // create a new category
 export async function createCategory(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   if (!payload) return res.status(401).json({ message: "Unauthorized" });
 
   // Check if user is admin
-  const isAdminUser = await isAdmin(payload.userId);
+  const isAdminUser = await isAdmin(userId);
   if (!isAdminUser) {
     return res.status(403).json({ message: "Admins only" });
   }
