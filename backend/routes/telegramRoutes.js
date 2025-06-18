@@ -1,6 +1,6 @@
 // routes/telegramRoutes.js
 import express from "express";
-import { linkTelegramAccount, getTelegramStatus } from "../controllers/telegramController";
+import { linkTelegramAccount, getTelegramStatus } from "../controllers/telegramController.js";
 
 const router = express.Router();
 
