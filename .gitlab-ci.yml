@@ -71,7 +71,7 @@ build-app:
       - frontend/node_modules/
 
   script:
-    - npm ci --prefix frontend
+    - npm install --prefix frontend
     - npm run build --prefix frontend
 
   artifacts:
