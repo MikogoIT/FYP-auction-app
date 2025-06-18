@@ -25,6 +25,20 @@ const MyListings = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center" }}>My Listings</h2>
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading...</p>

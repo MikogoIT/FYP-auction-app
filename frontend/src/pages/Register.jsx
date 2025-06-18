@@ -54,6 +54,20 @@ const Register = () => {
 
   return (
     <div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center" }}>User Registration</h2>
 
       <form onSubmit={handleSubmit}>

@@ -119,6 +119,20 @@ const AdminPage = () => {
 
   return (
     <div style={{ padding: "40px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👑 Admin Panel - Manage Users</h2>
       
       <h3>🗂️ Create New Category</h3>

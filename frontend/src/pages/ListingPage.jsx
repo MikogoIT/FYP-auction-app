@@ -57,6 +57,20 @@ const ListingPage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>📋 All Auction Listings</h2>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>

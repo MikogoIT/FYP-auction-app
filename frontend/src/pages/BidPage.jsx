@@ -36,6 +36,20 @@ const BidPage = () => {
 
   return (
     <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center" }}>Place Your Bid</h2>
       <form onSubmit={handleSubmit}>
         <label>Bid Amount ($):</label>
