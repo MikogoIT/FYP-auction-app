@@ -19,3 +19,9 @@ export async function getTelegramLinkStatus(userId) {
     `;
     return result[0]; // undefined if not linked
 }
+
+export async function unlinkTelegramFromUser(userId) {
+    await sql`
+        DELETE FROM telegram_accounts WHERE user_id = ${userId}
+    `;
+}

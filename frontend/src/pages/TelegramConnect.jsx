@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
@@ -70,9 +69,9 @@ export default function TelegramConnect({ user }) {
 
                 setTelegramLinked(true);
                 setTelegramUsername(tgUser.username);
-                showSnackbar("✅ Telegram linked successfully!");
+                showSnackbar("Telegram linked successfully!");
             } catch (err) {
-                showSnackbar("❌ Failed to link Telegram: " + err.message, "error");
+                showSnackbar("Failed to link Telegram: " + err.message, "error");
             }
         };
 
@@ -108,7 +107,7 @@ export default function TelegramConnect({ user }) {
 
             setTelegramLinked(false);
             setTelegramUsername(null);
-            showSnackbar("❌ Telegram unlinked.");
+            showSnackbar("Telegram unlinked.");
         } catch (err) {
             showSnackbar("Error unlinking: " + err.message, "error");
         }
@@ -117,31 +116,33 @@ export default function TelegramConnect({ user }) {
     return (
         <>
             <Box mt={2} display="flex" flexDirection="column" alignItems="center">
-                {telegramLinked ? (
-                    <Button
-                        variant="contained"
-                        color={hovered ? "error" : "inherit"}
-                        onClick={handleUnlinkTelegram}
-                        onMouseEnter={() => setHovered(true)}
-                        onMouseLeave={() => setHovered(false)}
-                        sx={{
-                            color: hovered ? "#fff" : "gray",
-                            backgroundColor: hovered ? "#f44336" : "#e0e0e0",
-                            '&:hover': {
-                                backgroundColor: hovered ? "#d32f2f" : "#d5d5d5",
-                            },
-                        }}
-                    >
-                        {hovered ? "Unlink from Telegram" : `Connected to @${telegramUsername}`}
-                    </Button>
-                ) : (
-                    <>
-                        <Typography variant="body2" gutterBottom>
-                            Connect your Telegram account:
-                        </Typography>
-                        <Box id="telegram-container" />
-                    </>
-                )}
+                <Box
+                    id="telegram-wrapper"
+                    onMouseEnter={() => telegramLinked && setHovered(true)}
+                    onMouseLeave={() => setHovered(false)}
+                    sx={{ width: 305, height: 40, position: "relative", cursor: telegramLinked ? "pointer": "default" }}
+                >
+                    {/* Show Telegram widget unless hovered and linked */}
+                    {!hovered && <Box id="telegram-container" />}
+                    {/* Show unlink button on hover if linked */}
+                    {hovered && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={handleUnlinkTelegram}
+                            sx={{
+                                width: "100%",
+                                height: "100%",
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 10,
+                            }}
+                        >
+                            Unlink from Telegram
+                        </Button>
+                    )}
+                </Box>
             </Box>
 
             {/* Snackbar */}

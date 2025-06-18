@@ -1,5 +1,5 @@
 // controllers/telegramController.js
-import { linkTelegramToUser, getTelegramLinkStatus } from "../models/telegramModel.js";
+import { linkTelegramToUser, getTelegramLinkStatus, unlinkTelegramFromUser } from "../models/telegramModel.js";
 import { verifyToken } from "../utils/token.js";
 
 export async function linkTelegramAccount(req, res) {
@@ -35,5 +35,22 @@ export async function getTelegramStatus(req, res) {
         res.json({ linked: true, telegram_username: result.telegram_username });
     } else {
         res.json({ linked: false });
+    }
+}
+
+export async function unlinkTelegramAccount(req, res) {
+    const { token } = req.body;
+    const tokenData = verifyToken(token);
+
+    if (!tokenData || !tokenData.userId) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
+
+    try {
+        await unlinkTelegramFromUser(parseInt(tokenData.userId));
+        res.json({ message: "Telegram account unlinked successfully" });
+    } catch (err) {
+        console.error("Unlinking error: ", err);
+        res.status(500).json({ message: "Failed to unlink Telegram account" });
     }
 }
