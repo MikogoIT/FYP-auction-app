@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -8,6 +9,8 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const USERS_PER_PAGE = 10;
+
+  const navigate = useNavigate(); 
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -100,7 +103,7 @@ const AdminPage = () => {
     try {
       const res = await fetch(`/api/users/admin/delete/${userId}`, {
         method: "DELETE",
-        credentials: "include", // 关键：带上 cookie
+        credentials: "include", 
       });
       const data = await res.json();
       if (res.ok) fetchUsers();
