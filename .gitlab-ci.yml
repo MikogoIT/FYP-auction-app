@@ -207,6 +207,5 @@ upload-images-to-gcs:
     - find images/ -type f -delete
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - images/**
+      when: on_success
     - when: never
