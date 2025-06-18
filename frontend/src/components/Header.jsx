@@ -45,7 +45,7 @@ const Header = () => {
 
   return (
     <div className="headerBar" >
-      <div className="mainContent">
+      <div className="headerContent">
         <img
           src={`${IMG_BASE_URL}full-logo.png`}
           style={{ width: "150px", cursor: "pointer" }}

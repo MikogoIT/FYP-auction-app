@@ -1,6 +1,6 @@
 .dashboardBox
 {
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-family: 'Roboto';
 }
 
 /* ----------------------------------------------
@@ -12,16 +12,17 @@ universal page styling
 
 
 .headerBar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    font-family: 'Roboto';
     margin-bottom: 30px;
     padding: 10px 20px;
-    background-color: #f1f0f0;
-    border-radius: 24px;
   }
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto';
+  max-width: 1000px;
+}
   
 .headerTitle {
 margin: 0;
@@ -56,4 +57,18 @@ background-color: #e0e0e0;
     font-size: 10px;
 }
 
+.landingBlock1
+{
+  background-color: #f1f0f0;
+  border-radius: 24px;
+  padding: 20px;
+  width: 600px;
+}
+
+.landingBlock2
+{
+  background-color: #f1f0f0;
+  border-radius: 24px;
+  padding: 20px;
+}
   
