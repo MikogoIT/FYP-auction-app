@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const MyListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchMyListings = async () => {
