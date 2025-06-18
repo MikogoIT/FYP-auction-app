@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateCategoryPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
