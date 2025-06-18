@@ -11,8 +11,9 @@ import {
 const router = express.Router();
 
 router.post("/", createCategory);
+router.get("/", getCategories);
 router.get("/search", searchCategories);
 router.get("/:id", getCategoryById);
 router.put("/:id", updateCategory);
-router.put("/categories/:id/toggleSuspend", toggleCategoryState);
+router.put("/:id/toggleSuspend", toggleCategoryState);
 export default router;
