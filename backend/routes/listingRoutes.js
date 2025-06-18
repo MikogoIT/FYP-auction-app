@@ -16,14 +16,14 @@ import { requireLogin } from "../utils/requireLogin.js";
 const router = express.Router();
 
 router.get("/listings/recent", getRecentListings);
-router.get("/listings", getListings);
+router.get("/listings", requireLogin, getListings);
 router.post("/listings", requireLogin, postListing);
 
-router.get("/listings/:id", getListing);
+router.get("/listings/:id", requireLogin, getListing);
 router.put("/listings/:id", requireLogin, putListing);
 router.delete("/listings/:id", requireLogin, deleteListingById);
 
 router.get("/mylistings", requireLogin, getMyListingsHandler);
-router.get("/", getAllListings);
+router.get("/", requireLogin, getAllListings);
 
 export default router;
