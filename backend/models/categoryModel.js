@@ -26,7 +26,7 @@ export async function insertCategory(name, description) {
 }
 
 // update category
-export async function updateCategory(id, name, description) {
+export async function updateCategoryModel(id, name, description) {
   return await sql`
     UPDATE listing_categories
     SET name = ${name}, description = ${description}

@@ -5,7 +5,7 @@ import {
   insertCategory,
   isAdmin,
   getCategoryByIdModel,
-  updateCategory,
+  updateCategoryModel,
   toggleCategoryStateModel,
   searchCategoriesModel,
 } from "../models/categoryModel.js";
@@ -75,7 +75,7 @@ export async function updateCategory(req, res) {
   if (!name || !name.trim()) return res.status(400).json({ message: "Name is required" });
 
   try {
-    await updateCategory(req.params.id, name.trim(), description || "");
+    await updateCategoryModel(req.params.id, name.trim(), description || "");
     res.json({ message: "Category updated" });
   } catch (err) {
     console.error("Update category error:", err);
