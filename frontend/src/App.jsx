@@ -27,23 +27,25 @@ function App() {
     <div className="appContainer">
       <Router>
         <Header />
-        <div className="mainContent">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/sell" element={<SellItem />} />
-            <Route path="/edit/:id" element={<EditListing />} />
-            <Route path="/bid/:id" element={<BidPage />} />
-            <Route path="/mylistings" element={<MyListings />} />
-            <Route path="/uploadImgTest" element={<ImageUploadPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            {!isApiRoute && (
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            )}
-          </Routes>
+        <div>
+          <div className="mainContent">
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/sell" element={<SellItem />} />
+              <Route path="/edit/:id" element={<EditListing />} />
+              <Route path="/bid/:id" element={<BidPage />} />
+              <Route path="/mylistings" element={<MyListings />} />
+              <Route path="/uploadImgTest" element={<ImageUploadPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              {!isApiRoute && (
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              )}
+            </Routes>
+          </div>
         </div>
         <Footer />
       </Router>

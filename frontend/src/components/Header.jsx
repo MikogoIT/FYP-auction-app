@@ -44,28 +44,30 @@ const Header = () => {
   };
 
   return (
-    <div className="headerBar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" }}>
-      <img
-        src={`${IMG_BASE_URL}full-logo.png`}
-        style={{ width: "150px", cursor: "pointer" }}
-        alt="Logo"
-        onClick={() => navigate("/dashboard")}
-      />
+    <div className="headerBar" >
+      <div className="mainContent">
+        <img
+          src={`${IMG_BASE_URL}full-logo.png`}
+          style={{ width: "150px", cursor: "pointer" }}
+          alt="Logo"
+          onClick={() => navigate("/")}
+        />
 
-      {!hideLogout && (
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {isAdmin && (
-            <Button variant="contained" color="primary" onClick={goToAdminPage}>
-              Admin
-            </Button>
-          )}
-          <Tooltip title="Logout">
-            <IconButton onClick={handleLogout} color="secondary">
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
+        {!hideLogout && (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {isAdmin && (
+              <Button variant="contained" color="primary" onClick={goToAdminPage}>
+                Admin
+              </Button>
+            )}
+            <Tooltip title="Logout">
+              <IconButton onClick={handleLogout} color="secondary">
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
         </div>
-      )}
     </div>
   );
 };

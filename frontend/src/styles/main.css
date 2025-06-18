@@ -17,8 +17,10 @@ universal page styling
     align-items: center;
     padding: 1rem;
     font-family: 'Roboto';
-    border-bottom: 1px solid darkgrey;
     margin-bottom: 30px;
+    padding: 10px 20px;
+    background-color: #f1f0f0;
+    border-radius: 24px;
   }
   
 .headerTitle {
