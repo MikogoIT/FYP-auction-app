@@ -14,7 +14,7 @@ import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
-
+import Landing from "./pages/landing";
 
 // components
 import Header from "./components/Header";
@@ -32,6 +32,7 @@ function App() {
         <Header />
         <div className="mainContent">
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

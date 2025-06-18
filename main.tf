@@ -107,7 +107,7 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
     action = "DELETE"
     condition {
       tag_state = "UNTAGGED"
-      older_than = "10d"
+      older_than = "4d"
     }
   }
 }

@@ -1,6 +1,6 @@
 .dashboardBox
 {
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-family: 'Roboto';
 }
 
 /* ----------------------------------------------
@@ -9,17 +9,40 @@ universal page styling
 
 ------------------------------------------------*/
 
-
+/* 1) Override all filled-buttons globally */
+md-filled-button {
+  /* make the pill taller (top/bottom padding) */
+  --md-filled-button-container-block-padding: 12px;
+  /* make it wider (left/right padding) */
+  --md-filled-button-container-inline-padding: 28px;
+  /* pill-radius ≈ half the height */
+  --md-filled-button-container-shape: 20px;
+  /* change label font weight & size */
+  --md-filled-button-label-text-font: 500 1.125rem/1.2 Roboto, sans-serif;
+}
 
 .headerBar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    font-family: 'Roboto';
-    border-bottom: 1px solid darkgrey;
     margin-bottom: 30px;
+    padding: 10px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    top: 0;
+    left: 0;
   }
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto';
+  max-width: 1000px;
+  width: 100%;
+}
   
 .headerTitle {
 margin: 0;
@@ -38,10 +61,12 @@ background-color: #e0e0e0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: #fefdfc;
 }
 
 .mainContent {
-  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .footerCon
@@ -53,4 +78,55 @@ background-color: #e0e0e0;
     font-size: 10px;
 }
 
-  
+.landingContent
+{
+  display: flex;
+  max-width: 1000px;
+  width: 100%;
+  flex-direction: column;
+}
+
+.block
+{
+  border-radius: 24px;
+  padding: 25px;
+  margin: 3px;
+}
+
+#landingBlock1
+{
+  background-color: #f1f0f0;
+  width: 600px;
+  padding-bottom: 85px;
+}
+
+#landingBlock2
+{
+  background-color: #f1f0f0;
+  flex: 1;
+}
+
+.headerSpacing
+{
+  height: 55px;
+  width: 100%;
+}
+
+.theBlocks
+{
+  width: 100%;
+  display: flex;
+}
+
+.title
+{
+    font-family: 'Roboto';
+    font-weight: 900;
+    font-size: 50px;
+}
+
+.subtext
+{
+  font-family: 'Roboto';
+  font-size: 16px;
+}
