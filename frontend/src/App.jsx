@@ -12,7 +12,7 @@ import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
-import ListingCategoryPage from "./pages/listingCategoryPage";
+import ListingCategoryPage from "./pages/ListingCategoryPage";
 
 
 // components
