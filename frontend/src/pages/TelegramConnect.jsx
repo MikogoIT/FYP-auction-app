@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 export default function TelegramConnect({ user }) {
     const [telegramLinked, setTelegramLinked] = useState(false);
