@@ -223,6 +223,8 @@ upload-images-to-gcs:
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+    - changes:
+        - images/**
       when: on_success
     - when: never
 

@@ -32,6 +32,7 @@ function App() {
         <Header />
         <div className="mainContent">
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
