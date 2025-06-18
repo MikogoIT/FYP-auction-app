@@ -61,7 +61,7 @@ export async function registerUser(req, res) {
   }
 
   try {
-    if (await AuthModel.emailExists(email)) {
+    if (await AuthModel.emailExists(emailLower)) {
       return res.status(409).json({ message: "Email already registered" });
     }
 
