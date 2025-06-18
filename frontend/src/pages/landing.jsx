@@ -6,7 +6,7 @@ export default function Profile() {
         <div className="landingContent">
             <div className="headerSpacing"></div>
                 <div className="theBlocks">
-                <div className="block">
+                <div className="block" id="landingBlock1">
                     <div className="title">
                         <div>
                             Auctioneer
@@ -16,9 +16,7 @@ export default function Profile() {
                         <div>
                             Your Auctions, One Telegram Away
                         </div>
-                        <div>
-                            Manage auctions on the go: create listings, track bids and receive notifications in Telegram
-                        </div>
+                        
                     </div>
                 </div>
                 <div className="block" id="landingBlock2">
