@@ -4,7 +4,10 @@ import { sql } from "../utils/db.js";
 // get all categories
 export async function getAllCategories() {
   return await sql`
-    SELECT id, name, description, "is_Suspended" FROM listing_categories ORDER BY name
+    SELECT id, name, description, "is_Suspended" 
+    FROM listing_categories 
+    WHERE "is_Suspended" = FALSE
+    ORDER BY name
   `;
 }
 
