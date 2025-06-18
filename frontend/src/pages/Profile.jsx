@@ -17,9 +17,8 @@ const Profile = () => {
           const token = localStorage.getItem("token"); 
       
           const res = await fetch("/api/profile", {
-            headers: {
-              Authorization: `Bearer ${token}`, 
-            },
+            credentials: "include",
+
           });
       
           const contentType = res.headers.get("content-type");
@@ -71,8 +70,8 @@ const Profile = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(editableUser),
       });
 
