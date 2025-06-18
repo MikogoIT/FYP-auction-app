@@ -34,6 +34,14 @@ const Header = () => {
     navigate("/admin");
   };
 
+  const handleLogout = async () => {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/login";
+  };
+
   return (
     <div className="headerBar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" }}>
       <img src={`${IMG_BASE_URL}full-logo.png`} style={{ width: "150px" }} />
