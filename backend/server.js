@@ -20,6 +20,7 @@ const PgSession = connectPgSimple(session);
 app.use(session({
   store: new PgSession({
     conString: process.env.DATABASE_URL, 
+    createTableIfMissing: true,
   }),
   secret: process.env.SESSION_SECRET, 
   resave: false,
@@ -30,6 +31,20 @@ app.use(session({
     secure: false 
   }
 }));
+
+//----------------------------------------------------------------------------------
+// Test session handling
+app.get("/api/session-test", (req, res) => {
+  if (req.session.views) {
+    req.session.views++;
+    res.send(`You have visited this page ${req.session.views} times`);
+  } else {
+    req.session.views = 1;
+    res.send("Welcome! This is your first visit.");
+  }
+});
+// test session end
+//----------------------------------------------------------------------------------
 
 // Get __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
