@@ -32,7 +32,6 @@ export default function Landing() {
         <div className="block" id="landingBlock2">
           <img
             src={`${IMG_BASE_URL}tele-wireframe-01.png`}
-            style={{ height: "200px", cursor: "pointer" }}
             alt="Telegram wireframe"
           />
         </div>
