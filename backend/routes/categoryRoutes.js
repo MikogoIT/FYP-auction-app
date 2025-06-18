@@ -2,6 +2,7 @@
 import express from "express";
 import {
   createCategory,
+  getCategories,
   getCategoryById,
   updateCategory,
   toggleCategoryState,
