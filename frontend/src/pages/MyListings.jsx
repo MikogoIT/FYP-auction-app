@@ -6,13 +6,9 @@ const MyListings = () => {
 
   useEffect(() => {
     const fetchMyListings = async () => {
-      const token = localStorage.getItem("token");
-
       try {
         const res = await fetch("/api/mylistings", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
@@ -29,7 +25,7 @@ const MyListings = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2 style={{ textAlign: "center" }}>📦 My Listings</h2>
+      <h2 style={{ textAlign: "center" }}>My Listings</h2>
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading...</p>
       ) : listings.length === 0 ? (

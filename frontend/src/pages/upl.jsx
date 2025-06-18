@@ -16,9 +16,7 @@ export default function ImageUploadPage() {
         const token = localStorage.getItem("token");
   
         const res = await fetch("/api/getDP", {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ add auth header
-          },
+          credentials: "include",
         });
   
         const contentType = res.headers.get("content-type");
@@ -79,11 +77,9 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
         try {
           const res = await fetch("/api/uploadDpImgTest", {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`, // ✅ attach JWT like your profile page
-            },
+            credentials: "include",
             body: formData,
-          });
+        });
       
           const data = await res.json();
       

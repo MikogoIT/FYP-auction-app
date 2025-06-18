@@ -52,8 +52,8 @@ const EditListing = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           title: listing.title,
           description: listing.description,
@@ -65,10 +65,10 @@ const EditListing = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setSuccess("✅ Listing updated successfully");
+      setSuccess("Listing updated successfully");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      setError("❌ " + err.message);
+      setError("" + err.message);
     }
   };
 
@@ -76,7 +76,7 @@ const EditListing = () => {
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
-      <h2 style={{ textAlign: "center" }}>✏️ Edit Listing</h2>
+      <h2 style={{ textAlign: "center" }}>Edit Listing</h2>
 
       <form onSubmit={handleSubmit}>
         <label>Title *</label>
@@ -135,9 +135,7 @@ const EditListing = () => {
                 try {
                     const res = await fetch(`/api/listings/${id}`, {
                         method: "DELETE",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                        credentials: "include", // 关键
                     });
 
                     const data = await res.json();

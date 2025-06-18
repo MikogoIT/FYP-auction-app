@@ -14,45 +14,42 @@ const AdminPage = () => {
     setCategoryMsg("");
 
     if (!newCategory.trim()) {
-        setCategoryMsg("❌ Category name is required");
-        return;
+      setCategoryMsg("❌ Category name is required");
+      return;
     }
 
     try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/categories", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ name: newCategory }),
-        });
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name: newCategory }),
+      });
 
-        const data = await res.json();
-        if (res.ok) {
-            setCategoryMsg("✅ Category created successfully");
-            setNewCategory("");
-        } else {
-            setCategoryMsg("❌ " + (data.message || "Creation failed"));
-        }
+      const data = await res.json();
+      if (res.ok) {
+        setCategoryMsg("Category created successfully");
+        setNewCategory("");
+      } else {
+        setCategoryMsg("❌ " + (data.message || "Creation failed"));
+      }
     } catch (err) {
-        console.error("Create category error:", err);
-        setCategoryMsg("❌ Server error");
+      console.error("Create category error:", err);
+      setCategoryMsg("❌ Server error");
     }
   };
-
 
   const fetchUsers = async (query = "", page = 1) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
       const endpoint = query
         ? `/api/users/admin/search?q=${encodeURIComponent(query)}`
         : `/api/users/admin/users`;
 
       const res = await fetch(endpoint, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", 
       });
 
       const data = await res.json();
@@ -79,35 +76,31 @@ const AdminPage = () => {
   };
 
   const toggleFreeze = async (userId) => {
-  const token = localStorage.getItem("token");
-  try {
-    const res = await fetch(`/api/users/admin/freeze/${userId}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert("Status updated");
-      fetchUsers(); 
-    } else {
-      alert("Error: " + data.message);
+    try {
+      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+        method: "PUT",
+        credentials: "include", 
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Status updated");
+        fetchUsers();
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      alert("Request failed");
     }
-  } catch (err) {
-    alert("Request failed");
-  }
- };
+  };
 
   const deleteUser = async (userId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this user?");
     if (!confirmDelete) return;
 
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/users/admin/delete/${userId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", // 关键：带上 cookie
       });
       const data = await res.json();
       if (res.ok) fetchUsers();
@@ -131,21 +124,21 @@ const AdminPage = () => {
       <h3>🗂️ Create New Category</h3>
       <form onSubmit={handleCreateCategory} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
         <input
-            type="text"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="Enter category name"
-            style={{ flex: 1, padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+          type="text"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          placeholder="Enter category name"
+          style={{ flex: 1, padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
         />
         <button type="submit" style={{ padding: "8px 16px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px" }}>
-            Create
+          Create
         </button>
-    </form>
-    {categoryMsg && (
+      </form>
+      {categoryMsg && (
         <p style={{ color: categoryMsg.startsWith("✅") ? "green" : "red", marginTop: "8px" }}>
-            {categoryMsg}
+          {categoryMsg}
         </p>
-    )}
+      )}
 
       <div style={{ display: "flex", marginBottom: "20px", gap: "10px" }}>
         <input
@@ -245,7 +238,6 @@ const AdminPage = () => {
         </>
       )}
     </div>
-    
   );
 };
 

@@ -16,8 +16,8 @@ const BidPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
         },
+        credentials: "include",
         body: JSON.stringify({
           auction_id: id,
           bid_amount: parseFloat(bidAmount)
@@ -27,16 +27,16 @@ const BidPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setMessage("✅ Bid submitted!");
+      setMessage("Bid submitted!");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      setMessage("❌ " + err.message);
+      setMessage(err.message);
     }
   };
 
   return (
     <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
-      <h2 style={{ textAlign: "center" }}>💰 Place Your Bid</h2>
+      <h2 style={{ textAlign: "center" }}>Place Your Bid</h2>
       <form onSubmit={handleSubmit}>
         <label>Bid Amount ($):</label>
         <input
