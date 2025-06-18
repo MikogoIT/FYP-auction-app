@@ -13,19 +13,22 @@ const CategoryDetailPage = () => {
     fetch(`/api/categories/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        const data = await res.json();
+        console.log("Response data:", data, "Status:", res.status);
+        if (!res.ok) throw new Error(data.message || "Failed to fetch");
+        return data;
+      })
       .then((data) => {
-        if (!data || !data.category) {
-            throw new Error("Category not found");
-        }
         setCategory(data.category);
         setName(data.category.name);
         setDescription(data.category.description);
-       })
-       .catch((err) => {
-         console.error("Error loading category:", err);
-         setMsg("❌ Failed to load category.");
-       });
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setMsg("❌ " + err.message);
+        setCategory(null);
+      });
   }, [id]);
 
   const handleEdit = async () => {
@@ -54,13 +57,13 @@ const CategoryDetailPage = () => {
 
   const toggleIsSuspended = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`/api/categories/${id}/is_suspended`, {
+    const res = await fetch(`/api/categories/${id}/is_Suspended`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
     if (res.ok) {
-      setCategory((prev) => ({ ...prev, is_suspended: data.is_suspended }));
+      setCategory((prev) => ({ ...prev, is_Suspended: data.is_Suspended }));
     } else {
       alert(data.message);
     }
@@ -73,8 +76,8 @@ const CategoryDetailPage = () => {
       <h2 style={styles.title}>Category Detail</h2>
       <p style={styles.status}>
         <strong>Status:</strong>{" "}
-        <span style={{ color: category.is_suspended ? "red" : "green" }}>
-          {category.is_suspended ? "Suspended" : "Active"}
+        <span style={{ color: category.is_Suspended ? "red" : "green" }}>
+          {category.is_Suspended ? "Suspended" : "Active"}
         </span>
       </p>
       <div style={styles.form}>
@@ -98,11 +101,11 @@ const CategoryDetailPage = () => {
         <button
           style={{
             ...styles.suspendBtn,
-            backgroundColor: category.is_suspended ? "#28a745" : "#dc3545",
+            backgroundColor: category.is_Suspended ? "#28a745" : "#dc3545",
           }}
           onClick={toggleIsSuspended}
         >
-          {category.is_suspended ? "Unsuspend" : "Suspend"}
+          {category.is_Suspended ? "Unsuspend" : "Suspend"}
         </button>
         {msg && (
           <p
