@@ -61,22 +61,16 @@ export default function Profile() {
     fetchProfileAndPhoto();
   }, []);
 
-  // 2) Inject Telegram widget immediately
+  // Add "Connect to Telegram" button to profile page
   useEffect(() => {
     if (!user) return; // Don't run if user isn't ready yet
 
-    console.log("User is loaded, injecting Telegram widget...");
-
+    // Display Telegram username that is connected
     window.onTelegramAuth = async function (telegramUser) {
       alert(`✅ Connected as @${telegramUser.username}`);
-      console.log("Telegram user:", telegramUser);
     };
 
     const container = document.getElementById("telegram-container");
-    if (!container) {
-      console.warn("Container not found yet!");
-      return;
-    }
 
     if (!document.getElementById("telegram-login-script")) {
       const script = document.createElement("script");
