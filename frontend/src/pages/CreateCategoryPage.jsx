@@ -32,6 +32,7 @@ const CreateCategoryPage = () => {
         setMsg("✅ Category created.");
         setName("");
         setDescription("");
+
       } else {
         setMsg("❌ " + (data.message || "Creation failed"));
       }
@@ -41,16 +42,80 @@ const CreateCategoryPage = () => {
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Create New Category</h2>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "500px" }}>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Category Name" />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
-        <button type="submit">Create</button>
-        {msg && <p>{msg}</p>}
+    <div style={styles.container}>
+      <h2 style={styles.title}>Create New Category</h2>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          style={styles.input}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Category Name"
+          type="text"
+          maxLength={50}
+        />
+        <textarea
+          style={{ ...styles.input, height: 120, resize: "vertical" }}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          maxLength={300}
+        />
+        <button type="submit" style={styles.button}>
+          Create
+        </button>
+        {msg && (
+          <p
+            style={{
+              marginTop: 12,
+              color: msg.startsWith("✅") ? "green" : "red",
+              fontWeight: "bold",
+            }}
+          >
+            {msg}
+          </p>
+        )}
       </form>
     </div>
   );
 };
 
-export default CreateCategoryPage;
+const styles = {
+  container: {
+    maxWidth: 500,
+    margin: "40px auto",
+    padding: 30,
+    borderRadius: 12,
+    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+    backgroundColor: "#fff",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 30,
+    color: "#333",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 15,
+  },
+  input: {
+    padding: "12px 16px",
+    fontSize: 16,
+    borderRadius: 8,
+    border: "1.8px solid #ddd",
+    outline: "none",
+    transition: "border-color 0.3s ease",
+  },
+  button: {
+    padding: "12px",
+    fontSize: 18,
+    borderRadius: 8,
+    border: "none",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+  },
+};
