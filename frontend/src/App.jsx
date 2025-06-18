@@ -11,6 +11,9 @@ import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
+import CreateCategoryPage from "./pages/CreateCategoryPage";
+import ListingCategoryPage from "./pages/listingCategoryPage";
+import CategoryDetailPage from "./pages/CategoryDetailPage";
 
 
 // components
@@ -39,6 +42,10 @@ function App() {
             <Route path="/mylistings" element={<MyListings />} />
             <Route path="/uploadImgTest" element={<ImageUploadPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/create-category" element={<CreateCategoryPage />} />
+            <Route path="/admin/search-category" element={<ListingCategoryPage />} />
+            <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
+            
             {!isApiRoute && (
               <Route path="*" element={<Navigate to="/login" replace />} />
             )}
