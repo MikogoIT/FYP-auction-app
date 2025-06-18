@@ -9,8 +9,9 @@ const Header = () => {
   const { pathname } = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Hide logout on both the login page
-  const hideLogout = pathname === "/login";
+  // Hide logout on "/", "/login" and "/register"
+  const hideLogout = ["/", "/login", "/register"].includes(pathname);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
