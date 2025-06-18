@@ -14,5 +14,5 @@ router.post("/", createCategory);
 router.get("/search", searchCategories);
 router.get("/:id", getCategoryById);
 router.put("/:id", updateCategory);
-router.put("/:id/state", toggleCategoryState);
+router.put("/categories/:id/toggleSuspend", toggleCategoryState);
 export default router;

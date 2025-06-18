@@ -57,13 +57,13 @@ const CategoryDetailPage = () => {
 
   const toggleIsSuspended = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`/api/categories/${id}/is_Suspended`, {
+    const res = await fetch(`/api/categories/${id}/toggleSuspend`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
     if (res.ok) {
-      setCategory((prev) => ({ ...prev, is_Suspended: data.is_Suspended }));
+      setCategory((prev) => ({ ...prev, is_Suspended: data.newState }));
     } else {
       alert(data.message);
     }

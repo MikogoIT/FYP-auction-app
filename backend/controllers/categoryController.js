@@ -93,7 +93,7 @@ export async function toggleCategoryState(req, res) {
 
   try {
     const result = await toggleCategoryStateModel(req.params.id);
-    res.json({ newState: result[0]?.is_suspended }); 
+    res.json({ newState: result.is_Suspended });
   } catch (err) {
     console.error("Toggle category state error:", err);
     res.status(500).json({ message: "Failed to change category state" });
