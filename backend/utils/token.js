@@ -34,3 +34,10 @@ export function verifyToken(token) {
       return null;
     }
   }
+
+// helper to extract token from Authorization header
+export function getTokenFromHeader(req) {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Bearer ")) return null;
+  return authHeader.slice(7) // Remove "Bearer" prefix
+}

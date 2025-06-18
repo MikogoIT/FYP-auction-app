@@ -1,9 +1,10 @@
 // controllers/telegramController.js
 import { linkTelegramToUser, getTelegramLinkStatus, unlinkTelegramFromUser } from "../models/telegramModel.js";
-import { verifyToken } from "../utils/token.js";
+import { verifyToken, getTokenFromHeader } from "../utils/token.js";
 
 export async function linkTelegramAccount(req, res) {
-    const { token, telegram_id, telegram_username } = req.body;
+    const token = getTokenFromHeader(req);
+    const { telegram_id, telegram_username } = req.body;
 
     // Verify token
     const tokenData = verifyToken(token);
@@ -24,7 +25,7 @@ export async function linkTelegramAccount(req, res) {
 }
 
 export async function getTelegramStatus(req, res) {
-    const { token } = req.body;
+    const token = getTokenFromHeader(req);
     const tokenData = verifyToken(token);
     if (!tokenData || !tokenData.userId) {
         return res.status(401).json({ message: "Invalid token" });
@@ -39,7 +40,7 @@ export async function getTelegramStatus(req, res) {
 }
 
 export async function unlinkTelegramAccount(req, res) {
-    const { token } = req.body;
+    const token = getTokenFromHeader(req);
     const tokenData = verifyToken(token);
 
     if (!tokenData || !tokenData.userId) {

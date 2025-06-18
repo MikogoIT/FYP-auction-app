@@ -56,9 +56,11 @@ export default function TelegramConnect({ user }) {
             try {
                 const res = await fetch("/api/telegram/linkTelegram", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json" ,
+                        Authorization: `Bearer ${token}`,
+                    },
                     body: JSON.stringify({
-                        token,
                         telegram_id: tgUser.id,
                         telegram_username: tgUser.username,
                     }),
@@ -98,8 +100,10 @@ export default function TelegramConnect({ user }) {
         try {
             const res = await fetch("/api/telegram/unlinkTelegram", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token }),
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             const result = await res.json();
@@ -122,8 +126,7 @@ export default function TelegramConnect({ user }) {
                     onMouseLeave={() => setHovered(false)}
                     sx={{ width: 305, height: 40, position: "relative", cursor: telegramLinked ? "pointer": "default" }}
                 >
-                    {/* Show Telegram widget unless hovered and linked */}
-                    {!hovered && <Box id="telegram-container" />}
+                    <Box id="telegram-container" />
                     {/* Show unlink button on hover if linked */}
                     {hovered && (
                         <Button
