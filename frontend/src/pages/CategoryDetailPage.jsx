@@ -15,10 +15,17 @@ const CategoryDetailPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        if (!data || !data.category) {
+            throw new Error("Category not found");
+        }
         setCategory(data.category);
         setName(data.category.name);
         setDescription(data.category.description);
-      });
+       })
+       .catch((err) => {
+         console.error("Error loading category:", err);
+         setMsg("❌ Failed to load category.");
+       });
   }, [id]);
 
   const handleEdit = async () => {

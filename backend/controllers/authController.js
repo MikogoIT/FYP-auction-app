@@ -4,7 +4,7 @@ import { comparePassword, hashPassword } from "../utils/auth.js";
 import { createToken } from "../utils/token.js";
 
 export async function loginUser(req, res) {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and Password are required" });
@@ -40,13 +40,15 @@ export async function loginUser(req, res) {
 }
 
 export async function registerUser(req, res) {
-  const { username, email, password, full_name, phone_number, address } = req.body;
-  const emailLower = email.toLowerCase();
+  let { username, email, password, full_name, phone_number, address } = req.body;
+
 
   if (!username || !email || !password || !full_name || !phone_number || !address) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  emailLower = email.toLowerCase();
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^\d{8}$/;
 
