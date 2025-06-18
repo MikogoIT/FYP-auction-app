@@ -3,6 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -12,6 +14,22 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+// session
+const PgSession = connectPgSimple(session);
+
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL, 
+  }),
+  secret: process.env.SESSION_SECRET, 
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    sameSite: "lax",
+    secure: false 
+  }
+}));
 
 // Get __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);

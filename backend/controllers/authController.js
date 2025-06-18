@@ -27,13 +27,32 @@ export async function loginUser(req, res) {
       return res.status(401).json({ message: "Wrong account or password" });
     }
 
-    const token = createToken(user.id);
+    // Set session data
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      username: user.username
+    };
 
-    res.json({ message: "Login successful", token, user: { id: user.id, email: user.email } });
+    res.json({
+      message: "Login successful",
+      user: req.session.user
+    });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
+}
+
+export async function logoutUser(req, res) {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Session destroy error:", err);
+      return res.status(500).json({ message: "Logout failed" });
+    }
+    res.clearCookie("connect.sid"); // Clear browser cookie
+    res.json({ message: "Logged out successfully" });
+  });
 }
 
 export async function registerUser(req, res) {

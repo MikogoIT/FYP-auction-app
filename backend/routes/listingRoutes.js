@@ -11,15 +11,17 @@ import {
   getAllListings
 } from "../controllers/listingsController.js";
 
+import { requireLogin } from "../utils/requireLogin.js";
+
 const router = express.Router();
 
 router.get("/listings/recent", getRecentListings);
 router.get("/listings", getListings);
-router.post("/listings", postListing);
+router.post("/listings", requireLogin, postListing);
 
 router.get("/listings/:id", getListing);
-router.put("/listings/:id", putListing);
-router.delete("/listings/:id", deleteListingById);
+router.put("/listings/:id", requireLogin, putListing);
+router.delete("/listings/:id", requireLogin, deleteListingById);
 
 router.get("/mylistings", getMyListingsHandler);
 router.get("/", getAllListings);
