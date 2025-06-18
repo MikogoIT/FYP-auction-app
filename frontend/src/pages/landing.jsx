@@ -1,11 +1,12 @@
 import '@material/web/button/filled-button.js';
 import { IMG_BASE_URL } from "../global-vars.jsx";
+import { useNavigate } from 'react-router-dom';
 
-export default function Profile() {
-  const handleGetStarted = () => {
-    // TODO: wire up your navigation or action here
-    console.log('Get Started clicked');
-  };
+export default function Landing() {
+    const navigate = useNavigate();
+    const handleGetStarted = () => {
+        navigate('/login');
+    };
 
   return (
     <div className="landingContent">

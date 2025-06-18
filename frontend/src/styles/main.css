@@ -12,9 +12,9 @@ universal page styling
 /* 1) Override all filled-buttons globally */
 md-filled-button {
   /* make the pill taller (top/bottom padding) */
-  --md-filled-button-container-block-padding: 8px;
+  --md-filled-button-container-block-padding: 12px;
   /* make it wider (left/right padding) */
-  --md-filled-button-container-inline-padding: 24px;
+  --md-filled-button-container-inline-padding: 28px;
   /* pill-radius ≈ half the height */
   --md-filled-button-container-shape: 20px;
   /* change label font weight & size */
