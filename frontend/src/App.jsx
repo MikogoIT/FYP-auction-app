@@ -11,6 +11,7 @@ import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
+import Landing from "./pages/landing";
 
 
 // components
@@ -29,6 +30,7 @@ function App() {
         <Header />
         <div className="mainContent">
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
