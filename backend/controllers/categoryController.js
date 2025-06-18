@@ -13,7 +13,7 @@ import {
 // get all categories
 export async function getCategories(req, res) {
   try {
-    const result = await sql`SELECT * FROM categories WHERE is_suspended = FALSE`;
+    const result = await sql`SELECT * FROM categories WHERE "is_Suspended" = FALSE`;
     res.json({ categories: result });
   } catch (err) {
     console.error("Fetch categories error:", err);
