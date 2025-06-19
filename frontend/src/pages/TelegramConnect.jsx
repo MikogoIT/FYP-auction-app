@@ -24,11 +24,11 @@ export default function TelegramConnect({ user }) {
 
         const checkStatus = async () => {
             try {
-                const token = localStorage.getItem("token");
-                if (!token) return;
+                // const token = localStorage.getItem("token");
+                // if (!token) return;
 
                 const res = await fetch("/api/telegram/status", {
-                    headers: { Authorization: `Bearer ${token}` },
+                    credentials: "include",
                 });
 
                 const data = await res.json();
@@ -48,16 +48,14 @@ export default function TelegramConnect({ user }) {
         if (!user || telegramLinked) return;
 
         window.onTelegramAuth = async function (tgUser) {
-            const token = localStorage.getItem("token");
-            if (!token) return alert("You must be logged in");
+            // const token = localStorage.getItem("token");
+            // if (!token) return alert("You must be logged in");
 
             try {
                 const res = await fetch("/api/telegram/linkTelegram", {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json" ,
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
                     body: JSON.stringify({
                         telegram_id: tgUser.id,
                         telegram_username: tgUser.username,
@@ -91,16 +89,14 @@ export default function TelegramConnect({ user }) {
 
     // Allow user to unlink their Telegram (after being linked)
     const handleUnlinkTelegram = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+        // const token = localStorage.getItem("token");
+        // if (!token) return;
 
         try {
             const res = await fetch("/api/telegram/unlinkTelegram", {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
             });
 
             const result = await res.json();

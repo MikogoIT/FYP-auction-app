@@ -25,3 +25,23 @@ export async function unlinkTelegramFromUser(userId) {
         DELETE FROM telegram_accounts WHERE user_id = ${userId}
     `;
 }
+
+// Retrieve any ACTIVE listings that have NOT been 
+// posted to Telegram but exist in database
+export async function getUnpostedListings() {
+    return await sql`
+        SELECT al.*, lc.name AS category_name
+        FROM auction_listings al
+        JOIN listing_categories lc ON al.category_id = lc.id
+        WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
+    `;
+}
+
+// Mark a listing after it is posted to Telegram
+export async function markListingAsPosted(listingId) {
+    await sql`
+        UPDATE auction_listings
+        SET posted_to_telegram = TRUE
+        WHERE id = ${listingId}
+    `;
+}

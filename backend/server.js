@@ -52,11 +52,6 @@ app.get("/api/session-test", (req, res) => {
 // test session end
 //----------------------------------------------------------------------------------
 
-app.use((req, res, next) => {
-  res.removeHeader("content-security-policy");
-  next();
-});
-
 // Get __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -72,7 +67,7 @@ app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-  origin: "http://localhost:4433", 
+  origin: ["http://localhost:4433", ""], 
   credentials: true
 }));
 
