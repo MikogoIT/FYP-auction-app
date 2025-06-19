@@ -15,15 +15,13 @@ const CreateCategoryPage = () => {
       return setMsg("❌ Name and description are required.");
     }
 
-    const token = localStorage.getItem("token");
-
     try {
       const res = await fetch("/api/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({ name, description }),
       });
 
@@ -43,7 +41,7 @@ const CreateCategoryPage = () => {
 
   return (
     <div style={styles.container}>
-      <button onClick={() => navigate(-1)} style={styles.backButton}>← Back</button> {/* ← 返回按钮 */}
+      <button onClick={() => navigate(-1)} style={styles.backButton}>← Back</button> {/* ← back button */}
       <h2 style={styles.title}>Create New Category</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input

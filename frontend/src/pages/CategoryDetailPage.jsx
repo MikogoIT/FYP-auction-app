@@ -11,9 +11,8 @@ const CategoryDetailPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     fetch(`/api/categories/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include", 
     })
       .then(async (res) => {
         const data = await res.json();

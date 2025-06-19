@@ -9,7 +9,6 @@ const ListingCategoryPage = () => {
 
   const handleSearch = async () => {
     setMsg("");
-    const token = localStorage.getItem("token");
     if (!query.trim()) {
       setMsg("Please enter a search term.");
       return;
@@ -17,7 +16,7 @@ const ListingCategoryPage = () => {
 
     try {
       const res = await fetch(`/api/categories/search?q=${encodeURIComponent(query)}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", 
       });
       const data = await res.json();
       if (res.ok) {
