@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { IconButton, Tooltip, Button, Chip, Avatar } from "@mui/material";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { Chip, Avatar, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { IMG_BASE_URL } from "../global-vars.jsx";
 import { useEffect, useState } from "react";
@@ -15,24 +14,19 @@ const Header = () => {
   // Hide logout on "/", "/login" and "/register"
   const hideLogout = ["/", "/login", "/register"].includes(pathname);
 
-  // Check login + fetch profile photo
   useEffect(() => {
+    // check login + fetch profile photo
     fetch("/api/displayPhoto", { credentials: "include" })
       .then(async (res) => {
-        if (!res.ok) {
-          setIsLoggedIn(false);
-          return;
-        }
+        if (!res.ok) return setIsLoggedIn(false);
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
       })
-      .catch(() => {
-        setIsLoggedIn(false);
-      });
+      .catch(() => setIsLoggedIn(false));
 
     // fetch admin flag
-    fetch("/api/users/profile", { credentials: "include" })
+    fetch("/api/profile", { credentials: "include" })
       .then(res => res.json())
       .then(data => setIsAdmin(!!data.user?.is_admin))
       .catch(() => setIsAdmin(false));
@@ -45,49 +39,49 @@ const Header = () => {
   };
 
   return (
-    <div
-      className="headerBar"
-      style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 1000 }}
-    >
-      <div className="headerContent" style={{ position: "relative", padding: "0 16px" }}>
-        {/* Avatar Chip in top-right */}
-        <Chip
-          label={isLoggedIn ? "Profile" : "Log in"}
-          onClick={() => navigate(isLoggedIn ? "/profile" : "/login")}
-          clickable
-          avatar={
-            <Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}>
-              <PersonIcon />
-            </Avatar>
-          }
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-          }}
-        />
+    <div className="headerBar">
+      <div className="headerContent">
 
+        {/* Logo */}
         <img
           src={`${IMG_BASE_URL}full-logo.png`}
-          style={{ width: "150px", cursor: "pointer" }}
+          style={{ width: 150, cursor: "pointer" }}
           alt="Logo"
           onClick={() => navigate("/")}
         />
 
-        {!hideLogout && (
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "auto" }}>
-            {isAdmin && (
-              <Button variant="contained" color="primary" onClick={goToAdminPage}>
-                Admin
-              </Button>
-            )}
-            <Tooltip title="Logout">
-              <IconButton onClick={handleLogout} color="secondary">
-                <LogoutIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
+        {/* Admin button stays where it was */}
+        {!hideLogout && isAdmin && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={goToAdminPage}
+            sx={{ marginLeft: "auto" }}
+          >
+            Admin
+          </Button>
         )}
+
+        {/* Profile/Login + Logout chips */}
+        <div>
+          <Chip
+            label={isLoggedIn ? "Profile" : "Log in"}
+            onClick={() => navigate(isLoggedIn ? "/profile" : "/login")}
+            clickable
+            avatar={
+              <Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}>
+                <PersonIcon />
+              </Avatar>
+            }
+          />
+          {isLoggedIn && !hideLogout && (
+            <Chip
+              label="Logout"
+              onClick={handleLogout}
+              clickable
+            />
+          )}
+        </div>
       </div>
     </div>
   );
