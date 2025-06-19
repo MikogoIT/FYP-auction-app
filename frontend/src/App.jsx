@@ -11,8 +11,11 @@ import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
+import CreateCategoryPage from "./pages/CreateCategoryPage";
+import ListingCategoryPage from "./pages/listingCategoryPage";
+import CategoryDetailPage from "./pages/CategoryDetailPage";
+import Landing from "./pages/landing";
 import ListingPage from "./pages/ListingPage";
-
 
 // components
 import Header from "./components/Header";
@@ -25,27 +28,31 @@ function App() {
 
 
   return (
-    <div>
+    <div className="appContainer">
       <Router>
         <Header />
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/sell" element={<SellItem />} />
-          <Route path="/edit/:id" element={<EditListing />} />
-          <Route path="/bid/:id" element={<BidPage />} />
-          <Route path="/mylistings" element={<MyListings />} />
-          <Route path="/uploadImgTest" element={<ImageUploadPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/ListingPage" element={<ListingPage />} />
-
-          {/* Only add the catch-all route if not an API request */}
-          {!isApiRoute && (
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          )}
-        </Routes>
+        <div className="mainContent">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/sell" element={<SellItem />} />
+            <Route path="/edit/:id" element={<EditListing />} />
+            <Route path="/bid/:id" element={<BidPage />} />
+            <Route path="/mylistings" element={<MyListings />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/create-category" element={<CreateCategoryPage />} />
+            <Route path="/admin/search-category" element={<ListingCategoryPage />} />
+            <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
+            <Route path="/ListingPage" element={<ListingPage />} />
+            
+            {!isApiRoute && (
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            )}
+          </Routes>
+        </div>
         <Footer />
       </Router>
     </div>

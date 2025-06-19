@@ -11,11 +11,23 @@ export const createListing = async (sellerId, title, description, min_bid, end_d
 
 export const getActiveListings = async () => {
   return await sql`
-    SELECT l.id, l.title, l.description, l.min_bid, l.end_date, l.seller_id, u.username AS seller
+    SELECT 
+      l.id, 
+      l.title, 
+      l.description, 
+      l.min_bid, 
+      l.end_date, 
+      l.seller_id, 
+      u.username AS seller,
+      COALESCE(MAX(b.bid_amount), 0) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
+    LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
+    GROUP BY 
+      l.id, l.title, l.description, l.min_bid, l.end_date, l.seller_id, u.username
     ORDER BY l.end_date ASC
+
   `;
 };
 

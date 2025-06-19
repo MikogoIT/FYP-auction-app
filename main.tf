@@ -97,7 +97,21 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
   repository_id = "fyp-auction-app"
   format        = "DOCKER"
   description   = "GAR Docker repo for Auctioneer app"
+
+  # actually perform deletions rather than dry-run
+  cleanup_policy_dry_run = false
+
+  # delete any untagged images older than 10 days
+  cleanup_policies {
+    id     = "delete_untagged_older_than_10d"
+    action = "DELETE"
+    condition {
+      tag_state = "UNTAGGED"
+      older_than = "4d"
+    }
+  }
 }
+
 
 #————————————————————————————————————
 # Allow Cloud Run to pull images from GAR
@@ -177,15 +191,6 @@ resource "google_storage_bucket" "upl_dp_img_bucket" {
   name     = "auctioneer-dp-images"
   location = google_cloud_run_v2_service.cloud_run_app.location
   uniform_bucket_level_access = true
-
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-    condition {
-      age = 30
-    }
-  }
 
   force_destroy = true
 }

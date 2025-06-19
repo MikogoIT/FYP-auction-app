@@ -1,4 +1,5 @@
 stages:
+  # - security test
   - build
   - deploy 1     # Docker → GAR
   - deploy 2     # Terraform
@@ -24,19 +25,89 @@ variables:
   # Static assets
   GCS_DEV_BUCKET_NAME: auctioneer-static-assets
 
+# #----------------------------------------------------------------
+# # 0. scan code
+# #----------------------------------------------------------------
+# snyk-full-scan:
+#   stage: security test
+#   image:
+#     name: snyk/snyk:node-22
+#     entrypoint: [""]
+#   script:
+#     - echo "Starting Snyk scans..."
+
+#     # --- SCA ---
+#     - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+
+#     # --- SAST ---
+#     - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG}
+
+#     # --- IaC ---
+#     - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
+
+
+#   allow_failure: false
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       when: on_success
+#     - when: never
+
+
+
+#----------------------------------------------------------------
+# 0. scan code
+#----------------------------------------------------------------
+# snyk-full-scan:
+#   stage: security test
+#   image:
+#     name: snyk/snyk:node-22
+#     entrypoint: [""]
+#   script:
+#     - echo "Starting Snyk scans..."
+
+#     # --- SCA ---
+#     - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
+
+#     # --- SAST ---
+#     - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
+
+#     # --- IaC ---
+#     - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf --severity-threshold=high  
+
+
+#   allow_failure: false
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       when: on_success
+#     - when: never
+
+
+
 #----------------------------------------------------------------
 # 1. Build frontend (always runs)
 #----------------------------------------------------------------
 build-app:
   stage: build
   image: node:23.11.0-alpine3.21
+
+  before_script:
+    # ensure the cache path exists
+    - mkdir -p frontend/node_modules
+
+  cache:
+    key: cache-frontend-${CI_COMMIT_REF_SLUG}
+    paths:
+      - frontend/node_modules/
+
   script:
     - npm install --prefix frontend
-    - npm run build    --prefix frontend
+    - npm run build --prefix frontend
+
   artifacts:
     paths:
       - frontend/dist
     expire_in: 1 hour
+
 
 #----------------------------------------------------------------
 # 2. Build & Push to GAR (all branches → same repo)
@@ -86,7 +157,7 @@ docker-push:
         TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
       fi
       IMAGE_PATH="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-app"
-    - docker build --no-cache -t "${IMAGE_PATH}:${TAG}" .
+    - docker build -t "${IMAGE_PATH}:${TAG}" .
     - docker push "${IMAGE_PATH}:${TAG}"
 
 #----------------------------------------------------------------
@@ -111,7 +182,7 @@ terraform:
 
 
 #----------------------------------------------------------------
-# 4. Upload images to GCS (only on main)
+# 4. Upload images folder to GCS
 #----------------------------------------------------------------
 upload-images-to-gcs:
   stage: deploy 3
@@ -121,21 +192,40 @@ upload-images-to-gcs:
       aud: "https://gitlab.com"
   before_script:
     - apt-get update && apt-get install -y jq
-    # Exchange OIDC → GCP token (same as docker-push)…
     - |
-      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token … )
-      ACCESS_TOKEN=$(curl -s -X POST https://iamcredentials.googleapis.com/v1/… )
+      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d '{
+          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+          "scope":"https://www.googleapis.com/auth/cloud-platform",
+          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
+        }' | jq -r .access_token)
+    - |
+      ACCESS_TOKEN=$(curl -s -X POST \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -H "Authorization: Bearer $FED_TOKEN" \
+        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+        | jq -r .accessToken)
     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
     - gcloud config set run/platform managed
+
   script:
     - echo "Uploading images/ folder to GCS"
     - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
-    - echo "Cleaning up images folder"
+    - echo "Removing files from images folder"
     - find images/ -type f -delete
+
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - images/**
-    - when: never
+  - if: '$CI_COMMIT_BRANCH == "main"'
+    changes:
+      - images/**
+    when: on_success
+  # otherwise, never run
+  - when: never
+

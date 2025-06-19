@@ -1,36 +1,55 @@
+// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
+import PersonIcon from "@mui/icons-material/Person";
 
-const Profile = () => {
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export default function Profile() {
   const [user, setUser] = useState(null);
+  const [editableUser, setEditableUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [editableUser, setEditableUser] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Image upload states
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-        try {
-          const token = localStorage.getItem("token"); 
+  // Fetch profile (data + current photo URL)
+    useEffect(() => {
+    const fetchProfileAndPhoto = async () => {
+      try {
       
-          const res = await fetch("/api/profile", {
-            credentials: "include",
 
-          });
-      
-          const contentType = res.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Server did not return JSON");
-          }
-      
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
-      
-        setUser(data.user);
-        setEditableUser(data.user); 
+        // fire both requests in parallel
+        const [profileRes, photoRes] = await Promise.all([
+          fetch("/api/profile", { credentials: "include", }),
+          fetch("/api/displayPhoto", { credentials: "include", })
+        ]);
+
+        const [profileData, photoData] = await Promise.all([
+          profileRes.json(),
+          photoRes.json()
+        ]);
+
+        if (!profileRes.ok) throw new Error(profileData.message);
+        if (!photoRes.ok)   throw new Error(photoData.message);
+
+        // merge the photo URL into your user object
+        const mergedUser = {
+          ...profileData.user,
+          profile_image_url: photoData.profile_image_url
+        };
+
+        setUser(mergedUser);
+        setEditableUser(mergedUser);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -38,43 +57,38 @@ const Profile = () => {
       }
     };
 
-    fetchProfile();
+    fetchProfileAndPhoto();
   }, []);
 
-  const handleGoBack = () => {
-    navigate("/dashboard");
-  };
 
-  const handleChange = (field, value) => setEditableUser({ ...editableUser, [field]: value });
+  const handleGoBack = () => navigate("/dashboard");
+  const handleChange = (field, value) =>
+    setEditableUser({ ...editableUser, [field]: value });
   const handleCancel = () => {
     setEditableUser(user);
     setEditing(false);
   };
 
-  const handleSave = async () => {
-
-    if (!editableUser.phone_number || editableUser.phone_number.trim() === "") {
+  const handleSaveProfile = async () => {
+    if (!editableUser.phone_number?.trim()) {
       alert("❌ Phone number is required");
       return;
     }
-    if (!user.email || user.email.trim() === "") {
+    if (!editableUser.email?.trim()) {
       alert("❌ Email is required");
       return;
     }
-
     setSaving(true);
-    const token = localStorage.getItem("token");
-
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
         body: JSON.stringify(editableUser),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update profile");
 
@@ -89,27 +103,65 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading profile...</p>;
-  if (error) return <p style={{ color: "red", textAlign: "center" }}>❌ {error}</p>;
+  // --- Image upload handlers ---
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return alert("No file selected.");
+    if (!ALLOWED_TYPES.includes(file.type))
+      return alert("Only JPG, PNG, or WEBP images are allowed.");
+    if (file.size > MAX_FILE_SIZE)
+      return alert("File size must be under 2MB.");
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleUploadPhoto = async () => {
+    if (!selectedFile) return;
+    setUploading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("image", selectedFile);
+
+      const res = await fetch("/api/displayPhoto", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
+
+      // update user state with new photo URL
+      setUser((u) => ({ ...u, profile_image_url: data.imageUrl }));
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      alert("✅ Photo uploaded!");
+    } catch (err) {
+      alert("❌ Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading)
+    return <p style={{ textAlign: "center" }}>Loading profile...</p>;
+  if (error)
+    return (
+      <p style={{ color: "red", textAlign: "center" }}>❌ {error}</p>
+    );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button
-        onClick={() => navigate(-1)}
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      {/* Top Buttons */}
+      <div
         style={{
-          padding: "8px 16px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginBottom: "16px"
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
         }}
       >
-        ← Back
-      </button>
-      {/* button list */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
         <button
           onClick={handleGoBack}
           style={{
@@ -123,7 +175,6 @@ const Profile = () => {
         >
           Dashboard
         </button>
-
         {!editing && (
           <button
             onClick={() => setEditing(true)}
@@ -141,7 +192,7 @@ const Profile = () => {
         )}
       </div>
 
-      {/* profile card */}
+      {/* Profile Card */}
       <div
         style={{
           maxWidth: "500px",
@@ -151,34 +202,110 @@ const Profile = () => {
           borderRadius: "8px",
         }}
       >
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👤 User Profile</h2>
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          👤 User Profile
+        </h2>
 
-        <p><strong>Email:</strong> {user.email}</p>
+        {/* Avatar & Upload */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: "20px",
+            gap: "12px",
+          }}
+        >
+          {user.profile_image_url ? (
+            <Avatar
+              src={user.profile_image_url}
+              sx={{ width: 80, height: 80 }}
+              alt="Profile"
+            />
+          ) : (
+            <Avatar sx={{ width: 80, height: 80 }}>
+              <PersonIcon fontSize="large" />
+            </Avatar>
+          )}
+
+          {editing && (
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  style={{
+                    maxWidth: "100px",
+                    borderRadius: "8px",
+                    marginTop: "8px",
+                  }}
+                />
+              )}
+              <button
+                onClick={handleUploadPhoto}
+                disabled={!selectedFile || uploading}
+                style={{
+                  marginTop: "8px",
+                  padding: "6px 12px",
+                  backgroundColor: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                {uploading ? "Uploading..." : "Upload Photo"}
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Profile Fields */}
+        <p>
+          <strong>Email:</strong> {user.email}
+        </p>
 
         {editing ? (
           <>
             <label>Username:</label>
             <input
               value={editableUser.username}
-              onChange={(e) => handleChange("username", e.target.value)}
+              onChange={(e) =>
+                handleChange("username", e.target.value)
+              }
               style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
             />
 
             <label>Phone Number:</label>
             <input
               value={editableUser.phone_number}
-              onChange={(e) => handleChange("phone_number", e.target.value)}
+              onChange={(e) =>
+                handleChange("phone_number", e.target.value)
+              }
               style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
             />
 
             <label>Address:</label>
             <input
               value={editableUser.address}
-              onChange={(e) => handleChange("address", e.target.value)}
+              onChange={(e) =>
+                handleChange("address", e.target.value)
+              }
               style={{ width: "100%", marginBottom: "20px", padding: "8px" }}
             />
 
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "10px",
+              }}
+            >
               <button
                 onClick={handleCancel}
                 style={{
@@ -188,13 +315,13 @@ const Profile = () => {
                   color: "white",
                   border: "none",
                   borderRadius: "4px",
+                  cursor: "pointer",
                 }}
               >
                 Cancel
               </button>
-
               <button
-                onClick={handleSave}
+                onClick={handleSaveProfile}
                 disabled={saving}
                 style={{
                   flex: 1,
@@ -203,6 +330,7 @@ const Profile = () => {
                   color: "white",
                   border: "none",
                   borderRadius: "4px",
+                  cursor: "pointer",
                 }}
               >
                 {saving ? "Saving..." : "Save"}
@@ -211,14 +339,18 @@ const Profile = () => {
           </>
         ) : (
           <>
-            <p><strong>Username:</strong> {user.username}</p>
-            <p><strong>Phone Number:</strong> {user.phone_number}</p>
-            <p><strong>Address:</strong> {user.address}</p>
+            <p>
+              <strong>Username:</strong> {user.username}
+            </p>
+            <p>
+              <strong>Phone Number:</strong> {user.phone_number}
+            </p>
+            <p>
+              <strong>Address:</strong> {user.address}
+            </p>
           </>
         )}
       </div>
     </div>
   );
-};
-
-export default Profile;
+}

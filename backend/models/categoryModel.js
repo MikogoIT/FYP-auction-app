@@ -4,16 +4,58 @@ import { sql } from "../utils/db.js";
 // get all categories
 export async function getAllCategories() {
   return await sql`
-    SELECT id, name FROM listing_categories ORDER BY name
+    SELECT id, name, description, "is_Suspended" 
+    FROM listing_categories 
+    WHERE "is_Suspended" = FALSE
+    ORDER BY name
   `;
 }
 
+// get category detail
+export async function getCategoryByIdModel(id) {
+  const result = await sql`
+    SELECT id, name, description, "is_Suspended" FROM listing_categories WHERE id = ${id}
+  `;
+  return result[0];
+}
+
 // create a new category
-export async function insertCategory(name) {
+export async function insertCategory(name, description) {
   return await sql`
-    INSERT INTO listing_categories (name)
-    VALUES (${name})
-    RETURNING id, name
+    INSERT INTO listing_categories (name, description)
+    VALUES (${name}, ${description})
+    RETURNING id, name, description
+  `;
+}
+
+// update category
+export async function updateCategoryModel(id, name, description) {
+  const result = await sql`
+    UPDATE listing_categories
+    SET name = ${name}, description = ${description}
+    WHERE id = ${id}
+    RETURNING id, name, description, "is_Suspended"
+  `;
+  return result[0];
+}
+
+// suspend category
+export async function toggleCategoryStateModel(id) {
+  const result = await sql`
+    UPDATE listing_categories
+    SET "is_Suspended" = NOT "is_Suspended"
+    WHERE id = ${id}
+    RETURNING "is_Suspended"
+  `;
+  return result[0];
+}
+
+// search category
+export async function searchCategoriesModel(query) {
+  return await sql`
+    SELECT id, name FROM listing_categories
+    WHERE name ILIKE ${'%' + query + '%'}
+    ORDER BY name
   `;
 }
 

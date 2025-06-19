@@ -3,11 +3,14 @@ import * as AuthModel from "../models/authModel.js";
 import { comparePassword, hashPassword } from "../utils/auth.js";
 
 export async function loginUser(req, res) {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and Password are required" });
   }
+
+  //Convert input to lowercase
+  email = email.toLowerCase();
 
   try {
     const user = await AuthModel.findUserByEmail(email);
@@ -56,11 +59,14 @@ export async function logoutUser(req, res) {
 }
 
 export async function registerUser(req, res) {
-  const { username, email, password, full_name, phone_number, address } = req.body;
+  let { username, email, password, full_name, phone_number, address } = req.body;
+
 
   if (!username || !email || !password || !full_name || !phone_number || !address) {
     return res.status(400).json({ message: "All fields are required" });
   }
+
+  const emailLower = email.toLowerCase();
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^\d{8}$/;
@@ -74,7 +80,7 @@ export async function registerUser(req, res) {
   }
 
   try {
-    if (await AuthModel.emailExists(email)) {
+    if (await AuthModel.emailExists(emailLower)) {
       return res.status(409).json({ message: "Email already registered" });
     }
 
@@ -85,7 +91,7 @@ export async function registerUser(req, res) {
     const passwordHash = hashPassword(password);
     const newUser = await AuthModel.createUser({
       username,
-      email,
+      email: emailLower,
       passwordHash,
       full_name,
       phone_number,

@@ -75,7 +75,7 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
         const token = localStorage.getItem("token"); // ✅ get JWT from local storage
       
         try {
-          const res = await fetch("/api/uploadDpImgTest", {
+          const res = await fetch("/api/displayPhoto", {
             method: "POST",
             credentials: "include",
             body: formData,

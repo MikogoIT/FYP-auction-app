@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
+import ImageIcon from "@mui/icons-material/Image";
+
 
 const Dashboard = () => {
   const [recentListings, setRecentListings] = useState([]);
@@ -22,11 +25,30 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchRecentListings = async () => {
       try {
+        // 1) fetch the recent listings endpoint
         const res = await fetch("/api/listings/recent");
         if (!res.ok) throw new Error("Failed to fetch recent listings");
 
-        const data = await res.json();
-        setRecentListings(data.listings);
+        const { listings } = await res.json();
+
+        // 2) enrich each listing with its image_url
+  
+        const enriched = await Promise.all(
+          listings.map(async (item) => {
+            try {
+              const imgRes = await fetch(
+                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+              );
+              if (!imgRes.ok) throw new Error("No image");
+              const { imageUrl } = await imgRes.json();
+              return { ...item, image_url: imageUrl };
+            } catch {
+              return { ...item, image_url: null };
+            }
+          })
+        );
+
+        setRecentListings(enriched);
       } catch (err) {
         console.error("Fetch recent listings error:", err);
       } finally {
@@ -115,6 +137,22 @@ const Dashboard = () => {
                     backgroundColor: "#f9f9f9"
                   }}
                 >
+                  {/* Cover Image */}
+                  <div style={{ marginBottom: "12px" }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        style={coverImageStyle}
+                      />
+                    ) : (
+                      <Avatar variant="square" sx={avatarStyle}>
+                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                      </Avatar>
+                    )}
+                  </div>
+
+
                   <h3>{item.title}</h3>
                   <p>{item.description}</p>
                   <p><strong>Min Bid:</strong> ${item.min_bid}</p>
@@ -177,5 +215,8 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const coverImageStyle = { width: "100%", height: "160px", objectFit: "cover", borderRadius: "4px" };
+const avatarStyle = { width: "100%", height: 160, bgcolor: "#eee" };
 
 export default Dashboard;

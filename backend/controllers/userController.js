@@ -1,8 +1,108 @@
 // controllers/userController.js
 import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from "../models/userModel.js";
 import { sql } from "../utils/db.js";
+import multer from "multer";
+import { Storage } from "@google-cloud/storage";
+import path from "path";
 
-// Get user profile
+
+
+// FOR DISPLAY PHOTO UPLOAD
+// ——— configure GCS bucket ———
+const gcs = new Storage();
+const bucket = gcs.bucket("auctioneer-dp-images");
+
+// ——— configure Multer ———
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+  fileFilter(req, file, cb) {
+    if (allowedMimeTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE", "Only .jpg, .png, .webp allowed"));
+  },
+});
+
+export async function getDP(req, res) {
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const result = await sql`
+      SELECT id, username, profile_image_url
+      FROM users
+      WHERE id = ${userId}
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result[0];
+    res.json({
+      id: user.id,
+      username: user.username,
+      profile_image_url: user.profile_image_url,
+    });
+  } catch (err) {
+    console.error("DB error:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+}
+
+
+
+export async function uplDP(req, res) {
+  // --- AUTH FIRST ---
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  // --- THEN MULTER UPLOAD ---
+  upload.single("image")(req, res, async (uploadErr) => {
+    if (uploadErr instanceof multer.MulterError) {
+      return res.status(400).json({ message: uploadErr.message });
+    }
+    if (uploadErr) {
+      console.error("Upload middleware error:", uploadErr);
+      return res.status(500).json({ message: "Upload middleware failure" });
+    }
+
+    try {
+      // 3) ensure file present
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded." });
+      }
+      // 4) validate extension
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      if (![".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
+        return res.status(400).json({ message: "Invalid file extension." });
+      }
+
+      // 5) upload to GCS
+      const filename = `user_${userId}_${Date.now()}${ext}`;
+      const file = bucket.file(filename);
+      await file.save(req.file.buffer, {
+        metadata: { contentType: req.file.mimetype },
+        resumable: false,
+      });
+
+      // 6) update DB
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+      await sql`
+        UPDATE users
+        SET profile_image_url = ${publicUrl}
+        WHERE id = ${userId}
+      `;
+
+      // 7) respond
+      return res.json({ imageUrl: publicUrl });
+    } catch (err) {
+      console.error("uplDP handler error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+}
+
 export async function getProfile(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
