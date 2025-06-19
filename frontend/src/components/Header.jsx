@@ -35,6 +35,8 @@ const Header = () => {
   const goToAdminPage = () => navigate("/admin");
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
+    setIsLoggedIn(false);
+    setPhotoUrl(null);
     navigate("/");
   };
 
