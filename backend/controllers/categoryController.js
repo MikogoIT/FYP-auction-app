@@ -57,8 +57,11 @@ export async function getCategoryById(req, res) {
     if (!category) return res.status(404).json({ message: "Category not found" });
     res.json({ category });
   } catch (err) {
-    console.error("Get category error:", err);
-    res.status(500).json({ message: "Failed to fetch category" });
+    console.error("❌ Get category error:", err);
+    res.status(500).json({
+      message: "Failed to fetch category",
+      error: err.message,
+    });
   }
 }
 

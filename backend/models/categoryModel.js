@@ -1,5 +1,5 @@
 // models/categoryModel.js
-import sql from "../utils/db.js";
+import { sql } from "../utils/db.js";
 
 // get all categories
 export async function getAllCategories() {
