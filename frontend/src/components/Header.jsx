@@ -12,7 +12,7 @@ const Header = () => {
   const [photoUrl, setPhotoUrl] = useState(null);
 
   // Hide logout on "/", "/login" and "/register"
-  const hideLogout = ["/", "/login", "/register"].includes(pathname);
+  const hideLogout = [ "/login", "/register"].includes(pathname);
 
   useEffect(() => {
     // check login + fetch profile photo
