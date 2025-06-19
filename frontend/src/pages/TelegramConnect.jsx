@@ -18,30 +18,30 @@ export default function TelegramConnect({ user }) {
         setSnackbar((prev) => ({ ...prev, open: false }));
     }
 
-    // Check Telegram link status on load
-    useEffect(() => {
-        if (!user) return;
+    // // Check Telegram link status on load
+    // useEffect(() => {
+    //     if (!user) return;
 
-        const checkStatus = async () => {
-            try {
-                // const token = localStorage.getItem("token");
-                // if (!token) return;
+    //     const checkStatus = async () => {
+    //         try {
+    //             // const token = localStorage.getItem("token");
+    //             // if (!token) return;
 
-                const res = await fetch("/api/telegram/status", {
-                    credentials: "include",
-                });
+    //             const res = await fetch("/api/telegram/status", {
+    //                 credentials: "include",
+    //             });
 
-                const data = await res.json();
-                if (res.ok && data.telegram_username) {
-                    setTelegramLinked(true);
-                }
-            } catch (err) {
-                showSnackbar("Failed to check Telegram link status", "error");
-            }
-        };
+    //             const data = await res.json();
+    //             if (res.ok && data.telegram_username) {
+    //                 setTelegramLinked(true);
+    //             }
+    //         } catch (err) {
+    //             showSnackbar("Failed to check Telegram link status", "error");
+    //         }
+    //     };
 
-        checkStatus();
-    }, [user]);
+    //     checkStatus();
+    // }, [user]);
 
     // Define global Telegram callback
     useEffect(() => {
@@ -87,27 +87,27 @@ export default function TelegramConnect({ user }) {
         }
     }, [user, telegramLinked]);
 
-    // Allow user to unlink their Telegram (after being linked)
-    const handleUnlinkTelegram = async () => {
-        // const token = localStorage.getItem("token");
-        // if (!token) return;
+    // // Allow user to unlink their Telegram (after being linked)
+    // const handleUnlinkTelegram = async () => {
+    //     // const token = localStorage.getItem("token");
+    //     // if (!token) return;
 
-        try {
-            const res = await fetch("/api/telegram/unlinkTelegram", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-            });
+    //     try {
+    //         const res = await fetch("/api/telegram/unlinkTelegram", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             credentials: "include",
+    //         });
 
-            const result = await res.json();
-            if (!res.ok) throw new Error(result.message);
+    //         const result = await res.json();
+    //         if (!res.ok) throw new Error(result.message);
 
-            setTelegramLinked(false);
-            showSnackbar("Telegram unlinked.");
-        } catch (err) {
-            showSnackbar("Error unlinking: " + err.message, "error");
-        }
-    };
+    //         setTelegramLinked(false);
+    //         showSnackbar("Telegram unlinked.");
+    //     } catch (err) {
+    //         showSnackbar("Error unlinking: " + err.message, "error");
+    //     }
+    // };
 
     return (
         <>
@@ -119,7 +119,7 @@ export default function TelegramConnect({ user }) {
                     sx={{ width: 305, height: 40, position: "relative", cursor: telegramLinked ? "pointer": "default" }}
                 >
                     <Box id="telegram-container" />
-                    {/* Show unlink button on hover if linked */}
+                    {/* Show unlink button on hover if linked 
                     {hovered && (
                         <Button
                             variant="contained"
@@ -137,6 +137,7 @@ export default function TelegramConnect({ user }) {
                             Unlink from Telegram
                         </Button>
                     )}
+                    */}
                 </Box>
             </Box>
 

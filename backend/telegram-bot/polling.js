@@ -22,10 +22,10 @@ export async function pollForListingsAndPost() {
             // Telegram channel "name" e.g. @shoes_fypauction --> same as invite link t.me/shoes_fypauction
             // but prepend with "@"
             const channelUsername = `@${listing.category_name.toLowerCase()}_fypauction`;
-            const { text, options } = formatListingMessage(listing, listing.category_name);
+            const { photoUrl, caption, options } = formatListingMessage(listing, listing.category_name);
 
             try {
-                await bot.sendMessage(channelUsername, text, options);
+                await bot.sendPhoto(channelUsername, photoUrl, { caption, ...options });
 
                 // Mark as posted
                 await fetch(`${backendApiUrl}/api/telegram/mark-posted/${listing.id}`, {

@@ -2,8 +2,7 @@ export function formatListingMessage(listing, categoryName) {
     const endDate = new Date(listing.end_date).toLocaleString();
     const minBidNumber = Number(listing.min_bid);
 
-    const text = `
-        🛎️ <b>Auctioneer Listing</b> 🛎️
+    const caption = `  🛎️ <b>NEW Listing on Auctioneer!!</b> 🛎️
 
         📦 <b>Item:</b> ${listing.title}
         🏷️ <b>Category:</b> ${categoryName}
@@ -12,8 +11,6 @@ export function formatListingMessage(listing, categoryName) {
 
         📝 <b>Description:</b>
         ${listing.description}
-
-        🖼️ <a href="${listing.image_url}">View image</a>
 
         🚀 <i>Place your bid now by clicking the button below!</i>
     `;
@@ -31,5 +28,9 @@ export function formatListingMessage(listing, categoryName) {
         }
     }
 
-    return { text, options };
+    return { 
+        photoUrl: listing.image_url,
+        caption, 
+        options 
+    };
 }
