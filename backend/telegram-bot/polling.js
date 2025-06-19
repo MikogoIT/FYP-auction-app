@@ -22,16 +22,26 @@ export async function pollForListingsAndPost() {
             // Telegram channel "name" e.g. @shoes_fypauction --> same as invite link t.me/shoes_fypauction
             // but prepend with "@"
             const channelUsername = `@${listing.category_name.toLowerCase()}_fypauction`;
-
             const { text, options } = formatListingMessage(listing, listing.category_name);
 
-            await bot.sendMessage(channelUsername, text, options);
+            try {
+                await bot.sendMessage(channelUsername, text, options);
 
-            // Mark as posted
-            await fetch(`${backendApiUrl}/api/telegram/mark-posted/${listing.id}`, {
-                method: "POST",
-                headers: { Authorization: `Bearer ${process.env.BOT_SECRET}` },
-            });
+                // Mark as posted
+                await fetch(`${backendApiUrl}/api/telegram/mark-posted/${listing.id}`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${process.env.BOT_SECRET}` },
+                });
+            } catch (err) {
+                // Skip if chat not found
+                if (err.response?.body?.description?.includes("chat not found")) {
+                    console.warn(`Skipping listing ${listing.id}: Telegram channel not found (${channelUsername})`);
+                    continue;
+                }
+
+                // Log other errors
+                console.error(`Error posting listing ${listing.id}: `, err.message);
+            }
         }
     } catch (err) {
         console.error("Error posting listing: ", err.message);
