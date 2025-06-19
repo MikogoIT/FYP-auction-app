@@ -65,7 +65,7 @@ const CategoryDetailPage = () => {
     });
     const data = await res.json();
     if (res.ok) {
-      setCategory((prev) => ({ ...prev, is_Suspended: data.newState }));
+      setCategory((prev) => ({ ...prev, is_suspended: data.newState }));
     } else {
       alert(data.message);
     }
@@ -79,8 +79,8 @@ const CategoryDetailPage = () => {
       <h2 style={styles.title}>Category Detail</h2>
       <p style={styles.status}>
         <strong>Status:</strong>{" "}
-        <span style={{ color: category.is_Suspended ? "red" : "green" }}>
-          {category.is_Suspended ? "Suspended" : "Active"}
+        <span style={{ color: category.is_suspended ? "red" : "green" }}>
+          {category.is_suspended ? "Suspended" : "Active"}
         </span>
       </p>
       <div style={styles.form}>
@@ -104,11 +104,11 @@ const CategoryDetailPage = () => {
         <button
           style={{
             ...styles.suspendBtn,
-            backgroundColor: category.is_Suspended ? "#28a745" : "#dc3545",
+            backgroundColor: category.is_suspended ? "#28a745" : "#dc3545",
           }}
           onClick={toggleIsSuspended}
         >
-          {category.is_Suspended ? "Unsuspend" : "Suspend"}
+          {category.is_suspended ? "Unsuspend" : "Suspend"}
         </button>
         {msg && (
           <p
