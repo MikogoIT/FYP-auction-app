@@ -1,12 +1,13 @@
 export function formatListingMessage(listing, categoryName) {
     const endDate = new Date(listing.end_date).toLocaleString();
+    const minBidNumber = Number(listing.min_bid);
 
     const text = `
         🛎️ <b>Auctioneer Listing</b> 🛎️
 
         📦 <b>Item:</b> ${listing.title}
         🏷️ <b>Category:</b> ${categoryName}
-        💰 <b>Starting Bid:</b> $${listing.min_bid.toFixed(2)}
+        💰 <b>Starting Bid:</b> $${minBidNumber.toFixed(2)}
         ⏰ <b>Ends On:</b> ${endDate}
 
         📝 <b>Description:</b>
