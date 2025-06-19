@@ -35,7 +35,6 @@ const BidPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     if (parseFloat(bidAmount) < minPrice) {
       setMessage(`❌ Bid must be at least $${minPrice.toFixed(2)}`);

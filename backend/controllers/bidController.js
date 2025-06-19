@@ -28,7 +28,7 @@ export async function createBid(req, res) {
       return res.status(400).json({ message: "Bid amount too high, must be less than 100 million" });
     }
 
-    const result = await insertBid(payload.userId, auction_id, bid_amount);
+    const result = await insertBid(userId, auction_id, bid_amount);
     res.status(201).json({ bid: result[0] });
   } catch (err) {
     console.error("Bid error:", err);

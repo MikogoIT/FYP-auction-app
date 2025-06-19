@@ -39,7 +39,6 @@ const CategoryDetailPage = () => {
       setMsg("❌ Name is required");
       return;
     }
-    const token = localStorage.getItem("token");
     const res = await fetch(`/api/categories/${id}`, {
       method: "PUT",
       headers: {
@@ -58,7 +57,6 @@ const CategoryDetailPage = () => {
   };
 
   const toggleIsSuspended = async () => {
-    const token = localStorage.getItem("token");
     const res = await fetch(`/api/categories/${id}/toggleSuspend`, {
       method: "PUT",
       credentials: "include",
