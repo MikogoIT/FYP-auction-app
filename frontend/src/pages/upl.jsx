@@ -14,12 +14,9 @@ export default function ImageUploadPage() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        
-        const res = await fetch("/api/displayPhoto", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ add auth header
-          },
+  
+        const res = await fetch("/api/getDP", {
+          credentials: "include",
         });
   
         const contentType = res.headers.get("content-type");
@@ -80,11 +77,9 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
         try {
           const res = await fetch("/api/displayPhoto", {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`, // ✅ attach JWT like your profile page
-            },
+            credentials: "include",
             body: formData,
-          });
+        });
       
           const data = await res.json();
       

@@ -4,9 +4,9 @@ import { sql } from "../utils/db.js";
 // get all categories
 export async function getAllCategories() {
   return await sql`
-    SELECT id, name, description, "is_Suspended" 
+    SELECT id, name, description, "is_suspended" 
     FROM listing_categories 
-    WHERE "is_Suspended" = FALSE
+    WHERE "is_suspended" = FALSE
     ORDER BY name
   `;
 }
@@ -14,7 +14,7 @@ export async function getAllCategories() {
 // get category detail
 export async function getCategoryByIdModel(id) {
   const result = await sql`
-    SELECT id, name, description, "is_Suspended" FROM listing_categories WHERE id = ${id}
+    SELECT id, name, description, "is_suspended" FROM listing_categories WHERE id = ${id}
   `;
   return result[0];
 }
@@ -34,7 +34,7 @@ export async function updateCategoryModel(id, name, description) {
     UPDATE listing_categories
     SET name = ${name}, description = ${description}
     WHERE id = ${id}
-    RETURNING id, name, description, "is_Suspended"
+    RETURNING id, name, description, "is_suspended"
   `;
   return result[0];
 }
@@ -43,9 +43,9 @@ export async function updateCategoryModel(id, name, description) {
 export async function toggleCategoryStateModel(id) {
   const result = await sql`
     UPDATE listing_categories
-    SET "is_Suspended" = NOT "is_Suspended"
+    SET "is_suspended" = NOT "is_suspended"
     WHERE id = ${id}
-    RETURNING "is_Suspended"
+    RETURNING "is_suspended"
   `;
   return result[0];
 }

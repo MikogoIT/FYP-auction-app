@@ -35,7 +35,6 @@ const BidPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     if (parseFloat(bidAmount) < minPrice) {
       setMessage(`❌ Bid must be at least $${minPrice.toFixed(2)}`);
@@ -52,8 +51,8 @@ const BidPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
         },
+        credentials: "include",
         body: JSON.stringify({
           auction_id: id,
           bid_amount: parseFloat(bidAmount)
@@ -63,10 +62,10 @@ const BidPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setMessage("✅ Bid submitted!");
+      setMessage("Bid submitted!");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      setMessage("❌ " + err.message);
+      setMessage(err.message);
     }
   };
 

@@ -6,9 +6,10 @@ import {
   getSellerId,
   updateListing,
   deleteListing,
-  getMyListings
+  getMyListings,
+  getListingsWithFilters
 } from "../models/listingsModel.js";
-import { verifyToken } from "../utils/token.js";
+import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
 import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
@@ -32,9 +33,8 @@ const upload = multer({
 
 // POST /listings
 export async function postListing(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   const { title, description, min_bid, end_date, category_id } = req.body;
   if (!title || !min_bid || !end_date || !category_id) {
@@ -42,7 +42,7 @@ export async function postListing(req, res) {
   }
 
   try {
-    const result = await createListing(payload.userId, title, description, min_bid, end_date, category_id);
+    const result = await createListing(userId, title, description, min_bid, end_date, category_id);
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
@@ -75,9 +75,8 @@ export async function getListing(req, res) {
 
 // PUT /listings/:id
 export async function putListing(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   const { title, description, min_bid, end_date } = req.body;
   if (!title || !min_bid || !end_date) {
@@ -87,7 +86,7 @@ export async function putListing(req, res) {
   try {
     const existing = await getSellerId(req.params.id);
     if (existing.length === 0) return res.status(404).json({ message: "Listing not found" });
-    if (Number(existing[0].seller_id) !== Number(payload.userId)) {
+    if (Number(existing[0].seller_id) !== Number(userId)) {
       return res.status(403).json({ message: "Unauthorized to edit this listing" });
     }
 
@@ -101,14 +100,13 @@ export async function putListing(req, res) {
 
 // DELETE /listings/:id
 export async function deleteListingById(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const existing = await getSellerId(req.params.id);
     if (existing.length === 0) return res.status(404).json({ message: "Listing not found" });
-    if (Number(existing[0].seller_id) !== Number(payload.userId)) {
+    if (Number(existing[0].seller_id) !== Number(userId)) {
       return res.status(403).json({ message: "Unauthorized to delete this listing" });
     }
 
@@ -122,12 +120,11 @@ export async function deleteListingById(req, res) {
 
 // GET /mylistings
 export async function getMyListingsHandler(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const listings = await getMyListings(payload.userId);
+    const listings = await getMyListings(userId);
     res.json({ listings });
   } catch (err) {
     console.error("Fetch my listings error:", err);
@@ -135,13 +132,29 @@ export async function getMyListingsHandler(req, res) {
   }
 }
 
+export async function getRecentListings(req, res) {
+  try {
+    const listings = await fetchRecentListings();
+    res.json({ listings });
+  } catch (err) {
+    console.error("Fetch recent listings error:", err);
+    res.status(500).json({ message: "Failed to fetch listings" });
+  }
+}
+export async function getAllListings(req, res) {
+  const { q = "", category = "" } = req.query;
+
+  try {
+    const listings = await getListingsWithFilters(q, category);
+    res.json({ listings });
+  } catch (err) {
+    console.error("Fetch listings error:", err);
+    res.status(500).json({ message: "Failed to fetch listings" });
+  }
+}
 
 // GET /api/listingimg?listingId=<id>
 export async function getListingImg(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Invalid or missing token" });
-
   const listingId = req.query.listingId;
   if (!listingId) return res.status(400).json({ message: "Missing listingId parameter" });
 
@@ -162,16 +175,8 @@ export async function getListingImg(req, res) {
 
 // PUT /api/listingimg
 export async function uplListingImg(req, res) {
-  // --- AUTH FIRST ---
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
   
-  // --- THEN MULTER UPLOAD ---
+  // --- MULTER UPLOAD ---
   upload.single("image")(req, res, async (uploadErr) => {
     if (uploadErr instanceof multer.MulterError) {
       return res.status(400).json({ message: uploadErr.message });

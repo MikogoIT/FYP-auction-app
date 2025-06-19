@@ -3,6 +3,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -15,6 +18,39 @@ import telegramRoutes from "./routes/telegramRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+// session
+const PgSession = connectPgSimple(session);
+
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL, 
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET, 
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    sameSite: "lax",
+    secure: false 
+  }
+}));
+
+console.log("SESSION_SECRET:", process.env.SESSION_SECRET);
+
+//----------------------------------------------------------------------------------
+// Test session handling
+app.get("/api/session-test", (req, res) => {
+  if (req.session.views) {
+    req.session.views++;
+    res.send(`You have visited this page ${req.session.views} times`);
+  } else {
+    req.session.views = 1;
+    res.send("Welcome! This is your first visit.");
+  }
+});
+// test session end
+//----------------------------------------------------------------------------------
 
 app.use((req, res, next) => {
   res.removeHeader("content-security-policy");
@@ -33,6 +69,12 @@ app.use(express.static(path.join(__dirname, '../frontend', 'dist')));
 
 // Enable JSON body parsing in advance
 app.use(express.json());
+
+// Enable CORS
+app.use(cors({
+  origin: "http://localhost:4433", 
+  credentials: true
+}));
 
 //listing router
 app.use("/api", listingRoutes);
@@ -78,14 +120,13 @@ app.use("/api/telegram", telegramRoutes);
 
 //-------------------TEST Login--------------------//
 
-app.use("/api", authRoutes);      
-app.use("/api/users", userRoutes);
-app.use("/api", userRoutes); 
+app.use("/api", authRoutes);
+app.use("/api/users", userRoutes); 
 
 //---------------------Test end--------------------//
 
 // Testing Database - UserModel
-app.get("/api/users", userRoutes);
+// app.get("/api/users", userRoutes);
 
 // Fallback to React app
 app.get("*name", (req, res) => {
