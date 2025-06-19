@@ -103,6 +103,37 @@ export async function uplDP(req, res) {
   });
 }
 
+// check if user is logged in
+export async function checkAuth(req, res) {
+  const userId = req.session.userId;
+  if (!userId) {
+    // this should never happen if `requireLogin` ran,
+    // but it guards against a missing session anyway
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    // \pull back some basic user info
+    const result = await sql`
+      SELECT id, username
+      FROM users
+      WHERE id = ${userId}
+    `;
+    if (result.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { id, username } = result[0];
+    return res.json({
+      authenticated: true,
+      user: { id, username }
+    });
+  } catch (err) {
+    console.error("DB error in checkAuth:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export async function getProfile(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });

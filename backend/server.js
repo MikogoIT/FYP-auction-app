@@ -120,6 +120,7 @@ app.use("/api/users", userRoutes);
 // app.get("/api/users", userRoutes);
 
 // Fallback to React app
+// deepcode ignore NoRateLimitingForExpensiveWebOperation: <please specify a reason of ignoring this>
 app.get("*name", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
 });

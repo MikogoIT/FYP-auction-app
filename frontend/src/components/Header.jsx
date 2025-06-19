@@ -8,44 +8,54 @@ const Header = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Hide logout on "/", "/login" and "/register"
   const hideLogout = ["/", "/login", "/register"].includes(pathname);
 
-
   useEffect(() => {
-    fetch("/api/users/profile", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user?.is_admin) {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
+    fetch("/isLoggedIn", { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) {
+          setIsLoggedIn(false);
+          throw new Error("Not logged in");
         }
+        setIsLoggedIn(true);
+        return res.json();
       })
-      .catch((err) => {
+      .then((data) => {
+        setIsAdmin(!!data.user?.is_admin);
+      })
+      .catch(() => {
         setIsAdmin(false);
-        console.error("Error checking admin status:", err);
       });
   }, [pathname]);
 
-  const goToAdminPage = () => {
-    navigate("/admin");
-  };
-
+  const goToAdminPage = () => navigate("/admin");
   const handleLogout = async () => {
-    await fetch("/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/login";
+    await fetch("/api/logout", { method: "POST", credentials: "include" });
+    navigate("/");
   };
 
   return (
-    <div className="headerBar" >
-      <div className="headerContent">
+    <div
+      className="headerBar"
+      style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 1000 }}
+    >
+      <div className="headerContent" style={{ position: "relative" }}>
+        {/* Status box: red when logged out, blue when logged in */}
+        <div
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+            width: "16px",
+            height: "16px",
+            borderRadius: "4px",
+            backgroundColor: isLoggedIn ? "blue" : "red",
+          }}
+        />
+
         <img
           src={`${IMG_BASE_URL}full-logo.png`}
           style={{ width: "150px", cursor: "pointer" }}
@@ -67,8 +77,9 @@ const Header = () => {
             </Tooltip>
           </div>
         )}
-        </div>
+      </div>
     </div>
   );
 };
+
 export default Header;
