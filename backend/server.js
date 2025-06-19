@@ -35,7 +35,7 @@ app.use(session({
   }
 }));
 
-console.log("SESSION_SECRET:", process.env.SESSION_SECRET);
+
 
 //----------------------------------------------------------------------------------
 // Test session handling
