@@ -3,12 +3,12 @@ import { formatListingMessage } from "./formatListingMessage.js";
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: false });
 
+const backendApiUrl = process.env.BACKEND_API_URL || "http://host.docker.internal:8080";
+
 export async function pollForListingsAndPost() {
     try {
-        const BASE_URL = "";
-
         // Fetch unposted listings from your backend API
-        const res = await fetch(`${BASE_URL}/api/telegram/listings/unposted`, {
+        const res = await fetch(`${backendApiUrl}/api/telegram/listings/unposted`, {
             headers: { Authorization: `Bearer ${process.env.BOT_SECRET}` },
         });
 
@@ -28,8 +28,9 @@ export async function pollForListingsAndPost() {
             await bot.sendMessage(channelUsername, text, options);
 
             // Mark as posted
-            await fetch(`${BASE_URL}/api/telegram/mark-posted/${listing.id}`, {
+            await fetch(`${backendApiUrl}/api/telegram/mark-posted/${listing.id}`, {
                 method: "POST",
+                headers: { Authorization: `Bearer ${process.env.BOT_SECRET}` },
             });
         }
     } catch (err) {
@@ -38,3 +39,6 @@ export async function pollForListingsAndPost() {
 }
 
 setInterval(pollForListingsAndPost, 5 * 60 * 1000);
+
+// Run once immediately on start for quick test
+pollForListingsAndPost();
