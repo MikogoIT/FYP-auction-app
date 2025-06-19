@@ -6,7 +6,6 @@ import Alert from "@mui/material/Alert";
 
 export default function TelegramConnect({ user }) {
     const [telegramLinked, setTelegramLinked] = useState(false);
-    const [telegramUsername, setTelegramUsername] = useState(null);
     const [hovered, setHovered] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -35,7 +34,6 @@ export default function TelegramConnect({ user }) {
                 const data = await res.json();
                 if (res.ok && data.telegram_username) {
                     setTelegramLinked(true);
-                    setTelegramUsername(data.telegram_username);
                 }
             } catch (err) {
                 showSnackbar("Failed to check Telegram link status", "error");
@@ -70,7 +68,6 @@ export default function TelegramConnect({ user }) {
                 if (!res.ok) throw new Error(result.message);
 
                 setTelegramLinked(true);
-                setTelegramUsername(tgUser.username);
                 showSnackbar("Telegram linked successfully!");
             } catch (err) {
                 showSnackbar("Failed to link Telegram: " + err.message, "error");
@@ -110,7 +107,6 @@ export default function TelegramConnect({ user }) {
             if (!res.ok) throw new Error(result.message);
 
             setTelegramLinked(false);
-            setTelegramUsername(null);
             showSnackbar("Telegram unlinked.");
         } catch (err) {
             showSnackbar("Error unlinking: " + err.message, "error");
