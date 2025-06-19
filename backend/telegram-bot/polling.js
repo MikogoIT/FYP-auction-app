@@ -1,7 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { formatListingMessage } from "./formatListingMessage.js";
 
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: false });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
 const backendApiUrl = process.env.BACKEND_API_URL || "http://host.docker.internal:8080";
 
