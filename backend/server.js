@@ -112,7 +112,7 @@ app.use("/api/auctions", auctionRoutes);
 //-------------------TEST Login--------------------//
 
 app.use("/api", authRoutes);
-app.use("/api/users", userRoutes); 
+app.use("/api", userRoutes); 
 
 //---------------------Test end--------------------//
 
