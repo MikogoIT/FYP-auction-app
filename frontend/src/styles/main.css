@@ -33,6 +33,7 @@ md-filled-button {
     background-color: white;
     top: 0;
     left: 0;
+    z-index: 2;
   }
 
 .headerContent {
@@ -96,7 +97,7 @@ background-color: #e0e0e0;
 #landingBlock1
 {
   background-color: #f1f0f0;
-  width: 600px;
+  flex: 1;
   padding-bottom: 85px;
 }
 
@@ -123,6 +124,7 @@ background-color: #e0e0e0;
 {
   width: 100%;
   display: flex;
+  justify-content: space-between;
 }
 
 .title
