@@ -44,8 +44,8 @@ const CategoryDetailPage = () => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
       body: JSON.stringify({ name, description }),
     });
     const data = await res.json();
@@ -61,7 +61,7 @@ const CategoryDetailPage = () => {
     const token = localStorage.getItem("token");
     const res = await fetch(`/api/categories/${id}/toggleSuspend`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     });
     const data = await res.json();
     if (res.ok) {

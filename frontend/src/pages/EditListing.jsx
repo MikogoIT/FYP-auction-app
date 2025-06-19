@@ -33,7 +33,7 @@ export default function EditListing() {
         // 2) fetch existing cover
         const token = localStorage.getItem("token");
         const resImg = await fetch(`/api/listingimg?listingId=${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         const imgData = await resImg.json();
         if (resImg.ok && imgData.imageUrl) {
@@ -110,7 +110,7 @@ export default function EditListing() {
 
       const res = await fetch("/api/listingimg", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: formData,
       });
       const data = await res.json();

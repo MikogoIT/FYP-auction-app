@@ -10,7 +10,6 @@ import {
   getListingsWithFilters
 } from "../models/listingsModel.js";
 import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
-import { verifyToken } from "../utils/token.js";
 import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
