@@ -112,13 +112,13 @@ app.use("/api/auctions", auctionRoutes);
 //-------------------TEST Login--------------------//
 
 app.use("/api", authRoutes);      
-app.use("/api/users", userRoutes);
+// app.use("/api/users", userRoutes);
 app.use("/api", userRoutes); 
 
 //---------------------Test end--------------------//
 
 // Testing Database - UserModel
-app.get("/api/users", userRoutes);
+// app.get("/api/users", userRoutes);
 
 // Fallback to React app
 app.get("*name", (req, res) => {
