@@ -33,7 +33,7 @@ export default function EditListing() {
         // 2) fetch existing cover
         const token = localStorage.getItem("token");
         const resImg = await fetch(`/api/listingimg?listingId=${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         });
         const imgData = await resImg.json();
         if (resImg.ok && imgData.imageUrl) {
@@ -72,8 +72,8 @@ export default function EditListing() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           title: listing.title,
           description: listing.description,
@@ -84,10 +84,10 @@ export default function EditListing() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setSuccess("✅ Listing updated successfully");
+      setSuccess("Listing updated successfully");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      setError("❌ " + err.message);
+      setError("" + err.message);
     }
   };
 
@@ -110,7 +110,7 @@ export default function EditListing() {
 
       const res = await fetch("/api/listingimg", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: formData,
       });
       const data = await res.json();
@@ -132,16 +132,22 @@ export default function EditListing() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "40px auto",
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <h2 style={{ textAlign: "center" }}>✏️ Edit Listing</h2>
+    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
+      <h2 style={{ textAlign: "center" }}>Edit Listing</h2>
 
       {/* Cover image preview / placeholder */}
       <div
@@ -260,33 +266,37 @@ export default function EditListing() {
         </button>
 
         <button
-          type="button"
-          onClick={async () => {
-            if (!window.confirm("Are you sure you want to delete this listing?")) return;
-            try {
-              const token = localStorage.getItem("token");
-              const res = await fetch(`/api/listings/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              const data = await res.json();
-              if (!res.ok) throw new Error(data.message);
-              alert("✅ Listing deleted successfully.");
-              navigate("/dashboard");
-            } catch (err) {
-              alert("❌ Failed to delete listing: " + err.message);
-            }
-          }}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            width: "100%",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+            type="button"
+            onClick={async () => {
+                const confirmDelete = window.confirm("Are you sure you want to delete this listing?");
+                if (!confirmDelete) return;
+
+                const token = localStorage.getItem("token");
+
+                try {
+                    const res = await fetch(`/api/listings/${id}`, {
+                        method: "DELETE",
+                        credentials: "include", // 关键
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message);
+
+                    alert("✅ Listing deleted successfully.");
+                    navigate("/dashboard");
+                } catch (err) {
+                    alert("❌ Failed to delete listing: " + err.message);
+                }
+            }}
+            style={{
+                marginTop: "10px",
+                padding: "10px",
+                width: "100%",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px"
+            }}
         >
           🗑️ Delete Listing
         </button>

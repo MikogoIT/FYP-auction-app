@@ -14,7 +14,8 @@ import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
-
+import Landing from "./pages/landing";
+import ListingPage from "./pages/ListingPage";
 
 // components
 import Header from "./components/Header";
@@ -32,6 +33,7 @@ function App() {
         <Header />
         <div className="mainContent">
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -40,11 +42,11 @@ function App() {
             <Route path="/edit/:id" element={<EditListing />} />
             <Route path="/bid/:id" element={<BidPage />} />
             <Route path="/mylistings" element={<MyListings />} />
-            <Route path="/uploadImgTest" element={<ImageUploadPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
+            <Route path="/ListingPage" element={<ListingPage />} />
             
             {!isApiRoute && (
               <Route path="*" element={<Navigate to="/login" replace />} />

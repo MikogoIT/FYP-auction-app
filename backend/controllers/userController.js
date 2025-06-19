@@ -1,5 +1,4 @@
 // controllers/userController.js
-import { verifyToken } from "../utils/token.js";
 import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from "../models/userModel.js";
 import { sql } from "../utils/db.js";
 import multer from "multer";
@@ -25,15 +24,8 @@ const upload = multer({
 });
 
 export async function getDP(req, res) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
-
-  const userId = payload.userId;
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const result = await sql`
@@ -62,15 +54,8 @@ export async function getDP(req, res) {
 
 export async function uplDP(req, res) {
   // --- AUTH FIRST ---
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
-
-  const userId = payload.userId;
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   // --- THEN MULTER UPLOAD ---
   upload.single("image")(req, res, async (uploadErr) => {
@@ -119,16 +104,11 @@ export async function uplDP(req, res) {
 }
 
 export async function getProfile(req, res) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const result = await getUserById(payload.userId);
+    const result = await getUserById(userId);
     if (result.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -140,19 +120,15 @@ export async function getProfile(req, res) {
   }
 }
 
+// Update user profile
 export async function updateProfile(req, res) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   const { username, phone_number, address } = req.body;
 
   try {
-    const result = await updateUserById(payload.userId, username, phone_number, address);
+    const result = await updateUserById(userId, username, phone_number, address);
     res.json({ user: result[0] });
   } catch (err) {
     console.error("Update profile error:", err);
@@ -160,16 +136,13 @@ export async function updateProfile(req, res) {
   }
 }
 
+// Get all users (admins only)
 export async function getAllUsersController(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const result = await getUserById(payload.userId);
+    const result = await getUserById(userId);
 
     if (result.length === 0 || !result[0].is_admin) {
       return res.status(403).json({ message: "Access denied: Admins only" });
@@ -183,16 +156,13 @@ export async function getAllUsersController(req, res) {
   }
 }
 
+// Toggle user freeze status (admins only)
 export async function toggleUserFreezeController(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const requester = await getUserById(payload.userId);
+    const requester = await getUserById(userId);
     if (!requester[0]?.is_admin) {
       return res.status(403).json({ message: "Only admins can perform this action" });
     }
@@ -206,14 +176,13 @@ export async function toggleUserFreezeController(req, res) {
   }
 }
 
+// Delete user (admins only)
 export async function deleteUserController(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const me = await getUserById(payload.userId);
+    const me = await getUserById(userId);
     if (!me[0]?.is_admin) {
       return res.status(403).json({ message: "Only admins can delete users" });
     }
@@ -237,14 +206,13 @@ export async function deleteUserController(req, res) {
   }
 }
 
+// Search users (admins only)
 export async function searchUsersController(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const me = await getUserById(payload.userId);
+    const me = await getUserById(userId);
     if (!me[0]?.is_admin) {
       return res.status(403).json({ message: "Admins only" });
     }

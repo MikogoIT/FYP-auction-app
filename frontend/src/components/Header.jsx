@@ -9,63 +9,65 @@ const Header = () => {
   const { pathname } = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Hide logout on both the login page
-  const hideLogout = pathname === "/login";
+  // Hide logout on "/", "/login" and "/register"
+  const hideLogout = ["/", "/login", "/register"].includes(pathname);
+
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      fetch("/api/users/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    fetch("/api/users/profile", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.is_admin) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.user?.is_admin) {
-            setIsAdmin(true);
-          }
-        })
-        .catch((err) => console.error("Error checking admin status:", err));
-    } else {
-      setIsAdmin(false);
-    }
+      .catch((err) => {
+        setIsAdmin(false);
+        console.error("Error checking admin status:", err);
+      });
   }, [pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    navigate("/login");
-  };
 
   const goToAdminPage = () => {
     navigate("/admin");
   };
 
-  return (
-    <div className="headerBar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" }}>
-      <img
-        src={`${IMG_BASE_URL}full-logo.png`}
-        style={{ width: "150px", cursor: "pointer" }}
-        alt="Logo"
-        onClick={() => navigate("/dashboard")}
-      />
+  const handleLogout = async () => {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/login";
+  };
 
-      {!hideLogout && (
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {isAdmin && (
-            <Button variant="contained" color="primary" onClick={goToAdminPage}>
-              Admin
-            </Button>
-          )}
-          <Tooltip title="Logout">
-            <IconButton onClick={handleLogout} color="secondary">
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
+  return (
+    <div className="headerBar" >
+      <div className="headerContent">
+        <img
+          src={`${IMG_BASE_URL}full-logo.png`}
+          style={{ width: "150px", cursor: "pointer" }}
+          alt="Logo"
+          onClick={() => navigate("/")}
+        />
+
+        {!hideLogout && (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {isAdmin && (
+              <Button variant="contained" color="primary" onClick={goToAdminPage}>
+                Admin
+              </Button>
+            )}
+            <Tooltip title="Logout">
+              <IconButton onClick={handleLogout} color="secondary">
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
         </div>
-      )}
     </div>
   );
 };

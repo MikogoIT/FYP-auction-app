@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -8,19 +8,50 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const USERS_PER_PAGE = 10;
-  const navigate = useNavigate();
 
+  const navigate = useNavigate(); 
+
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    setCategoryMsg("");
+
+    if (!newCategory.trim()) {
+      setCategoryMsg("❌ Category name is required");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name: newCategory }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setCategoryMsg("Category created successfully");
+        setNewCategory("");
+      } else {
+        setCategoryMsg("❌ " + (data.message || "Creation failed"));
+      }
+    } catch (err) {
+      console.error("Create category error:", err);
+      setCategoryMsg("❌ Server error");
+    }
+  };
 
   const fetchUsers = async (query = "", page = 1) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
       const endpoint = query
         ? `/api/users/admin/search?q=${encodeURIComponent(query)}`
         : `/api/users/admin/users`;
 
       const res = await fetch(endpoint, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", 
       });
 
       const data = await res.json();
@@ -47,35 +78,31 @@ const AdminPage = () => {
   };
 
   const toggleFreeze = async (userId) => {
-  const token = localStorage.getItem("token");
-  try {
-    const res = await fetch(`/api/users/admin/freeze/${userId}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert("Status updated");
-      fetchUsers(); 
-    } else {
-      alert("Error: " + data.message);
+    try {
+      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+        method: "PUT",
+        credentials: "include", 
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Status updated");
+        fetchUsers();
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      alert("Request failed");
     }
-  } catch (err) {
-    alert("Request failed");
-  }
- };
+  };
 
   const deleteUser = async (userId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this user?");
     if (!confirmDelete) return;
 
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/users/admin/delete/${userId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", 
       });
       const data = await res.json();
       if (res.ok) fetchUsers();
@@ -94,6 +121,20 @@ const AdminPage = () => {
 
   return (
     <div style={{ padding: "40px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👑 Admin Panel - Manage Users</h2>
       
       <div style={{ display: "flex", gap: "20px", justifyContent: "center", marginBottom: "30px" }}>
@@ -209,7 +250,6 @@ const AdminPage = () => {
         </>
       )}
     </div>
-    
   );
 };
 

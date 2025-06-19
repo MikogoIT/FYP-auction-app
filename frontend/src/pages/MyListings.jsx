@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MyListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchMyListings = async () => {
-      const token = localStorage.getItem("token");
-
       try {
         const res = await fetch("/api/mylistings", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
@@ -29,7 +27,21 @@ const MyListings = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2 style={{ textAlign: "center" }}>📦 My Listings</h2>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          marginBottom: "16px"
+        }}
+      >
+        ← Back
+      </button>
+      <h2 style={{ textAlign: "center" }}>My Listings</h2>
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading...</p>
       ) : listings.length === 0 ? (

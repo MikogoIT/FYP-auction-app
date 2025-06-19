@@ -58,6 +58,12 @@ variable "cf_zone" {
   default     = "9437947d39eb903fb917bf7620872267"
 }
 
+variable "SESSION_SECRET" {
+  description = "Secret used to sign Express sessions"
+  type        = string
+  sensitive   = true
+}
+
 variable "DATABASE_URL" {
   description = "Connection string for NeonDB"
   type        = string
@@ -107,7 +113,7 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
     action = "DELETE"
     condition {
       tag_state = "UNTAGGED"
-      older_than = "10d"
+      older_than = "4d"
     }
   }
 }
@@ -139,6 +145,11 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
       env {
         name  = "DATABASE_URL"
         value = var.DATABASE_URL
+      }
+
+      env {
+          name  = "SESSION_SECRET"
+          value = var.SESSION_SECRET
       }
 
       resources {

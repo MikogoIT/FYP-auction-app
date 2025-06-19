@@ -26,13 +26,12 @@ export default function Profile() {
     useEffect(() => {
     const fetchProfileAndPhoto = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const headers = { Authorization: `Bearer ${token}` };
+      
 
         // fire both requests in parallel
         const [profileRes, photoRes] = await Promise.all([
-          fetch("/api/profile", { headers }),
-          fetch("/api/displayPhoto", { headers })
+          fetch("/api/profile", { credentials: "include", }),
+          fetch("/api/displayPhoto", { credentials: "include", })
         ]);
 
         const [profileData, photoData] = await Promise.all([
@@ -86,8 +85,8 @@ export default function Profile() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(editableUser),
       });
       const data = await res.json();
@@ -128,7 +127,7 @@ export default function Profile() {
 
       const res = await fetch("/api/displayPhoto", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: formData,
       });
       const data = await res.json();

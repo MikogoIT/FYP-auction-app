@@ -1,5 +1,4 @@
 // controllers/categoryController.js
-import { verifyToken } from "../utils/token.js";
 import {
   getAllCategories,
   insertCategory,
@@ -23,13 +22,11 @@ export async function getCategories(_, res) {
 
 // create a new category
 export async function createCategory(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   // Check if user is admin
-  const isAdminUser = await isAdmin(payload.userId);
+  const isAdminUser = await isAdmin(userId);
   if (!isAdminUser) {
     return res.status(403).json({ message: "Admins only" });
   }
@@ -48,9 +45,8 @@ export async function createCategory(req, res) {
 
 // Get details of a single category
 export async function getCategoryById(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const category = await getCategoryByIdModel(req.params.id);
@@ -67,11 +63,10 @@ export async function getCategoryById(req, res) {
 
 // update category
 export async function updateCategory(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const isAdminUser = await isAdmin(payload.userId);
+  const isAdminUser = await isAdmin(userId);
   if (!isAdminUser) return res.status(403).json({ message: "Admins only" });
 
   const { name, description } = req.body;
@@ -87,11 +82,10 @@ export async function updateCategory(req, res) {
 }
 
 export async function toggleCategoryState(req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) return res.status(401).json({ message: "Unauthorized" });
+  const userId = req.session.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const isAdminUser = await isAdmin(payload.userId);
+  const isAdminUser = await isAdmin(userId);
   if (!isAdminUser) return res.status(403).json({ message: "Admins only" });
 
   try {
