@@ -1,3 +1,4 @@
+// telegram-bot/polling.js
 import TelegramBot from "node-telegram-bot-api";
 import { formatListingMessage } from "./formatListingMessage.js";
 

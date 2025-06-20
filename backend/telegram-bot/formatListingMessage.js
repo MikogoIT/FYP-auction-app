@@ -1,3 +1,4 @@
+// telegram-bot/formatListingMessage.js
 export function formatListingMessage(listing, categoryName) {
     const endDate = new Date(listing.end_date).toLocaleString();
     const minBidNumber = Number(listing.min_bid);
