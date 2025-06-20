@@ -114,7 +114,7 @@ export default function Register() {
               <md-filled-button
                 unelevated
                 type="submit"
-                style={{ width: "100%" }}
+                style={{ width: "100%", fontFamily: "Roboto" }}
                 disabled={loading}
               >
                 Register
