@@ -69,6 +69,13 @@ export async function pollForListingsAndPost() {
             // Telegram channel "name" e.g. @shoes_fypauction --> same as invite link t.me/shoes_fypauction
             // but prepend with "@"
             const channelUsername = `@${listing.category_name.toLowerCase()}_fypauction`;
+
+            // Skip if no image URL
+            if (!listing.image_url || listing.image_url.trim() === "") {
+                console.warn(`Skipping listing ${listing.id}: No photo provided`);
+                continue;
+            }
+
             const { photoUrl, caption, options } = formatListingMessage(listing, listing.category_name);
 
             try {

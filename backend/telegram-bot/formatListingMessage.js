@@ -3,9 +3,9 @@ export function formatListingMessage(listing, categoryName) {
     const minBidNumber = Number(listing.min_bid);
     const highestBidNumber = Number(listing.highest_bid);
 
-    const caption = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const caption = `━━━━━━━━━━━━━━━━━━━━━━━
     🛎️ <b>NEW Listing on Auctioneer!!</b> 🛎️
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━━━━━━
 
     📦 <b>Item:</b> ${listing.title}
     🏷️ <b>Category:</b> ${categoryName}
