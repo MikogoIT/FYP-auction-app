@@ -7,14 +7,19 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 const backendApiUrl = process.env.BACKEND_API_URL || "http://host.docker.internal:8080";
 
+
 // Command handlers
+const userBidContext = new Map(); // Map<chatId, auctionId>
+
+// When user starts via payload
 bot.onText(/\/start(?: (.+))?/, (msg, match) => {
     const chatId = msg.chat.id;
     const payload = match[1];
     
     if (payload && payload.startsWith("bid_")) {
-        const bidId = payload.split("_")[1];
-        bot.sendMessage(chatId, `Welcome! You started bidding for item #${bidId}.`);
+        const auctionId = payload.split("_")[1];
+        userBidContext.set(chatId, auctionId); // Track what item user is bidding on
+        bot.sendMessage(chatId, `Welcome! You're viewing item #${auctionId}.`);
     } else {
         bot.sendMessage(chatId, "Welcome to Auctioneer!");
     }
@@ -25,10 +30,15 @@ bot.onText(/\/help/, (msg) => {
     sendHelp(msg.chat.id);
 });
 
-bot.onText(/\/bid (\d+)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    const bidId = match[1];
-    bot.sendMessage(chatId, `You've chosen to bid on item #${bidId}.`);
+// When user types /bid <amount>
+bot.onText(/\/bid (\d+(\.\d+)?)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const bidAmount = parseFloat(match[1]);
+  if (isNaN(bidAmount)) {
+    bot.sendMessage(chatId, "Please provide a valid bid amount, e.g. /bid 100");
+  } else {
+    bot.sendMessage(chatId, `You've placed a bid of $${bidAmount.toFixed(2)}. (Backend integration coming soon!)`);
+  }
 });
 
 function sendHelp(chatId) {
