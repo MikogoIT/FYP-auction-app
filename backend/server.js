@@ -13,6 +13,7 @@ import listingRoutes from "./routes/listingRoutes.js";
 import bidRoutes from "./routes/bidRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import auctionRoutes from "./routes/auctionRoutes.js";
+import telegramRoutes from "./routes/telegramRoutes.js";
 
 
 const app = express();
@@ -66,7 +67,7 @@ app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-  origin: "http://localhost:4433", 
+  origin: ["http://localhost:4433", ""], 
   credentials: true
 }));
 
@@ -81,6 +82,9 @@ app.use("/api/categories", categoryRoutes);
 
 // auction router
 app.use("/api/auctions", auctionRoutes);
+
+// Telegram router
+app.use("/api/telegram", telegramRoutes);
 
 
 // 

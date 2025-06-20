@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
+import TelegramConnect from "../components/TelegramConnect";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -59,7 +60,6 @@ export default function Profile() {
 
     fetchProfileAndPhoto();
   }, []);
-
 
   const handleGoBack = () => navigate("/dashboard");
   const handleChange = (field, value) =>
@@ -350,6 +350,7 @@ export default function Profile() {
             </p>
           </>
         )}
+        <TelegramConnect user={user} />
       </div>
     </div>
   );
