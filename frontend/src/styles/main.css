@@ -113,6 +113,7 @@ background-color: #e0e0e0;
 #landingBlock2 img
 {
   width: 100%;
+  height: 100%;
 }
 
 .theBlocks
@@ -120,6 +121,27 @@ background-color: #e0e0e0;
   width: 100%;
   display: flex;
   justify-content: space-between;
+}
+
+/* for mobile */
+@media (max-width: 800px)
+{
+  .theBlocks
+  {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #landingBlock1
+  {
+    align-self: center;
+  }
+
+  #landingBlock2
+  {
+    align-self: center;
+    width: inherit;
+  }
 }
 
 .title
