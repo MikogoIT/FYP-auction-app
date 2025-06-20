@@ -30,10 +30,15 @@ export async function unlinkTelegramFromUser(userId) {
 // posted to Telegram but exist in database
 export async function getUnpostedListings() {
     return await sql`
-        SELECT al.*, lc.name AS category_name
+        SELECT 
+            al.*, 
+            lc.name AS category_name,
+            COALESCE(MAX(b.bid_amount), 0) AS highest_bid
         FROM auction_listings al
         JOIN listing_categories lc ON al.category_id = lc.id
+        LEFT JOIN bids b ON al.id = b.auction_id
         WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
+        GROUP BY al.id, lc.name
     `;
 }
 
