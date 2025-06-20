@@ -1,10 +1,41 @@
 import TelegramBot from "node-telegram-bot-api";
 import { formatListingMessage } from "./formatListingMessage.js";
 
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+// Starts instance of Telegram Bot and allows it to listen for user message
+// (mostly for the private chats)
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 const backendApiUrl = process.env.BACKEND_API_URL || "http://host.docker.internal:8080";
 
+// Command handlers
+bot.onText(/\/start(?: (.+))?/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const payload = match[1];
+    
+    if (payload && payload.startsWith("bid_")) {
+        const bidId = payload.split("_")[1];
+        bot.sendMessage(chatId, `Welcome! You started bidding for item #${bidId}.`);
+    } else {
+        bot.sendMessage(chatId, "Welcome to Auctioneer!");
+    }
+    sendHelp(chatId);
+});
+
+bot.onText(/\/help/, (msg) => {
+    sendHelp(msg.chat.id);
+});
+
+function sendHelp(chatId) {
+    const helpText = `
+Available commands:
+/help - Shows this help message
+/bid <amount> - Place a bid
+/listings - Show active listings
+    `;
+    bot.sendMessage(chatId, helpText);
+}
+
+// Populate any listings on website but not on Telegram channel
 export async function pollForListingsAndPost() {
     try {
         // Fetch unposted listings from your backend API
