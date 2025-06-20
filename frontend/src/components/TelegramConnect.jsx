@@ -56,7 +56,7 @@ export default function TelegramConnect({ user }) {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
-                    body: JSON.stringify({tgUser}),
+                    body: JSON.stringify(tgUser),
                 });
 
                 const result = await res.json();

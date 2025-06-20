@@ -2,7 +2,7 @@
 import { sql } from "../utils/db.js";
 
 export async function linkTelegramToUser(userId, telegramId, telegramUsername) {
-    await sql`
+    const result = await sql`
         INSERT INTO telegram_accounts (user_id, telegram_id, telegram_username)
         VALUES (${userId}, ${telegramId}, ${telegramUsername})
         ON CONFLICT (user_id)
@@ -10,7 +10,9 @@ export async function linkTelegramToUser(userId, telegramId, telegramUsername) {
             telegram_id = EXCLUDED.telegram_id,
             telegram_username = EXCLUDED.telegram_username,
             linked_at = CURRENT_TIMESTAMP
+        RETURNING *
     `;
+    console.log(result);
 }
 
 export async function getTelegramLinkStatus(userId) {
