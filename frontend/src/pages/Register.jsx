@@ -56,7 +56,7 @@ export default function Register() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
+    <div>
       <button
         onClick={() => navigate(-1)}
         style={{
@@ -69,7 +69,7 @@ export default function Register() {
           marginBottom: "16px"
         }}
       >
-        ← Back
+        Back
       </button>
       <h2 style={{ textAlign: "center" }}>User Registration</h2>
     <Container maxWidth="sm">
