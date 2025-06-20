@@ -53,8 +53,11 @@ export async function getCategoryById(req, res) {
     if (!category) return res.status(404).json({ message: "Category not found" });
     res.json({ category });
   } catch (err) {
-    console.error("Get category error:", err);
-    res.status(500).json({ message: "Failed to fetch category" });
+    console.error("❌ Get category error:", err);
+    res.status(500).json({
+      message: "Failed to fetch category",
+      error: err.message,
+    });
   }
 }
 
@@ -87,7 +90,7 @@ export async function toggleCategoryState(req, res) {
 
   try {
     const result = await toggleCategoryStateModel(req.params.id);
-    res.json({ newState: result.is_Suspended });
+    res.json({ newState: result.is_suspended });
   } catch (err) {
     console.error("Toggle category state error:", err);
     res.status(500).json({ message: "Failed to change category state" });

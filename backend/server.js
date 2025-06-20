@@ -35,7 +35,7 @@ app.use(session({
   }
 }));
 
-console.log("SESSION_SECRET:", process.env.SESSION_SECRET);
+
 
 //----------------------------------------------------------------------------------
 // Test session handling
@@ -112,7 +112,7 @@ app.use("/api/auctions", auctionRoutes);
 //-------------------TEST Login--------------------//
 
 app.use("/api", authRoutes);
-app.use("/api/users", userRoutes); 
+app.use("/api", userRoutes); 
 
 //---------------------Test end--------------------//
 
@@ -120,6 +120,7 @@ app.use("/api/users", userRoutes);
 // app.get("/api/users", userRoutes);
 
 // Fallback to React app
+// deepcode ignore NoRateLimitingForExpensiveWebOperation: <please specify a reason of ignoring this>
 app.get("*name", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
 });

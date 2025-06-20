@@ -10,7 +10,6 @@ export default function Landing() {
 
   return (
     <div className="landingContent">
-      <div className="headerSpacing" />
       <div className="theBlocks">
         <div className="block" id="landingBlock1">
           <div className="title">
