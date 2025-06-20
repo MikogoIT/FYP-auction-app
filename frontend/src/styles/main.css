@@ -140,6 +140,7 @@ background-color: #e0e0e0;
   #landingBlock2
   {
     align-self: center;
+    width: inherit;
   }
 }
 
