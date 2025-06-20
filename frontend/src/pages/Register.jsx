@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Box, Typography, TextField, Stack, Alert, CircularProgress } from "@mui/material";
-import { Button } from "@material/web/button";
-import "@material/web/button/dist/md-button.css";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Stack,
+  Alert,
+  CircularProgress
+} from "@mui/material";
+
+import "@material/web/button/filled-button.js";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    username: "", email: "", password: "",
-    full_name: "", phone_number: "", address: "",
+    username: "",
+    email: "",
+    password: "",
+    full_name: "",
+    phone_number: "",
+    address: "",
   });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -20,7 +32,8 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMsg(""); setSuccessMsg("");
+    setErrorMsg("");
+    setSuccessMsg("");
     try {
       const res = await fetch("/api/register", {
         method: "POST",
@@ -41,13 +54,14 @@ export default function Register() {
 
   return (
     <div>
-      <Button
+      {/* Back button */}
+      <md-filled-button
         unelevated
         style={{ borderRadius: 24, marginBottom: 16, padding: "8px 16px" }}
         onClick={() => navigate(-1)}
       >
         Back
-      </Button>
+      </md-filled-button>
 
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Typography
@@ -66,21 +80,39 @@ export default function Register() {
           sx={{ mt: 4 }}
         >
           <Stack spacing={2}>
-            {["username", "email", "password", "full_name", "phone_number", "address"].map((field) => (
+            {[
+              "username",
+              "email",
+              "password",
+              "full_name",
+              "phone_number",
+              "address",
+            ].map((field) => (
               <TextField
                 key={field}
                 name={field}
                 label={field
                   .replace("_", " ")
                   .replace(/\b\w/g, c => c.toUpperCase())}
-                type={field === "email" ? "email" : field === "password" ? "password" : "text"}
+                type={
+                  field === "email"
+                    ? "email"
+                    : field === "password"
+                    ? "password"
+                    : "text"
+                }
                 multiline={field === "address"}
                 rows={field === "address" ? 2 : undefined}
                 value={formData[field]}
                 onChange={handleChange}
-                required={["username","email","password"].includes(field)}
+                required={["username", "email", "password"].includes(field)}
                 fullWidth
-                InputProps={{ style: { fontFamily: "Roboto, sans-serif", fontSize: 16 } }}
+                InputProps={{
+                  style: {
+                    fontFamily: "Roboto, sans-serif",
+                    fontSize: 16,
+                  },
+                }}
               />
             ))}
 
@@ -88,14 +120,14 @@ export default function Register() {
             {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
             <Box sx={{ position: "relative" }}>
-              <Button
+              <md-filled-button
                 unelevated
                 type="submit"
                 style={{ borderRadius: 24, width: "100%", padding: "12px 0" }}
                 disabled={loading}
               >
                 Register
-              </Button>
+              </md-filled-button>
               {loading && (
                 <CircularProgress
                   size={24}
