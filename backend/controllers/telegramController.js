@@ -1,6 +1,6 @@
 // controllers/telegramController.js
 import * as telegramModel from "../models/telegramModel.js";
-import isTelegramDataValid from "../utils/telegramUtils.js";
+import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;

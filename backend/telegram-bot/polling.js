@@ -25,6 +25,12 @@ bot.onText(/\/help/, (msg) => {
     sendHelp(msg.chat.id);
 });
 
+bot.onText(/\/bid (\d+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const bidId = match[1];
+    bot.sendMessage(chatId, `You've chosen to bid on item #${bidId}.`);
+});
+
 function sendHelp(chatId) {
     const helpText = `
 Available commands:
