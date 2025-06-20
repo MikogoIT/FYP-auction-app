@@ -1,9 +1,18 @@
 // controllers/telegramController.js
 import * as telegramModel from "../models/telegramModel.js";
+import isTelegramDataValid from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
-    const { telegram_id, telegram_username } = req.body;
+    const telegramData = req.body;
     const userId = req.session.userId;
+
+    // Verify Telegram login data is authentic
+    const isValid = isTelegramDataValid(telegramData, process.env.TELEGRAM_BOT_TOKEN);
+    if (!isValid) {
+        return res.status(403).json({ message: "Invalid Telegram login data" });
+    }
+
+    const { id: telegram_id, username: telegram_username } = telegramData;
 
     // Link Telegram to user
     try {
