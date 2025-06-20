@@ -123,6 +123,26 @@ background-color: #e0e0e0;
   justify-content: space-between;
 }
 
+/* for mobile */
+@media (max-width: 800px)
+{
+  .theBlocks
+  {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #landingBlock1
+  {
+    align-self: center;
+  }
+
+  #landingBlock2
+  {
+    align-self: center;
+  }
+}
+
 .title
 {
     font-family: 'Roboto';
