@@ -54,15 +54,6 @@ export default function Register() {
 
   return (
     <div>
-      {/* Back button */}
-      <md-filled-button
-        unelevated
-        style={{ borderRadius: 24, marginBottom: 16, padding: "8px 16px" }}
-        onClick={() => navigate(-1)}
-      >
-        Back
-      </md-filled-button>
-
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Typography
           variant="h4"
@@ -123,7 +114,7 @@ export default function Register() {
               <md-filled-button
                 unelevated
                 type="submit"
-                style={{ borderRadius: 24, width: "100%", padding: "12px 0" }}
+                style={{ width: "100%" }}
                 disabled={loading}
               >
                 Register
