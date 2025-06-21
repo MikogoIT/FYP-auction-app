@@ -82,10 +82,15 @@ export async function getListingsWithFilters(searchTerm, categoryId) {
 
 export async function getRecentListings(limit = 5) {
   return await sql`
-    SELECT l.*, u.username AS seller
+    SELECT 
+      l.*, 
+      u.username AS seller,
+      COALESCE(MAX(b.bid_amount), 0) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
+    LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
+    GROUP BY l.id, u.username
     ORDER BY l.end_date ASC
     LIMIT ${limit}
   `;
