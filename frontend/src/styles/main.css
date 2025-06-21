@@ -88,6 +88,18 @@ background-color: #e0e0e0;
   flex-direction: column;
 }
 
+.title1
+{
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.subtext1
+{
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .block
 {
   border-radius: 24px;
@@ -126,15 +138,26 @@ background-color: #e0e0e0;
 /* for mobile */
 @media (max-width: 800px)
 {
+  .landingContent
+  {
+    align-items: center;
+  }
+
   .theBlocks
   {
     flex-direction: column;
-    align-items: flex-start;
+    width: 80%;
   }
 
   #landingBlock1
   {
     align-self: center;
+    width: inherit;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    flex: 1;
+    padding-top: 85px;
   }
 
   #landingBlock2
