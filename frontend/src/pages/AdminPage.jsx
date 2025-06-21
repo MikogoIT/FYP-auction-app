@@ -47,7 +47,7 @@ const AdminPage = () => {
     setLoading(true);
     try {
       const endpoint = query
-        ? `/api/admin/search?keyword=${encodeURIComponent(query)}`
+        ? `/api/admin/search?q=${encodeURIComponent(query)}` 
         : `/api/admin/users`;
 
       const res = await fetch(endpoint, {
