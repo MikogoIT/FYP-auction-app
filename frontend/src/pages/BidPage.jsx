@@ -36,8 +36,8 @@ const BidPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (parseFloat(bidAmount) < minPrice) {
-      setMessage(`❌ Bid must be at least $${minPrice.toFixed(2)}`);
+    if (parseFloat(bidAmount) <= minPrice) {
+      setMessage(`❌ The bid must be higher than $${minPrice.toFixed(2)}`);
       return;
     }
 
