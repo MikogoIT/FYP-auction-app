@@ -117,20 +117,38 @@ const ListingPage = () => {
               <p>{item.description}</p>
               <p><strong>Min Bid:</strong> ${item.min_bid}</p>
               <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
-              <button
-                onClick={() => navigate(`/bid/${item.id}`)}
-                style={{
-                  marginTop: "10px",
-                  padding: "6px 12px",
-                  backgroundColor: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer"
-                }}
-              >
+
+              {isOwner ? (
+                <button
+                  onClick={() => navigate(`/edit/${item.id}`)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "6px 12px",
+                    backgroundColor: "#ffc107",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
+                ✏️ Edit
+                </button>
+                ) : (
+                <button
+                  onClick={() => handleBidClick(item.id)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "6px 12px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
                 💰 Bid
-              </button>
+                </button>
+              )}
             </div>
           ))}
         </div>
