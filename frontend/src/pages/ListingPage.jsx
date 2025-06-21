@@ -11,6 +11,8 @@ const ListingPage = () => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
 
+  const currentUserId = localStorage.getItem("userId"); 
+
   // get all categories for the filter dropdown
   useEffect(() => {
     const fetchCategories = async () => {
@@ -103,54 +105,57 @@ const ListingPage = () => {
             gap: "20px"
           }}
         >
-          {paginated.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "16px",
-                backgroundColor: "#f9f9f9"
-              }}
-            >
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-              <p><strong>Min Bid:</strong> ${item.min_bid}</p>
-              <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
+          {paginated.map((item) => {
+            const isOwner = String(item.seller_id) === String(currentUserId);
+            return (
+              <div
+                key={item.id}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  backgroundColor: "#f9f9f9"
+                }}
+              >
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <p><strong>Min Bid:</strong> ${item.min_bid}</p>
+                <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
 
-              {isOwner ? (
-                <button
-                  onClick={() => navigate(`/edit/${item.id}`)}
-                  style={{
-                    marginTop: "10px",
-                    padding: "6px 12px",
-                    backgroundColor: "#ffc107",
-                    color: "#333",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                ✏️ Edit
-                </button>
-                ) : (
-                <button
-                  onClick={() => handleBidClick(item.id)}
-                  style={{
-                    marginTop: "10px",
-                    padding: "6px 12px",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                💰 Bid
-                </button>
-              )}
-            </div>
-          ))}
+                {isOwner ? (
+                  <button
+                    onClick={() => navigate(`/edit/${item.id}`)}
+                    style={{
+                      marginTop: "10px",
+                      padding: "6px 12px",
+                      backgroundColor: "#ffc107",
+                      color: "#333",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                  ✏️ Edit
+                  </button>
+                  ) : (
+                  <button
+                    onClick={() => handleBidClick(item.id)}
+                    style={{
+                      marginTop: "10px",
+                      padding: "6px 12px",
+                      backgroundColor: "#28a745",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                  💰 Bid
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
