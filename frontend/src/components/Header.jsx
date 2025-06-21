@@ -78,7 +78,7 @@ const Header = () => {
           />
           {isLoggedIn && !hideLogout && (
             <Chip
-              label="Logout"
+              label="Log out"
               onClick={handleLogout}
               clickable
             />

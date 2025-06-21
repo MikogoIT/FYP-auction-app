@@ -1,76 +1,36 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-
-// MUI components
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useState } from "react";
+import { useNavigate, NavLink } from "react-router-dom";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Stack,
+  Alert,
+  CircularProgress,
+  Link,
+} from "@mui/material";
+import "@material/web/button/filled-button.js";
 
 export default function Login() {
-  // — your “avg” demo state (still here, just unused) —
-  const [numA, setNumA] = useState("");
-  const [numB, setNumB] = useState("");
-  const [average, setAverage] = useState(null);
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const handleGetAverage = async () => {
-    setLoading(true);
-    setAverage(null);
-    try {
-      const res = await fetch(`/api/average?a=${numA}&b=${numB}`);
-      const data = await res.json();
-      setAverage(data.average);
-    } catch {
-      setAverage("Error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // — your login state & handler —
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    setLoginLoading(true);
-    setLoginError("");
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      localStorage.setItem("userId", data.user.id);
-      navigate("/dashboard");
-    } catch (err) {
-      setLoginError(err.message);
-    } finally {
-      setLoginLoading(false);
-    }
-  };
+  const handleChange = (e) =>
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoginLoading(true);
-    setLoginError("");
+    setLoading(true);
+    setErrorMsg("");
     try {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
@@ -78,101 +38,75 @@ export default function Login() {
       localStorage.setItem("userId", data.user.id);
       navigate("/dashboard");
     } catch (err) {
-      setLoginError(err.message);
+      setErrorMsg(err.message);
     } finally {
-      setLoginLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          justifyContent: "center",
-        }}
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Typography
+        variant="h4"
+        align="center"
+        gutterBottom
+        sx={{ fontFamily: "Roboto, sans-serif", fontWeight: 900 }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            p: 4,
-            border: 1,
-            borderColor: "grey.300",
-            borderRadius: 2
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Welcome!
-            </Typography>
-            <Box
-              component="form"
-              onSubmit={onSubmit}
-              noValidate
-              sx={{ mt: 1 }}
+        Welcome Back
+      </Typography>
+
+      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 4 }}>
+        <Stack spacing={2}>
+          {["email", "password"].map((field) => (
+            <TextField
+              key={field}
+              name={field}
+              label={field === "email" ? "Email Address" : "Password"}
+              type={field === "password" ? "password" : "email"}
+              required
+              fullWidth
+              value={formData[field]}
+              onChange={handleChange}
+              InputProps={{
+                style: {
+                  fontFamily: "Roboto, sans-serif",
+                  fontSize: 16,
+                },
+              }}
+            />
+          ))}
+
+          {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+
+          <Box sx={{ position: "relative", mt: 1 }}>
+            <md-filled-button
+              unelevated
+              type="submit"
+              style={{ width: "100%", fontFamily: "Roboto, sans-serif" }}
+              disabled={loading}
             >
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+              Log In
+            </md-filled-button>
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {loginError && (
-                <Typography color="error" sx={{ mt: 1 }}>
-                  {loginError}
-                </Typography>
-              )}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={loginLoading}
-                sx={{ mt: 3, mb: 2 }}
-              >
-                {loginLoading ? "Logging in…" : "Log In"}
-              </Button>
-              <Grid container justifyContent="center">
-                <Grid item>
-                  <Typography variant="body2">
-                    Don't have an account?{" "}
-                    <Link component={NavLink} to="/register" underline="none">
-                      Sign Up
-                    </Link>
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
+            )}
           </Box>
-        </Box>
+
+          <Typography variant="body2" align="center">
+            Don't have an account?{" "}
+            <Link component={NavLink} to="/register" underline="none">
+              Sign Up
+            </Link>
+          </Typography>
+        </Stack>
       </Box>
     </Container>
   );

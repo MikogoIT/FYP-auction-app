@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
-  Paper,
   Box,
   Typography,
   TextField,
-  Button,
   Stack,
   Alert,
   CircularProgress
 } from "@mui/material";
+
+import "@material/web/button/filled-button.js";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -24,19 +24,16 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) =>
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
-
     try {
       const res = await fetch("/api/register", {
         method: "POST",
@@ -56,111 +53,87 @@ export default function Register() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "40px auto", padding: "20px", backgroundColor: "#f3f3f3", borderRadius: "8px" }}>
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginBottom: "16px"
-        }}
-      >
-        ← Back
-      </button>
-      <h2 style={{ textAlign: "center" }}>User Registration</h2>
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ mt: 8, p: 4, borderRadius: 2 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          User Registration
+    <div>
+      <Container maxWidth="sm" sx={{ mt: 8 }}>
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          sx={{ fontFamily: "Roboto, sans-serif", fontWeight: 900 }}
+        >
+          Create your account
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={{ mt: 4 }}
+        >
           <Stack spacing={2}>
-            <TextField
-              name="username"
-              label="Username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-            <TextField
-              name="email"
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-            <TextField
-              name="password"
-              label="Password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-            <TextField
-              name="full_name"
-              label="Full Name"
-              value={formData.full_name}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              name="phone_number"
-              label="Phone Number"
-              value={formData.phone_number}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              name="address"
-              label="Address"
-              value={formData.address}
-              onChange={handleChange}
-              multiline
-              rows={2}
-              fullWidth
-            />
+            {[
+              "username",
+              "email",
+              "password",
+              "full_name",
+              "phone_number",
+              "address",
+            ].map((field) => (
+              <TextField
+                key={field}
+                name={field}
+                label={field
+                  .replace("_", " ")
+                  .replace(/\b\w/g, c => c.toUpperCase())}
+                type={
+                  field === "email"
+                    ? "email"
+                    : field === "password"
+                    ? "password"
+                    : "text"
+                }
+                multiline={field === "address"}
+                rows={field === "address" ? 2 : undefined}
+                value={formData[field]}
+                onChange={handleChange}
+                required={["username", "email", "password"].includes(field)}
+                fullWidth
+                InputProps={{
+                  style: {
+                    fontFamily: "Roboto, sans-serif",
+                    fontSize: 16,
+                  },
+                }}
+              />
+            ))}
 
             {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
             {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
             <Box sx={{ position: "relative" }}>
-              <Button
+              <md-filled-button
+                unelevated
                 type="submit"
-                variant="contained"
-                color="primary"
+                style={{ width: "100%", fontFamily: "Roboto" }}
                 disabled={loading}
-                fullWidth
-                size="large"
               >
                 Register
-              </Button>
+              </md-filled-button>
               {loading && (
                 <CircularProgress
                   size={24}
                   sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    marginTop: '-12px',
-                    marginLeft: '-12px',
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
                   }}
                 />
               )}
             </Box>
           </Stack>
         </Box>
-      </Paper>
-    </Container>
+      </Container>
     </div>
   );
 }
