@@ -106,7 +106,7 @@ const ListingPage = () => {
           }}
         >
           {paginated.map((item) => {
-            const isOwner = item.seller_id === currentUserId;
+            const isOwner = String(item.seller_id) === String(currentUserId);
             return (
               <div
                 key={item.id}
