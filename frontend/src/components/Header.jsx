@@ -1,5 +1,4 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import "./Header.css";
 import { Chip, Avatar, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { IMG_BASE_URL } from "../global-vars.jsx";
