@@ -173,8 +173,7 @@ terraform:
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
   script:
     - terraform init
-    - terraform state push -force new.tfstate
-    - terraform apply -auto-approve -refresh=false
+    - terraform apply -auto-approve
   
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
