@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import "./Header.css";
 import { Chip, Avatar, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { IMG_BASE_URL } from "../global-vars.jsx";
@@ -40,6 +41,11 @@ const Header = () => {
     navigate("/");
   };
 
+  // Determine logo click target
+  const handleLogoClick = () => {
+    navigate(isLoggedIn ? "/dashboard" : "/");
+  };
+
   return (
     <div className="headerBar">
       <div className="headerContent">
@@ -47,9 +53,9 @@ const Header = () => {
         {/* Logo */}
         <img
           src={`${IMG_BASE_URL}full-logo.png`}
-          style={{ width: 150, cursor: "pointer" }}
+          className="headerLogo"
           alt="Logo"
-          onClick={() => navigate("/")}
+          onClick={handleLogoClick}
         />
 
         {/* Admin button stays where it was */}
