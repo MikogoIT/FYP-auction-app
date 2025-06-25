@@ -55,6 +55,7 @@ const Header = () => {
           className="headerLogo"
           alt="Logo"
           onClick={handleLogoClick}
+          style={{ width: 150, cursor: "pointer" }}
         />
 
         {/* Admin button stays where it was */}
