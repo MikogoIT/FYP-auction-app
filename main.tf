@@ -107,9 +107,9 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
   # actually perform deletions rather than dry-run
   cleanup_policy_dry_run = false
 
-  # delete any untagged images older than 10 days
+  # delete any untagged images older than 4 days
   cleanup_policies {
-    id     = "delete_untagged_older_than_10d"
+    id     = "delete_untagged_older_than_4d"
     action = "DELETE"
     condition {
       tag_state = "UNTAGGED"
