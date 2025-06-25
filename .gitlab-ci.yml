@@ -173,7 +173,6 @@ terraform:
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
   script:
     - terraform init
-    - terraform state rm google_artifact_registry_repository.fyp_docker_repo
     - terraform import \
       google_artifact_registry_repository.fyp_docker_repo \
       projects/${GCP_PROJECT_ID}/locations/${GCP_REGION}/repositories/fyp-auction-app
