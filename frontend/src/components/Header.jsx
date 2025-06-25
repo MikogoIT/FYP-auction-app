@@ -78,14 +78,13 @@ const Header = () => {
             }
           />
 
-          {/* Register button, only when not logged in */}
+          {/* Register chip, only when not logged in */}
           {!isLoggedIn && (
-            <Button
-              variant="outlined"
+            <Chip
+              label="Register"
               onClick={() => navigate('/register')}
-            >
-              Register
-            </Button>
+              clickable
+            />
           )}
 
           {/* Logout chip, only when logged in and not on login/register pages */}
