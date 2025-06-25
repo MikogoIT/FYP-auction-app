@@ -11,8 +11,8 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
 
-  // Hide logout on "/", "/login" and "/register"
-  const hideLogout = [ "/login", "/register"].includes(pathname);
+  // Hide logout on "/login" and "/register"
+  const hideLogout = ["/login", "/register"].includes(pathname);
 
   useEffect(() => {
     // check login + fetch profile photo
@@ -64,8 +64,9 @@ const Header = () => {
           </Button>
         )}
 
-        {/* Profile/Login + Logout chips */}
-        <div>
+        {/* Profile/Login + Register + Logout controls */}
+        <div className="loginChips">
+          {/* Login/Profile chip */}
           <Chip
             label={isLoggedIn ? "Profile" : "Log in"}
             onClick={() => navigate(isLoggedIn ? "/profile" : "/login")}
@@ -76,6 +77,18 @@ const Header = () => {
               </Avatar>
             }
           />
+
+          {/* Register button, only when not logged in */}
+          {!isLoggedIn && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/register')}
+            >
+              Register
+            </Button>
+          )}
+
+          {/* Logout chip, only when logged in and not on login/register pages */}
           {isLoggedIn && !hideLogout && (
             <Chip
               label="Log out"

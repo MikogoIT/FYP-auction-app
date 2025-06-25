@@ -156,3 +156,10 @@ background-color: #e0e0e0;
   font-family: 'Roboto';
   font-size: 16px;
 }
+
+.loginChips
+{
+   display: 'flex';
+  align-items: 'center';
+  gap: '8px';
+}
