@@ -69,6 +69,8 @@ background-color: #e0e0e0;
   display: flex;
   justify-content: center;
   margin-top: 55px;
+  max-width: 1000px;
+  width: 100%;
 }
 
 .footerCon
@@ -175,4 +177,10 @@ background-color: #e0e0e0;
       font-family: 'Roboto';
       font-weight: 900;
       font-size: 40px;
+}
+
+
+.dashboardCanvas
+{
+  width: 100%;
 }

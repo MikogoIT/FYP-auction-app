@@ -49,7 +49,7 @@ const Dashboard = () => {
   const handleEditClick = (id) => navigate(`/edit/${id}`);
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
+    <div className="dashboardCnavas">
       <h2 style={{ textAlign: "center", marginTop: 40 }}>
         🛒 Recently Listed Auctions
       </h2>
@@ -165,7 +165,7 @@ const avatarStyle = {
 
 const detailsStyle = {
   /* new background for the details panel */
-  backgroundColor: "#f1d3f9",
+  backgroundColor: "#f1f0f0",
   padding: 16,
   display: "flex",
   flexDirection: "column",
