@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Dashboard.jsx
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 
-// → import the normal filled button
+// Material Web buttons
 import "@material/web/button/filled-button.js";
-// → still import tonal for the bottom “View all listings” button
 import "@material/web/button/filled-tonal-button.js";
+
+// Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const Dashboard = () => {
   const [recentListings, setRecentListings] = useState([]);
@@ -17,7 +25,7 @@ const Dashboard = () => {
     const fetchRecentListings = async () => {
       try {
         const res = await fetch("/api/listings/recent");
-        if (!res.ok) throw new Error("Failed to fetch recent listings");
+        if (!res.ok) throw new Error("Failed to fetch");
         const { listings } = await res.json();
 
         const enriched = await Promise.all(
@@ -37,7 +45,7 @@ const Dashboard = () => {
 
         setRecentListings(enriched);
       } catch (err) {
-        console.error("Fetch recent listings error:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -51,97 +59,102 @@ const Dashboard = () => {
   const handleEditClick = (id) => navigate(`/edit/${id}`);
 
   return (
-    <div className="dashboardCanvas" style={{ padding: 20 }}>
-      <div className="profileTitle">Recent listings</div>
+    <div style={{ padding: 20 }}>
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
+        🛒 Recent Listings
+      </h2>
 
       {loading ? (
-        <p style={{ textAlign: "center" }}>Loading listings...</p>
+        <p style={{ textAlign: "center" }}>Loading listings…</p>
       ) : recentListings.length === 0 ? (
         <p style={{ textAlign: "center" }}>No recent listings available.</p>
       ) : (
         <>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-              gap: 20,
-              marginTop: 30,
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              900: { slidesPerView: 3 },
             }}
+            style={{ paddingBottom: 40 }} // room for pagination dots
           >
             {recentListings.map((item) => {
               const isOwner = item.seller_id === currentUserId;
 
               return (
-                <div key={item.id} style={cardStyle}>
-                  {/* Cover Image */}
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.title}
-                      style={imageStyle}
-                    />
-                  ) : (
-                    <Avatar variant="square" sx={avatarStyle}>
-                      <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-                    </Avatar>
-                  )}
+                <SwiperSlide key={item.id}>
+                  <div style={cardStyle}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        style={imageStyle}
+                      />
+                    ) : (
+                      <Avatar variant="square" sx={avatarStyle}>
+                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                      </Avatar>
+                    )}
 
-                  {/* Details + Action */}
-                  <div style={detailsStyle}>
-                    <div>
-                      <h3 style={{ margin: 0, marginBottom: 8 }}>
-                        {item.title}
-                      </h3>
-                      <p style={{ margin: "4px 0", color: "#555" }}>
-                        {item.description}
-                      </p>
-                      <p style={{ margin: "4px 0" }}>
-                        <strong>Min Bid:</strong> ${item.min_bid}
-                      </p>
-                      <p style={{ margin: "4px 0" }}>
-                        <strong>Current Bid:</strong>{" "}
-                        {item.current_bid != null
-                          ? `$${item.current_bid}`
-                          : "No bids yet"}
-                      </p>
-                      <p style={{ margin: "4px 0" }}>
-                        <strong>Ends:</strong>{" "}
-                        {new Date(item.end_date).toLocaleString()}
-                      </p>
-                      <p style={{ margin: "4px 0" }}>
-                        <strong>Seller:</strong> {item.seller}
-                      </p>
-                    </div>
+                    <div style={detailsStyle}>
+                      <div>
+                        <h3 style={{ margin: 0, marginBottom: 8 }}>
+                          {item.title}
+                        </h3>
+                        <p style={{ margin: "4px 0", color: "#555" }}>
+                          {item.description}
+                        </p>
+                        <p style={{ margin: "4px 0" }}>
+                          <strong>Min Bid:</strong> ${item.min_bid}
+                        </p>
+                        <p style={{ margin: "4px 0" }}>
+                          <strong>Current Bid:</strong>{" "}
+                          {item.current_bid != null
+                            ? `$${item.current_bid}`
+                            : "No bids yet"}
+                        </p>
+                        <p style={{ margin: "4px 0" }}>
+                          <strong>Ends:</strong>{" "}
+                          {new Date(item.end_date).toLocaleString()}
+                        </p>
+                        <p style={{ margin: "4px 0" }}>
+                          <strong>Seller:</strong> {item.seller}
+                        </p>
+                      </div>
 
-                    <div style={{ marginTop: 16 }}>
-                      {isOwner ? (
-                        <md-filled-button
-                          onClick={() => handleEditClick(item.id)}
-                          style={{ width: "100%" }}
-                        >
-                          ✏️ Edit
-                        </md-filled-button>
-                      ) : (
-                        <md-filled-button
-                          onClick={() => handleBidClick(item.id)}
-                          style={{ width: "100%" }}
-                        >
-                          💰 Bid
-                        </md-filled-button>
-                      )}
+                      <div style={{ marginTop: 16 }}>
+                        {isOwner ? (
+                          <md-filled-button
+                            onClick={() => handleEditClick(item.id)}
+                            style={{ width: "100%" }}
+                          >
+                            ✏️ Edit
+                          </md-filled-button>
+                        ) : (
+                          <md-filled-button
+                            onClick={() => handleBidClick(item.id)}
+                            style={{ width: "100%" }}
+                          >
+                            💰 Bid
+                          </md-filled-button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </SwiperSlide>
               );
             })}
-          </div>
+          </Swiper>
 
-          {/* → Bottom “View all listings” tonal button */}
           <div style={{ textAlign: "center", marginTop: 30 }}>
             <md-filled-tonal-button
               onClick={() => navigate("/ListingPage")}
             >
-            View all listings
+              🔍 View all listings
             </md-filled-tonal-button>
           </div>
         </>
@@ -155,6 +168,8 @@ export default Dashboard;
 // ─── styles ─────────────────────────────────────────────────
 
 const cardStyle = {
+  maxWidth: 300,
+  margin: "0 auto",
   borderRadius: 16,
   overflow: "hidden",
   backgroundColor: "#fff",
