@@ -1,6 +1,6 @@
 // src/pages/Dashboard.jsx
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
@@ -59,10 +59,10 @@ const Dashboard = () => {
   const handleEditClick = (id) => navigate(`/edit/${id}`);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
-        🛒 Recent Listings
-      </h2>
+    <div className="dashboardCanvas">
+      <div className="profileTitle">
+      Recent Listings
+      </div>
 
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading listings…</p>
@@ -80,7 +80,7 @@ const Dashboard = () => {
               600: { slidesPerView: 2 },
               900: { slidesPerView: 3 },
             }}
-            style={{ paddingBottom: 40 }} // room for pagination dots
+            className="dashboard-swiper"
           >
             {recentListings.map((item) => {
               const isOwner = item.seller_id === currentUserId;
