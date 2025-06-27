@@ -2,37 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
-
+// Material Web filled-tonal button
+import "@material/web/button/filled-tonal-button.js";
 
 const Dashboard = () => {
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
-  const goToProfile = () => {
-    navigate("/profile");
-  };
-
-  const goToSell = () => {
-    navigate("/sell");
-  };
-
-  const handleBidClick = (auctionId) => {
-    navigate(`/bid/${auctionId}`);
-  };
-
+  // Fetch + enrich listings on mount
   useEffect(() => {
     const fetchRecentListings = async () => {
       try {
-        // 1) fetch the recent listings endpoint
         const res = await fetch("/api/listings/recent");
         if (!res.ok) throw new Error("Failed to fetch recent listings");
-
         const { listings } = await res.json();
 
-        // 2) enrich each listing with its image_url
-  
         const enriched = await Promise.all(
           listings.map(async (item) => {
             try {
@@ -59,53 +44,13 @@ const Dashboard = () => {
     fetchRecentListings();
   }, []);
 
+  const currentUserId = parseInt(localStorage.getItem("userId"), 10);
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
+  const handleEditClick = (id) => navigate(`/edit/${id}`);
+
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-        <button
-          onClick={goToSell}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
-        >
-          Sell Item
-        </button>
-
-        <button
-          onClick={goToProfile}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#6c757d",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
-        >
-          Profile
-        </button>
-
-        <button
-          onClick={() => navigate("/mylistings")}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#17a2b8",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
-        >
-          My Listings
-        </button>
-      </div>
-
-      <h2 style={{ textAlign: "center", marginTop: "40px" }}>
+    <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
+      <h2 style={{ textAlign: "center", marginTop: 40 }}>
         🛒 Recently Listed Auctions
       </h2>
 
@@ -114,115 +59,112 @@ const Dashboard = () => {
       ) : recentListings.length === 0 ? (
         <p style={{ textAlign: "center" }}>No recent listings available.</p>
       ) : (
-        <>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-              gap: "20px",
-              marginTop: "30px"
-            }}
-          >
-            {recentListings.map((item) => {
-              const currentUserId = parseInt(localStorage.getItem("userId"));
-              const isOwner = item.seller_id === currentUserId;
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 20,
+            marginTop: 30,
+          }}
+        >
+          {recentListings.map((item) => {
+            const isOwner = item.seller_id === currentUserId;
 
-              return (
-                <div
-                  key={item.id}
-                  style={{
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    backgroundColor: "#f9f9f9"
-                  }}
-                >
-                  {/* Cover Image */}
-                  <div style={{ marginBottom: "12px" }}>
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.title}
-                        style={coverImageStyle}
-                      />
-                    ) : (
-                      <Avatar variant="square" sx={avatarStyle}>
-                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-                      </Avatar>
-                    )}
+            return (
+              <div key={item.id} style={cardStyle}>
+                {/* Cover Image */}
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    style={imageStyle}
+                  />
+                ) : (
+                  <Avatar variant="square" sx={avatarStyle}>
+                    <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                  </Avatar>
+                )}
+
+                {/* Details + Action */}
+                <div style={detailsStyle}>
+                  <div>
+                    <h3 style={{ margin: 0, marginBottom: 8 }}>{item.title}</h3>
+                    <p style={{ margin: "4px 0", color: "#555" }}>
+                      {item.description}
+                    </p>
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Min Bid:</strong> ${item.min_bid}
+                    </p>
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Current Bid:</strong>{" "}
+                      {item.current_bid != null
+                        ? `$${item.current_bid}`
+                        : "No bids yet"}
+                    </p>
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Ends:</strong>{" "}
+                      {new Date(item.end_date).toLocaleString()}
+                    </p>
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Seller:</strong> {item.seller}
+                    </p>
                   </div>
 
-
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                  <p><strong>Min Bid:</strong> ${item.min_bid}</p>
-                  <p>
-                    <strong>Current Bid:</strong>{" "}
-                    {item.current_bid === null || item.current_bid === undefined
-                      ? "No bids yet"
-                      : `$${item.current_bid}`}
-                  </p>
-                  <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
-                  <p><strong>Seller:</strong> {item.seller}</p>
-
-                  {isOwner ? (
-                    <button
-                      onClick={() => navigate(`/edit/${item.id}`)}
-                      style={{
-                        marginTop: "10px",
-                        padding: "6px 12px",
-                        backgroundColor: "#ffc107",
-                        color: "#333",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      ✏️ Edit
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleBidClick(item.id)}
-                      style={{
-                        marginTop: "10px",
-                        padding: "6px 12px",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      💰 Bid
-                    </button>
-                  )}
+                  <div style={{ marginTop: 16 }}>
+                    {isOwner ? (
+                      <md-filled-tonal-button
+                        onClick={() => handleEditClick(item.id)}
+                        style={{ width: "100%" }}
+                      >
+                        ✏️ Edit
+                      </md-filled-tonal-button>
+                    ) : (
+                      <md-filled-tonal-button
+                        onClick={() => handleBidClick(item.id)}
+                        style={{ width: "100%" }}
+                      >
+                        💰 Bid
+                      </md-filled-tonal-button>
+                    )}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-
-          <div style={{ textAlign: "center", marginTop: "30px" }}>
-            <button
-              onClick={() => navigate("/ListingPage")}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer"
-              }}
-            >
-              🔍 View All Listings
-            </button>
-          </div>
-        </>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
 };
 
-const coverImageStyle = { width: "100%", height: "160px", objectFit: "cover", borderRadius: "4px" };
-const avatarStyle = { width: "100%", height: 160, bgcolor: "#eee" };
-
 export default Dashboard;
+
+// ─── styles ─────────────────────────────────────────────────
+
+const cardStyle = {
+  borderRadius: 16,
+  overflow: "hidden",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  backgroundColor: "#fff",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const imageStyle = {
+  width: "100%",
+  height: 200,
+  objectFit: "cover",
+};
+
+const avatarStyle = {
+  width: "100%",
+  height: 200,
+  bgcolor: "#eee",
+};
+
+const detailsStyle = {
+  padding: 16,
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+};
