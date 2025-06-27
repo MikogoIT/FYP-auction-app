@@ -63,6 +63,7 @@ background-color: #e0e0e0;
   flex-direction: column;
   min-height: 100vh;
   background-color: #fefdfc;
+  align-items: center;
 }
 
 .mainContent {
