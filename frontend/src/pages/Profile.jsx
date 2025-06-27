@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
+// Material Web button imports
 import '@material/web/button/filled-tonal-button.js';
+import '@material/web/button/filled-button.js';
+import '@material/web/button/outlined-button.js';
 import EditIcon from "@mui/icons-material/Edit";
 import TelegramConnect from "../components/TelegramConnect";
 
@@ -17,14 +20,12 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Image upload states
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const navigate = useNavigate();
 
-  // Fetch user + photo
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -48,7 +49,6 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
-  // Handle file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -58,7 +58,6 @@ export default function Profile() {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // Upload photo
   const handleUploadPhoto = async () => {
     if (!selectedFile) return;
     setUploading(true);
@@ -138,7 +137,6 @@ export default function Profile() {
           </div>
         ) : (
           <form style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Photo upload */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
               <input type="file" accept="image/*" onChange={handleFileChange} />
               {previewUrl && <img src={previewUrl} alt="Preview" style={{ width: 100, borderRadius: 8 }} />}
@@ -153,33 +151,42 @@ export default function Profile() {
               fullWidth
               value={editableUser.email}
               onChange={(e) => setEditableUser({ ...editableUser, email: e.target.value })}
+              InputProps={{ style: { fontSize: '16px' } }}
+              InputLabelProps={{ style: { fontSize: '16px' } }}
             />
             <TextField
               label="Username"
               fullWidth
               value={editableUser.username}
               onChange={(e) => setEditableUser({ ...editableUser, username: e.target.value })}
+              InputProps={{ style: { fontSize: '16px' } }}
+              InputLabelProps={{ style: { fontSize: '16px' } }}
             />
             <TextField
               label="Phone Number"
               fullWidth
               value={editableUser.phone_number}
               onChange={(e) => setEditableUser({ ...editableUser, phone_number: e.target.value })}
+              InputProps={{ style: { fontSize: '16px' } }}
+              InputLabelProps={{ style: { fontSize: '16px' } }}
             />
             <TextField
               label="Address"
               fullWidth
               value={editableUser.address}
               onChange={(e) => setEditableUser({ ...editableUser, address: e.target.value })}
+              InputProps={{ style: { fontSize: '16px' } }}
+              InputLabelProps={{ style: { fontSize: '16px' } }}
             />
 
-            <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
-              <md-filled-tonal-button onClick={handleSaveProfile} disabled={saving}>
-                Save
-              </md-filled-tonal-button>
-              <md-filled-tonal-button onClick={handleCancel}>
+            {/* Save & Cancel Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16 }}>
+              <md-outlined-button onClick={handleCancel}>
                 Cancel
-              </md-filled-tonal-button>
+              </md-outlined-button>
+              <md-filled-button onClick={handleSaveProfile} disabled={saving}>
+                Save
+              </md-filled-button>
             </div>
           </form>
         )}
