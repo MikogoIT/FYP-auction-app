@@ -139,7 +139,7 @@ const Dashboard = () => {
                             onClick={() => handleBidClick(item.id)}
                             style={{ width: "100%" }}
                           >
-                            💰 Bid
+                            Bid
                           </md-filled-button>
                         )}
                       </div>
@@ -154,7 +154,7 @@ const Dashboard = () => {
             <md-filled-tonal-button
               onClick={() => navigate("/ListingPage")}
             >
-              🔍 View all listings
+              View all listings
             </md-filled-tonal-button>
           </div>
         </>
