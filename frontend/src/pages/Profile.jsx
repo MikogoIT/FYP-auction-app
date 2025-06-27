@@ -112,8 +112,8 @@ export default function Profile() {
   if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
-    <div style={{ padding: 24, fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ marginBottom: 32 }}>Hello, {user.username}</h1>
+    <div className="normalBody">
+      <div className="profileTitle">Hello,<br></br>{user.username}</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
         <Avatar
