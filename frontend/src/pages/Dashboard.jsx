@@ -141,10 +141,11 @@ export default Dashboard;
 
 // ─── styles ─────────────────────────────────────────────────
 
+
+
 const cardStyle = {
   borderRadius: 16,
   overflow: "hidden",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   backgroundColor: "#fff",
   display: "flex",
   flexDirection: "column",
@@ -163,8 +164,12 @@ const avatarStyle = {
 };
 
 const detailsStyle = {
+  /* new background for the details panel */
+  backgroundColor: "#f1d3f9",
   padding: 16,
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
+  /* split line from the image above */
+  borderTop: "1px solid #eee",
 };
