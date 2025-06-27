@@ -17,7 +17,7 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Image upload
+  // Image upload states
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -47,6 +47,41 @@ export default function Profile() {
     }
     fetchProfile();
   }, []);
+
+  // Handle file selection
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) return alert("Only JPG, PNG, or WEBP allowed");
+    if (file.size > MAX_FILE_SIZE) return alert("File too large (>2MB)");
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  // Upload photo
+  const handleUploadPhoto = async () => {
+    if (!selectedFile) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("image", selectedFile);
+      const res = await fetch("/api/displayPhoto", {
+        method: "PUT",
+        credentials: "include",
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setUser(u => ({ ...u, profile_image_url: data.profile_image_url }));
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      alert("✅ Photo uploaded!");
+    } catch (err) {
+      alert("❌ Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleCancel = () => {
     setEditableUser(user);
@@ -79,18 +114,15 @@ export default function Profile() {
 
   return (
     <div style={{ padding: 24, fontFamily: 'Arial, sans-serif' }}>
-      {/* Greeting */}
       <h1 style={{ marginBottom: 32 }}>Hello, {user.username}</h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-        {/* Avatar */}
         <Avatar
           src={user.profile_image_url || undefined}
           sx={{ width: 120, height: 120 }}
           alt="Profile"
         />
 
-        {/* Edit Button */}
         {!editing && (
           <md-filled-tonal-button onClick={() => setEditing(true)}>
             <EditIcon slot="icon" />
@@ -98,7 +130,6 @@ export default function Profile() {
           </md-filled-tonal-button>
         )}
 
-        {/* Details or Edit Form */}
         {!editing ? (
           <div style={{ width: '100%', maxWidth: 400 }}>
             <p><strong>Email:</strong> {user.email}</p>
@@ -107,6 +138,15 @@ export default function Profile() {
           </div>
         ) : (
           <form style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Photo upload */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+              {previewUrl && <img src={previewUrl} alt="Preview" style={{ width: 100, borderRadius: 8 }} />}
+              <md-filled-tonal-button onClick={handleUploadPhoto} disabled={!selectedFile || uploading}>
+                {uploading ? 'Uploading...' : 'Upload Photo'}
+              </md-filled-tonal-button>
+            </div>
+
             <TextField
               label="Email"
               type="email"
@@ -133,7 +173,6 @@ export default function Profile() {
               onChange={(e) => setEditableUser({ ...editableUser, address: e.target.value })}
             />
 
-            {/* Save/Cancel */}
             <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
               <md-filled-tonal-button onClick={handleSaveProfile} disabled={saving}>
                 Save
@@ -146,7 +185,6 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Telegram Connect */}
       <div style={{ marginTop: 32 }}>
         <TelegramConnect user={user} />
       </div>
