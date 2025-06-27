@@ -49,10 +49,8 @@ const Dashboard = () => {
   const handleEditClick = (id) => navigate(`/edit/${id}`);
 
   return (
-    <div className="dashboardCnavas">
-      <h2 style={{ textAlign: "center", marginTop: 40 }}>
-        🛒 Recently Listed Auctions
-      </h2>
+    <div className="dashboardCanvas">
+      <div className=".profileTitle">Recent listings</div>
 
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading listings...</p>
