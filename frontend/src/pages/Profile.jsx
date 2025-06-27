@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
 import '@material/web/button/filled-tonal-button.js';
-import '@material/web/icon/icon.js';
 import EditIcon from "@mui/icons-material/Edit";
 import TelegramConnect from "../components/TelegramConnect";
 
@@ -94,7 +93,7 @@ export default function Profile() {
         {/* Edit Button */}
         {!editing && (
           <md-filled-tonal-button onClick={() => setEditing(true)}>
-            <md-icon slot="icon">edit</md-icon>
+            <EditIcon slot="icon" />
             Edit Profile
           </md-filled-tonal-button>
         )}
