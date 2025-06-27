@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboardCanvas" style={{ padding: 20 }}>
-      <div className=".profileTitle">Recent listings</div>
+      <div className="profileTitle">Recent listings</div>
 
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading listings...</p>
