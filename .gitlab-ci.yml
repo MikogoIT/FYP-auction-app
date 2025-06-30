@@ -165,13 +165,13 @@ upload-assets:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
   before_script:
-    - apt-get update && apt-get install -y jq zip
-    # Exchange OIDC → GCP access token
+    - apt-get update && apt-get install -y jq
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
         -d '{
           "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
           "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
           "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
           "scope":"https://www.googleapis.com/auth/cloud-platform",
@@ -188,6 +188,7 @@ upload-assets:
     - gcloud config set project "$GCP_PROJECT_ID"
     - gcloud config set run/region "$GCP_REGION"
     - gcloud config set run/platform managed
+
 
   script:
     # — Static assets
