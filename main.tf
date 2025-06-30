@@ -110,6 +110,11 @@ resource "google_project_service" "storage_api" {
   service = "storage.googleapis.com"
 }
 
+resource "google_project_service" "cloudfunctions_api" {
+  project = var.project_id
+  service = "cloudfunctions.googleapis.com"
+}
+
 # Artifact Registry (Docker)
 resource "google_artifact_registry_repository" "fyp_docker_repo" {
   project       = var.project_id
