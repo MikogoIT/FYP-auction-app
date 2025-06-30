@@ -25,6 +25,9 @@ variables:
   # Static assets
   GCS_DEV_BUCKET_NAME: auctioneer-static-assets
 
+  # telegram bot code
+  GCS_TELE_BUCKET_NAME: auctioneer-tele-bot
+
 # #----------------------------------------------------------------
 # # 0. scan code
 # #----------------------------------------------------------------
@@ -44,35 +47,6 @@ variables:
 
 #     # --- IaC ---
 #     - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf
-
-
-#   allow_failure: false
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "main"'
-#       when: on_success
-#     - when: never
-
-
-
-#----------------------------------------------------------------
-# 0. scan code
-#----------------------------------------------------------------
-# snyk-full-scan:
-#   stage: security test
-#   image:
-#     name: snyk/snyk:node-22
-#     entrypoint: [""]
-#   script:
-#     - echo "Starting Snyk scans..."
-
-#     # --- SCA ---
-#     - snyk test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
-
-#     # --- SAST ---
-#     - snyk code test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} --severity-threshold=high  
-
-#     # --- IaC ---
-#     - snyk iac test --org=boiledsteak --project-name=${CI_PROJECT_PATH_SLUG} infra/main.tf --severity-threshold=high  
 
 
 #   allow_failure: false
@@ -182,22 +156,22 @@ terraform:
 
 
 #----------------------------------------------------------------
-# 4. Upload images folder to GCS
+# 4. Upload images folder to GCS + zip & upload telegram code
 #----------------------------------------------------------------
-upload-images-to-gcs:
+upload-assets:
   stage: deploy 3
   image: google/cloud-sdk:slim
   id_tokens:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
   before_script:
-    - apt-get update && apt-get install -y jq
+    - apt-get update && apt-get install -y jq zip
+    # Exchange OIDC → GCP access token
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
         -d '{
           "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
-          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
           "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
           "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
           "scope":"https://www.googleapis.com/auth/cloud-platform",
@@ -216,16 +190,24 @@ upload-images-to-gcs:
     - gcloud config set run/platform managed
 
   script:
-    - echo "Uploading images/ folder to GCS"
-    - gcloud storage cp --recursive images/* gs://$GCS_DEV_BUCKET_NAME
-    - echo "Removing files from images folder"
+    # — Static assets
+    - echo "Uploading images/ → gs://$GCS_DEV_BUCKET_NAME"
+    - gcloud storage cp --recursive images/* gs://"$GCS_DEV_BUCKET_NAME"
+    - echo "Cleaning up local images/"
     - find images/ -type f -delete
 
+    # # — Telegram FaaS code
+    # - echo "Zipping telegram/ → telegram.zip"
+    # - zip -r telegram.zip telegram/
+    # - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
+    # - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
+
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-    changes:
-      - images/**
-    when: on_success
-  # otherwise, never run
-  - when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      # changes:
+      #   - images/**
+      #   - telegram/**
+      when: on_success
+    - when: never
+
 
