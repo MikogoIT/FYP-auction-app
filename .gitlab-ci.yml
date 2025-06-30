@@ -198,8 +198,10 @@ upload-assets:
     - find images/ -type f -delete
 
     # — Telegram FaaS code
-    - echo "Zipping telegram/ → telegram.zip"
-    - zip -r telegram.zip telegram/
+    - echo "Zipping telegram/ folder (flattened)"
+    - cd telegram
+    - zip -r ../telegram.zip .
+    - cd -
     - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
     - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
     # - find telegram/ -type f -delete

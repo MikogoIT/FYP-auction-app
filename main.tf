@@ -237,10 +237,6 @@ resource "google_cloudfunctions2_function" "telegram" {
     runtime     = "python313"
     entry_point = "teleFn"
 
-    environment_variables = {
-      GOOGLE_FUNCTION_SOURCE = "telegram"
-    }
-
     source {
       storage_source {
         bucket = google_storage_bucket.telegram_source_bucket.name
