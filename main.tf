@@ -235,7 +235,7 @@ resource "google_cloudfunctions2_function" "telegram" {
 
   build_config {
     runtime     = "python313"
-    entry_point = "main"
+    entry_point = "teleFn"
 
     environment_variables = {
       GOOGLE_FUNCTION_SOURCE = "telegram"
