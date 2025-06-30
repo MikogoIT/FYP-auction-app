@@ -128,7 +128,7 @@ app.use("/api", userRoutes);
 
 const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
 
-app.post('/api/tele', async (req, res) => {
+app.get('/api/tele', async (req, res) => {
   try {
     // 1️⃣ Get an IdTokenClient scoped to your Function URL
     const auth = new GoogleAuth();
@@ -137,7 +137,6 @@ app.post('/api/tele', async (req, res) => {
     // 2️⃣ Call the Function, passing along the user’s payload (if any)
     const response = await client.request({
       url: FUNCTION_URL,
-      method: 'POST',
       data: req.body,           // forward request body if you need
       headers: {
         'Content-Type': 'application/json',
