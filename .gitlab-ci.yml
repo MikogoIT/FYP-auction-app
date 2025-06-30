@@ -165,7 +165,7 @@ upload-assets:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
   before_script:
-    - apt-get update && apt-get install -y jq
+    - apt-get update && apt-get install -y jq zip
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
