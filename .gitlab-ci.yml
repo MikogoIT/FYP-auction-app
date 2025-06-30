@@ -197,11 +197,11 @@ upload-assets:
     - echo "Cleaning up local images/"
     - find images/ -type f -delete
 
-    # # — Telegram FaaS code
-    # - echo "Zipping telegram/ → telegram.zip"
-    # - zip -r telegram.zip telegram/
-    # - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
-    # - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
+    # — Telegram FaaS code
+    - echo "Zipping telegram/ → telegram.zip"
+    - zip -r telegram.zip telegram/
+    - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
+    - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

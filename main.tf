@@ -77,6 +77,23 @@ variable "GCS_TELE_BUCKET_NAME" {
   default     = "auctioneer-tele-bot"
 }
 
+# ---------------------------------------------
+# New: Telegram bot token variable
+# ---------------------------------------------
+variable "TELEGRAM_BOT_TOKEN" {
+  description = "Telegram bot token for use by Cloud Function"
+  type        = string
+  sensitive   = true
+}
+
+variable "BOT_SECRET" {
+  description = "Telegram bot secret for use by Cloud Function"
+  type        = string
+  sensitive   = true
+}
+
+
+
 # Enable the APIs we need
 resource "google_project_service" "run_api" {
   project = var.project_id
@@ -195,68 +212,62 @@ resource "google_storage_bucket" "telegram_source_bucket" {
   force_destroy               = true
 }
 
-# # 2) Grant read access to Cloud Functions runtime
-# resource "google_cloudfunctions2_function_iam_member" "telegram_invoker_cr" {
-#   project        = var.project_id
-#   location       = var.region
-#   cloud_function = google_cloudfunctions2_function.telegram.name
-#   role           = "roles/cloudfunctions.invoker"
-#   member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-# }
+# 2) Grant read access to Cloud Functions runtime
+resource "google_cloudfunctions2_function_iam_member" "telegram_invoker_cr" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.telegram.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
 
 
 
-# resource "google_cloudfunctions2_function" "telegram" {
-#   name     = "telegramBotGen2"
-#   project  = var.project_id
-#   location = var.region
+resource "google_cloudfunctions2_function" "telegram" {
+  name     = "telegramBotGen2"
+  project  = var.project_id
+  location = var.region
 
-#   build_config {
-#     runtime     = "python313"
-#     # entry_point = "telegram_entry"
+  build_config {
+    runtime     = "python313"
+    # entry_point = "telegram_entry"
 
-#     source {
-#       storage_source {
-#         bucket = google_storage_bucket.telegram_source_bucket.name
-#         object = "telegram.zip"
-#       }
-#     }
-#   }
+    source {
+      storage_source {
+        bucket = google_storage_bucket.telegram_source_bucket.name
+        object = "telegram.zip"
+      }
+    }
+  }
 
-#   service_config {
-#     # Scale from 0 up to 10 instances
-#     min_instance_count             = 0
-#     max_instance_count             = 3
+  service_config {
+    # Scale from 0 up to 10 instances
+    min_instance_count             = 0
+    max_instance_count             = 3
 
-#     # Function timeout
-#     timeout_seconds                = 60
+    # Function timeout
+    timeout_seconds                = 60
 
-#     # Your bot token
-#     environment_variables          = {
-#       TELEGRAM_TOKEN = var.telegram_token
-#     }
+    # env vars
+    environment_variables          = {
+      TELEGRAM_BOT_TOKEN = var.TELEGRAM_BOT_TOKEN,
+      BOT_SECRET = var.BOT_SECRET
+    }
 
-#     # Allow all traffic (HTTP) and route 100% to latest revision
-#     ingress_settings               = "ALLOW_ALL"
-#     all_traffic_on_latest_revision = true
-#   }
-# }
+    # Allow all traffic (HTTP) and route 100% to latest revision
+    ingress_settings               = "ALLOW_ALL"
+    all_traffic_on_latest_revision = true
+  }
+}
 
-# # then separately grant public invoke permission:
-# resource "google_cloudfunctions2_function_iam_member" "invoker" {
-#   project        = var.project_id
-#   location       = var.region
-#   cloud_function = google_cloudfunctions2_function.telegram.name
-#   role           = "roles/cloudfunctions.invoker"
-#   member         = "allUsers"
-# }
+# then separately grant public invoke permission:
+resource "google_cloudfunctions2_function_iam_member" "invoker" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.telegram.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "allUsers"
+}
 
 
-# # ---------------------------------------------
-# # New: Telegram bot token variable
-# # ---------------------------------------------
-# variable "telegram_token" {
-#   description = "Telegram bot token for use by Cloud Function"
-#   type        = string
-#   sensitive   = true
-# }
+
