@@ -138,7 +138,7 @@ docker-push:
 # 3. Terraform apply (only on main)
 #----------------------------------------------------------------
 terraform:
-  stage: deploy 2
+  stage: deploy 3
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
@@ -159,7 +159,7 @@ terraform:
 # 4. Upload images folder to GCS + zip & upload telegram code
 #----------------------------------------------------------------
 upload-assets:
-  stage: deploy 3
+  stage: deploy 2
   image: google/cloud-sdk:slim
   id_tokens:
     GITLAB_OIDC_TOKEN:
