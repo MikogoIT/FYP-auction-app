@@ -126,6 +126,8 @@ app.use("/api", userRoutes);
 
 //-------------------TEST telegram bot api --------//
 
+import { GoogleAuth } from 'google-auth-library';
+
 const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
 
 app.get('/api/tele', async (req, res) => {
