@@ -203,12 +203,12 @@ upload-assets:
     - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
     - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      # changes:
-      #   - images/**
-      #   - telegram/**
-      when: on_success
-    - when: never
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH == "main"'
+  #     changes:
+  #       - images/**
+  #       - telegram/**
+  #     when: on_success
+  #   - when: never
 
 
