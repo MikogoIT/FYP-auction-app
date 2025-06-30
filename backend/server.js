@@ -120,6 +120,43 @@ app.use("/api", userRoutes);
 
 //---------------------Test end--------------------//
 
+
+
+
+
+//-------------------TEST telegram bot api --------//
+
+const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
+
+app.post('/tele', async (req, res) => {
+  try {
+    // 1️⃣ Get an IdTokenClient scoped to your Function URL
+    const auth = new GoogleAuth();
+    const client = await auth.getIdTokenClient(FUNCTION_URL);
+
+    // 2️⃣ Call the Function, passing along the user’s payload (if any)
+    const response = await client.request({
+      url: FUNCTION_URL,
+      method: 'POST',
+      data: req.body,           // forward request body if you need
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // 3️⃣ Return whatever the Function returned
+    res.status(response.status).send(response.data);
+  } catch (err) {
+    console.error('Invoke failed:', err);
+    res.status(500).send('Bot invocation error');
+  }
+});
+
+
+
+//---------------------Test end--------------------//
+
+
 // Testing Database - UserModel
 // app.get("/api/users", userRoutes);
 

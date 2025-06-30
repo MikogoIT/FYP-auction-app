@@ -158,6 +158,11 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         name  = "SESSION_SECRET"
         value = var.SESSION_SECRET
       }
+
+      env {
+        name  = "TELEGRAM_FUNCTION_URL"
+        value = google_cloudfunctions2_function.telegram.url
+      }
       resources {
         limits = {
           cpu    = "1"
