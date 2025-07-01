@@ -74,6 +74,7 @@ const Dashboard = () => {
           borderRadius: "24px",
           overflow: "hidden",
           minHeight: 40,
+          padding: "8 20px",
 
           // base toggle styles
           "& .MuiToggleButton-root": {
@@ -81,7 +82,6 @@ const Dashboard = () => {
             border: 0,
             borderRadius: 0,
             minWidth: 130,
-            padding: "8 20px",
             fontSize: "0.875rem",
             height: "100%",
             transition: "background-color 0.2s",
