@@ -81,11 +81,10 @@ const Dashboard = () => {
             border: 0,
             borderRadius: 0,
             minWidth: 130,
-            padding: "4 20px",
+            padding: "20px",
             fontSize: "0.875rem",
             height: "100%",
             transition: "background-color 0.2s",
-            color: "#fff",
           },
 
           // hover on non-selected buttons
