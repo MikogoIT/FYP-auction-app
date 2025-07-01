@@ -83,7 +83,7 @@ const Dashboard = () => {
             minWidth: 130,
             padding: "20px",
             fontSize: "0.875rem",
-            height: "100%",
+            height: "40px",
             transition: "background-color 0.2s",
           },
 
