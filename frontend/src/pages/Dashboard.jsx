@@ -93,12 +93,13 @@ const Dashboard = () => {
           },
           // selected state
           "& .MuiToggleButton-root.Mui-selected": {
-            bgcolor: "#B58392",
-            color: "#fff",
+            bgcolor: "#897896",
+            color: "#4d4256",
           },
           // CSS-driven darken on hover
           "& .MuiToggleButton-root.Mui-selected:hover": {
-            filter: "brightness(0.9)",
+            bgcolor: "#dddaf5",
+            color: "#4d4256",
           },
         }}
       >
