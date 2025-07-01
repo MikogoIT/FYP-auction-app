@@ -66,19 +66,33 @@ const Dashboard = () => {
       <ButtonGroup
         variant="outlined"
         aria-label="listing navigation"
-        sx={{ mb: 2 }}
+        sx={{
+          mb: 2,
+          borderRadius: '24px',
+          overflow: 'hidden',
+          // ensure only the outer container is rounded
+          '& .MuiButtonGroup-grouped': {
+            borderRadius: 0,
+          },
+        }}
       >
         <Button
-          variant={location.pathname === "/mylistings" ? "contained" : "outlined"}
-          onClick={() => navigate("/mylistings")}
+          variant={location.pathname === "/dashboard" ? "contained" : "outlined"}
+          onClick={() => navigate("/dashboard")}
         >
-          My Listings
+          Recent Listings
         </Button>
         <Button
           variant={location.pathname === "/ListingPage" ? "contained" : "outlined"}
           onClick={() => navigate("/ListingPage")}
         >
           All Listings
+        </Button>
+        <Button
+          variant={location.pathname === "/mylistings" ? "contained" : "outlined"}
+          onClick={() => navigate("/mylistings")}
+        >
+          My Listings
         </Button>
       </ButtonGroup>
       <div className="profileTitle">
