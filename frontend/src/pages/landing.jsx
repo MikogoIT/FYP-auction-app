@@ -39,7 +39,10 @@ export default function Landing() {
         </div>
       </div>
 
-      <ReactMarkdown>{markdown}</ReactMarkdown>
+      <div className="landingMD">
+        <ReactMarkdown>{markdown}</ReactMarkdown>
+      </div>
+      
     </div>
   );
 }
