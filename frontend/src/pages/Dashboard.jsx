@@ -1,9 +1,10 @@
 // src/pages/Dashboard.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
+import { Button, ButtonGroup } from "@mui/material";
 
 // Material Web buttons
 import "@material/web/button/filled-button.js";
@@ -20,6 +21,7 @@ const Dashboard = () => {
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchRecentListings = async () => {
@@ -60,6 +62,25 @@ const Dashboard = () => {
 
   return (
     <div className="dashboardCanvas">
+      {/* ButtonGroup for My Listings / All Listings */}
+      <ButtonGroup
+        variant="outlined"
+        aria-label="listing navigation"
+        sx={{ mb: 2 }}
+      >
+        <Button
+          variant={location.pathname === "/mylistings" ? "contained" : "outlined"}
+          onClick={() => navigate("/mylistings")}
+        >
+          My Listings
+        </Button>
+        <Button
+          variant={location.pathname === "/ListingPage" ? "contained" : "outlined"}
+          onClick={() => navigate("/ListingPage")}
+        >
+          All Listings
+        </Button>
+      </ButtonGroup>
       <div className="profileTitle">
       Recent Listings
       </div>
