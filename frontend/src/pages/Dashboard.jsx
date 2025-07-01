@@ -71,12 +71,11 @@ const Dashboard = () => {
         aria-label="listing navigation"
         sx={{
           mb: 2,
-          border: "1px solid",
-          borderColor: "divider",
           borderRadius: "24px",
           overflow: "hidden",
           height: 32,
-          // style each toggle
+
+          // base toggle styles
           "& .MuiToggleButton-root": {
             textTransform: "none",
             border: 0,
@@ -85,21 +84,21 @@ const Dashboard = () => {
             padding: "0 16px",
             fontSize: "0.875rem",
             height: "100%",
+            transition: "background-color 0.2s",
           },
-          // internal dividers
-          "& .MuiToggleButton-root:not(:last-of-type)": {
-            borderRight: "1px solid",
-            borderColor: "divider",
+
+          // hover on non-selected buttons
+          "& .MuiToggleButton-root:not(.Mui-selected):hover": {
+            bgcolor: "grey",
           },
-          // selected state
+
+          // selected state + hard-coded hover shade
           "& .MuiToggleButton-root.Mui-selected": {
             bgcolor: "#897896",
-            color: "#4d4256",
-          },
-          // CSS-driven darken on hover
-          "& .MuiToggleButton-root.Mui-selected:hover": {
-            bgcolor: "#dddaf5",
-            color: "#4d4256",
+            color: "#fff",
+            "&:hover": {
+              bgcolor: "#80708c",
+            },
           },
         }}
       >
