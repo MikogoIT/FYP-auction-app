@@ -1,6 +1,8 @@
 import '@material/web/button/filled-button.js';
 import { IMG_BASE_URL } from "../global-vars.jsx";
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import markdown from '../mds/landing.md?raw';
 
 export default function Landing() {
     const navigate = useNavigate();
@@ -36,6 +38,8 @@ export default function Landing() {
           />
         </div>
       </div>
+
+      <ReactMarkdown>{markdown}</ReactMarkdown>
     </div>
   );
 }
