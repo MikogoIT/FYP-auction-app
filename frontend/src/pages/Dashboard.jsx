@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import { Button, ButtonGroup } from "@mui/material";
