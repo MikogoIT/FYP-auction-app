@@ -15,6 +15,7 @@ router.get("/admin/search", requireLogin, userController.searchUsersController);
 router.get("/displayPhoto",  requireLogin, userController.getDP);
 router.put("/displayPhoto", requireLogin, userController.uplDP);
 
+router.put("/admin/update/:id", requireLogin, userController.adminUpdateUserController);
 
 export default router;
 
