@@ -31,7 +31,7 @@ export default function Landing() {
         <div className="block" id="landingBlock2">
           <img
             className="landing_tele"
-            src={`${IMG_BASE_URL}tele-wireframe-01.png`}
+            src={`${IMG_BASE_URL}wallpaper.png`}
             alt="Telegram wireframe"
           />
         </div>
