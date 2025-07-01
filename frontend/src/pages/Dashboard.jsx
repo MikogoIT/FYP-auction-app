@@ -1,10 +1,11 @@
 // src/pages/Dashboard.jsx
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
-import { Button, ButtonGroup } from "@mui/material";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 // Material Web buttons
 import "@material/web/button/filled-button.js";
@@ -62,42 +63,33 @@ const Dashboard = () => {
 
   return (
     <div className="dashboardCanvas">
-      {/* ButtonGroup for My Listings / All Listings */}
-      <ButtonGroup
-        variant="outlined"
+      {/* ToggleButtonGroup for switching views */}
+      <ToggleButtonGroup
+        value={location.pathname}
+        exclusive
+        onChange={(_, newPath) => newPath && navigate(newPath)}
         aria-label="listing navigation"
         sx={{
           mb: 2,
-          borderRadius: '24px',
-          overflow: 'hidden',
-          // ensure only the outer container is rounded
-          '& .MuiButtonGroup-grouped': {
-            borderRadius: 0,
-          },
+          borderRadius: "24px",
+          overflow: "hidden",
+          "& .MuiToggleButton-root": {
+            textTransform: "none"
+          }
         }}
       >
-        <Button
-          variant={location.pathname === "/dashboard" ? "contained" : "outlined"}
-          onClick={() => navigate("/dashboard")}
-        >
-          Recent Listings
-        </Button>
-        <Button
-          variant={location.pathname === "/ListingPage" ? "contained" : "outlined"}
-          onClick={() => navigate("/ListingPage")}
-        >
-          All Listings
-        </Button>
-        <Button
-          variant={location.pathname === "/mylistings" ? "contained" : "outlined"}
-          onClick={() => navigate("/mylistings")}
-        >
-          My Listings
-        </Button>
-      </ButtonGroup>
-      <div className="profileTitle">
-      Recent Listings
-      </div>
+        <ToggleButton value="/dashboard">
+          recent listings
+        </ToggleButton>
+        <ToggleButton value="/ListingPage">
+          all listings
+        </ToggleButton>
+        <ToggleButton value="/mylistings">
+          my listings
+        </ToggleButton>
+      </ToggleButtonGroup>
+
+      <div className="profileTitle">Recent Listings</div>
 
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading listings…</p>
@@ -113,7 +105,7 @@ const Dashboard = () => {
             breakpoints={{
               320: { slidesPerView: 1 },
               600: { slidesPerView: 2 },
-              900: { slidesPerView: 3 },
+              900: { slidesPerView: 3 }
             }}
             className="dashboard-swiper"
           >
@@ -167,7 +159,7 @@ const Dashboard = () => {
                             onClick={() => handleEditClick(item.id)}
                             style={{ width: "100%" }}
                           >
-                            ✏️ Edit
+                            Edit
                           </md-filled-button>
                         ) : (
                           <md-filled-button
@@ -186,9 +178,7 @@ const Dashboard = () => {
           </Swiper>
 
           <div style={{ textAlign: "center", marginTop: 30 }}>
-            <md-filled-tonal-button
-              onClick={() => navigate("/ListingPage")}
-            >
+            <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
               View all listings
             </md-filled-tonal-button>
           </div>
@@ -209,19 +199,19 @@ const cardStyle = {
   overflow: "hidden",
   backgroundColor: "#fff",
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "column"
 };
 
 const imageStyle = {
   width: "100%",
   height: 200,
-  objectFit: "cover",
+  objectFit: "cover"
 };
 
 const avatarStyle = {
   width: "100%",
   height: 200,
-  bgcolor: "#eee",
+  bgcolor: "#eee"
 };
 
 const detailsStyle = {
@@ -230,5 +220,5 @@ const detailsStyle = {
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
-  borderTop: "1px solid #eee",
+  borderTop: "1px solid #eee"
 };
