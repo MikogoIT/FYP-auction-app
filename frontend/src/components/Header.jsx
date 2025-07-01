@@ -80,7 +80,14 @@ const Header = () => {
               }
               onClick={goToAdminPage}
               clickable
-              sx={{ marginRight: "15px", color: "warning.main" }}
+              sx={{
+                marginRight: "15px",
+                bgcolor: "warning.main",
+                // and on hover you might want a darker shade:
+                "&:hover": {
+                  bgcolor: "warning.dark",
+                },
+              }}
             />
           )}
 
