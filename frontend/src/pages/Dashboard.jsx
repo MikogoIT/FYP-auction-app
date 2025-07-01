@@ -81,23 +81,23 @@ const Dashboard = () => {
             border: 0,
             borderRadius: 0,
             minWidth: 130,
-            padding: "0 16px",
+            padding: "4 20px",
             fontSize: "0.875rem",
             height: "100%",
             transition: "background-color 0.2s",
+            color: "#fff",
           },
 
           // hover on non-selected buttons
           "& .MuiToggleButton-root:not(.Mui-selected):hover": {
-            bgcolor: "grey",
+            bgcolor: "#dddaf5",
           },
 
           // selected state + hard-coded hover shade
           "& .MuiToggleButton-root.Mui-selected": {
-            bgcolor: "#897896",
-            color: "#fff",
+            bgcolor: "#dddaf5",
             "&:hover": {
-              bgcolor: "#80708c",
+              bgcolor: "#cac7df",
             },
           },
         }}
