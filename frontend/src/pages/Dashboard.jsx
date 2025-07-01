@@ -1,13 +1,13 @@
 // src/pages/Dashboard.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
-// Material Web buttons
+// Material Web tabs & buttons
+import "@material/web/tabs/tabs.js";
+import "@material/web/tabs/primary-tab.js";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -18,19 +18,46 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const Dashboard = () => {
-  const [recentListings, setRecentListings] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const tabsRef = useRef(null);
 
+  // Map URL → tab index
+  const pathToIndex = (path) =>
+    path === "/ListingPage" ? 1 :
+    path === "/mylistings"  ? 2 : 0;
+
+  const [tabIndex, setTabIndex] = useState(pathToIndex(location.pathname));
+
+  // Sync tab selection when URL changes
+  useEffect(() => {
+    setTabIndex(pathToIndex(location.pathname));
+  }, [location.pathname]);
+
+  // When user clicks a tab, navigate
+  useEffect(() => {
+    const tabsEl = tabsRef.current;
+    if (!tabsEl) return;
+    const onChange = () => {
+      const idx = tabsEl.activeTabIndex;
+      if (idx === 0) navigate("/dashboard");
+      if (idx === 1) navigate("/ListingPage");
+      if (idx === 2) navigate("/mylistings");
+    };
+    tabsEl.addEventListener("change", onChange);
+    return () => tabsEl.removeEventListener("change", onChange);
+  }, [navigate]);
+
+  // Fetch recent listings
+  const [recentListings, setRecentListings] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchRecentListings = async () => {
       try {
         const res = await fetch("/api/listings/recent");
         if (!res.ok) throw new Error("Failed to fetch");
         const { listings } = await res.json();
-
         const enriched = await Promise.all(
           listings.map(async (item) => {
             try {
@@ -45,7 +72,6 @@ const Dashboard = () => {
             }
           })
         );
-
         setRecentListings(enriched);
       } catch (err) {
         console.error(err);
@@ -53,7 +79,6 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-
     fetchRecentListings();
   }, []);
 
@@ -63,55 +88,32 @@ const Dashboard = () => {
 
   return (
     <div className="dashboardCanvas">
-      {/* ToggleButtonGroup for switching views */}
-      <ToggleButtonGroup
-        value={location.pathname}
-        exclusive
-        onChange={(_, newPath) => newPath && navigate(newPath)}
-        aria-label="listing navigation"
-        sx={{
-          mb: 2,
-          borderRadius: "24px",
-          overflow: "hidden",
-          minHeight: 40,
-          padding: "8 20px",
-
-          // base toggle styles
-          "& .MuiToggleButton-root": {
-            textTransform: "none",
-            border: 0,
-            borderRadius: 0,
-            minWidth: 130,
-            fontSize: "0.875rem",
-            height: "100%",
-            transition: "background-color 0.2s",
-          },
-
-          // hover on non-selected buttons
-          "& .MuiToggleButton-root:not(.Mui-selected):hover": {
-            bgcolor: "#dddaf5",
-          },
-
-          // selected state + hard-coded hover shade
-          "& .MuiToggleButton-root.Mui-selected": {
-            bgcolor: "#dddaf5",
-            "&:hover": {
-              bgcolor: "#cac7df",
-            },
-          },
+      {/* Material-Web tab bar */}
+      <md-tabs
+        ref={tabsRef}
+        activeTabIndex={tabIndex}
+        style={{
+          "--md-primary-tab-container-shape": "24px",
+          "--md-primary-tab-container-color": "#f1f0f0",
+          "--md-primary-tab-label-text-color": "#555",
+          "--md-primary-tab-label-text-color-selected": "#B58392",
+          "--md-primary-tab-active-indicator-color": "transparent",
+          marginBottom: "16px"
         }}
       >
-        <ToggleButton value="/dashboard">Recent Listings</ToggleButton>
-        <ToggleButton value="/ListingPage">All Listings</ToggleButton>
-        <ToggleButton value="/mylistings">My Listings</ToggleButton>
-      </ToggleButtonGroup>
+        <md-primary-tab>recent listings</md-primary-tab>
+        <md-primary-tab>all listings</md-primary-tab>
+        <md-primary-tab>my listings</md-primary-tab>
+      </md-tabs>
 
       <div className="profileTitle">Recent Listings</div>
 
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading listings…</p>
       ) : recentListings.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No recent listings available.</p>
+        <p style={{ textAlign: "center" }}>
+          No recent listings available.
+        </p>
       ) : (
         <>
           <Swiper
@@ -122,13 +124,12 @@ const Dashboard = () => {
             breakpoints={{
               320: { slidesPerView: 1 },
               600: { slidesPerView: 2 },
-              900: { slidesPerView: 3 }
+              900: { slidesPerView: 3 },
             }}
             className="dashboard-swiper"
           >
             {recentListings.map((item) => {
               const isOwner = item.seller_id === currentUserId;
-
               return (
                 <SwiperSlide key={item.id}>
                   <div style={cardStyle}>
@@ -143,7 +144,6 @@ const Dashboard = () => {
                         <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                       </Avatar>
                     )}
-
                     <div style={detailsStyle}>
                       <div>
                         <h3 style={{ margin: 0, marginBottom: 8 }}>
@@ -169,14 +169,13 @@ const Dashboard = () => {
                           <strong>Seller:</strong> {item.seller}
                         </p>
                       </div>
-
                       <div style={{ marginTop: 16 }}>
                         {isOwner ? (
                           <md-filled-button
                             onClick={() => handleEditClick(item.id)}
                             style={{ width: "100%" }}
                           >
-                            Edit
+                            ✏️ Edit
                           </md-filled-button>
                         ) : (
                           <md-filled-button
@@ -203,11 +202,9 @@ const Dashboard = () => {
       )}
     </div>
   );
-};
+}
 
-export default Dashboard;
-
-// ─── styles ─────────────────────────────────────────────────
+// ─── Styles ─────────────────────────────────────────────────
 
 const cardStyle = {
   maxWidth: 300,
@@ -216,19 +213,19 @@ const cardStyle = {
   overflow: "hidden",
   backgroundColor: "#fff",
   display: "flex",
-  flexDirection: "column"
+  flexDirection: "column",
 };
 
 const imageStyle = {
   width: "100%",
   height: 200,
-  objectFit: "cover"
+  objectFit: "cover",
 };
 
 const avatarStyle = {
   width: "100%",
   height: 200,
-  bgcolor: "#eee"
+  bgcolor: "#eee",
 };
 
 const detailsStyle = {
@@ -237,5 +234,5 @@ const detailsStyle = {
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
-  borderTop: "1px solid #eee"
+  borderTop: "1px solid #eee",
 };
