@@ -69,6 +69,21 @@ const Header = () => {
             alignItems: "center",
           }}
         >
+          
+
+          {/* Admin chip */}
+          {isAdmin && (
+            <Chip
+              label="Admin"
+              icon={
+                <AdminPanelSettingsIcon />
+              }
+              onClick={goToAdminPage}
+              clickable
+              sx={{ marginRight: "15px", color: "warning.main" }}
+            />
+          )}
+
           {/* Profile or Log in */}
           <Chip
             label={isLoggedIn ? "Profile" : "Log in"}
@@ -83,28 +98,12 @@ const Header = () => {
             }
           />
 
-          {/* Admin chip */}
-          {isAdmin && (
-            <Chip
-              label="Admin"
-              icon={
-                <AdminPanelSettingsIcon
-                  sx={{ color: "warning.main" }}
-                />
-              }
-              onClick={goToAdminPage}
-              clickable
-              sx={{ marginLeft: "15px" }}
-            />
-          )}
-
           {/* Register */}
           {!isLoggedIn && (
             <Chip
               label="Register"
               onClick={() => navigate("/register")}
               clickable
-              sx={{ marginLeft: isAdmin ? "15px" : "8px" }}
             />
           )}
 
@@ -114,7 +113,6 @@ const Header = () => {
               label="Log out"
               onClick={handleLogout}
               clickable
-              sx={{ marginLeft: isAdmin ? "15px" : "8px" }}
             />
           )}
         </div>
