@@ -91,11 +91,20 @@ const Dashboard = () => {
             borderRight: "1px solid",
             borderColor: "divider",
           },
+          // selected state
+          "& .MuiToggleButton-root.Mui-selected": {
+            bgcolor: "#B58392",
+            color: "#fff",
+          },
+          // CSS-driven darken on hover
+          "& .MuiToggleButton-root.Mui-selected:hover": {
+            filter: "brightness(0.9)",
+          },
         }}
       >
-        <ToggleButton value="/dashboard">recent listings</ToggleButton>
-        <ToggleButton value="/ListingPage">all listings</ToggleButton>
-        <ToggleButton value="/mylistings">my listings</ToggleButton>
+        <ToggleButton value="/dashboard">Recent Listings</ToggleButton>
+        <ToggleButton value="/ListingPage">All Listings</ToggleButton>
+        <ToggleButton value="/mylistings">My Listings</ToggleButton>
       </ToggleButtonGroup>
 
       <div className="profileTitle">Recent Listings</div>
