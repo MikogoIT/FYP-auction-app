@@ -206,12 +206,12 @@ upload-assets:
     - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
     # - find telegram/ -type f -delete
 
-  # rules:
-  #   - if: '$CI_COMMIT_BRANCH == "main"'
-  #     changes:
-  #       - images/**
-  #       - telegram/**
-  #     when: on_success
-  #   - when: never
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - images/**
+        - telegram/**
+      when: on_success
+    - when: never
 
 
