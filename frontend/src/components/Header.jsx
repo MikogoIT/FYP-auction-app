@@ -1,8 +1,11 @@
+// src/components/Header.jsx
+
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Chip, Avatar, Button } from "@mui/material";
+import { Chip, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { IMG_BASE_URL } from "../global-vars.jsx";
-import { useEffect, useState } from "react";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -11,14 +14,16 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
 
-  // Hide logout on "/login" and "/register"
   const hideLogout = ["/login", "/register"].includes(pathname);
 
   useEffect(() => {
     // check login + fetch profile photo
     fetch("/api/displayPhoto", { credentials: "include" })
       .then(async (res) => {
-        if (!res.ok) return setIsLoggedIn(false);
+        if (!res.ok) {
+          setIsLoggedIn(false);
+          return;
+        }
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
@@ -27,8 +32,8 @@ const Header = () => {
 
     // fetch admin flag
     fetch("/api/profile", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setIsAdmin(!!data.user?.is_admin))
+      .then((res) => res.json())
+      .then((data) => setIsAdmin(!!data.user?.is_admin))
       .catch(() => setIsAdmin(false));
   }, [pathname]);
 
@@ -39,8 +44,6 @@ const Header = () => {
     setPhotoUrl(null);
     navigate("/");
   };
-
-  // Determine logo click target
   const handleLogoClick = () => {
     navigate(isLoggedIn ? "/dashboard" : "/");
   };
@@ -48,7 +51,6 @@ const Header = () => {
   return (
     <div className="headerBar">
       <div className="headerContent">
-
         {/* Logo */}
         <img
           src={`${IMG_BASE_URL}full-logo.png`}
@@ -58,24 +60,21 @@ const Header = () => {
           style={{ width: 150, cursor: "pointer" }}
         />
 
-        {/* Admin button stays where it was */}
-        {!hideLogout && isAdmin && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={goToAdminPage}
-            sx={{ marginLeft: "auto" }}
-          >
-            Admin
-          </Button>
-        )}
-
-        {/* Profile/Login + Register + Logout controls */}
-        <div className="loginChips">
-          {/* Login/Profile chip */}
+        {/* Chips group */}
+        <div
+          className="loginChips"
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {/* Profile or Log in */}
           <Chip
             label={isLoggedIn ? "Profile" : "Log in"}
-            onClick={() => navigate(isLoggedIn ? "/profile" : "/login")}
+            onClick={() =>
+              navigate(isLoggedIn ? "/profile" : "/login")
+            }
             clickable
             avatar={
               <Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}>
@@ -84,21 +83,38 @@ const Header = () => {
             }
           />
 
-          {/* Register chip, only when not logged in */}
-          {!isLoggedIn && (
+          {/* Admin chip */}
+          {isAdmin && (
             <Chip
-              label="Register"
-              onClick={() => navigate('/register')}
+              label="Admin"
+              icon={
+                <AdminPanelSettingsIcon
+                  sx={{ color: "warning.main" }}
+                />
+              }
+              onClick={goToAdminPage}
               clickable
+              sx={{ marginLeft: "15px" }}
             />
           )}
 
-          {/* Logout chip, only when logged in and not on login/register pages */}
+          {/* Register */}
+          {!isLoggedIn && (
+            <Chip
+              label="Register"
+              onClick={() => navigate("/register")}
+              clickable
+              sx={{ marginLeft: isAdmin ? "15px" : "8px" }}
+            />
+          )}
+
+          {/* Logout */}
           {isLoggedIn && !hideLogout && (
             <Chip
               label="Log out"
               onClick={handleLogout}
               clickable
+              sx={{ marginLeft: isAdmin ? "15px" : "8px" }}
             />
           )}
         </div>
