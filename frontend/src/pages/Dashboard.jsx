@@ -71,22 +71,31 @@ const Dashboard = () => {
         aria-label="listing navigation"
         sx={{
           mb: 2,
+          border: "1px solid",
+          borderColor: "divider",
           borderRadius: "24px",
           overflow: "hidden",
+          height: 32,
+          // style each toggle
           "& .MuiToggleButton-root": {
-            textTransform: "none"
-          }
+            textTransform: "none",
+            border: 0,
+            borderRadius: 0,
+            minWidth: 130,
+            padding: "0 16px",
+            fontSize: "0.875rem",
+            height: "100%",
+          },
+          // internal dividers
+          "& .MuiToggleButton-root:not(:last-of-type)": {
+            borderRight: "1px solid",
+            borderColor: "divider",
+          },
         }}
       >
-        <ToggleButton value="/dashboard">
-          recent listings
-        </ToggleButton>
-        <ToggleButton value="/ListingPage">
-          all listings
-        </ToggleButton>
-        <ToggleButton value="/mylistings">
-          my listings
-        </ToggleButton>
+        <ToggleButton value="/dashboard">recent listings</ToggleButton>
+        <ToggleButton value="/ListingPage">all listings</ToggleButton>
+        <ToggleButton value="/mylistings">my listings</ToggleButton>
       </ToggleButtonGroup>
 
       <div className="profileTitle">Recent Listings</div>
