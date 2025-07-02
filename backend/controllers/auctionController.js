@@ -1,11 +1,11 @@
 // controllers/auctionController.js
-import { getMinAllowedBid } from "../models/bidModel.js";
+import { getAuctionMinBid } from "../models/bidModel.js";
 
 export async function getMinBidAmount(req, res) {
   const { id } = req.params;
 
   try {
-    const result = await getMinAllowedBid(id);
+    const result = await getAuctionMinBid(id);
     if (!result) {
       return res.status(404).json({ message: "Auction not found" });
     }
