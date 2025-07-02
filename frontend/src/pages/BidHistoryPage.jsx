@@ -60,7 +60,7 @@ const BidHistoryPage = () => {
                 <td>${parseFloat(bid.bid_amount).toFixed(2)}</td>
                 <td>{new Date(bid.created_at).toLocaleString()}</td>
                 <td>{bid.updated_at ? new Date(bid.updated_at).toLocaleString() : "N/A"}</td>
-                <td>{bid.end_time ? new Date(bid.end_time).toLocaleString() : "N/A"}</td>
+                <td>{bid.end_date ? new Date(bid.end_date).toLocaleString() : "N/A"}</td>
                 <td style={{ color: getStatusColor(bid.status) }}>{bid.status}</td>
                 <td>
                   <button
