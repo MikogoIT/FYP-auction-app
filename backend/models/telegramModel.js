@@ -52,3 +52,11 @@ export async function markListingAsPosted(listingId) {
         WHERE id = ${listingId}
     `;
 }
+
+export async function getTelegramAccountsByTelegramId(telegramId) {
+    const result = await sql`
+        SELECT user_id FROM telegram_accounts WHERE telegram_id = ${telegramId}
+    `;
+
+    return result[0];
+}

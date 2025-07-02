@@ -74,3 +74,24 @@ export async function markListingPosted(req, res) {
     }
 }
 
+export async function checkTelegramAccount(req, res) {
+    const telegramUserId = req.params.telegramUserId;
+
+    if (!telegramUserId) {
+        return res.status(400).json({ linked: false, error: "Missing telegramUserId" });
+    }
+
+    try {
+        const linkedAccount = await telegramModel.getTelegramAccountsByTelegramId(telegramUserId);
+
+        if (linkedAccount) {
+            return res.json({ linked: true });
+        } else {
+            return res.json({ linked: false })
+        }
+    } catch (err) {
+        console.error("Error checking telegram account: ", err);
+        return res.status(500).json({ linked: false, error: "Server error" });
+    }
+}
+
