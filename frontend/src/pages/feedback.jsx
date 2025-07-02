@@ -22,7 +22,7 @@ export default function Feedback() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/feedback/website", {
+      const res = await fetch("/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
