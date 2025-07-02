@@ -33,7 +33,7 @@ export async function getUserBidsWithListing(buyerId) {
       b.updated_at,
       b.status,
       a.title AS listing_name,
-      a.end_time
+      a.end_date
     FROM bids b
     JOIN auction_listings a ON b.auction_id = a.id
     WHERE b.buyer_id = ${buyerId}

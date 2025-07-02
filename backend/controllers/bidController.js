@@ -53,7 +53,7 @@ export async function viewUserBids(req, res) {
     res.status(200).json({ bids });
   } catch (err) {
     console.error("Failed to retrieve user bids:", err);
-    res.status(500).json({ message: "Failed to retrieve bids" });
+    res.status(500).json({ message: "Failed to retrieve bids", error: err.message });
   }
 }
 
