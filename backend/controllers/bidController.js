@@ -5,6 +5,7 @@ import {
   getUserBidsWithListing,
   deleteUserBid,
 } from "../models/bidModel.js";
+import { insertNotification } from "../models/notificationModel.js";
 
 export async function createBid(req, res) {
   const userId = req.session.userId;
@@ -50,7 +51,7 @@ export async function createBid(req, res) {
         `Your bid for auction #${auction_id} has been outbid.`
       );
     }
-    
+
     res.status(201).json({ bid: result[0] });
   } catch (err) {
     console.error("Bid error:", err);
