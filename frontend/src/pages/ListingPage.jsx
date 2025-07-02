@@ -146,6 +146,11 @@ export default function ListingPage() {
                     <strong>Ends:</strong>{" "}
                     {new Date(item.end_date).toLocaleString()}
                   </p>
+                  <p>
+                    <strong>Current Bid:</strong> {item.current_bid !== null && item.current_bid !== undefined 
+                      ? `$${item.current_bid}` 
+                      : "No bids yet"}
+                  </p>
                   <div className="listingAction">
                     {isOwner ? (
                       <md-filled-button
