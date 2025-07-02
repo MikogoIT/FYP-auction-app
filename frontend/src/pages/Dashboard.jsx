@@ -90,19 +90,25 @@ export default function Dashboard() {
               const isOwner = item.seller_id === currentUserId;
               return (
                 <SwiperSlide key={item.id}>
-                  <div style={cardStyle}>
+                  <div className="cardStyle">
                     {item.image_url ? (
                       <img
                         src={item.image_url}
                         alt={item.title}
-                        style={imageStyle}
+                        className="imageStyle"
                       />
                     ) : (
-                      <Avatar variant="square" sx={avatarStyle}>
+                      <Avatar 
+                        variant="square" 
+                        sx={{
+                          width: "100%",
+                          height: 200,
+                          bgcolor: "#eee",
+                      }}> 
                         <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                       </Avatar>
                     )}
-                    <div style={detailsStyle}>
+                    <div className="detailsStyle">
                       <h3 style={{ margin: 0, marginBottom: 8 }}>
                         {item.title}
                       </h3>
@@ -143,36 +149,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-// ─── Styles ─────────────────────────────────────────────────
-
-const cardStyle = {
-  maxWidth: 300,
-  margin: "0 auto",
-  borderRadius: 16,
-  overflow: "hidden",
-  backgroundColor: "#fff",
-  display: "flex",
-  flexDirection: "column",
-};
-
-const imageStyle = {
-  width: "100%",
-  height: 200,
-  objectFit: "cover",
-};
-
-const avatarStyle = {
-  width: "100%",
-  height: 200,
-  bgcolor: "#eee",
-};
-
-const detailsStyle = {
-  backgroundColor: "#f1f0f0",
-  padding: 16,
-  display: "flex",
-  flexDirection: "column",
-  flexGrow: 1,
-  borderTop: "1px solid #eee",
-};
