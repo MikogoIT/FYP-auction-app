@@ -15,10 +15,10 @@ export default function Landing() {
       <div className="theBlocks">
         <div className="block" id="landingBlock1">
           <div className="title">
-            <div>Auctioneer</div>
+            <p className="title1">Auctioneer</p>
           </div>
           <div className="subtext">
-            <div>Your Auctions, One Telegram Away</div>
+            <p className="subtext1">Your Auctions, One Telegram Away</p>
 
             {/* Material Web "filled" button */}
             <md-filled-button
