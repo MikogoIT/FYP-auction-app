@@ -21,3 +21,31 @@ export async function getMinAllowedBid(auctionId) {
   `;
   return result[0];
 }
+
+
+// Get all bids + auction information of the current user
+export async function getUserBidsWithListing(buyerId) {
+  return await sql`
+    SELECT 
+      b.id AS bid_id,
+      b.bid_amount,
+      b.created_at,
+      b.updated_at,
+      b.status,
+      a.title AS listing_name,
+      a.end_time
+    FROM bids b
+    JOIN auction_listings a ON b.auction_id = a.id
+    WHERE b.buyer_id = ${buyerId}
+    ORDER BY b.created_at DESC
+  `;
+}
+
+// Delete bid
+export async function deleteUserBid(buyerId, bidId) {
+  return await sql`
+    DELETE FROM bids 
+    WHERE id = ${bidId} AND buyer_id = ${buyerId}
+    RETURNING *
+  `;
+}
