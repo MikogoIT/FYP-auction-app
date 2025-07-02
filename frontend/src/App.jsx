@@ -11,7 +11,6 @@ import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ImageUploadPage from "./pages/upl";
 import AdminPage from "./pages/AdminPage";
-import AdminPage2 from "./pages/AdminPage2";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
@@ -44,7 +43,6 @@ function App() {
             <Route path="/bid/:id" element={<BidPage />} />
             <Route path="/mylistings" element={<MyListings />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin2" element={<AdminPage2 />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
