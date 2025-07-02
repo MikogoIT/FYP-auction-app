@@ -1,38 +1,47 @@
-import React, { useEffect, useState } from "react";
+// src/pages/ListingPage.jsx
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ListingTabs from "../components/ListingTabs";
+import Avatar from "@mui/material/Avatar";
+import ImageIcon from "@mui/icons-material/Image";
+
+// Material-Web buttons
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
+
+
 
 const ITEMS_PER_PAGE = 6;
 
-const ListingPage = () => {
+export default function ListingPage() {
+  const navigate = useNavigate();
+  const currentUserId = localStorage.getItem("userId");
+
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  const currentUserId = localStorage.getItem("userId"); 
-
-  // get all categories for the filter dropdown
+  // Fetch categories
   useEffect(() => {
-    const fetchCategories = async () => {
+    (async () => {
       try {
         const res = await fetch("/api/categories");
         const data = await res.json();
-        if (res.ok) {
-          setCategories(data.categories);
-        }
+        if (res.ok) setCategories(data.categories);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
-    };
-
-    fetchCategories();
+    })();
   }, []);
 
-  // Filter listings based on search and category
+  // Fetch listings + enrich with image_url
   useEffect(() => {
-    const fetchListings = async () => {
+    (async () => {
+      setLoading(true);
       try {
         const params = new URLSearchParams();
         if (searchTerm.trim()) params.append("q", searchTerm.trim());
@@ -40,139 +49,141 @@ const ListingPage = () => {
 
         const res = await fetch(`/api/listings?${params.toString()}`);
         const data = await res.json();
-        if (res.ok) {
-          setListings(data.listings);
-          setPage(1); // Reset pagination
-        }
+        if (!res.ok) throw new Error(data.message);
+
+        const enriched = await Promise.all(
+          data.listings.map(async (item) => {
+            try {
+              const imgRes = await fetch(
+                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+              );
+              if (!imgRes.ok) throw new Error();
+              const { imageUrl } = await imgRes.json();
+              return { ...item, image_url: imageUrl };
+            } catch {
+              return { ...item, image_url: null };
+            }
+          })
+        );
+
+        setListings(enriched);
+        setPage(1);
       } catch (err) {
         console.error("Failed to fetch listings:", err);
+      } finally {
+        setLoading(false);
       }
-    };
-
-    fetchListings();
+    })();
   }, [searchTerm, selectedCategory]);
 
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
+  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginBottom: "16px"
-        }}
-      >
-        ← Back
-      </button>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>📋 All Auction Listings</h2>
+    <div className="dashboardCanvas listingPageContainer">
+      <ListingTabs />
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+      <div className="profileTitle">📋 All Auction Listings</div>
+
+      <div className="filterContainer">
         <input
+          className="searchInput"
           type="text"
           placeholder="🔍 Search by title or description..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ padding: "8px", width: "250px", borderRadius: "4px", border: "1px solid #ccc" }}
         />
         <select
+          className="categorySelect"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
           ))}
         </select>
       </div>
 
-      {paginated.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No listings found.</p>
+      {loading ? (
+        <p className="centerText">Loading listings…</p>
+      ) : paginated.length === 0 ? (
+        <p className="centerText">No listings found.</p>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "20px"
-          }}
-        >
+        <div className="listingGrid">
           {paginated.map((item) => {
             const isOwner = String(item.seller_id) === String(currentUserId);
             return (
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  backgroundColor: "#f9f9f9"
-                }}
-              >
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-                <p><strong>Min Bid:</strong> ${item.min_bid}</p>
-                <p><strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}</p>
-
-                {isOwner ? (
-                  <button
-                    onClick={() => navigate(`/edit/${item.id}`)}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 12px",
-                      backgroundColor: "#ffc107",
-                      color: "#333",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
+              <div key={item.id} className="listingCard">
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    className="listingImage"
+                  />
+                ) : (
+                  <Avatar
+                    variant="square"
+                    sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
                   >
-                  ✏️ Edit
-                  </button>
-                  ) : (
-                  <button
-                    onClick={() => handleBidClick(item.id)}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 12px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
-                  >
-                  💰 Bid
-                  </button>
+                    <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                  </Avatar>
                 )}
+                <div className="listingDetails">
+                  <h3 className="listingTitle">{item.title}</h3>
+                  <p className="listingDesc">{item.description}</p>
+                  <p className="listingMinBid">
+                    <strong>Min Bid:</strong> ${item.min_bid}
+                  </p>
+                  <p className="listingEndDate">
+                    <strong>Ends:</strong>{" "}
+                    {new Date(item.end_date).toLocaleString()}
+                  </p>
+                  <div className="listingAction">
+                    {isOwner ? (
+                      <md-filled-button
+                        onClick={() => navigate(`/edit/${item.id}`)}
+                        style={{ width: "100%" }}
+                      >
+                        ✏️ Edit
+                      </md-filled-button>
+                    ) : (
+                      <md-filled-button
+                        onClick={() => handleBidClick(item.id)}
+                        style={{ width: "100%" }}
+                      >
+                        💰 Bid
+                      </md-filled-button>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* Pagination controls */}
-      {listings.length > ITEMS_PER_PAGE && (
-        <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+      {totalPages > 1 && (
+        <div className="paginationControls">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
             ◀ Prev
           </button>
-          <span>
-            Page {page} of {Math.ceil(listings.length / ITEMS_PER_PAGE)}
+          <span className="pageIndicator">
+            Page {page} of {totalPages}
           </span>
           <button
-            onClick={() =>
-              setPage((p) => Math.min(Math.ceil(listings.length / ITEMS_PER_PAGE), p + 1))
-            }
-            disabled={page === Math.ceil(listings.length / ITEMS_PER_PAGE)}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
           >
             Next ▶
           </button>
@@ -180,6 +191,4 @@ const ListingPage = () => {
       )}
     </div>
   );
-};
-
-export default ListingPage;
+}

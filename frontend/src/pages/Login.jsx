@@ -78,6 +78,8 @@ export default function Login() {
 
           {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
+          <input type="submit" style={{ display: 'none' }} />
+
           <Box sx={{ position: "relative", mt: 1 }}>
             <md-filled-button
               unelevated
