@@ -8,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.post("/", createBid);
-router.get("/my", viewUserBids);
-router.delete("/:bid_id", deleteBid);  
+router.post("/", createBid);       
+router.get("/my", viewUserBids);     
+router.delete("/:bid_id", deleteBid); 
 
 export default router;

@@ -9,7 +9,7 @@ export async function insertBid(buyerId, auctionId, bidAmount) {
   `;
 }
 
-export async function getMinAllowedBid(auctionId) {
+export async function getAuctionMinBid(auctionId) {
   const result = await sql`
     SELECT 
       a.min_bid, 
