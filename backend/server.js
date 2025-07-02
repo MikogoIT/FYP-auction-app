@@ -16,7 +16,7 @@ import auctionRoutes from "./routes/auctionRoutes.js";
 import telegramRoutes from "./routes/telegramRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js"
 import watchlistRoutes from "./routes/watchlistRoutes.js";
-
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -73,10 +73,10 @@ app.use(cors({
   credentials: true
 }));
 
-//listing router
+// listing router
 app.use("/api", listingRoutes);
 
-//bid router
+// bid router
 app.use("/api/bids", bidRoutes);
 
 // category router
@@ -94,6 +94,8 @@ app.use("/api/auctions", auctionRoutes);
 // Telegram router
 app.use("/api/telegram", telegramRoutes);
 
+// feedback router
+ app.use("/api/feedback", feedbackRoutes);
 
 // 
 
