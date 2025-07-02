@@ -214,32 +214,30 @@ background-color: #e0e0e0;
   margin-bottom: .5em;
 }
 
-
 .cardStyle {
   max-width: 300px;
-  margin: "0 auto";
+  margin: 0 auto;
   border-radius: 16px;
-  overflow: "hidden";
-  background-color: "#fff";
-  display: "flex";
-  flex-direction: "column";
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 .imageStyle {
   width: 100%;
   height: 200px;
-  object-fit: "cover";
+  object-fit: cover;
 }
 
 .detailsStyle {
-  background-color: "#f1f0f0";
+  background-color: #f1f0f0;
   padding: 16px;
-  display: "flex";
-  flex-direction: "column";
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
-  border-top: "1px solid #eee";
+  border-top: 1px solid #eee;
 }
-
 
 .myListingsPage {
   padding: 20px;
@@ -305,3 +303,4 @@ background-color: #e0e0e0;
 .pageIndicator {
   align-self: center;
 }
+
