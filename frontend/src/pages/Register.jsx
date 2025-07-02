@@ -110,6 +110,8 @@ export default function Register() {
             {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
             {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
+            <input type="submit" style={{ display: 'none' }} />
+
             <Box sx={{ position: "relative" }}>
               <md-filled-button
                 unelevated
