@@ -1,6 +1,6 @@
 // src/pages/MyListings.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
@@ -10,7 +10,7 @@ import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
 import ListingTabs from "../components/ListingTabs";
-import "./MyListings.css";  // ← import your CSS
+
 
 export default function MyListings() {
   const navigate = useNavigate();
