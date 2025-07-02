@@ -9,7 +9,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-import ListingTabs from "../components/ListingTabs";s
+import ListingTabs from "../components/ListingTabs";
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
