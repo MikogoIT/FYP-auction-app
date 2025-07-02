@@ -14,6 +14,7 @@ import bidRoutes from "./routes/bidRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import auctionRoutes from "./routes/auctionRoutes.js";
 import telegramRoutes from "./routes/telegramRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js"
 
 
 const app = express();
@@ -79,6 +80,9 @@ app.use("/api/bids", bidRoutes);
 
 // category router
 app.use("/api/categories", categoryRoutes);
+
+// Notification router
+app.use("/api/notifications", notificationRoutes);
 
 // auction router
 app.use("/api/auctions", auctionRoutes);

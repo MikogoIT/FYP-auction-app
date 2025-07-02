@@ -8,21 +8,24 @@ import {
 
 export async function createBid(req, res) {
   const userId = req.session.userId;
+  const { auction_id, bid_amount } = req.body;
 
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const { auction_id, bid_amount } = req.body;
+
   if (!auction_id || !bid_amount) {
     return res.status(400).json({ message: "Missing bid info" });
   }
 
   try {
-    const minBid = await getAuctionMinBid(auction_id);
-    if (!minBid) {
+    const minBidData = await getAuctionMinBid(auction_id);
+    if (!minBidData) {
       return res.status(404).json({ message: "Auction not found" });
     }
+
+    const minBid = parseFloat(minBidData.highest_bid || minBidData.min_bid);
 
     if (parseFloat(bid_amount) < parseFloat(minBid)) {
       return res.status(400).json({ message: `Bid must be at least $${minBid}` });
@@ -32,7 +35,22 @@ export async function createBid(req, res) {
       return res.status(400).json({ message: "Bid amount too high, must be less than 100 million" });
     }
 
+    const prevHighest = await sql`
+      SELECT buyer_id FROM bids
+      WHERE auction_id = ${auction_id}
+      ORDER BY bid_amount DESC, created_at ASC
+      LIMIT 1
+    `;
+
     const result = await insertBid(userId, auction_id, bid_amount);
+
+    if (prevHighest.length > 0 && prevHighest[0].buyer_id !== userId) {
+      await insertNotification(
+        prevHighest[0].buyer_id,
+        `Your bid for auction #${auction_id} has been outbid.`
+      );
+    }
+    
     res.status(201).json({ bid: result[0] });
   } catch (err) {
     console.error("Bid error:", err);
