@@ -24,27 +24,72 @@ export default function FeedbackList() {
     fetchFeedbacks();
   }, []);
 
-  if (loading) return <div style={{ textAlign: "center", marginTop: 50 }}><CircularProgress /></div>;
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: 50 }}>
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 800, margin: "40px auto", padding: 20 }}>
-      <h2 style={{ textAlign: "center", marginBottom: 24 }}>⭐ Website Feedback</h2>
+    <div style={{ padding: "40px 20px", maxWidth: 1200, margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center", marginBottom: 32 }}>⭐ Website Feedback</h2>
+
       {feedbacks.length === 0 ? (
-        <p>No feedback submitted yet.</p>
+        <p style={{ textAlign: "center" }}>No feedback submitted yet.</p>
       ) : (
-        feedbacks.map((fb) => (
-          <div key={fb.id} style={{ border: "1px solid #eee", borderRadius: 12, padding: 16, marginBottom: 16, background: "#fafafa" }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-              <Avatar style={{ marginRight: 12 }}>{fb.username[0].toUpperCase()}</Avatar>
-              <div>
-                <strong>{fb.username}</strong><br />
-                <Rating value={fb.website_ratings} readOnly />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 20,
+          }}
+        >
+          {feedbacks.map((fb) => (
+            <div
+              key={fb.id}
+              style={{
+                borderRadius: 12,
+                padding: 20,
+                background: "#fff",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+                <Avatar style={{ marginRight: 12 }}>{fb.username[0]?.toUpperCase()}</Avatar>
+                <div>
+                  <strong>{fb.username}</strong>
+                  <div style={{ fontSize: 12, color: "#888" }}>
+                    {new Date(fb.created_at).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <Rating value={fb.website_ratings} readOnly size="small" />
+
+              <div
+                style={{
+                  marginTop: 12,
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  maxHeight: 120,
+                  overflowY: "auto",
+                  whiteSpace: "pre-line",
+                }}
+              >
+                {fb.website_comments}
               </div>
             </div>
-            <p style={{ marginTop: 10 }}>{fb.website_comments}</p>
-            <p style={{ fontSize: 12, color: "#777" }}>{new Date(fb.created_at).toLocaleString()}</p>
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   );
