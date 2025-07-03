@@ -1,4 +1,6 @@
+// controllers/feedbackController.js
 import { insertWebsiteFeedback } from "../models/feedbackModel.js";
+import { getAllWebsiteFeedback as fetchFeedback } from "../models/feedbackModel.js";
 
 export async function submitWebsiteFeedback(req, res) {
   const userId = req.session.userId;
@@ -11,7 +13,7 @@ export async function submitWebsiteFeedback(req, res) {
     return res.status(400).json({ message: "Rating must be between 1 and 5." });
   }
 
-  // ✅ Add this log for debugging
+  // Debug Log
   console.log("Feedback submitted by user", userId, website_ratings, website_comments);
 
   try {
@@ -19,6 +21,16 @@ export async function submitWebsiteFeedback(req, res) {
     res.status(201).json({ message: "Feedback submitted" });
   } catch (err) {
     console.error("Feedback submission error:", err); // also good for debugging
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export async function getAllWebsiteFeedback(req, res) {
+  try {
+    const feedbacks = await fetchFeedback();
+    res.json(feedbacks);
+  } catch (err) {
+    console.error("Fetch feedback error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }

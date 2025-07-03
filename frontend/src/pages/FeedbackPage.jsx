@@ -58,7 +58,15 @@ export default function Feedback() {
           onChange={e => setComments(e.target.value)}
           placeholder="Share your thoughts, suggestions, or issues..."
           rows={6}
-          style={{ width: "100%", padding: 12, borderRadius: 8, border: "1.5px solid #ccc", fontSize: 16, marginBottom: 16 }}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 8,
+            border: "1.5px solid #ccc",
+            fontSize: 16,
+            marginBottom: 16,
+            resize: "none", // 🔒 prevents resizing
+          }}
         />
         <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
           {loading ? "Submitting..." : "Submit Feedback"}
