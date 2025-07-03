@@ -5,10 +5,8 @@ import { requireLogin } from "../utils/requireLogin.js";
 
 const router = express.Router();
 
-router.post("/", (req, res) => {
-  res.json({ message: "Received feedback!" });
-});
 
-//router.post("/", requireLogin, submitWebsiteFeedback);
+router.post("/", requireLogin, submitWebsiteFeedback);
+
 
 export default router;
