@@ -16,7 +16,7 @@ import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
 import Landing from "./pages/landing";
 import ListingPage from "./pages/ListingPage";
-import Feedback from "./pages/Feedback";
+import Feedback from "./pages/FeedbackPage";
 
 
 // components
