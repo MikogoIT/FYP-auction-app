@@ -1,6 +1,4 @@
-// controllers/feedbackController.js
-import { insertWebsiteFeedback } from "../models/feedbackModel.js";
-import { getAllWebsiteFeedback as fetchFeedback } from "../models/feedbackModel.js";
+import { insertWebsiteFeedback, hasSubmittedFeedback , getAllWebsiteFeedback } from "../models/feedbackModel.js";
 
 export async function submitWebsiteFeedback(req, res) {
   const userId = req.session.userId;
@@ -14,27 +12,26 @@ export async function submitWebsiteFeedback(req, res) {
     return res.status(400).json({ message: "Rating must be between 1 and 5." });
   }
 
-  // Check if feedback already exists
-  const existing = await sql`
-    SELECT id FROM website_feedback WHERE user_id = ${userId}
-  `;
-
-  if (existing.length > 0) {
-    return res.status(409).json({ message: "Feedback already submitted." });
-  }
-
   try {
+    const alreadySubmitted = await hasSubmittedFeedback(userId);
+
+    if (alreadySubmitted) {
+      return res.status(409).json({ message: "You have already submitted feedback." });
+    }
+
     await insertWebsiteFeedback(userId, website_ratings, website_comments);
     res.status(201).json({ message: "Feedback submitted" });
+
   } catch (err) {
-    console.error("Feedback insert error:", err);
+    console.error("Feedback submission error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }
 
+
 export async function getAllWebsiteFeedback(req, res) {
   try {
-    const feedbacks = await fetchFeedback();
+    const feedbacks = await getAllWebsiteFeedback();
     res.json(feedbacks);
   } catch (err) {
     console.error("Fetch feedback error:", err);

@@ -8,6 +8,13 @@ export async function insertWebsiteFeedback(user_id, website_ratings, website_co
   `;
 }
 
+export async function hasSubmittedFeedback(user_id) {
+  const result = await sql`
+    SELECT 1 FROM website_feedback WHERE user_id = ${user_id} LIMIT 1
+  `;
+  return result.length > 0;
+}
+
 export async function getAllWebsiteFeedback() {
   return await sql`
     SELECT f.id, f.website_ratings, f.website_comments, f.created_at, u.username
@@ -16,4 +23,3 @@ export async function getAllWebsiteFeedback() {
     ORDER BY f.created_at DESC
   `;
 }
-
