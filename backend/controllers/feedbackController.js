@@ -1,4 +1,4 @@
-import { insertWebsiteFeedback, hasSubmittedFeedback , getAllWebsiteFeedback } from "../models/feedbackModel.js";
+import { insertWebsiteFeedback, hasSubmittedFeedback} from "../models/feedbackModel.js";
 
 export async function submitWebsiteFeedback(req, res) {
   const userId = req.session.userId;
@@ -24,17 +24,6 @@ export async function submitWebsiteFeedback(req, res) {
 
   } catch (err) {
     console.error("Feedback submission error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-}
-
-
-export async function getAllWebsiteFeedback(req, res) {
-  try {
-    const feedbacks = await getAllWebsiteFeedback();
-    res.json(feedbacks);
-  } catch (err) {
-    console.error("Fetch feedback error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }
