@@ -8,6 +8,6 @@ const router = express.Router();
 
 
 router.post("/", requireLogin, submitWebsiteFeedback);
-// router.get("/list", getAllWebsiteFeedback);
+router.get("/list", getAllWebsiteFeedback);
 
 export default router;
