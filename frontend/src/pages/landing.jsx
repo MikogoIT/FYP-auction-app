@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import markdown from '../mds/landing.md?raw';
 
+import Header from "./components/Header";
+
 export default function Landing() {
     const navigate = useNavigate();
     const handleGetStarted = () => {
