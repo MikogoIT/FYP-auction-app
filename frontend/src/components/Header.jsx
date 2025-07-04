@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Chip, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";

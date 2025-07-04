@@ -1,30 +1,43 @@
 import { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Divider } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
+  Divider,
+  useMediaQuery,
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
 /**
- * A simple header component with a responsive MUI Drawer.
- * Customize the list items and AppBar content as needed.
+ * HeaderWithDrawer: AppBar with responsive Drawer.
+ * Hides hamburger icon on desktop and shows permanent drawer.
  */
 function HeaderWithDrawer({ window }) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const theme = useTheme();
+  const smUp = useMediaQuery(theme.breakpoints.up('sm')); // ADDED: detect desktop size
 
   const handleDrawerToggle = () => {
     setMobileOpen((prev) => !prev);
   };
 
 
-  // Drawer contents
   const drawer = (
     <Box
       sx={{ width: drawerWidth }}
       role="presentation"
-      onClick={handleDrawerToggle}
-      onKeyDown={handleDrawerToggle}
+      onClick={handleDrawerToggle} // ADDED: close drawer on item click
+      onKeyDown={handleDrawerToggle} // ADDED: close on key event
     >
       <Toolbar />
       <Divider />
@@ -35,67 +48,72 @@ function HeaderWithDrawer({ window }) {
         <ListItem button onClick={() => navigate('/ListingPage')}>
           <ListItemText primary="All Listings" />
         </ListItem>
-        {/* Add more items here as needed */}
+        {/* Additional menu items... */}
       </List>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* AppBar with menu icon */}
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-      >
+      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
+            sx={{ mr: 2, display: { sm: 'none' } }} // MODIFIED: hide on desktop (sm and up)
           >
             <MenuIcon />
           </IconButton>
-          <Box component="div" sx={{ flexGrow: 1 }}>
-            App Title
-          </Box>
-          {/* Replace the above with your logo or profile chips */}
+          <Box sx={{ flexGrow: 1 }}>App Title</Box>
+          {/* Replace with logo / chips */}
         </Toolbar>
       </AppBar>
 
-      {/* Drawer for mobile and small screens */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-        }}
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="sidebar"
       >
-        {drawer}
-      </Drawer>
+        {/* MOBILE: temporary drawer */}
+        {!smUp && (
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{ keepMounted: true }} // ADDED: better performance on mobile
+            sx={{
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+              },
+            }}
+          >
+            {drawer}
+          </Drawer>
+        )}
+        {/* DESKTOP: permanent drawer */}
+        {smUp && (
+          <Drawer
+            variant="permanent"
+            open // ADDED: always open on desktop
+            sx={{
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+              },
+            }}
+          >
+            {drawer}
+          </Drawer>
+        )}
+      </Box>
 
-      {/* Permanent drawer on larger screens */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-        }}
-        open
-      >
-        {drawer}
-      </Drawer>
-
-      {/* Spacer for AppBar height */}
+      {/* Spacer to push content below AppBar */}
       <Toolbar />
     </Box>
   );
 }
-
 
 export default HeaderWithDrawer;
