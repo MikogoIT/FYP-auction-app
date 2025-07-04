@@ -9,7 +9,6 @@ import ImageIcon from "@mui/icons-material/Image";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-import ListingTabs from "../components/ListingTabs";
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -61,8 +60,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboardCanvas">
-      {/* tabs component */}
-      <ListingTabs />
 
       {/* page title */}
       <div className="profileTitle">Recent Listings</div>

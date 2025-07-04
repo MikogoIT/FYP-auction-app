@@ -77,7 +77,7 @@ function HeaderWithDrawer({ window }) {
       onKeyDown={() => { if (!mdUp) setMobileOpen(false); }}
     >
       <Toolbar />
-      <Divider />
+      
       <List>
         <ListItem disablePadding>
           <ListItemButton

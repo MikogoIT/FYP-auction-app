@@ -66,12 +66,24 @@ background-color: #e0e0e0;
 }
 
 .mainContent {
+  /* centre within remaining space on mobile;  
+     BUT on desktop, we shift it over 240px only */
+  margin-top: 64px;       /* toolbar height */
+  margin-left: 0;         /* mobile default */
   display: flex;
   justify-content: center;
-  margin-top: 60px;
-  max-width: 1000px;
-  width: 100%;
 }
+
+@media (min-width: 900px) {
+  .mainContent {
+    margin-left: 240px;   /* exactly drawer width */
+    margin-right: 0;      /* let it fill the rest */
+    display: flex;
+    justify-content: center;
+  }
+}
+
+
 
 .footerCon
 {
