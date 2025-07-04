@@ -4,13 +4,16 @@ import { styled, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import CssBaseline from '@mui/material/CssBaseline';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ListIcon from '@mui/icons-material/List';
 import Avatar from '@mui/material/Avatar';
@@ -23,7 +26,6 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const drawerWidth = 180;
-
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -32,7 +34,6 @@ const openedMixin = (theme) => ({
   }),
   overflowX: 'hidden',
 });
-
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -44,7 +45,6 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: drawerWidth,
@@ -64,21 +64,26 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Dashboard() {
   const theme = useTheme();
-  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-  const [open] = useState(isSmUp);
   const navigate = useNavigate();
+  const isSmUp = useMediaQuery(theme.breakpoints.up('sm')); // >=600px
+  const isMobile = useMediaQuery('(max-width:400px)');
 
+  // State for mini-variant open
+  const [open] = useState(isSmUp);
+  // State for mobile drawer
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  // Recent listings fetch
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentUserId = +localStorage.getItem('userId');
-
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch('/api/listings/recent');
         if (!res.ok) throw new Error('Failed to fetch listings');
         const { listings } = await res.json();
-
         const enriched = await Promise.all(
           listings.map(async (item) => {
             try {
@@ -93,7 +98,6 @@ export default function Dashboard() {
             }
           })
         );
-
         setRecentListings(enriched);
       } catch (err) {
         console.error(err);
@@ -106,25 +110,72 @@ export default function Dashboard() {
   const handleBid = (id) => navigate(`/bid/${id}`);
   const handleEdit = (id) => navigate(`/edit/${id}`);
 
+  // Drawer contents
+  const drawerContent = (
+    <>
+      <Toolbar />
+      <Divider />
+      <List>
+        <ListItem button selected>
+          <ListItemIcon><InboxIcon /></ListItemIcon>
+          <ListItemText primary="Recent Listings" />
+        </ListItem>
+        <ListItem button onClick={() => navigate('/ListingPage')}>
+          <ListItemIcon><ListIcon /></ListItemIcon>
+          <ListItemText primary="All Listings" />
+        </ListItem>
+      </List>
+    </>
+  );
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Drawer variant="permanent" open={open}>
-        <Toolbar />
-        <Divider />
-        <List>
-          <ListItem button selected>
-            <ListItemIcon><InboxIcon /></ListItemIcon>
-            <ListItemText primary="Recent Listings" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/ListingPage')}>
-            <ListItemIcon><ListIcon /></ListItemIcon>
-            <ListItemText primary="All Listings" />
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
+      {/* AppBar with hamburger on mobile */}
+      {isMobile && (
+        <AppBar position="fixed">
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Box component="span" sx={{ flexGrow: 1 }}>Dashboard</Box>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Temporary Drawer on mobile */}
+      {isMobile && (
+        <MuiDrawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+        >
+          {drawerContent}
+        </MuiDrawer>
+      )}
+
+      {/* Mini variant Drawer on larger screens */}
+      {!isMobile && (
+        <Drawer variant="permanent" open={open}>
+          {drawerContent}
+        </Drawer>
+      )}
+
+      {/* Main content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mt: isMobile ? 8 : 0, // push down when AppBar shown
+        }}
+      >
+        <Toolbar sx={{ display: { xs: 'none', sm: 'block' } }} />
         <h2>Recent Listings</h2>
         {loading ? (
           <p style={{ textAlign: 'center' }}>Loading listings…</p>
@@ -147,7 +198,10 @@ export default function Dashboard() {
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.title} className="imageStyle" />
                     ) : (
-                      <Avatar variant="square" sx={{ width: '100%', height: 200, bgcolor: '#eee' }}>
+                      <Avatar
+                        variant="square"
+                        sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
+                      >
                         <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
                       </Avatar>
                     )}
@@ -156,11 +210,17 @@ export default function Dashboard() {
                       <p style={{ margin: '4px 0', color: '#555' }}>{item.description}</p>
                       <Box sx={{ mt: 2 }}>
                         {isOwner ? (
-                          <md-filled-button onClick={() => handleEdit(item.id)} style={{ width: '100%' }}>
+                          <md-filled-button
+                            onClick={() => handleEdit(item.id)}
+                            style={{ width: '100%' }}
+                          >
                             Edit
                           </md-filled-button>
                         ) : (
-                          <md-filled-button onClick={() => handleBid(item.id)} style={{ width: '100%' }}>
+                          <md-filled-button
+                            onClick={() => handleBid(item.id)}
+                            style={{ width: '100%' }}
+                          >
                             Bid
                           </md-filled-button>
                         )}
