@@ -1,37 +1,82 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import ImageIcon from "@mui/icons-material/Image";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Toolbar from "@mui/material/Toolbar";
-import CssBaseline from "@mui/material/CssBaseline";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import ListIcon from "@mui/icons-material/List";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { styled, useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Box from '@mui/material/Box';
+import MuiDrawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import ListIcon from '@mui/icons-material/List';
+import Avatar from '@mui/material/Avatar';
+import ImageIcon from '@mui/icons-material/Image';
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
-const drawerWidth = 240;
+const drawerWidth = 180;
+
+const openedMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  })
+);
 
 export default function Dashboard() {
+  const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+  const [open] = useState(isSmUp);
   const navigate = useNavigate();
+
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const currentUserId = +localStorage.getItem("userId");
+  const currentUserId = +localStorage.getItem('userId');
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/listings/recent");
-        if (!res.ok) throw new Error("Failed to fetch listings");
+        const res = await fetch('/api/listings/recent');
+        if (!res.ok) throw new Error('Failed to fetch listings');
         const { listings } = await res.json();
 
         const enriched = await Promise.all(
@@ -64,116 +109,68 @@ export default function Dashboard() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-        }}
-      >
+      <Drawer variant="permanent" open={open}>
         <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
-          <List>
-            <ListItem button selected>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Recent Listings" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/ListingPage')}>
-              <ListItemIcon>
-                <ListIcon />
-              </ListItemIcon>
-              <ListItemText primary="All Listings" />
-            </ListItem>
-          </List>
-        </Box>
+        <Divider />
+        <List>
+          <ListItem button selected>
+            <ListItemIcon><InboxIcon /></ListItemIcon>
+            <ListItemText primary="Recent Listings" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/ListingPage')}>
+            <ListItemIcon><ListIcon /></ListItemIcon>
+            <ListItemText primary="All Listings" />
+          </ListItem>
+        </List>
       </Drawer>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-
-        {/* page title */}
-        <div className="profileTitle">Recent Listings</div>
-
-        {/* content */}
+        <h2>Recent Listings</h2>
         {loading ? (
           <p style={{ textAlign: 'center' }}>Loading listings…</p>
         ) : recentListings.length === 0 ? (
           <p style={{ textAlign: 'center' }}>No recent listings available.</p>
         ) : (
-          <>
-            <Swiper
-              modules={[Navigation, Pagination]}
-              navigation
-              pagination={{ clickable: true }}
-              spaceBetween={20}
-              breakpoints={{
-                320: { slidesPerView: 1 },
-                600: { slidesPerView: 2 },
-                900: { slidesPerView: 3 },
-              }}
-              className="dashboard-swiper"
-            >
-              {recentListings.map((item) => {
-                const isOwner = item.seller_id === currentUserId;
-                return (
-                  <SwiperSlide key={item.id}>
-                    <div className="cardStyle">
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          className="imageStyle"
-                        />
-                      ) : (
-                        <Avatar
-                          variant="square"
-                          sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
-                        >
-                          <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
-                        </Avatar>
-                      )}
-                      <div className="detailsStyle">
-                        <h3 style={{ margin: 0, marginBottom: 8 }}>
-                          {item.title}
-                        </h3>
-                        <p style={{ margin: '4px 0', color: '#555' }}>
-                          {item.description}
-                        </p>
-                        <div style={{ marginTop: 16 }}>
-                          {isOwner ? (
-                            <md-filled-button
-                              onClick={() => handleEdit(item.id)}
-                              style={{ width: '100%' }}
-                            >
-                              Edit
-                            </md-filled-button>
-                          ) : (
-                            <md-filled-button
-                              onClick={() => handleBid(item.id)}
-                              style={{ width: '100%' }}
-                            >
-                              Bid
-                            </md-filled-button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                );
-              })}
-            </Swiper>
-
-            <Box sx={{ textAlign: 'center', marginTop: 3 }}>
-              <md-filled-tonal-button onClick={() => navigate('/ListingPage')}>
-                View all listings
-              </md-filled-tonal-button>
-            </Box>
-          </>
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            breakpoints={{ 320: { slidesPerView: 1 }, 600: { slidesPerView: 2 }, 900: { slidesPerView: 3 } }}
+            className="dashboard-swiper"
+          >
+            {recentListings.map((item) => {
+              const isOwner = item.seller_id === currentUserId;
+              return (
+                <SwiperSlide key={item.id}>
+                  <Box className="cardStyle">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.title} className="imageStyle" />
+                    ) : (
+                      <Avatar variant="square" sx={{ width: '100%', height: 200, bgcolor: '#eee' }}>
+                        <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
+                      </Avatar>
+                    )}
+                    <Box className="detailsStyle">
+                      <h3 style={{ margin: 0, marginBottom: 8 }}>{item.title}</h3>
+                      <p style={{ margin: '4px 0', color: '#555' }}>{item.description}</p>
+                      <Box sx={{ mt: 2 }}>
+                        {isOwner ? (
+                          <md-filled-button onClick={() => handleEdit(item.id)} style={{ width: '100%' }}>
+                            Edit
+                          </md-filled-button>
+                        ) : (
+                          <md-filled-button onClick={() => handleBid(item.id)} style={{ width: '100%' }}>
+                            Bid
+                          </md-filled-button>
+                        )}
+                      </Box>
+                    </Box>
+                  </Box>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
         )}
       </Box>
     </Box>
