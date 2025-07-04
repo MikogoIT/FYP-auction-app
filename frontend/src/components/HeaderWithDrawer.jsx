@@ -96,7 +96,11 @@ function HeaderWithDrawer({ window }) {
   return (
     <Box sx={{ display: 'flex' }}>
       {/* AppBar with logo & chips */}
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}> 
+      <AppBar position="fixed" sx={{
+          zIndex: theme.zIndex.drawer + 1,
+          bgcolor: 'white', // set background to white
+          boxShadow: 'none', // ensure no box shadow
+        }}> 
         <Toolbar>
           <IconButton
             color="inherit"
@@ -110,7 +114,7 @@ function HeaderWithDrawer({ window }) {
 
           {/* Logo */}
           <Box component="img"
-            src={`${IMG_BASE_URL}full-logo.png"`}
+            src={`${IMG_BASE_URL}full-logo.png`}
             alt="Logo"
             onClick={handleLogoClick}
             sx={{ height: 40, cursor: 'pointer' }}
