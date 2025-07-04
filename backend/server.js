@@ -15,6 +15,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import auctionRoutes from "./routes/auctionRoutes.js";
 import telegramRoutes from "./routes/telegramRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js"
+import watchlistRoutes from "./routes/watchlistRoutes.js";
 
 
 const app = express();
@@ -83,6 +84,9 @@ app.use("/api/categories", categoryRoutes);
 
 // Notification router
 app.use("/api/notifications", notificationRoutes);
+
+// watchlist router
+app.use("/api/watchlist", watchlistRoutes);
 
 // auction router
 app.use("/api/auctions", auctionRoutes);
