@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Chip,
@@ -14,17 +14,17 @@ import {
   Divider,
   Toolbar,
   useMediaQuery,
-} from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import MenuIcon from "@mui/icons-material/Menu";
-import PersonIcon from "@mui/icons-material/Person";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import ListIcon from "@mui/icons-material/List";
-import { IMG_BASE_URL } from "../global-vars.jsx";
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import ListIcon from '@mui/icons-material/List';
+import { IMG_BASE_URL } from '../global-vars.jsx';
 
 const drawerWidth = 240;
-const hideDrawerRoutes = ["/", "/login", "/register"];
+const hideDrawerRoutes = ['/', '/login', '/register'];
 
 const Header = ({ window, children }) => {
   const navigate = useNavigate();
@@ -34,13 +34,15 @@ const Header = ({ window, children }) => {
   const showDrawer = !hideDrawerRoutes.includes(pathname);
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const toggleDrawer = () => setMobileOpen((o) => !o);
+  const toggleDrawer = () => setMobileOpen(open => !open);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
+
   useEffect(() => {
-    fetch("/api/displayPhoto", { credentials: "include" })
+    // Fetch login status and profile image
+    fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async (res) => {
         if (!res.ok) return setIsLoggedIn(false);
         const { profile_image_url } = await res.json();
@@ -49,34 +51,33 @@ const Header = ({ window, children }) => {
       })
       .catch(() => setIsLoggedIn(false));
 
-    fetch("/api/profile", { credentials: "include" })
+    // Fetch admin flag
+    fetch('/api/profile', { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => setIsAdmin(!!data.user?.is_admin))
       .catch(() => setIsAdmin(false));
   }, [pathname]);
 
-  const goToAdminPage = () => navigate("/admin");
+  const handleLogoClick = () => navigate(isLoggedIn ? '/dashboard' : '/');
+  const goToAdminPage = () => navigate('/admin');
   const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST", credentials: "include" });
+    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
     setIsLoggedIn(false);
     setPhotoUrl(null);
-    navigate("/");
-  };
-  const handleLogoClick = () => {
-    navigate(isLoggedIn ? "/dashboard" : "/");
+    navigate('/');
   };
 
-  // drawer menu items
+  // Drawer content
   const drawer = (
     <Box sx={{ width: drawerWidth }} role="presentation">
       <Toolbar />
       <Divider />
       <List>
-        <ListItem button selected={pathname === "/dashboard"} onClick={() => navigate('/dashboard')}>
+        <ListItem button selected={pathname === '/dashboard'} onClick={() => navigate('/dashboard')}>
           <ListItemIcon><InboxIcon /></ListItemIcon>
           <ListItemText primary="Recent Listings" />
         </ListItem>
-        <ListItem button selected={pathname === "/ListingPage"} onClick={() => navigate('/ListingPage')}>
+        <ListItem button selected={pathname === '/ListingPage'} onClick={() => navigate('/ListingPage')}>
           <ListItemIcon><ListIcon /></ListItemIcon>
           <ListItemText primary="All Listings" />
         </ListItem>
@@ -86,38 +87,33 @@ const Header = ({ window, children }) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Header bar at top */}
+      {/* Top header */}
       <Box
-        className="headerBar"
         sx={{
           position: 'fixed',
           top: 0,
           width: '100%',
-          zIndex: 3,
+          zIndex: theme.zIndex.appBar,
           bgcolor: 'background.paper',
         }}
       >
-        <Box
-          className="headerContent"
-          sx={{ display: 'flex', alignItems: 'center', px: 2 }}
-        >
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 64 }}>
           {showDrawer && (
             <IconButton
               edge="start"
               color="inherit"
               aria-label="open drawer"
               onClick={toggleDrawer}
-              sx={{ mr: 2 }}
+              sx={{ mr: 2, display: { sm: 'none' } }}
             >
               <MenuIcon />
             </IconButton>
           )}
           <img
             src={`${IMG_BASE_URL}full-logo.png`}
-            className="headerLogo"
             alt="Logo"
             onClick={handleLogoClick}
-            style={{ width: 150, cursor: 'pointer' }}
+            style={{ height: 40, cursor: 'pointer' }}
           />
           <Box sx={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
             {isAdmin && (
@@ -134,19 +130,28 @@ const Header = ({ window, children }) => {
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
               clickable
               avatar={<Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}><PersonIcon /></Avatar>}
-              sx={{ mr: isLoggedIn && !hideDrawerRoutes.includes(pathname) ? 2 : 0 }}
+              sx={{ mr: (!hideDrawerRoutes.includes(pathname) && isLoggedIn) ? 2 : 0 }}
             />
             {!isLoggedIn && (
-              <Chip label="Register" onClick={() => navigate('/register')} clickable sx={{ mr: 2 }} />
+              <Chip
+                label="Register"
+                onClick={() => navigate('/register')}
+                clickable
+                sx={{ mr: 2 }}
+              />
             )}
-            {isLoggedIn && !["/login", "/register"].includes(pathname) && (
-              <Chip label="Log out" onClick={handleLogout} clickable />
+            {isLoggedIn && !['/login', '/register'].includes(pathname) && (
+              <Chip
+                label="Log out"
+                onClick={handleLogout}
+                clickable
+              />
             )}
           </Box>
         </Box>
       </Box>
 
-      {/* Drawer nav */}
+      {/* Responsive drawer */}
       {showDrawer && (
         <Drawer
           container={window ? () => window().document.body : undefined}
@@ -158,8 +163,7 @@ const Header = ({ window, children }) => {
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
-              mt: '64px',
-              zIndex: 2,
+              mt: 8,
             },
           }}
         >
@@ -167,8 +171,16 @@ const Header = ({ window, children }) => {
         </Drawer>
       )}
 
-      {/* main content placeholder should come after header and drawer */}
-      <Box component="main" sx={{ flexGrow: 1, mt: '64px', p: 3, width: `calc(100% - ${showDrawer && smUp ? drawerWidth : 0}px)` }}>
+      {/* Main content area */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          mt: 8,
+          p: 3,
+          width: `calc(100% - ${showDrawer && smUp ? drawerWidth : 0}px)`,
+        }}
+      >
         {children}
       </Box>
     </Box>
