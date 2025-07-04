@@ -12,7 +12,7 @@ export async function addToWatchlist(buyerId, auctionId) {
 // get list
 export async function getWatchlistByBuyer(buyerId) {
   return sql`
-    SELECT wl.*, al.title, al.description, al.current_price, al.end_time
+    SELECT wl.*, al.title, al.description, al.min_bid, al.end_date
     FROM watchlist wl
     JOIN auction_listings al ON wl.auction_id = al.id
     WHERE wl.buyer_id = ${buyerId};
