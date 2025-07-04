@@ -26,7 +26,7 @@ import { IMG_BASE_URL } from "../global-vars.jsx";
 const drawerWidth = 240;
 const hideDrawerRoutes = ["/", "/login", "/register"];
 
-const Header = ({ children }) => {
+const Header = ({ window, children }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const theme = useTheme();
@@ -149,7 +149,7 @@ const Header = ({ children }) => {
       {/* Drawer nav */}
       {showDrawer && (
         <Drawer
-          container={props.window ? () => props.window().document.body : undefined}
+          container={window ? () => window().document.body : undefined}
           variant={smUp ? 'permanent' : 'temporary'}
           open={smUp || mobileOpen}
           onClose={toggleDrawer}
