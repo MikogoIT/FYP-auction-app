@@ -17,7 +17,7 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import Landing from "./pages/landing";
 import ListingPage from "./pages/ListingPage";
 import Feedback from "./pages/FeedbackPage";
-
+import FeedbackList from "./pages/FeedbackList";
 
 // components
 import Header from "./components/Header";
@@ -50,7 +50,8 @@ function App() {
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
             <Route path="/ListingPage" element={<ListingPage />} />
             <Route path="/Feedback" element={<Feedback />} />
-            
+            <Route path="/FeedbackList" element={<FeedbackList />} />
+
             {!isApiRoute && (
               <Route path="*" element={<Navigate to="/login" replace />} />
             )}
