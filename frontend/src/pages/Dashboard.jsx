@@ -1,54 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
-import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Drawer from '@mui/material/Drawer';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import ListIcon from '@mui/icons-material/List';
-import Avatar from '@mui/material/Avatar';
-import ImageIcon from '@mui/icons-material/Image';
+// src/pages/Dashboard.jsx
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
+import ImageIcon from "@mui/icons-material/Image";
 
-const drawerWidth = 240;
+// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
 
-function Dashboard(props) {
-  const { window } = props;
-  const theme = useTheme();
+import ListingTabs from "../components/ListingTabs";
+
+// Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+export default function Dashboard() {
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-  // Fetch listings
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const currentUserId = +localStorage.getItem('userId');
 
+  // fetch recent listings + their images
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/listings/recent');
-        if (!res.ok) throw new Error('Failed to fetch listings');
+        const res = await fetch("/api/listings/recent");
+        if (!res.ok) throw new Error("Failed to fetch listings");
         const { listings } = await res.json();
+
         const enriched = await Promise.all(
           listings.map(async (item) => {
             try {
@@ -63,6 +45,7 @@ function Dashboard(props) {
             }
           })
         );
+
         setRecentListings(enriched);
       } catch (err) {
         console.error(err);
@@ -72,103 +55,25 @@ function Dashboard(props) {
     })();
   }, []);
 
+  const currentUserId = +localStorage.getItem("userId");
   const handleBid = (id) => navigate(`/bid/${id}`);
   const handleEdit = (id) => navigate(`/edit/${id}`);
 
-  const drawer = (
-    <div>
-      <Toolbar />
-      <Divider />
-      <List>
-        <ListItem button selected>
-          <ListItemIcon><InboxIcon /></ListItemIcon>
-          <ListItemText primary="Recent Listings" />
-        </ListItem>
-        <ListItem button onClick={() => navigate('/ListingPage')}>
-          <ListItemIcon><ListIcon /></ListItemIcon>
-          <ListItemText primary="All Listings" />
-        </ListItem>
-      </List>
-    </div>
-  );
-
-  const container = window !== undefined ? () => window().document.body : undefined;
-
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: 2,
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      {/* Mobile drawer */}
-      <Drawer
-        container={container}
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: drawerWidth,
-            zIndex: 1,
-          },
-        }}
-      >
-        {drawer}
-      </Drawer>
-      {/* Desktop drawer */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: drawerWidth,
-            zIndex: 1,
-          },
-        }}
-        open
-      >
-        {drawer}
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-        }}
-      >
-        <Toolbar />
-        <Typography variant="h4" gutterBottom>
-          Recent Listings
-        </Typography>
-        {loading ? (
-          <Typography align="center">Loading listings…</Typography>
-        ) : recentListings.length === 0 ? (
-          <Typography align="center">No recent listings available.</Typography>
-        ) : (
+    <div className="dashboardCanvas">
+      {/* tabs component */}
+      <ListingTabs />
+
+      {/* page title */}
+      <div className="profileTitle">Recent Listings</div>
+
+      {/* content */}
+      {loading ? (
+        <p style={{ textAlign: "center" }}>Loading listings…</p>
+      ) : recentListings.length === 0 ? (
+        <p style={{ textAlign: "center" }}>No recent listings available.</p>
+      ) : (
+        <>
           <Swiper
             modules={[Navigation, Pagination]}
             navigation
@@ -185,49 +90,62 @@ function Dashboard(props) {
               const isOwner = item.seller_id === currentUserId;
               return (
                 <SwiperSlide key={item.id}>
-                  <Box className="cardStyle">
+                  <div className="cardStyle">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.title} className="imageStyle" />
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="imageStyle"
+                      />
                     ) : (
-                      <Avatar
-                        variant="square"
-                        sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
-                      >
-                        <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
+                      <Avatar 
+                        variant="square" 
+                        sx={{
+                          width: "100%",
+                          height: 200,
+                          bgcolor: "#eee",
+                      }}> 
+                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                       </Avatar>
                     )}
-                    <Box className="detailsStyle">
-                      <Typography variant="h6" sx={{ mb: 1 }}>
+                    <div className="detailsStyle">
+                      <h3 style={{ margin: 0, marginBottom: 8 }}>
                         {item.title}
-                      </Typography>
-                      <Typography sx={{ color: '#555', mb: 2 }}>
+                      </h3>
+                      <p style={{ margin: "4px 0", color: "#555" }}>
                         {item.description}
-                      </Typography>
-                      <Box>
+                      </p>
+                      <div style={{ marginTop: 16 }}>
                         {isOwner ? (
-                          <md-filled-button onClick={() => handleEdit(item.id)} style={{ width: '100%' }}>
+                          <md-filled-button
+                            onClick={() => handleEdit(item.id)}
+                            style={{ width: "100%" }}
+                          >
                             Edit
                           </md-filled-button>
                         ) : (
-                          <md-filled-button onClick={() => handleBid(item.id)} style={{ width: '100%' }}>
+                          <md-filled-button
+                            onClick={() => handleBid(item.id)}
+                            style={{ width: "100%" }}
+                          >
                             Bid
                           </md-filled-button>
                         )}
-                      </Box>
-                    </Box>
-                  </Box>
+                      </div>
+                    </div>
+                  </div>
                 </SwiperSlide>
               );
             })}
           </Swiper>
-        )}
-      </Box>
-    </Box>
+
+          <div style={{ textAlign: "center", marginTop: 30 }}>
+            <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
+              View all listings
+            </md-filled-tonal-button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
-
-Dashboard.propTypes = {
-  window: PropTypes.func,
-};
-
-export default Dashboard;
