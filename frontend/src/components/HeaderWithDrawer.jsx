@@ -6,6 +6,8 @@ import {
   Drawer,
   List,
   ListItem,
+  ListItemButton,
+  ListItemIcon,
   ListItemText,
   Box,
   Divider,
@@ -25,13 +27,14 @@ const hideLogoutRoutes = ['/login', '/register'];
 
 /**
  * HeaderWithDrawer: AppBar with responsive Drawer, plus logo & login chips.
+ * Highlights active drawer item based on current pathname.
  */
 function HeaderWithDrawer({ window }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
-  const smUp = useMediaQuery(theme.breakpoints.up('md')); // md = 900px
+  const mdUp = useMediaQuery(theme.breakpoints.up('md')); // md = 900px
 
   // Auth & profile state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,20 +42,15 @@ function HeaderWithDrawer({ window }) {
   const [photoUrl, setPhotoUrl] = useState(null);
 
   useEffect(() => {
-    // fetch profile image and login status
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
-        if (!res.ok) {
-          setIsLoggedIn(false);
-          return;
-        }
+        if (!res.ok) return setIsLoggedIn(false);
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
       })
       .catch(() => setIsLoggedIn(false));
 
-    // fetch admin flag
     fetch('/api/profile', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setIsAdmin(!!data.user?.is_admin))
@@ -61,7 +59,6 @@ function HeaderWithDrawer({ window }) {
 
   const handleDrawerToggle = () => setMobileOpen(prev => !prev);
 
-  // Logo click nav
   const handleLogoClick = () => navigate(isLoggedIn ? '/dashboard' : '/');
   const goToAdminPage = () => navigate('/admin');
   const handleLogout = async () => {
@@ -71,60 +68,78 @@ function HeaderWithDrawer({ window }) {
     navigate('/');
   };
 
-  // Drawer content
+  // Drawer content with active item highlighting
   const drawer = (
     <Box
       sx={{ width: drawerWidth }}
       role="presentation"
-      onClick={handleDrawerToggle}
-      onKeyDown={handleDrawerToggle}
+      onClick={() => { if (!mdUp) setMobileOpen(false); }}
+      onKeyDown={() => { if (!mdUp) setMobileOpen(false); }}
     >
       <Toolbar />
       <Divider />
       <List>
-        <ListItem button onClick={() => navigate('/dashboard')}>
-          <ListItemText primary="Dashboard" />
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={pathname === '/dashboard'}
+            onClick={() => navigate('/dashboard')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Recent Listings" />
+          </ListItemButton>
         </ListItem>
-        <ListItem button onClick={() => navigate('/ListingPage')}>
-          <ListItemText primary="All Listings" />
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={pathname === '/ListingPage'}
+            onClick={() => navigate('/ListingPage')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="All Listings" />
+          </ListItemButton>
         </ListItem>
-        {/* Add more items as needed */}
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={pathname === '/mylistings'}
+            onClick={() => navigate('/mylistings')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="My Listings" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* AppBar with logo & chips */}
-      <AppBar position="fixed" sx={{
+      <AppBar
+        position="fixed"
+        elevation={0}
+        sx={{
           zIndex: theme.zIndex.drawer + 1,
-          bgcolor: 'white', // set background to white
-          boxShadow: 'none', // ensure no box shadow
-        }}> 
+          bgcolor: 'white',
+          boxShadow: 'none',
+        }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }} // hide on md-up
+            sx={{ mr: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
-
-          {/* Logo */}
-          <Box component="img"
+          <Box
+            component="img"
             src={`${IMG_BASE_URL}full-logo.png`}
             alt="Logo"
             onClick={handleLogoClick}
             sx={{ height: 40, cursor: 'pointer' }}
           />
-
-          {/* Spacer */}
           <Box sx={{ flexGrow: 1 }} />
-
-          {/* Chips area */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}> 
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {isAdmin && (
               <Chip
                 label="Admin"
@@ -134,7 +149,6 @@ function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1, bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
               />
             )}
-
             <Chip
               label={isLoggedIn ? 'Profile' : 'Log in'}
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
@@ -142,46 +156,51 @@ function HeaderWithDrawer({ window }) {
               avatar={<Avatar src={photoUrl || undefined}><PersonIcon /></Avatar>}
               sx={{ mr: 1 }}
             />
-
             {!isLoggedIn && (
               <Chip label="Register" onClick={() => navigate('/register')} clickable sx={{ mr: 1 }} />
             )}
-
             {isLoggedIn && !hideLogoutRoutes.includes(pathname) && (
               <Chip label="Log out" onClick={handleLogout} clickable />
             )}
           </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Drawer nav */}
       <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-        {!smUp ? (
+        {mdUp ? (
           <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-            sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth } }}
+            variant="permanent"
+            open
+            sx={{
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+                borderRight: 'none',
+              },
+            }}
           >
             {drawer}
           </Drawer>
         ) : (
           <Drawer
-            variant="permanent"
-            open
-            sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth } }}
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+              '& .MuiDrawer-paper': {
+                boxSizing: 'border-box',
+                width: drawerWidth,
+                borderRight: 'none',
+              },
+            }}
           >
             {drawer}
           </Drawer>
         )}
       </Box>
-
-      {/* Offset main content below AppBar */}
       <Toolbar />
     </Box>
   );
 }
-
 
 export default HeaderWithDrawer;
