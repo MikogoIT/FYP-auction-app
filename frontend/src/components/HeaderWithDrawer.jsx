@@ -68,7 +68,6 @@ function HeaderWithDrawer({ window }) {
 
       {/* Drawer for mobile and small screens */}
       <Drawer
-        container={container}
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
