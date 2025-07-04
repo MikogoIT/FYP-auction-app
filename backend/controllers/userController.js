@@ -269,3 +269,32 @@ export async function searchUsersController(req, res) {
   }
 }
 
+// Admin update user details (admins only)
+export async function adminUpdateUserController(req, res) {
+  const adminId = req.session.userId;
+  if (!adminId) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const admin = await getUserById(adminId);
+    if (!admin[0]?.is_admin) {
+      return res.status(403).json({ message: "Only admins can perform this action" });
+    }
+
+    const { id } = req.params;
+    const { username, phone_number, address } = req.body;
+
+    const userToUpdate = await getUserById(id);
+    if (userToUpdate.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (userToUpdate[0].is_admin) {
+      return res.status(403).json({ message: "Cannot modify admin accounts" });
+    }
+
+    const result = await updateUserById(id, username, phone_number, address);
+    res.json({ user: result[0] });
+  } catch (err) {
+    console.error("Admin update user error:", err);
+    res.status(500).json({ message: "Failed to update user" });
+  }
+}
