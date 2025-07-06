@@ -220,6 +220,7 @@ background-color: #e0e0e0;
       font-size: 40px;
       padding-bottom: 10px;
       width: 100%;
+      max-width: 1000px;
 }
 
 
@@ -251,6 +252,9 @@ background-color: #e0e0e0;
   width: 100%;
   display: flex;
   align-items: center;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .dashboard-swiper {

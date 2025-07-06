@@ -146,6 +146,7 @@ export default function Dashboard() {
           </>
         )}
       </div>
+      <div className="sidebarSpacer"></div>
     </div>
   );
 }
