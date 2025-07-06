@@ -69,7 +69,7 @@ function HeaderWithDrawer({ window }) {
   };
 
   const OutlineListItemButton = styled(ListItemButton)(({ theme }) => ({
-    borderRadius: theme.shape.borderRadius,       // keep the normal radius
+    borderRadius: '24px',
     '&.Mui-selected': {
       backgroundColor: 'transparent',              // no fill
       border: `1px solid ${theme.palette.primary.main}`, // outline in your primary color

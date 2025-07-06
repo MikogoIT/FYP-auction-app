@@ -207,11 +207,6 @@ background-color: #e0e0e0;
   gap: '8px';
 }
 
-.normalBody
-{
-  font-size: 16px;
-  font-family: 'Roboto';
-}
 
 .profileTitle
 {
@@ -307,9 +302,6 @@ background-color: #e0e0e0;
   border-top: 1px solid #eee;
 }
 
-.myListingsPage {
-  padding: 20px;
-}
 
 .centerText {
   text-align: center;
@@ -373,11 +365,7 @@ background-color: #e0e0e0;
 }
 
 
-/* src/pages/ListingPage.css */
 
-.listingPageContainer {
-  padding: 20px;
-}
 
 
 

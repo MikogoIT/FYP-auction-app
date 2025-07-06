@@ -112,89 +112,93 @@ export default function Profile() {
   if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
-    <div className="normalBody">
-      <div className="profileTitle">Hello,<br></br>{user.username}</div>
+    <div className="dashboardCanvas">
+    <div className="sidebarSpacer"></div>
+    <div className="dashboardContent">
+        <div className="profileTitle">Hello,<br></br>{user.username}</div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-        <Avatar
-          src={user.profile_image_url || undefined}
-          sx={{ width: 120, height: 120 }}
-          alt="Profile"
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+          <Avatar
+            src={user.profile_image_url || undefined}
+            sx={{ width: 120, height: 120 }}
+            alt="Profile"
+          />
 
-        {!editing && (
-          <md-filled-tonal-button onClick={() => setEditing(true)}>
-            <EditIcon slot="icon" />
-            Edit Profile
-          </md-filled-tonal-button>
-        )}
+          {!editing && (
+            <md-filled-tonal-button onClick={() => setEditing(true)}>
+              <EditIcon slot="icon" />
+              Edit Profile
+            </md-filled-tonal-button>
+          )}
 
-        {!editing ? (
-          <div style={{ width: '100%', maxWidth: 400 }}>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Phone Number:</strong> {user.phone_number}</p>
-            <p><strong>Address:</strong> {user.address}</p>
-          </div>
-        ) : (
-          <form style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-              {previewUrl && <img src={previewUrl} alt="Preview" style={{ width: 100, borderRadius: 8 }} />}
-              <md-filled-tonal-button onClick={handleUploadPhoto} disabled={!selectedFile || uploading}>
-                {uploading ? 'Uploading...' : 'Upload Photo'}
-              </md-filled-tonal-button>
+          {!editing ? (
+            <div style={{ width: '100%', maxWidth: 400 }}>
+              <p><strong>Email:</strong> {user.email}</p>
+              <p><strong>Phone Number:</strong> {user.phone_number}</p>
+              <p><strong>Address:</strong> {user.address}</p>
             </div>
+          ) : (
+            <form style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+                {previewUrl && <img src={previewUrl} alt="Preview" style={{ width: 100, borderRadius: 8 }} />}
+                <md-filled-tonal-button onClick={handleUploadPhoto} disabled={!selectedFile || uploading}>
+                  {uploading ? 'Uploading...' : 'Upload Photo'}
+                </md-filled-tonal-button>
+              </div>
 
-            <TextField
-              label="Email"
-              type="email"
-              fullWidth
-              value={editableUser.email}
-              onChange={(e) => setEditableUser({ ...editableUser, email: e.target.value })}
-              InputProps={{ style: { fontSize: '16px' } }}
-              InputLabelProps={{ style: { fontSize: '16px' } }}
-            />
-            <TextField
-              label="Username"
-              fullWidth
-              value={editableUser.username}
-              onChange={(e) => setEditableUser({ ...editableUser, username: e.target.value })}
-              InputProps={{ style: { fontSize: '16px' } }}
-              InputLabelProps={{ style: { fontSize: '16px' } }}
-            />
-            <TextField
-              label="Phone Number"
-              fullWidth
-              value={editableUser.phone_number}
-              onChange={(e) => setEditableUser({ ...editableUser, phone_number: e.target.value })}
-              InputProps={{ style: { fontSize: '16px' } }}
-              InputLabelProps={{ style: { fontSize: '16px' } }}
-            />
-            <TextField
-              label="Address"
-              fullWidth
-              value={editableUser.address}
-              onChange={(e) => setEditableUser({ ...editableUser, address: e.target.value })}
-              InputProps={{ style: { fontSize: '16px' } }}
-              InputLabelProps={{ style: { fontSize: '16px' } }}
-            />
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                value={editableUser.email}
+                onChange={(e) => setEditableUser({ ...editableUser, email: e.target.value })}
+                InputProps={{ style: { fontSize: '16px' } }}
+                InputLabelProps={{ style: { fontSize: '16px' } }}
+              />
+              <TextField
+                label="Username"
+                fullWidth
+                value={editableUser.username}
+                onChange={(e) => setEditableUser({ ...editableUser, username: e.target.value })}
+                InputProps={{ style: { fontSize: '16px' } }}
+                InputLabelProps={{ style: { fontSize: '16px' } }}
+              />
+              <TextField
+                label="Phone Number"
+                fullWidth
+                value={editableUser.phone_number}
+                onChange={(e) => setEditableUser({ ...editableUser, phone_number: e.target.value })}
+                InputProps={{ style: { fontSize: '16px' } }}
+                InputLabelProps={{ style: { fontSize: '16px' } }}
+              />
+              <TextField
+                label="Address"
+                fullWidth
+                value={editableUser.address}
+                onChange={(e) => setEditableUser({ ...editableUser, address: e.target.value })}
+                InputProps={{ style: { fontSize: '16px' } }}
+                InputLabelProps={{ style: { fontSize: '16px' } }}
+              />
 
-            {/* Save & Cancel Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16 }}>
-              <md-outlined-button onClick={handleCancel}>
-                Cancel
-              </md-outlined-button>
-              <md-filled-button onClick={handleSaveProfile} disabled={saving}>
-                Save
-              </md-filled-button>
-            </div>
-          </form>
-        )}
+              {/* Save & Cancel Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16 }}>
+                <md-outlined-button onClick={handleCancel}>
+                  Cancel
+                </md-outlined-button>
+                <md-filled-button onClick={handleSaveProfile} disabled={saving}>
+                  Save
+                </md-filled-button>
+              </div>
+            </form>
+          )}
+        </div>
+
+        <div style={{ marginTop: 32 }}>
+          <TelegramConnect user={user} />
+        </div>
       </div>
-
-      <div style={{ marginTop: 32 }}>
-        <TelegramConnect user={user} />
-      </div>
+      <div className="sidebarSpacer"></div>
     </div>
   );
 }
