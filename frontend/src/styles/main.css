@@ -156,7 +156,7 @@ background-color: #e0e0e0;
 }
 
 /* for mobile */
-@media (max-width: 800px)
+@media (max-width: 900px)
 {
   .landingContent
   {
@@ -219,6 +219,7 @@ background-color: #e0e0e0;
       font-weight: 900;
       font-size: 40px;
       padding-bottom: 10px;
+      width: 100%;
 }
 
 
@@ -247,14 +248,16 @@ background-color: #e0e0e0;
 
 .dashboardContent
 {
-  width: calc(100% - 240px);
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .dashboard-swiper {
   width: 100%;
   padding-bottom: 40px;
   max-width: 1000px;
-  margin: 0 auto;
+  margin: unset;
 }
 
 .landingMD
