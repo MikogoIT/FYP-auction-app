@@ -70,7 +70,22 @@ background-color: #e0e0e0;
   justify-content: center;
   margin-top: 60px;
   max-width: 1000px;
-  width: 100%;
+  width: calc(100% - 240px); 
+  margin-left: 240px; 
+}
+
+/* mobile view */
+@media (max-width: 900px) 
+{
+  .mainContent 
+  {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    max-width: 1000px;
+    width: 100%;
+  }
+
 }
 
 

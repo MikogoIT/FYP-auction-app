@@ -127,7 +127,7 @@ function HeaderWithDrawer({ window }) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ mr: 2, display: { md: 'none' } ,  color: '#212121',}}
           >
             <MenuIcon />
           </IconButton>
