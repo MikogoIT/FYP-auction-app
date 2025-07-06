@@ -65,7 +65,7 @@ background-color: #e0e0e0;
   align-items: center;
 }
 
-.mainContent {
+/* .mainContent {
   display: flex;
   justify-content: center;
   margin-top: 60px;
@@ -74,7 +74,7 @@ background-color: #e0e0e0;
   margin-left: 240px; 
 }
 
-/* mobile view */
+
 @media (max-width: 900px) 
 {
   .mainContent 
@@ -86,7 +86,7 @@ background-color: #e0e0e0;
     width: 100%;
   }
 
-}
+} */
 
 
 
@@ -101,6 +101,7 @@ background-color: #e0e0e0;
 
 .landingContent
 {
+  margin-top: 60px;
   display: flex;
   max-width: 1000px;
   width: 100%;
@@ -226,6 +227,16 @@ background-color: #e0e0e0;
   width: 100%;
   font-size: 16px;
   font-family: 'Roboto';
+}
+
+.sidebarSpacer
+{
+  width: 240px;
+}
+
+.dashboardContent
+{
+  max-width: 700px;
 }
 
 .dashboard-swiper {

@@ -40,7 +40,7 @@ function AppRoutes({ isApiRoute }) {
         ? <HeaderWithDrawer window={() => window} />
         : <Header />}
 
-      <div className="mainContent">
+
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -59,10 +59,10 @@ function AppRoutes({ isApiRoute }) {
           <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
 
           {!isApiRoute && (
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           )}
         </Routes>
-      </div>
+      
     </>
   );
 }
