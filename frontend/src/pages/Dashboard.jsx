@@ -81,7 +81,7 @@ export default function Dashboard() {
               breakpoints={{
                 320: { slidesPerView: 1 },
                 600: { slidesPerView: 2 },
-                900: { slidesPerView: 3 },
+                1200: { slidesPerView: 3 },
               }}
               className="dashboard-swiper"
             >

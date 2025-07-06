@@ -68,6 +68,17 @@ function HeaderWithDrawer({ window }) {
     navigate('/');
   };
 
+  const OutlineListItemButton = styled(ListItemButton)(({ theme }) => ({
+    borderRadius: theme.shape.borderRadius,       // keep the normal radius
+    '&.Mui-selected': {
+      backgroundColor: 'transparent',              // no fill
+      border: `1px solid ${theme.palette.primary.main}`, // outline in your primary color
+    },
+    '&.Mui-selected:hover': {
+      backgroundColor: 'transparent',              // stay transparent on hover
+    },
+  }));
+
   // Drawer content with active item highlighting
   const drawer = (
     <Box
@@ -80,31 +91,31 @@ function HeaderWithDrawer({ window }) {
       
       <List>
         <ListItem disablePadding>
-          <ListItemButton
+          <OutlineListItemButton
             selected={pathname === '/dashboard'}
             onClick={() => navigate('/dashboard')}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Recent Listings" />
-          </ListItemButton>
+          </OutlineListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton
+          <OutlineListItemButton
             selected={pathname === '/ListingPage'}
             onClick={() => navigate('/ListingPage')}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="All Listings" />
-          </ListItemButton>
+          </OutlineListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton
+          <OutlineListItemButton
             selected={pathname === '/mylistings'}
             onClick={() => navigate('/mylistings')}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="My Listings" />
-          </ListItemButton>
+          </OutlineListItemButton>
         </ListItem>
       </List>
     </Box>
