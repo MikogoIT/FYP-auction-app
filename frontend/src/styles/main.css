@@ -247,8 +247,7 @@ background-color: #e0e0e0;
 
 .dashboardContent
 {
-  max-width: 700px;
-  width: 100%;
+  width: calc(100% - 240px);
 }
 
 .dashboard-swiper {
