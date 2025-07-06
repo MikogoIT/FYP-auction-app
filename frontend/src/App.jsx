@@ -22,8 +22,6 @@ import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
-import Landing from "./pages/landing";
-import ListingPage from "./pages/ListingPage";
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
 
