@@ -115,7 +115,7 @@ export default function Profile() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
-        <div className="profileTitle">Hello,<br></br>{user.username}</div>
+        <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
           <Avatar
