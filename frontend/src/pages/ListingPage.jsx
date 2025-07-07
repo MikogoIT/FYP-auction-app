@@ -83,8 +83,8 @@ export default function ListingPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          buyerId: currentUserId,
-          auctionId: listingId,
+          buyer_id: Number(currentUserId),
+          auction_id: Number(listingId),
         }),
       });
       if (!res.ok) throw new Error("Failed to add to watchlist");
