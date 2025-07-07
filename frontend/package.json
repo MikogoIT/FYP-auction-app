@@ -18,7 +18,7 @@
     "@material/web": "^2.3.0",
     "swiper": "11.2.8",
     "react-markdown": "10.1.0",
-    "@toolpad/core":"0.16.0"
+    "@mui/x-data-grid":"8.7.0"
   },
   "devDependencies": {
     "vite": "^6.2.6",

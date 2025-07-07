@@ -1,66 +1,95 @@
 // src/pages/MyBids.jsx
 
-import { Crud } from '@toolpad/core';
-// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
-import '@material/web/button/filled-button.js';
-import '@material/web/button/filled-tonal-button.js';
+import { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Box, Typography, CircularProgress } from '@mui/material';
 
-const bidsDataSource = {
-  fields: [
-    { field: 'bid_id', headerName: 'Bid ID', type: 'number' },
-    { field: 'listing_name', headerName: 'Listing', flex: 1 },
-    { field: 'bid_amount', headerName: 'Bid Amount', type: 'number' },
-    { field: 'status', headerName: 'Status' },
+export default function MyBids() {
+  const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBids = async () => {
+      try {
+        const res = await fetch('/api/MyBids', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to fetch bids');
+        const { bids: fetchedBids } = await res.json();
+        setBids(fetchedBids);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBids();
+  }, []);
+
+  const columns = [
+    { field: 'bid_id', headerName: 'Bid ID', type: 'number', width: 100 },
+    { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
+    {
+      field: 'bid_amount',
+      headerName: 'Bid Amount',
+      type: 'number',
+      valueFormatter: ({ value }) =>
+        typeof value === 'number' ? value.toLocaleString() : value,
+      width: 130,
+    },
+    { field: 'status', headerName: 'Status', width: 120 },
     {
       field: 'created_at',
       headerName: 'Placed On',
       type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: ({ row }) => new Date(row.created_at),
+      width: 180,
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
       type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: ({ row }) => new Date(row.updated_at),
+      width: 180,
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
       type: 'dateTime',
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: ({ row }) => new Date(row.end_date),
+      width: 180,
     },
-  ],
-  getMany: async ({ paginationModel }) => {
-    const params = new URLSearchParams();
-    params.append('page', paginationModel.page.toString());
-    params.append('pageSize', paginationModel.pageSize.toString());
+  ];
 
-    const res = await fetch(`/api/MyBids?${params.toString()}`, {
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to fetch bids');
-    const data = await res.json();
+  if (error) {
+    return (
+      <Box p={2}>
+        <Typography color="error">Error: {error}</Typography>
+      </Box>
+    );
+  }
 
-    return {
-      items: data.bids,
-      itemCount: data.bids.length,
-    };
-  },
-};
-
-export default function MyBids() {
   return (
-    <div className="dashboardCanvas">
-      <div className="sidebarSpacer" />
-      <div className="dashboardContent">
-        <div className="profileTitle">My Bids</div>
-        <Crud
-          dataSource={bidsDataSource}
-          rootPath="/MyBids"
-          initialPageSize={10}
-        />
-      </div>
-      <div className="sidebarSpacer" />
-    </div>
+    <Box className="dashboardCanvas">
+      <Box className="sidebarSpacer" />
+      <Box className="dashboardContent">
+        <Typography variant="h5" gutterBottom>
+          My Bids
+        </Typography>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <DataGrid
+            rows={bids}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10, 25, 50]}
+            autoHeight
+            getRowId={(row) => row.bid_id}
+          />
+        )}
+      </Box>
+      <Box className="sidebarSpacer" />
+    </Box>
   );
 }
