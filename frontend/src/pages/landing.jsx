@@ -25,7 +25,7 @@ export default function Landing() {
   };
 
   useEffect(() => {
-    fetch('/feedback/recent')
+    fetch('/api/feedback/recent')
       .then(res => res.json())
       .then(data => setFeedback(data.feedback || []))
       .catch(err => console.error('Failed to load feedback:', err));

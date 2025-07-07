@@ -139,7 +139,11 @@ function HeaderWithDrawer({ window }) {
           </OutlineListItemButton>
         </ListItem>
 
-               {/* —— New “Talk to us!” item —— */}
+        
+        <Divider/>
+
+
+        {/* —— New “Talk to us!” item —— */}
        <ListItem disablePadding>
          <OutlineListItemButton
            selected={pathname === '/Contact'}
