@@ -1,28 +1,30 @@
 // src/pages/MyBids.jsx
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box,
   Typography,
   CircularProgress,
-  Button,
+  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
+  Button,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 export default function MyBids() {
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectionModel, setSelectionModel] = useState([]);
 
-  // Confirmation dialog state
+  // Confirmation dialog state for single delete
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmContext, setConfirmContext] = useState({ type: '', ids: [] });
+  const [confirmId, setConfirmId] = useState(null);
 
   const fetchBids = async () => {
     setLoading(true);
@@ -43,26 +45,21 @@ export default function MyBids() {
     fetchBids();
   }, []);
 
-  // Open confirmation for single or bulk deletion
-  const openConfirm = (type, ids) => {
-    setConfirmContext({ type, ids });
+  const openConfirm = (id) => {
+    setConfirmId(id);
     setConfirmOpen(true);
   };
-  const closeConfirm = () => setConfirmOpen(false);
+  const closeConfirm = () => {
+    setConfirmOpen(false);
+    setConfirmId(null);
+  };
 
-  const performDelete = async () => {
-    const { type, ids } = confirmContext;
+  const handleDelete = async () => {
     try {
-      if (type === 'bulk') {
-        await Promise.all(
-          ids.map((id) =>
-            fetch(`/api/bids/${id}`, { method: 'DELETE', credentials: 'include' })
-          )
-        );
-        setSelectionModel([]);
-      } else if (type === 'single') {
-        await fetch(`/api/bids/${ids[0]}`, { method: 'DELETE', credentials: 'include' });
-      }
+      await fetch(`/api/bids/${confirmId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
       await fetchBids();
     } catch (err) {
       console.error(err);
@@ -71,7 +68,6 @@ export default function MyBids() {
     }
   };
 
-  // Prepare rows for DataGrid
   const rows = bids.map((bid) => ({
     id: bid.bid_id,
     listing_name: bid.listing_name,
@@ -92,18 +88,18 @@ export default function MyBids() {
     { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
     {
       field: 'actions',
-      headerName: 'Actions',
-      width: 120,
+      headerName: ' ',
+      width: 80,
       sortable: false,
       renderCell: (params) => (
-        <Button
-          variant="outlined"
-          size="small"
+        <IconButton
+          aria-label="delete"
           color="error"
-          onClick={() => openConfirm('single', [params.id])}
+          size="small"
+          onClick={() => openConfirm(params.id)}
         >
-          Delete
-        </Button>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       ),
     },
   ];
@@ -120,58 +116,56 @@ export default function MyBids() {
     <Box className="dashboardCanvas" sx={{ display: 'flex' }}>
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent" sx={{ flexGrow: 1 }}>
-        <Typography variant="h5" gutterBottom>
-          My Bids
-        </Typography>
+        
+        <div id="wideTitle" className="profileTitle">My Bids</div>
+        
 
         {loading ? (
           <CircularProgress />
         ) : (
-          <>
-            <Box sx={{ mb: 1 }}>
-              <Button
-                variant="contained"
-                color="error"
-                disabled={!selectionModel.length}
-                onClick={() => openConfirm('bulk', selectionModel)}
-              >
-                Delete Selected ({selectionModel.length})
-              </Button>
-            </Box>
-
-            <Box sx={{ width: '100%' }}>
-              <DataGrid
-                autoHeight
-                rows={rows}
-                columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10, 25, 50]}
-                checkboxSelection
-                selectionModel={selectionModel}
-                onSelectionModelChange={(newSel) => setSelectionModel(newSel)}
-              />
-            </Box>
-          </>
+          <Box sx={{ width: '100%' }}>
+            <DataGrid
+              autoHeight
+              rows={rows}
+              columns={columns}
+              pageSize={10}
+              rowsPerPageOptions={[10, 25, 50]}
+            />
+          </Box>
         )}
 
         {/* Confirmation Dialog */}
-        <Dialog open={confirmOpen} onClose={closeConfirm}>
-          <DialogTitle>
-            {confirmContext.type === 'bulk'
-              ? `Delete ${confirmContext.ids.length} bids?`
-              : 'Delete this bid?'}
+        <Dialog
+          open={confirmOpen}
+          onClose={closeConfirm}
+          PaperProps={{
+            sx: { borderRadius: '24px' }
+          }}
+        >
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <WarningAmberIcon color="warning" />
+            Withdraw this bid?
           </DialogTitle>
+
           <DialogContent>
             <DialogContentText>
-              {confirmContext.type === 'bulk'
-                ? 'This will permanently withdraw all selected bids. A fee of 5% will be incurred!'
-                : 'This will permanently withdraw the selected bid. A fee of 5% will be incurred!'}
+              This will permanently withdraw your bid. A 5% fee will be incurred!
             </DialogContentText>
           </DialogContent>
+
           <DialogActions>
-            <Button onClick={closeConfirm}>Cancel</Button>
-            <Button onClick={performDelete} color="error">
-              Confirm Withdrawal
+            <Button
+              onClick={closeConfirm}
+              sx={{ textTransform: 'none' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              color="error"
+              sx={{ textTransform: 'none' }}
+            >
+              Withdraw
             </Button>
           </DialogActions>
         </Dialog>
