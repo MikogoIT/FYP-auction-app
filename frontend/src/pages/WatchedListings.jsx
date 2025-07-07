@@ -152,30 +152,33 @@ export default function WatchedListings() {
                         ? `$${item.current_bid}`
                         : "No bids yet"}
                     </p>
+
+                    <div
+                        className="listingAction"
+                        style={{
+                        padding: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        }}
+                    >
+                        <IconButton
+                        onClick={() => handleRemoveLike(item.auction_id)}
+                        size="large"
+                        >
+                        <FavoriteIcon color="error" />
+                        </IconButton>
+
+                        <md-filled-button
+                        onClick={() => handleBidClick(item.auction_id)}
+                        style={{ flexGrow: 1 }}
+                        >
+                        Bid
+                        </md-filled-button>
+                    </div>
                   </div>
 
-                  <div
-                    style={{
-                      padding: "8px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <IconButton
-                      onClick={() => handleRemoveLike(item.auction_id)}
-                      size="large"
-                    >
-                      <FavoriteIcon color="error" />
-                    </IconButton>
-
-                    <md-filled-button
-                      onClick={() => handleBidClick(item.auction_id)}
-                      style={{ flexGrow: 1 }}
-                    >
-                      Bid
-                    </md-filled-button>
-                  </div>
+                  
                 </div>
               ))}
             </div>
