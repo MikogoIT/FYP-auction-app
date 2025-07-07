@@ -126,7 +126,7 @@ export default function ListingPage() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <div className="profileTitle">📋 All Auction Listings</div>
+        <div id="wideTitle" className="profileTitle">All Auction Listings</div>
 
         <div className="filterContainer">
           <input

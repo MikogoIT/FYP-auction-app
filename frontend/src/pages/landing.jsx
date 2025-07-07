@@ -93,9 +93,8 @@ export default function Landing() {
                   <Rating value={fb.website_ratings} readOnly />
                   <p className="feedbackComment" style={{
                       marginTop: 8,
-                      maxHeight: 150,     // or whatever height you chose
+                      maxHeight: 80,   
                       overflowY: "auto",
-                      padding: "0 12px",  // ← horizontal padding so the text has breathing room
                       boxSizing: "border-box", // ensures padding is included within maxHeight
                     }}
                   >

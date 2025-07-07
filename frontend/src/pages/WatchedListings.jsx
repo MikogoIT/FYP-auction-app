@@ -81,7 +81,7 @@ export default function WatchedListings() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <h2 className="profileTitle">Liked Listings</h2>
+        <div id="wideTitle" className="profileTitle">Liked Listings</div>
 
         {loading ? (
           <p className="centerText">Loading your liked listings…</p>
