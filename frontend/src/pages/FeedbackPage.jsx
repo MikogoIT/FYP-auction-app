@@ -8,6 +8,7 @@ export default function Feedback() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+  const max_length = 2000;
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -61,7 +62,7 @@ export default function Feedback() {
       }}
     >
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/dashboard")}
         style={{
           marginBottom: 16,
           background: "#eee",
@@ -71,7 +72,7 @@ export default function Feedback() {
           cursor: "pointer",
         }}
       >
-        ← Back
+        ← Back to Dashboard
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Website Feedback</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
@@ -92,7 +93,6 @@ export default function Feedback() {
           </select>
         </div>
         <textarea
-          maxLength={500}
           value={website_comments}
           onChange={e => setComments(e.target.value)}
           placeholder="Share your thoughts, suggestions, or issues..."
@@ -119,7 +119,7 @@ export default function Feedback() {
             marginBottom: 8,
           }}
         >
-          {website_comments.length}/500
+          {website_comments.length}/{max_length}
         </div>
         <button
           type="submit"
