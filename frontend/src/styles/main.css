@@ -29,11 +29,10 @@ md-filled-button {
     align-items: center;
     position: fixed;
     width: 100%;
-    height: 45px;
     background-color: white;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 3;
   }
 
 .headerContent {
@@ -66,13 +65,30 @@ background-color: #e0e0e0;
   align-items: center;
 }
 
-.mainContent {
+/* .mainContent {
   display: flex;
   justify-content: center;
   margin-top: 60px;
   max-width: 1000px;
-  width: 100%;
+  width: calc(100% - 240px); 
+  margin-left: 240px; 
 }
+
+
+@media (max-width: 900px) 
+{
+  .mainContent 
+  {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    max-width: 1000px;
+    width: 100%;
+  }
+
+} */
+
+
 
 .footerCon
 {
@@ -85,6 +101,7 @@ background-color: #e0e0e0;
 
 .landingContent
 {
+  margin-top: 60px;
   display: flex;
   max-width: 1000px;
   width: 100%;
@@ -139,7 +156,7 @@ background-color: #e0e0e0;
 }
 
 /* for mobile */
-@media (max-width: 800px)
+@media (max-width: 900px)
 {
   .landingContent
   {
@@ -190,11 +207,6 @@ background-color: #e0e0e0;
   gap: '8px';
 }
 
-.normalBody
-{
-  font-size: 16px;
-  font-family: 'Roboto';
-}
 
 .profileTitle
 {
@@ -202,6 +214,8 @@ background-color: #e0e0e0;
       font-weight: 900;
       font-size: 40px;
       padding-bottom: 10px;
+      width: 100%;
+      max-width: 1000px;
 }
 
 
@@ -210,13 +224,39 @@ background-color: #e0e0e0;
   width: 100%;
   font-size: 16px;
   font-family: 'Roboto';
+  display: flex;
+}
+
+.sidebarSpacer
+{
+  width: 240px;
+  flex: 0 0 240px;  
+}
+
+/* mobile view */
+@media (max-width: 900px) 
+{
+  .sidebarSpacer
+  {
+    display: none; 
+  }
+}
+
+.dashboardContent
+{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .dashboard-swiper {
   width: 100%;
   padding-bottom: 40px;
   max-width: 1000px;
-  margin: 0 auto;
+  margin: unset;
 }
 
 .landingMD
@@ -262,9 +302,6 @@ background-color: #e0e0e0;
   border-top: 1px solid #eee;
 }
 
-.myListingsPage {
-  padding: 20px;
-}
 
 .centerText {
   text-align: center;
@@ -328,11 +365,7 @@ background-color: #e0e0e0;
 }
 
 
-/* src/pages/ListingPage.css */
 
-.listingPageContainer {
-  padding: 20px;
-}
 
 
 
@@ -374,4 +407,10 @@ background-color: #e0e0e0;
 .paginationControls button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+
+#middleTitle
+{
+  max-width: 400px;
 }

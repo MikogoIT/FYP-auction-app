@@ -7,6 +7,8 @@ import {
 } from "../models/bidModel.js";
 import { insertNotification } from "../models/notificationModel.js";
 
+import { sql } from "../utils/db.js";
+
 export async function createBid(req, res) {
   const userId = req.session.userId;
   const { auction_id, bid_amount } = req.body;
