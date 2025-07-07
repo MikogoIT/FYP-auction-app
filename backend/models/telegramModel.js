@@ -61,3 +61,19 @@ export async function getTelegramAccountsByTelegramId(telegramId) {
 
     return result[0];
 }
+
+export async function getBidsByUserId(userId) {
+    const result = await sql`
+        SELECT
+            b.*,
+            al.title AS listing_title,
+            al.end_date,
+            al.auction_type
+        FROM bids b
+        JOIN auction_listings al on b.auction_id = al.id
+        WHERE b.buyer_id = ${userId}
+        ORDER BY b.created_at DESC
+    `;
+
+    return result;
+}

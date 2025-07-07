@@ -6,7 +6,7 @@ import { isTelegramDataValid } from "../utils/telegramUtils.js";
 export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;
     const userId = req.session.userId;
-        
+
     // Verify Telegram login data is authentic
     const isValid = isTelegramDataValid(telegramData, process.env.TELEGRAM_BOT_TOKEN);
     if (!isValid) {
@@ -127,3 +127,18 @@ export async function createBidFromTelegram(req, res) {
     }
 }
 
+export async function getBidsByTelegramUser(req, res) {
+    const userId = req.params.user_id;
+
+    if (!userId) {
+        return res.status(400).json({ message: "Missing user_id parameter" });
+    }
+
+    try {
+        const bids = await telegramModel.getBidsByUserId(userId);
+        res.json({ bids });
+    } catch (err) {
+        console.error("Error fetching bids for user: ", err);
+        res.status(500).json({ message: "Failed to fetch bids" });
+    }
+}
