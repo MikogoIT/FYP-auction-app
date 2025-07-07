@@ -35,7 +35,7 @@ import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
 
-const hideDrawerRoutes = ["/", "/login", "/register"];
+const hideDrawerRoutes = ["/", "/login", "/register", "/FeedbackList"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();

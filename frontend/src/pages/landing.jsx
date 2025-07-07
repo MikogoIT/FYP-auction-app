@@ -77,7 +77,7 @@ export default function Landing() {
               <Card
                 elevation={2}
                 sx={{
-                  borderRadius: '24px',
+                  borderRadius: '12px',
                   width: 350,
                   p: 1,
                   mx: 'auto'
