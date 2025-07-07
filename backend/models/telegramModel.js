@@ -41,6 +41,7 @@ export async function getUnpostedListings() {
         LEFT JOIN bids b ON al.id = b.auction_id
         WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
         GROUP BY al.id, lc.name
+        ORDER BY al.id ASC
     `;
 }
 
