@@ -12,7 +12,7 @@ export default function MyBids() {
   useEffect(() => {
     const fetchBids = async () => {
       try {
-        const res = await fetch('/api/MyBids', { credentials: 'include' });
+        const res = await fetch('/api/bids/MyBids', { credentials: 'include' });
         if (!res.ok) throw new Error('Failed to fetch bids');
         const { bids: fetchedBids } = await res.json();
         setBids(fetchedBids);
