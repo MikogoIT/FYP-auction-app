@@ -32,7 +32,7 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
   }
 
   return await sql`
-    SELECT id, website_ratings, website_comments, created_at
+    SELECT user_id, website_ratings, website_comments, created_at
     FROM website_feedback
     ${orderByClause}
   `;
