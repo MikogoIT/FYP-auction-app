@@ -7,6 +7,7 @@ export default function Feedback() {
   const [website_ratings, setRatings] = useState(5);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,9 +31,13 @@ export default function Feedback() {
         body: JSON.stringify({ website_comments, website_ratings }),
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.status === 409) {
+        setMsg("❌ You have already submitted feedback.");
+        setSubmitted(true);
+      } else if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
         setComments("");
+        setSubmitted(true);
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -49,12 +54,19 @@ export default function Feedback() {
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Website Feedback</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
-          <label>Rating: </label>
-          <select value={website_ratings} onChange={e => setRatings(Number(e.target.value))}>
+          <label htmlFor="website_ratings">Rating: </label>
+          <select
+            id="website_ratings"
+            value={website_ratings}
+            onChange={e => setRatings(Number(e.target.value))}
+            aria-label="Website rating"
+            disabled={submitted || loading}
+          >
             {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ★</option>)}
           </select>
         </div>
         <textarea
+          maxLength={500}
           value={website_comments}
           onChange={e => setComments(e.target.value)}
           placeholder="Share your thoughts, suggestions, or issues..."
@@ -65,11 +77,15 @@ export default function Feedback() {
             borderRadius: 8,
             border: "1.5px solid #ccc",
             fontSize: 16,
-            marginBottom: 16,
-            resize: "none", // 🔒 prevents resizing
+            marginBottom: 8,
+            resize: "none",
           }}
+          disabled={submitted || loading}
         />
-        <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
+        <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
+          {website_comments.length}/500
+        </div>
+        <button type="submit" disabled={loading || submitted} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
           {loading ? "Submitting..." : "Submit Feedback"}
         </button>
         {msg && <p style={{ marginTop: 14, color: msg.startsWith("✅") ? "green" : "red", fontWeight: 600 }}>{msg}</p>}
