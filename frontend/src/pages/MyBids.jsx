@@ -61,9 +61,10 @@ export default function MyBids() {
     <Box className="dashboardCanvas">
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent">
-        <Typography variant="h5" gutterBottom>
-          My Bids
-        </Typography>
+        
+          {/* page title */}
+          <div className="profileTitle">My Bids</div>
+        
         {loading ? (
           <CircularProgress />
         ) : (
@@ -73,6 +74,7 @@ export default function MyBids() {
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 25, 50]}
+            sx={{ width: '100%' }} 
           />
         )}
       </Box>
