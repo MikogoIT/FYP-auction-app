@@ -107,15 +107,6 @@ export default function WatchedListings() {
                 <div
                   key={item.auction_id}
                   className="listingCard"
-                  style={{
-                    width: "300px",
-                    height: "450px",
-                    display: "flex",
-                    flexDirection: "column",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                  }}
                 >
                   {item.image_url ? (
                     <img
@@ -147,13 +138,13 @@ export default function WatchedListings() {
                       {item.title}
                     </h3>
 
-                    <p style={{ margin: "4px 0", fontSize: "0.9rem" }}>
+                    <p style={{ margin: "4px 0", fontSize: "16px" }}>
                     <strong>Category:</strong> {item.category_name || "—"}
                     </p>
 
                     <p
                       className="listingDesc"
-                      style={{ margin: "4px 0", fontSize: "0.9rem" }}
+                      style={{ margin: "4px 0", fontSize: "16px" }}
                     >
                       {item.description}
                     </p>
