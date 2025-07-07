@@ -15,11 +15,26 @@ export async function hasSubmittedFeedback(user_id) {
   return result.length > 0;
 }
 
-export async function getAllWebsiteFeedback() {
+export async function getAllWebsiteFeedback(sortOption = "latest") {
+  let orderByClause;
+
+  switch (sortOption) {
+    case "highest":
+      orderByClause = sql`ORDER BY f.website_ratings DESC`;
+      break;
+    case "lowest":
+      orderByClause = sql`ORDER BY f.website_ratings ASC`;
+      break;
+    case "latest":
+    default:
+      orderByClause = sql`ORDER BY f.created_at DESC`;
+      break;
+  }
+
   return await sql`
     SELECT f.id, f.website_ratings, f.website_comments, f.created_at, u.username
     FROM website_feedback f
     JOIN users u ON f.user_id = u.id
-    ORDER BY f.created_at DESC
+    ${orderByClause}
   `;
 }

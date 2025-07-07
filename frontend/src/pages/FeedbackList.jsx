@@ -6,13 +6,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 export default function FeedbackList() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortOption, setSortOption] = useState("latest");
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
         const res = await fetch("/api/feedback/list");
         const data = await res.json();
-        if (res.ok) setFeedbacks(data.slice(0, 6)); // Only 6 feedbacks
+        if (res.ok) setFeedbacks(data);
         else console.error("Failed to load feedbacks:", data.message);
       } catch (err) {
         console.error("Server error:", err);
@@ -24,6 +25,19 @@ export default function FeedbackList() {
     fetchFeedbacks();
   }, []);
 
+  const sortedFeedbacks = [...feedbacks].sort((a, b) => {
+    if (sortOption === "latest") {
+      return new Date(b.created_at) - new Date(a.created_at);
+    } else if (sortOption === "highest") {
+      return b.website_ratings - a.website_ratings;
+    } else if (sortOption === "lowest") {
+      return a.website_ratings - b.website_ratings;
+    }
+    return 0;
+  });
+
+  const visibleFeedbacks = sortedFeedbacks.slice(0, 6); // Only show 6
+
   if (loading) {
     return (
       <div style={{ textAlign: "center", marginTop: 50 }}>
@@ -34,19 +48,28 @@ export default function FeedbackList() {
 
   return (
     <div style={{ padding: "40px 20px", maxWidth: 1200, margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", marginBottom: 32 }}>⭐ Website Feedback</h2>
+      <h2 style={{ textAlign: "center", marginBottom: 16 }}>⭐ Website Feedback</h2>
 
-      {feedbacks.length === 0 ? (
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <label style={{ marginRight: 10 }}>Sort by: </label>
+        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+          <option value="latest">Latest</option>
+          <option value="highest">Highest Rating</option>
+          <option value="lowest">Lowest Rating</option>
+        </select>
+      </div>
+
+      {visibleFeedbacks.length === 0 ? (
         <p style={{ textAlign: "center" }}>No feedback submitted yet.</p>
       ) : (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)", // Force 3 columns
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: 20,
           }}
         >
-          {feedbacks.slice(0, 6).map((fb) => (
+          {visibleFeedbacks.map((fb) => (
             <div
               key={fb.id}
               style={{
@@ -54,6 +77,7 @@ export default function FeedbackList() {
                 padding: 20,
                 background: "#fff",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                border: "1px solid #ccc",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
