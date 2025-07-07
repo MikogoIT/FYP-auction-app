@@ -84,7 +84,11 @@ export default function FeedbackList() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <Avatar style={{ marginRight: 12 }}>{fb.username[0]?.toUpperCase()}</Avatar>
+                <Avatar
+                    style={{ marginRight: 12 }}
+                    src={fb.profile_image_url || undefined}
+                    alt={fb.username}
+                  />
                 <div>
                   <strong>{fb.username}</strong>
                   <div style={{ fontSize: 12, color: "#888" }}>

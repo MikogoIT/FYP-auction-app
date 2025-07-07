@@ -32,7 +32,8 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
   }
 
   return await sql`
-    SELECT f.id, f.website_ratings, f.website_comments, f.created_at, u.username
+    SELECT f.id, f.website_ratings, f.website_comments, f.created_at,
+           u.username, u.profile_image_url
     FROM website_feedback f
     JOIN users u ON f.user_id = u.id
     ${orderByClause}
