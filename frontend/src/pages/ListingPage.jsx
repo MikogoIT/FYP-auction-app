@@ -14,7 +14,7 @@ const ITEMS_PER_PAGE = 6;
 
 export default function ListingPage() {
   const navigate = useNavigate();
-  const currentUserId = localStorage.getItem("userId");
+  const currentUserId = Number(localStorage.getItem("userId"));
 
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -22,22 +22,30 @@ export default function ListingPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  // track liked state per listingId
   const [likedMap, setLikedMap] = useState({});
 
-  // Fetch all categories
+  // 1) On mount, fetch your watchlist to know which IDs are already liked
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch(`/api/watchlist/?buyerId=${currentUserId}`);
         const data = await res.json();
-        if (res.ok) setCategories(data.categories);
+        if (!res.ok) throw new Error(data.message || "Watchlist load failed");
+        // data: [ { auction_id: 7, … }, … ]
+        const map = {};
+        data.forEach((item) => {
+          map[item.auction_id] = true;
+        });
+        setLikedMap(map);
       } catch (err) {
-        console.error("Failed to fetch categories:", err);
+        console.error("Could not load watchlist:", err);
       }
     })();
-  }, []);
+  }, [currentUserId]);
 
-  // Fetch listings (with optional search & category filters) and their images
+  // 2) Fetch listings + images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -54,9 +62,8 @@ export default function ListingPage() {
           data.listings.map(async (item) => {
             try {
               const imgRes = await fetch(
-                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+                `/api/listingimg?listingId=${item.id}`
               );
-              if (!imgRes.ok) throw new Error();
               const { imageUrl } = await imgRes.json();
               return { ...item, image_url: imageUrl };
             } catch {
@@ -64,7 +71,6 @@ export default function ListingPage() {
             }
           })
         );
-
         setListings(enriched);
         setPage(1);
       } catch (err) {
@@ -75,25 +81,29 @@ export default function ListingPage() {
     })();
   }, [searchTerm, selectedCategory]);
 
-  const handleBidClick = (id) => navigate(`/bid/${id}`);
-
-  const handleAddToWatchlist = async (listingId) => {
+  // 3) Toggle handler (add or remove)
+  const handleToggleLike = async (listingId) => {
+    const isLiked = !!likedMap[listingId];
+    const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
     try {
-      const res = await fetch("/api/watchlist/add", {
-        method: "POST",
+      const res = await fetch(url, {
+        method: "DELETE", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          buyer_id: Number(currentUserId),
-          auction_id: Number(listingId),
+          buyerId: currentUserId,
+          auctionId: listingId,
         }),
       });
-      if (!res.ok) throw new Error("Failed to add to watchlist");
-      setLikedMap((m) => ({ ...m, [listingId]: true }));
+      if (!res.ok) throw new Error("Toggle failed");
+      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
     } catch (err) {
-      console.error("Error adding to watchlist:", err);
+      console.error("Error toggling watchlist:", err);
     }
   };
 
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
+
+  // pagination
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
@@ -106,13 +116,13 @@ export default function ListingPage() {
       <div className="dashboardContent">
         <div className="profileTitle">📋 All Auction Listings</div>
 
+        {/* filters */}
         <div className="filterContainer">
           <input
             className="searchInput"
-            type="text"
-            placeholder="🔍 Search by title or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="🔍 Search by title or description…"
           />
           <select
             className="categorySelect"
@@ -135,7 +145,7 @@ export default function ListingPage() {
         ) : (
           <div className="listingGrid">
             {paginated.map((item) => {
-              const isOwner = String(item.seller_id) === String(currentUserId);
+              const isOwner = item.seller_id === currentUserId;
               return (
                 <div key={item.id} className="listingCard">
                   {item.image_url ? (
@@ -175,12 +185,12 @@ export default function ListingPage() {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "8px",        // space between heart and button
+                        gap: "8px",
                       }}
                     >
-                      {/* Like button */}
+                      {/* Toggle heart */}
                       <IconButton
-                        onClick={() => handleAddToWatchlist(item.id)}
+                        onClick={() => handleToggleLike(item.id)}
                         size="large"
                       >
                         {likedMap[item.id] ? (
@@ -214,6 +224,7 @@ export default function ListingPage() {
           </div>
         )}
 
+        {/* pagination */}
         {totalPages > 1 && (
           <div className="paginationControls">
             <button
