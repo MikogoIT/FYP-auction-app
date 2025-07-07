@@ -36,8 +36,10 @@ export default function MyBids() {
       field: 'bid_amount',
       headerName: 'Bid Amount',
       type: 'number',
-      valueFormatter: (params) =>
-        params.value != null ? params.value.toLocaleString() : '',
+      valueFormatter: (params) => {
+        if (!params || params.value == null) return '';
+        return params.value.toLocaleString();
+      },
       width: 130,
     },
     { field: 'status', headerName: 'Status', width: 120 },
@@ -45,22 +47,28 @@ export default function MyBids() {
       field: 'created_at',
       headerName: 'Placed On',
       width: 180,
-      valueFormatter: (params) =>
-        params.value != null ? new Date(params.value).toLocaleString() : '',
+      valueFormatter: (params) => {
+        const val = params?.value;
+        return val ? new Date(val).toLocaleString() : '';
+      },
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
       width: 180,
-      valueFormatter: (params) =>
-        params.value != null ? new Date(params.value).toLocaleString() : '',
+      valueFormatter: (params) => {
+        const val = params?.value;
+        return val ? new Date(val).toLocaleString() : '';
+      },
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
       width: 180,
-      valueFormatter: (params) =>
-        params.value != null ? new Date(params.value).toLocaleString() : '',
+      valueFormatter: (params) => {
+        const val = params?.value;
+        return val ? new Date(val).toLocaleString() : '';
+      },
     },
   ];
 
