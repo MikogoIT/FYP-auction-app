@@ -89,7 +89,14 @@ function HeaderWithDrawer({ window }) {
     >
       <Toolbar />
       
-      <List>
+      <List
+        sx={{
+          // target the primary typography inside every ListItemText:
+          '& .MuiListItemText-primary': {
+            fontSize: '16px',
+          }
+        }}
+      >
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/dashboard'}
