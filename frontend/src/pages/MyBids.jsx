@@ -1,6 +1,6 @@
 // src/pages/MyBids.jsx
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Typography, CircularProgress } from '@mui/material';
 
@@ -15,6 +15,7 @@ export default function MyBids() {
         const res = await fetch('/api/bids/MyBids', { credentials: 'include' });
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
+        console.log('Fetched bids:', data.bids);
         setBids(Array.isArray(data.bids) ? data.bids : []);
       } catch (err) {
         console.error(err);
@@ -25,15 +26,18 @@ export default function MyBids() {
     })();
   }, []);
 
+  // Map each bid to a row with an 'id' property for DataGrid
+  const rows = bids.map((bid) => ({ id: bid.bid_id, ...bid }));
+
   const columns = [
-    { field: 'bid_id', headerName: 'Bid ID', type: 'number', width: 100 },
+    { field: 'id', headerName: 'Bid ID', type: 'number', width: 100 },
     { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
     {
       field: 'bid_amount',
       headerName: 'Bid Amount',
       type: 'number',
-      valueFormatter: ({ value }) =>
-        typeof value === 'number' ? value.toLocaleString() : value,
+      valueFormatter: (params) =>
+        params.value != null ? params.value.toLocaleString() : '',
       width: 130,
     },
     { field: 'status', headerName: 'Status', width: 120 },
@@ -41,22 +45,22 @@ export default function MyBids() {
       field: 'created_at',
       headerName: 'Placed On',
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : '',
+      valueFormatter: (params) =>
+        params.value ? new Date(params.value).toLocaleString() : '',
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : '',
+      valueFormatter: (params) =>
+        params.value ? new Date(params.value).toLocaleString() : '',
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : '',
+      valueFormatter: (params) =>
+        params.value ? new Date(params.value).toLocaleString() : '',
     },
   ];
 
@@ -80,11 +84,10 @@ export default function MyBids() {
         ) : (
           <DataGrid
             autoHeight
-            rows={bids}
+            rows={rows}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 25, 50]}
-            getRowId={(row) => row.bid_id}
           />
         )}
       </Box>
