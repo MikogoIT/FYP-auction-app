@@ -91,6 +91,9 @@ export default function MyListings() {
                   )}
                   <div className="listingDetails">
                     <h3 className="listingTitle">{item.title}</h3>
+                    <p className="listingCategory">
+                      <strong>Category:</strong> {item.category_name || "—"}
+                    </p>
                     <p className="listingDesc">{item.description}</p>
                     <p className="listingMinBid">
                       <strong>Min Bid:</strong> ${item.min_bid}
