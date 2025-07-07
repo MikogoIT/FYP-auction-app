@@ -1,9 +1,8 @@
 import '@material/web/button/filled-button.js';
 import { IMG_BASE_URL } from "../global-vars.jsx";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import markdown from '../mds/landing.md?raw';
-
 import Squiggle from '../components/Squiggle';
 
 import { useEffect, useState } from 'react';
@@ -67,8 +66,11 @@ export default function Landing() {
       </div>
 
       {/* Recent Feedback Section */}
-      <Box mt={6} px={2}>
+      <Box>
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
+        <Link to="/FeedbackList" className="viewAll">
+          View all
+        </Link>
         <Grid container spacing={3} justifyContent="center">
           {feedback.map(fb => (
             <Grid item xs={12} sm={6} md={3} key={fb.id}>
@@ -77,7 +79,7 @@ export default function Landing() {
                 sx={{
                   borderRadius: '24px',
                   width: 350,
-                  p: 2,
+                  p: 1,
                   mx: 'auto'
                 }}
               >
