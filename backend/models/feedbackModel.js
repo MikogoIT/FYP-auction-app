@@ -20,14 +20,14 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
 
   switch (sortOption) {
     case "highest":
-      orderByClause = sql`ORDER BY website_ratings DESC`;
+      orderByClause = sql`ORDER BY wf.website_ratings DESC`;
       break;
     case "lowest":
-      orderByClause = sql`ORDER BY website_ratings ASC`;
+      orderByClause = sql`ORDER BY wf.website_ratings ASC`;
       break;
     case "latest":
     default:
-      orderByClause = sql`ORDER BY created_at DESC`;
+      orderByClause = sql`ORDER BY wf.created_at DESC`;
       break;
   }
 
