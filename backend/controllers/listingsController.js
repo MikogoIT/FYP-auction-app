@@ -1,4 +1,4 @@
-// controllers/listingsModel.js
+// controllers/listingsController.js
 import {
   createListing,
   getActiveListings,

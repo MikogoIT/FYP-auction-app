@@ -1,9 +1,15 @@
 // routes/bidRoutes.js
 import express from "express";
-import { createBid } from "../controllers/bidController.js";
+import {
+  createBid,
+  viewUserBids,
+  deleteBid,
+} from "../controllers/bidController.js";
 
 const router = express.Router();
 
-router.post("/", createBid);
+router.post("/", createBid);       
+router.get("/my", viewUserBids);     
+router.delete("/:bid_id", deleteBid); 
 
 export default router;

@@ -9,7 +9,6 @@ import ImageIcon from "@mui/icons-material/Image";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-import ListingTabs from "../components/ListingTabs";
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -61,91 +60,93 @@ export default function Dashboard() {
 
   return (
     <div className="dashboardCanvas">
-      {/* tabs component */}
-      <ListingTabs />
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
 
-      {/* page title */}
-      <div className="profileTitle">Recent Listings</div>
+        {/* page title */}
+        <div className="profileTitle">Recent Listings</div>
 
-      {/* content */}
-      {loading ? (
-        <p style={{ textAlign: "center" }}>Loading listings…</p>
-      ) : recentListings.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No recent listings available.</p>
-      ) : (
-        <>
-          <Swiper
-            modules={[Navigation, Pagination]}
-            navigation
-            pagination={{ clickable: true }}
-            spaceBetween={20}
-            breakpoints={{
-              320: { slidesPerView: 1 },
-              600: { slidesPerView: 2 },
-              900: { slidesPerView: 3 },
-            }}
-            className="dashboard-swiper"
-          >
-            {recentListings.map((item) => {
-              const isOwner = item.seller_id === currentUserId;
-              return (
-                <SwiperSlide key={item.id}>
-                  <div className="cardStyle">
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.title}
-                        className="imageStyle"
-                      />
-                    ) : (
-                      <Avatar 
-                        variant="square" 
-                        sx={{
-                          width: "100%",
-                          height: 200,
-                          bgcolor: "#eee",
-                      }}> 
-                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-                      </Avatar>
-                    )}
-                    <div className="detailsStyle">
-                      <h3 style={{ margin: 0, marginBottom: 8 }}>
-                        {item.title}
-                      </h3>
-                      <p style={{ margin: "4px 0", color: "#555" }}>
-                        {item.description}
-                      </p>
-                      <div style={{ marginTop: 16 }}>
-                        {isOwner ? (
-                          <md-filled-button
-                            onClick={() => handleEdit(item.id)}
-                            style={{ width: "100%" }}
-                          >
-                            Edit
-                          </md-filled-button>
-                        ) : (
-                          <md-filled-button
-                            onClick={() => handleBid(item.id)}
-                            style={{ width: "100%" }}
-                          >
-                            Bid
-                          </md-filled-button>
-                        )}
+        {/* content */}
+        {loading ? (
+          <p style={{ textAlign: "center" }}>Loading listings…</p>
+        ) : recentListings.length === 0 ? (
+          <p style={{ textAlign: "center" }}>No recent listings available.</p>
+        ) : (
+          <>
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={20}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                600: { slidesPerView: 2 },
+                1200: { slidesPerView: 3 },
+              }}
+              className="dashboard-swiper"
+            >
+              {recentListings.map((item) => {
+                const isOwner = item.seller_id === currentUserId;
+                return (
+                  <SwiperSlide key={item.id}>
+                    <div className="cardStyle">
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.title}
+                          className="imageStyle"
+                        />
+                      ) : (
+                        <Avatar 
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            bgcolor: "#eee",
+                        }}> 
+                          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                        </Avatar>
+                      )}
+                      <div className="detailsStyle">
+                        <h3 style={{ margin: 0, marginBottom: 8 }}>
+                          {item.title}
+                        </h3>
+                        <p style={{ margin: "4px 0", color: "#555" }}>
+                          {item.description}
+                        </p>
+                        <div style={{ marginTop: 16 }}>
+                          {isOwner ? (
+                            <md-filled-button
+                              onClick={() => handleEdit(item.id)}
+                              style={{ width: "100%" }}
+                            >
+                              Edit
+                            </md-filled-button>
+                          ) : (
+                            <md-filled-button
+                              onClick={() => handleBid(item.id)}
+                              style={{ width: "100%" }}
+                            >
+                              Bid
+                            </md-filled-button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SwiperSlide>
-              );
-            })}
-          </Swiper>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
 
-          <div style={{ textAlign: "center", marginTop: 30 }}>
-            <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
-              View all listings
-            </md-filled-tonal-button>
-          </div>
-        </>
-      )}
+            <div style={{ textAlign: "center", marginTop: 30 }}>
+              <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
+                View all listings
+              </md-filled-tonal-button>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="sidebarSpacer"></div>
     </div>
   );
 }
