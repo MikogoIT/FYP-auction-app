@@ -22,6 +22,8 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
+
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
 
@@ -136,6 +138,20 @@ function HeaderWithDrawer({ window }) {
             <ListItemText primary="My Bids" />
           </OutlineListItemButton>
         </ListItem>
+
+               {/* —— New “Talk to us!” item —— */}
+       <ListItem disablePadding>
+         <OutlineListItemButton
+           selected={pathname === '/Contact'}
+           onClick={() => navigate('/Contact')}
+         >
+           <ListItemIcon>
+             <ContactSupportIcon />
+           </ListItemIcon>
+           <ListItemText primary="Talk to us!" />
+         </OutlineListItemButton>
+       </ListItem>
+
       </List>
     </Box>
   );

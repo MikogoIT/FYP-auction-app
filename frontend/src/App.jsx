@@ -22,9 +22,13 @@ import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
+import MyBids from "./pages/MyBids";
+import ContactPage from "./pages/ContactPage";
+
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
-import MyBids from "./pages/MyBids";
+
+
 
 // components
 import Header from "./components/Header";                     // no-drawer
@@ -59,9 +63,11 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
             <Route path="/ListingPage" element={<ListingPage />} />
+            <Route path="/MyBids" element={<MyBids />} />
+            <Route path="/Contact" element={<ContactPage />} />
+
             <Route path="/Feedback" element={<Feedback />} />
             <Route path="/FeedbackList" element={<FeedbackList />} />
-            <Route path="/MyBids" element={<MyBids />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />

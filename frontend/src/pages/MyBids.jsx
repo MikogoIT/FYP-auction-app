@@ -79,7 +79,7 @@ export default function MyBids() {
   const columns = [
     { field: 'id', headerName: 'Bid ID', width: 100 },
     { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
-    { field: 'bid_amount', headerName: 'Bid Amount', type: 'number', width: 130 },
+    { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'status', headerName: 'Status', width: 120 },
     { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
     { field: 'updated_at', headerName: 'Last Updated', type: 'dateTime', width: 180 },

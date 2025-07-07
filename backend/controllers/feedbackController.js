@@ -3,6 +3,7 @@ import {
   insertWebsiteFeedback,
   hasSubmittedFeedback,
   getAllWebsiteFeedback as fetchFeedback,
+  getLatestWebsiteFeedback
 } from "../models/feedbackModel.js";
 
 export async function submitWebsiteFeedback(req, res) {
@@ -41,5 +42,17 @@ export async function getAllWebsiteFeedback(req, res) {
   } catch (err) {
     console.error("Fetch feedback error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+// GET /feedback/recent
+export async function getRecentFeedback(req, res) {
+  try {
+    const feedback = await getLatestWebsiteFeedback();
+    res.json({ feedback });
+  } catch (err) {
+    console.error("Fetch recent feedback error:", err);
+    res.status(500).json({ message: "Failed to fetch recent feedback" });
   }
 }

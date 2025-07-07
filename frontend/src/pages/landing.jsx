@@ -4,12 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import markdown from '../mds/landing.md?raw';
 
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  Grid,
+  Card,
+  CardHeader,
+  CardContent,
+  Typography,
+  Avatar,
+  Rating,
+} from '@mui/material';
 
 export default function Landing() {
-    const navigate = useNavigate();
-    const handleGetStarted = () => {
-        navigate('/register');
-    };
+  const navigate = useNavigate();
+  const [feedback, setFeedback] = useState([]);
+
+  const handleGetStarted = () => {
+    navigate('/register');
+  };
+
+  useEffect(() => {
+    fetch('/feedback/recent')
+      .then(res => res.json())
+      .then(data => setFeedback(data.feedback || []))
+      .catch(err => console.error('Failed to load feedback:', err));
+  }, []);
 
   return (
     <div className="landingContent">
@@ -20,8 +40,6 @@ export default function Landing() {
           </div>
           <div className="subtext">
             <p className="subtext1">Your Auctions, One Telegram Away</p>
-
-            {/* Material Web "filled" button */}
             <md-filled-button
               style={{ marginTop: '24px' }}
               onClick={handleGetStarted}
@@ -43,7 +61,39 @@ export default function Landing() {
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
-      
+
+      {/* Recent Feedback Section */}
+      <Box mt={6} px={2}>
+        <Typography variant="h5" gutterBottom>
+          What Our Users Are Saying
+        </Typography>
+        <Grid container spacing={3}>
+          {feedback.map(fb => (
+            <Grid item xs={12} sm={6} md={3} key={fb.id}>
+              <Card elevation={2}>
+                <CardHeader
+                  avatar={<Avatar src={fb.profile_image_url} />}
+                  title={fb.username}
+                  subheader={new Date(fb.created_at).toLocaleDateString()}
+                />
+                <CardContent>
+                  <Rating value={fb.website_ratings} readOnly />
+                  <Typography variant="body2" mt={1}>
+                    {fb.website_comments}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          {feedback.length === 0 && (
+            <Grid item xs={12}>
+              <Typography color="textSecondary">
+                No feedback available yet.
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
     </div>
   );
 }
