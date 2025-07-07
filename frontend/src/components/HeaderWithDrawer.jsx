@@ -117,6 +117,17 @@ function HeaderWithDrawer({ window }) {
             <ListItemText primary="All Listings" />
           </OutlineListItemButton>
         </ListItem>
+
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/Watchlist'}
+            onClick={() => navigate('/Watchlist')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Liked Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/mylistings'}
