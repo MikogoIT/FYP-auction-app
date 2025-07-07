@@ -317,7 +317,7 @@ background-color: #e0e0e0;
 }
 
 .listingCard {
-  max-width: 300px;
+  flex: 0 0 300px;
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
@@ -336,26 +336,33 @@ background-color: #e0e0e0;
 
 .listingDetails {
   background-color: #f1f0f0;
-  padding: 16px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1;
+  overflow-y: auto;
   border-top: 1px solid #eee;
+  margin: 4px 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.listingDetails p
+{
+  margin: 4px 0;
 }
 
 .listingTitle {
   margin: 0 0 8px 0;
 }
 
-.listingDesc,
-.listingMinBid,
-.listingEndDate {
-  margin: 4px 0;
-  color: #555;
-}
+
 
 .listingAction {
   margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .paginationControls {
@@ -396,9 +403,10 @@ background-color: #e0e0e0;
 }
 
 .listingGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
 }
 
 

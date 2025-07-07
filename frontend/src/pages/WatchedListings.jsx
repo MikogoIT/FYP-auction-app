@@ -11,7 +11,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-const ITEMS_PER_PAGE = 12;  // show up to 12 per page
+const ITEMS_PER_PAGE = 12;  // still 12 per page
 
 export default function WatchedListings() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function WatchedListings() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  // 1) Fetch the watchlist and enrich with image_url
+  // Fetch watchlist + images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -53,7 +53,7 @@ export default function WatchedListings() {
     })();
   }, []);
 
-  // 2) Remove from watchlist (unlike)
+  // Remove from watchlist
   const handleRemoveLike = async (auctionId) => {
     try {
       const res = await fetch("/api/watchlist/remove", {
@@ -62,20 +62,15 @@ export default function WatchedListings() {
         body: JSON.stringify({ auction_id: auctionId }),
       });
       if (!res.ok) throw new Error("Failed to remove from watchlist");
-      // remove the card from state
-      setListings((lst) =>
-        lst.filter((item) => item.auction_id !== auctionId)
-      );
+      setListings((lst) => lst.filter((item) => item.auction_id !== auctionId));
     } catch (err) {
       console.error("Error removing from watchlist:", err);
     }
   };
 
-  const handleBidClick = (auctionId) => {
-    navigate(`/bid/${auctionId}`);
-  };
+  const handleBidClick = (auctionId) => navigate(`/bid/${auctionId}`);
 
-  // pagination logic
+  // pagination
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
@@ -86,7 +81,7 @@ export default function WatchedListings() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <h2 className="profileTitle">❤️ Liked Listings</h2>
+        <h2 className="profileTitle">Liked Listings</h2>
 
         {loading ? (
           <p className="centerText">Loading your liked listings…</p>
@@ -96,24 +91,19 @@ export default function WatchedListings() {
           <>
             <div
               className="listingGrid"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, 300px)",
-                justifyContent: "start",
-                gap: "16px",
-              }}
+    
             >
               {paginated.map((item) => (
                 <div
                   key={item.auction_id}
                   className="listingCard"
+      
                 >
                   {item.image_url ? (
                     <img
-                      className="listingImage"
                       src={item.image_url}
                       alt={item.title}
-                      
+                      className="listingImage"
                     />
                   ) : (
                     <Avatar
@@ -125,85 +115,62 @@ export default function WatchedListings() {
                   )}
 
                   <div className="listingDetails">
-                    <h3 className="listingTitle" style={{ margin: "4px 0" }}>
+                    <h3 className="listingTitle">
                       {item.title}
                     </h3>
-
-                    <p style={{ margin: "4px 0", fontSize: "16px" }}>
-                    <strong>Category:</strong> {item.category_name || "—"}
+                    <p className="listingCat" >
+                      <strong>Category:</strong> {item.category_name || "—"}
                     </p>
-
-                    <p
-                      className="listingDesc"
-                      style={{ margin: "4px 0", fontSize: "16px" }}
-                    >
+                    <p className="listingDesc" >
                       {item.description}
                     </p>
-                    <p style={{ margin: "4px 0" }}>
+                    <p >
                       <strong>Min Bid:</strong> ${item.min_bid}
                     </p>
-                    <p style={{ margin: "4px 0" }}>
+                    <p >
                       <strong>Ends:</strong>{" "}
                       {new Date(item.end_date).toLocaleString()}
                     </p>
-                    <p style={{ margin: "4px 0" }}>
+                    <p >
                       <strong>Current Bid:</strong>{" "}
                       {item.current_bid != null
                         ? `$${item.current_bid}`
                         : "No bids yet"}
                     </p>
-
-                    <div
-                        className="listingAction"
-                        style={{
-                        padding: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        }}
-                    >
-                        <IconButton
-                        onClick={() => handleRemoveLike(item.auction_id)}
-                        size="large"
-                        >
-                        <FavoriteIcon color="error" />
-                        </IconButton>
-
-                        <md-filled-button
-                        onClick={() => handleBidClick(item.auction_id)}
-                        style={{ flexGrow: 1 }}
-                        >
-                        Bid
-                        </md-filled-button>
-                    </div>
                   </div>
 
-                  
+                  <div className="listingAction">
+                    <IconButton
+                      onClick={() => handleRemoveLike(item.auction_id)}
+                      size="large"
+                    >
+                      <FavoriteIcon color="error" />
+                    </IconButton>
+
+                    <md-filled-button
+                      onClick={() => handleBidClick(item.auction_id)}
+                      style={{ flexGrow: 1 }}
+                    >
+                      Bid
+                    </md-filled-button>
+                  </div>
                 </div>
               ))}
             </div>
 
             {totalPages > 1 && (
-              <div
-                className="paginationControls"
-                style={{ marginTop: "16px" }}
-              >
+              <div  className="paginationControls">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   ◀ Prev
                 </button>
-                <span
-                  className="pageIndicator"
-                  style={{ margin: "0 12px" }}
-                >
+                <span  className="pageIndicator">
                   Page {page} of {totalPages}
                 </span>
                 <button
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages, p + 1))
-                  }
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
                   Next ▶
