@@ -11,7 +11,8 @@ export function isTelegramDataValid(data, botToken) {
                                 .join("\n");
 
     const secret = crypto
-                    .createHmac("sha256", botToken)
+                    .createHash("sha256")
+                    .update(botToken)
                     .digest();
 
     const computedHash = crypto
