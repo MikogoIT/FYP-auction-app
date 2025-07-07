@@ -110,13 +110,10 @@ export default function WatchedListings() {
                 >
                   {item.image_url ? (
                     <img
+                      className="listingImage"
                       src={item.image_url}
                       alt={item.title}
-                      style={{
-                        width: "100%",
-                        height: "200px",
-                        objectFit: "cover",
-                      }}
+                      
                     />
                   ) : (
                     <Avatar
@@ -127,13 +124,7 @@ export default function WatchedListings() {
                     </Avatar>
                   )}
 
-                  <div
-                    style={{
-                      padding: "8px",
-                      flex: 1,
-                      overflowY: "auto",
-                    }}
-                  >
+                  <div className="listingDetails">
                     <h3 className="listingTitle" style={{ margin: "4px 0" }}>
                       {item.title}
                     </h3>

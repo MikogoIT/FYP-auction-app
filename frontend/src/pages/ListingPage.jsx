@@ -211,14 +211,14 @@ export default function ListingPage() {
                           onClick={() => navigate(`/edit/${item.id}`)}
                           style={{ flexGrow: 1 }}
                         >
-                          ✏️ Edit
+                          Edit
                         </md-filled-button>
                       ) : (
                         <md-filled-button
                           onClick={() => handleBidClick(item.id)}
                           style={{ flexGrow: 1 }}
                         >
-                          💰 Bid
+                          Bid
                         </md-filled-button>
                       )}
                     </div>
