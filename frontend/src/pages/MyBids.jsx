@@ -10,20 +10,20 @@ export default function MyBids() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBids = async () => {
+    (async () => {
       try {
         const res = await fetch('/api/bids/MyBids', { credentials: 'include' });
-        if (!res.ok) throw new Error('Failed to fetch bids');
-        const { bids: fetchedBids } = await res.json();
-        setBids(fetchedBids);
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+        // Ensure we always store an array
+        setBids(Array.isArray(data.bids) ? data.bids : []);
       } catch (err) {
         console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
-    };
-    fetchBids();
+    })();
   }, []);
 
   const columns = [
@@ -33,8 +33,8 @@ export default function MyBids() {
       field: 'bid_amount',
       headerName: 'Bid Amount',
       type: 'number',
-      valueFormatter: ({ value }) =>
-        typeof value === 'number' ? value.toLocaleString() : value,
+      valueFormatter: (params) =>
+        typeof params.value === 'number' ? params.value.toLocaleString() : params.value,
       width: 130,
     },
     { field: 'status', headerName: 'Status', width: 120 },
@@ -42,21 +42,30 @@ export default function MyBids() {
       field: 'created_at',
       headerName: 'Placed On',
       type: 'dateTime',
-      valueGetter: ({ row }) => new Date(row.created_at),
+      valueGetter: (params) => {
+        const v = params.row?.created_at ?? params.value;
+        return v ? new Date(v) : null;
+      },
       width: 180,
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
       type: 'dateTime',
-      valueGetter: ({ row }) => new Date(row.updated_at),
+      valueGetter: (params) => {
+        const v = params.row?.updated_at ?? params.value;
+        return v ? new Date(v) : null;
+      },
       width: 180,
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
       type: 'dateTime',
-      valueGetter: ({ row }) => new Date(row.end_date),
+      valueGetter: (params) => {
+        const v = params.row?.end_date ?? params.value;
+        return v ? new Date(v) : null;
+      },
       width: 180,
     },
   ];
@@ -80,7 +89,7 @@ export default function MyBids() {
           <CircularProgress />
         ) : (
           <DataGrid
-            rows={bids}
+            rows={bids ?? []}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 25, 50]}
