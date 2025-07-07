@@ -13,7 +13,7 @@ const FEEDBACK_TYPES = [
 
 const MAX_COMMENT_LENGTH = 500;
 
-export default function UserFeedback({ users }) {
+export default function UserFeedback() {
   const [buyerId, setBuyerId] = useState("");
   const [sellerId, setSellerId] = useState("");
   const [feedbackType, setFeedbackType] = useState(FEEDBACK_TYPES[0].value);
