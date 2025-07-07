@@ -1,5 +1,5 @@
 // models/feedbackModel.js
-import { sql } from "../utils/db.js";
+import { sql } from '../utils/db.js';
 
 export async function insertWebsiteFeedback(user_id, website_ratings, website_comments) {
   return await sql`
@@ -15,17 +15,17 @@ export async function hasSubmittedFeedback(user_id) {
   return result.length > 0;
 }
 
-export async function getAllWebsiteFeedback(sortOption = "latest") {
+export async function getAllWebsiteFeedback(sortOption = 'latest') {
   let orderByClause;
 
   switch (sortOption) {
-    case "highest":
+    case 'highest':
       orderByClause = sql`ORDER BY f.website_ratings DESC`;
       break;
-    case "lowest":
+    case 'lowest':
       orderByClause = sql`ORDER BY f.website_ratings ASC`;
       break;
-    case "latest":
+    case 'latest':
     default:
       orderByClause = sql`ORDER BY f.created_at DESC`;
       break;
@@ -67,4 +67,3 @@ export async function getLatestWebsiteFeedback() {
 
   */
 }
-

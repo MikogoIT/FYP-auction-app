@@ -1,4 +1,3 @@
-// src/pages/FeedbackPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,9 +30,13 @@ export default function Feedback() {
         body: JSON.stringify({ website_comments, website_ratings }),
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.status === 409) {
+        setMsg("❌ You have already submitted feedback.");
+        setSubmitted(true);
+      } else if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
         setComments("");
+        setSubmitted(true);
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -45,8 +48,29 @@ export default function Feedback() {
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: "40px auto", padding: 30, borderRadius: 12, background: "#fff", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
-      <button onClick={() => navigate(-1)} style={{ marginBottom: 16, background: "#eee", border: "none", borderRadius: 6, padding: "6px 12px", cursor: "pointer" }}>← Back</button>
+    <div
+      style={{
+        maxWidth: 500,
+        margin: "40px 16px",
+        padding: 30,
+        borderRadius: 12,
+        background: "#fff",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+      }}
+    >
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          marginBottom: 16,
+          background: "#eee",
+          border: "none",
+          borderRadius: 6,
+          padding: "6px 12px",
+          cursor: "pointer",
+        }}
+      >
+        ← Back
+      </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Website Feedback</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
@@ -58,7 +82,11 @@ export default function Feedback() {
             aria-label="Website rating"
             disabled={submitted || loading}
           >
-            {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ★</option>)}
+            {[5, 4, 3, 2, 1].map(n => (
+              <option key={n} value={n}>
+                {n} ★
+              </option>
+            ))}
           </select>
         </div>
         <textarea
@@ -74,17 +102,49 @@ export default function Feedback() {
             border: "1.5px solid #ccc",
             fontSize: 16,
             marginBottom: 16,
-            resize: "none", // prevents resizing
+            resize: "none",
           }}
           disabled={submitted || loading}
         />
-        <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
+        <div
+          style={{
+            textAlign: "right",
+            fontSize: 12,
+            color: "#888",
+            marginBottom: 8,
+          }}
+        >
           {website_comments.length}/500
         </div>
-        <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
+        <button
+          type="submit"
+          disabled={loading || submitted}
+          style={{
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            fontWeight: "bold",
+            fontSize: 16,
+            cursor: "pointer",
+          }}
+        >
           {loading ? "Submitting..." : "Submit Feedback"}
         </button>
-        {msg && <p style={{ marginTop: 14, color: msg.startsWith("✅") ? "green" : "red", fontWeight: 600 }}>{msg}</p>}
+        {msg && (
+          <p
+            style={{
+              marginTop: 14,
+              color: msg.startsWith("✅") ? "green" : "red",
+              fontWeight: 600,
+            }}
+            aria-live="polite"
+          >
+            {msg}
+          </p>
+        )}
       </form>
     </div>
   );
