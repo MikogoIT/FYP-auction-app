@@ -12,7 +12,7 @@ export default function FeedbackList() {
       try {
         const res = await fetch("/api/feedback/list");
         const data = await res.json();
-        if (res.ok) setFeedbacks(data.slice(0, 6)); // Limit to 6 entries
+        if (res.ok) setFeedbacks(data.slice(0, 6)); // Only 6 feedbacks
         else console.error("Failed to load feedbacks:", data.message);
       } catch (err) {
         console.error("Server error:", err);
@@ -42,14 +42,11 @@ export default function FeedbackList() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gridAutoRows: "auto",
+            gridTemplateColumns: "repeat(3, 1fr)", // Force 3 columns
             gap: 20,
-            justifyItems: "stretch",
-            alignItems: "start",
           }}
         >
-          {feedbacks.map((fb) => (
+          {feedbacks.slice(0, 6).map((fb) => (
             <div
               key={fb.id}
               style={{
