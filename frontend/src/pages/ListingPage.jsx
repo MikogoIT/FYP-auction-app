@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import Avatar from "@mui/material/Avatar";
-import ImageIcon from "@mui/icons-material/Image";
 import IconButton from "@mui/material/IconButton";
+import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -23,17 +25,16 @@ export default function ListingPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  // track liked state per listingId
+  // track which listings are liked
   const [likedMap, setLikedMap] = useState({});
 
-  // 1) On mount, fetch your watchlist to know which IDs are already liked
+  // 1) on mount, load user's watchlist to seed likedMap
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`/api/watchlist/?buyerId=${currentUserId}`);
+        const res = await fetch("/api/watchlist/");
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Watchlist load failed");
-        // data: [ { auction_id: 7, … }, … ]
+        if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
         const map = {};
         data.forEach((item) => {
           map[item.auction_id] = true;
@@ -43,9 +44,9 @@ export default function ListingPage() {
         console.error("Could not load watchlist:", err);
       }
     })();
-  }, [currentUserId]);
+  }, []);
 
-  // 2) Fetch listings + images
+  // 2) fetch listings + images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -71,6 +72,7 @@ export default function ListingPage() {
             }
           })
         );
+
         setListings(enriched);
         setPage(1);
       } catch (err) {
@@ -81,21 +83,26 @@ export default function ListingPage() {
     })();
   }, [searchTerm, selectedCategory]);
 
-  // 3) Toggle handler (add or remove)
+  // 3) toggle like/unlike
   const handleToggleLike = async (listingId) => {
     const isLiked = !!likedMap[listingId];
-    const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
-    const method    = isLiked ? "DELETE" : "POST";
+    const url = isLiked
+      ? "/api/watchlist/remove"
+      : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+
     try {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          buyerId: currentUserId,
-          auctionId: listingId,
-        }),
+        body: JSON.stringify({ auction_id: listingId }),
       });
-      if (!res.ok) throw new Error(`${method} ${url} failed`);
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `${method} ${url} failed`);
+      }
+
       setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
     } catch (err) {
       console.error("Error toggling watchlist:", err);
@@ -104,7 +111,6 @@ export default function ListingPage() {
 
   const handleBidClick = (id) => navigate(`/bid/${id}`);
 
-  // pagination
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
@@ -117,13 +123,13 @@ export default function ListingPage() {
       <div className="dashboardContent">
         <div className="profileTitle">📋 All Auction Listings</div>
 
-        {/* filters */}
         <div className="filterContainer">
           <input
             className="searchInput"
+            type="text"
+            placeholder="🔍 Search by title or description…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="🔍 Search by title or description…"
           />
           <select
             className="categorySelect"
@@ -189,7 +195,6 @@ export default function ListingPage() {
                         gap: "8px",
                       }}
                     >
-                      {/* Toggle heart */}
                       <IconButton
                         onClick={() => handleToggleLike(item.id)}
                         size="large"
@@ -201,7 +206,6 @@ export default function ListingPage() {
                         )}
                       </IconButton>
 
-                      {/* Bid or Edit */}
                       {isOwner ? (
                         <md-filled-button
                           onClick={() => navigate(`/edit/${item.id}`)}
@@ -225,7 +229,6 @@ export default function ListingPage() {
           </div>
         )}
 
-        {/* pagination */}
         {totalPages > 1 && (
           <div className="paginationControls">
             <button
