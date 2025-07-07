@@ -1,5 +1,4 @@
-// src/pages/UserFeedbackPage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function countWords(text) {
@@ -11,9 +10,10 @@ const FEEDBACK_TYPES = [
   { value: "seller_to_buyer", label: "Seller to Buyer" }
 ];
 
-const MAX_COMMENT_LENGTH = 500;
+const MAX_WORDS = 100;
 
 export default function UserFeedback() {
+  const [users, setUsers] = useState([]);
   const [buyerId, setBuyerId] = useState("");
   const [sellerId, setSellerId] = useState("");
   const [feedbackType, setFeedbackType] = useState(FEEDBACK_TYPES[0].value);
@@ -25,7 +25,21 @@ export default function UserFeedback() {
   const navigate = useNavigate();
   const wordCount = countWords(userComments);
 
-  // Example: users = [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}]
+  // Fetch users on mount
+  useEffect(() => {
+    fetch("/api/users/all")
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(() => setUsers([]));
+  }, []);
+
+  // Enforce 100-word limit
+  const handleCommentChange = (e) => {
+    const value = e.target.value;
+    if (countWords(value) <= MAX_WORDS) {
+      setUserComments(value);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,13 +48,37 @@ export default function UserFeedback() {
       setMsg("❌ Feedback cannot be empty.");
       return;
     }
+    if (!buyerId || !sellerId) {
+      setMsg("❌ Please select both buyer and seller.");
+      return;
+    }
+    if (buyerId === sellerId) {
+      setMsg("❌ Buyer and seller cannot be the same user.");
+      return;
+    }
     setLoading(true);
     try {
-      // Your POST logic here
-      // Example:
-      // await postUserFeedback({ buyerId, sellerId, feedbackType, userRating, userComments });
-      setMsg("✅ Thank you for your feedback!");
-      setSubmitted(true);
+      // Replace with your actual POST endpoint and payload
+      const res = await fetch("/api/user-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          buyer_id: buyerId,
+          seller_id: sellerId,
+          type: feedbackType,
+          user_ratings: userRating,
+          user_comments: userComments,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMsg("✅ Thank you for your feedback!");
+        setSubmitted(true);
+        setUserComments("");
+      } else {
+        setMsg("❌ " + (data.message || "Failed to submit feedback."));
+      }
     } catch {
       setMsg("❌ Server error. Please try again later.");
     } finally {
@@ -87,7 +125,7 @@ export default function UserFeedback() {
           >
             <option value="">Select Buyer</option>
             {users.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
+              <option key={u.id} value={u.id}>{u.username}</option>
             ))}
           </select>
         </div>
@@ -102,7 +140,7 @@ export default function UserFeedback() {
           >
             <option value="">Select Seller</option>
             {users.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
+              <option key={u.id} value={u.id}>{u.username}</option>
             ))}
           </select>
         </div>
@@ -135,7 +173,7 @@ export default function UserFeedback() {
         </div>
         <textarea
           value={userComments}
-          onChange={e => setUserComments(e.target.value)}
+          onChange={handleCommentChange}
           placeholder="Share your feedback about this user..."
           rows={6}
           style={{
@@ -160,9 +198,12 @@ export default function UserFeedback() {
             marginBottom: 8,
           }}
         >
-          <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
-            {wordCount} words
-          </div>
+          {wordCount} / {MAX_WORDS} words
+          {wordCount >= MAX_WORDS && (
+            <span style={{ color: "red", marginLeft: 8 }}>
+              (Word limit reached)
+            </span>
+          )}
         </div>
         <button
           type="submit"
