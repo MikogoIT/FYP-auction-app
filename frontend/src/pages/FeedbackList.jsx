@@ -1,4 +1,3 @@
-// src/pages/FeedbackList.jsx
 import React, { useEffect, useState } from "react";
 import { Rating } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
@@ -13,7 +12,7 @@ export default function FeedbackList() {
       try {
         const res = await fetch("/api/feedback/list");
         const data = await res.json();
-        if (res.ok) setFeedbacks(data);
+        if (res.ok) setFeedbacks(data.slice(0, 6)); // Limit to 6 entries
         else console.error("Failed to load feedbacks:", data.message);
       } catch (err) {
         console.error("Server error:", err);
@@ -43,8 +42,11 @@ export default function FeedbackList() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gridAutoRows: "auto",
             gap: 20,
+            justifyItems: "stretch",
+            alignItems: "start",
           }}
         >
           {feedbacks.map((fb) => (
