@@ -32,6 +32,13 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
   }
 
   return await sql`
+    SELECT id, website_ratings, website_comments, created_at,
+    FROM website_feedback
+    ${orderByClause}
+  `;
+
+  /*
+  return await sql`
     SELECT f.id, f.website_ratings, f.website_comments, f.created_at,
            u.username, u.profile_image_url
     FROM website_feedback f
@@ -54,4 +61,7 @@ export async function getLatestWebsiteFeedback() {
     ORDER BY f.created_at DESC
     LIMIT 4
   `;
+}
+
+  */
 }

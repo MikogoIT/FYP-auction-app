@@ -7,19 +7,41 @@ export default function FeedbackList() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState("latest");
+  const [profilePhotos, setProfilePhotos] = useState({}); // userId => photoURL
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
         const res = await fetch("/api/feedback/list");
         const data = await res.json();
-        if (res.ok) setFeedbacks(data);
-        else console.error("Failed to load feedbacks:", data.message);
+        if (!res.ok) throw new Error(data.message);
+
+        setFeedbacks(data);
+        await fetchProfilePhotos(data);
       } catch (err) {
-        console.error("Server error:", err);
+        console.error("Failed to load feedbacks:", err);
       } finally {
         setLoading(false);
       }
+    };
+
+    const fetchProfilePhotos = async (feedbackList) => {
+      const uniqueUserIds = [...new Set(feedbackList.map((fb) => fb.user_id))];
+      const photos = {};
+
+      await Promise.all(
+        uniqueUserIds.map(async (id) => {
+          try {
+            const res = await fetch(`/api/user/displayPhoto/${id}`);
+            const data = await res.json();
+            if (res.ok) photos[id] = data.photo_url; // or adjust to match your API's response
+          } catch (err) {
+            console.warn(`Failed to fetch photo for user ${id}`, err);
+          }
+        })
+      );
+
+      setProfilePhotos(photos);
     };
 
     fetchFeedbacks();
@@ -36,7 +58,7 @@ export default function FeedbackList() {
     return 0;
   });
 
-  const visibleFeedbacks = sortedFeedbacks.slice(0, 6); // Only show 6
+  const visibleFeedbacks = sortedFeedbacks.slice(0, 6);
 
   if (loading) {
     return (
@@ -85,10 +107,10 @@ export default function FeedbackList() {
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                 <Avatar
-                    style={{ marginRight: 12 }}
-                    src={fb.profile_image_url || undefined}
-                    alt={fb.username}
-                  />
+                  style={{ marginRight: 12 }}
+                  src={profilePhotos[fb.user_id] || undefined}
+                  alt={fb.username}
+                />
                 <div>
                   <strong>{fb.username}</strong>
                   <div style={{ fontSize: 12, color: "#888" }}>
