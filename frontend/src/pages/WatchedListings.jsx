@@ -96,9 +96,7 @@ export default function WatchedListings() {
               {paginated.map((item) => (
                 <div
                   key={item.auction_id}
-                  className="listingCard"
-      
-                >
+                  className="listingCard" >
                   {item.image_url ? (
                     <img
                       src={item.image_url}
