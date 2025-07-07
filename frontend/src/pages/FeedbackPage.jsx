@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
 export default function Feedback() {
   const [website_comments, setComments] = useState("");
   const [website_ratings, setRatings] = useState(5);
@@ -8,7 +12,7 @@ export default function Feedback() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
-  const max_length = 2000;
+  const wordCount = countWords(website_comments);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -119,7 +123,9 @@ export default function Feedback() {
             marginBottom: 8,
           }}
         >
-          {website_comments.length}/{max_length}
+          <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
+            {wordCount} words
+          </div>
         </div>
         <button
           type="submit"
