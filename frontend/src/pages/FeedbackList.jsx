@@ -7,7 +7,6 @@ export default function FeedbackList() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState("latest");
-  const [profilePhotos, setProfilePhotos] = useState({}); // userId => photoURL
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
@@ -23,25 +22,6 @@ export default function FeedbackList() {
       } finally {
         setLoading(false);
       }
-    };
-
-    const fetchProfilePhotos = async (feedbackList) => {
-      const uniqueUserIds = [...new Set(feedbackList.map((fb) => fb.user_id))];
-      const photos = {};
-
-      await Promise.all(
-        uniqueUserIds.map(async (id) => {
-          try {
-            const res = await fetch(`/api/user/displayPhoto/${id}`);
-            const data = await res.json();
-            if (res.ok) photos[id] = data.photo_url; // or adjust to match your API's response
-          } catch (err) {
-            console.warn(`Failed to fetch photo for user ${id}`, err);
-          }
-        })
-      );
-
-      setProfilePhotos(photos);
     };
 
     fetchFeedbacks();
@@ -108,7 +88,7 @@ export default function FeedbackList() {
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                 <Avatar
                   style={{ marginRight: 12 }}
-                  src={profilePhotos[fb.user_id] || undefined}
+                  src={fb.profile_photo_url || undefined}
                   alt={fb.username}
                 />
                 <div>
