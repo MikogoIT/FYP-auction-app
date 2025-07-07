@@ -9,15 +9,26 @@ export async function addToWatchlist(buyerId, auctionId) {
   `;
 }
 
-// get list
+// get list, now including category name
 export async function getWatchlistByBuyer(buyerId) {
   return sql`
-    SELECT wl.*, al.title, al.description, al.min_bid, al.end_date
+    SELECT
+      wl.*,
+      al.title,
+      al.description,
+      al.min_bid,
+      al.end_date,
+      al.category_id,
+      lc.name AS category_name
     FROM watchlist wl
-    JOIN auction_listings al ON wl.auction_id = al.id
+    JOIN auction_listings al
+      ON wl.auction_id = al.id
+    LEFT JOIN listing_categories lc
+      ON al.category_id = lc.id
     WHERE wl.buyer_id = ${buyerId};
   `;
 }
+
 
 // delete 
 export async function removeFromWatchlist(buyerId, auctionId) {
