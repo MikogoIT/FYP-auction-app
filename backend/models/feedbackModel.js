@@ -20,21 +20,22 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
 
   switch (sortOption) {
     case "highest":
-      orderByClause = sql`ORDER BY wf.website_ratings DESC`;
+      orderByClause = sql`ORDER BY f.website_ratings DESC`;
       break;
     case "lowest":
-      orderByClause = sql`ORDER BY wf.website_ratings ASC`;
+      orderByClause = sql`ORDER BY f.website_ratings ASC`;
       break;
     case "latest":
     default:
-      orderByClause = sql`ORDER BY wf.created_at DESC`;
+      orderByClause = sql`ORDER BY f.created_at DESC`;
       break;
   }
 
   return await sql`
-    SELECT wf.user_id, u.username, u.profile_image_url, wf.website_ratings, wf.website_comments, wf.created_at
-    FROM website_feedback wf
-    JOIN users u ON u.id = wf.user_id
+    SELECT f.id, f.website_ratings, f.website_comments, f.created_at,
+           u.username, u.profile_image_url
+    FROM website_feedback f
+    JOIN users u ON f.user_id = u.id
     ${orderByClause}
   `;
 
