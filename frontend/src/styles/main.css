@@ -263,7 +263,7 @@ background-color: #e0e0e0;
 {
   font-family: 'Roboto';
   font-size: 16px;
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
 }
 
@@ -419,4 +419,11 @@ background-color: #e0e0e0;
 {
   max-width: unset;
   width: 100%;
+}
+
+.squiggleDiv1
+{
+  max-width: 700px;
+  width: 100%;
+  
 }

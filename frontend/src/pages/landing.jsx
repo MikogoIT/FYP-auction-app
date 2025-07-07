@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import markdown from '../mds/landing.md?raw';
 
+import Squiggle from '../components/Squiggle';
+
 import { useEffect, useState } from 'react';
 import {
   Box,
@@ -61,16 +63,28 @@ export default function Landing() {
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
+      <div className='squiggleDiv1'>
+        <Squiggle />
+      </div>
+      
 
       {/* Recent Feedback Section */}
       <Box mt={6} px={2}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h1" gutterBottom>
           What Our Users Are Saying
         </Typography>
         <Grid container spacing={3}>
           {feedback.map(fb => (
             <Grid item xs={12} sm={6} md={3} key={fb.id}>
-              <Card elevation={2}>
+              <Card
+                elevation={2}
+                sx={{
+                  borderRadius: '24px',
+                  width: 400,
+                  p: 3,          // 24px padding (3 × 8px)
+                  mx: 'auto'    // center within the grid cell
+                }}
+            >
                 <CardHeader
                   avatar={<Avatar src={fb.profile_image_url} />}
                   title={fb.username}
