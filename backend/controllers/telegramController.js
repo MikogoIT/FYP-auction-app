@@ -7,6 +7,7 @@ export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;
     const userId = req.session.userId;
 
+    console.log("TELEGRAM_BOT_TOKEN inside validation:", process.env.TELEGRAM_BOT_TOKEN);
     // Verify Telegram login data is authentic
     const isValid = isTelegramDataValid(telegramData, process.env.TELEGRAM_BOT_TOKEN);
     if (!isValid) {
