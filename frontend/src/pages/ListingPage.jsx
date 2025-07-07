@@ -170,12 +170,18 @@ export default function ListingPage() {
                         : "No bids yet"}
                     </p>
 
-                    <div className="listingAction">
+                    <div
+                      className="listingAction"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",        // space between heart and button
+                      }}
+                    >
                       {/* Like button */}
                       <IconButton
                         onClick={() => handleAddToWatchlist(item.id)}
                         size="large"
-                        sx={{ mr: 1 }}
                       >
                         {likedMap[item.id] ? (
                           <FavoriteIcon color="error" />
@@ -188,14 +194,14 @@ export default function ListingPage() {
                       {isOwner ? (
                         <md-filled-button
                           onClick={() => navigate(`/edit/${item.id}`)}
-                          style={{ width: "100%" }}
+                          style={{ flexGrow: 1 }}
                         >
                           ✏️ Edit
                         </md-filled-button>
                       ) : (
                         <md-filled-button
                           onClick={() => handleBidClick(item.id)}
-                          style={{ width: "100%" }}
+                          style={{ flexGrow: 1 }}
                         >
                           💰 Bid
                         </md-filled-button>
