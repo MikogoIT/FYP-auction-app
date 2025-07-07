@@ -72,7 +72,7 @@ function HeaderWithDrawer({ window }) {
     borderRadius: '24px',
     '&.Mui-selected': {
       backgroundColor: 'transparent',              // no fill
-      border: `1px solid ${theme.palette.primary.main}`, // outline in your primary color
+      border: `1px solid gray`, // outline
     },
     '&.Mui-selected:hover': {
       backgroundColor: 'transparent',              // stay transparent on hover
