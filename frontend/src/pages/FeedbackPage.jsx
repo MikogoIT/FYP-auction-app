@@ -51,11 +51,13 @@ export default function Feedback() {
     <div
       style={{
         maxWidth: 500,
-        margin: "40px 16px",
+        margin: "40px auto",
         padding: 30,
         borderRadius: 12,
         background: "#fff",
         boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+        width: "100%",
+        boxSizing: "border-box",
       }}
     >
       <button
@@ -72,7 +74,7 @@ export default function Feedback() {
         ← Back
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Website Feedback</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <div style={{ marginBottom: 16 }}>
           <label htmlFor="website_ratings">Rating: </label>
           <select
@@ -96,14 +98,17 @@ export default function Feedback() {
           placeholder="Share your thoughts, suggestions, or issues..."
           rows={6}
           style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "1.5px solid #ccc",
-            fontSize: 16,
-            marginBottom: 16,
-            resize: "none",
-          }}
+          width: "100%",
+          padding: 12,
+          borderRadius: 8,
+          border: "1.5px solid #ccc",
+          fontSize: 16,
+          marginBottom: 16,
+          resize: "none",
+          boxSizing: "border-box", // Ensures padding/border included in width
+          background: submitted || loading ? "#333" : "#fff", // for dark mode
+          color: submitted || loading ? "#aaa" : "#222",
+        }}
           disabled={submitted || loading}
         />
         <div
@@ -129,6 +134,7 @@ export default function Feedback() {
             fontWeight: "bold",
             fontSize: 16,
             cursor: "pointer",
+            boxSizing: "border-box", // Ensures padding doesn't shrink button
           }}
         >
           {loading ? "Submitting..." : "Submit Feedback"}
