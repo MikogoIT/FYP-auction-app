@@ -72,7 +72,7 @@ function HeaderWithDrawer({ window }) {
     borderRadius: '24px',
     '&.Mui-selected': {
       backgroundColor: 'transparent',              // no fill
-      border: `1px solid ${theme.palette.primary.main}`, // outline in your primary color
+      border: `1px solid gray`, // outline
     },
     '&.Mui-selected:hover': {
       backgroundColor: 'transparent',              // stay transparent on hover
@@ -89,7 +89,14 @@ function HeaderWithDrawer({ window }) {
     >
       <Toolbar />
       
-      <List>
+      <List
+        sx={{
+          // target the primary typography inside every ListItemText:
+          '& .MuiListItemText-primary': {
+            fontSize: '16px',
+          }
+        }}
+      >
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/dashboard'}
@@ -115,6 +122,18 @@ function HeaderWithDrawer({ window }) {
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="My Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+
+        <Divider/>
+
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/MyBids'}
+            onClick={() => navigate('/MyBids')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="My Bids" />
           </OutlineListItemButton>
         </ListItem>
       </List>

@@ -24,6 +24,7 @@ import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
+import MyBids from "./pages/MyBids";
 
 // components
 import Header from "./components/Header";                     // no-drawer
@@ -60,6 +61,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/ListingPage" element={<ListingPage />} />
             <Route path="/Feedback" element={<Feedback />} />
             <Route path="/FeedbackList" element={<FeedbackList />} />
+            <Route path="/MyBids" element={<MyBids />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />
