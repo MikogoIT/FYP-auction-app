@@ -15,7 +15,6 @@ export default function MyBids() {
         const res = await fetch('/api/bids/MyBids', { credentials: 'include' });
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
-        // Ensure we always store an array
         setBids(Array.isArray(data.bids) ? data.bids : []);
       } catch (err) {
         console.error(err);
@@ -33,40 +32,31 @@ export default function MyBids() {
       field: 'bid_amount',
       headerName: 'Bid Amount',
       type: 'number',
-      valueFormatter: (params) =>
-        typeof params.value === 'number' ? params.value.toLocaleString() : params.value,
+      valueFormatter: ({ value }) =>
+        typeof value === 'number' ? value.toLocaleString() : value,
       width: 130,
     },
     { field: 'status', headerName: 'Status', width: 120 },
     {
       field: 'created_at',
       headerName: 'Placed On',
-      type: 'dateTime',
-      valueGetter: (params) => {
-        const v = params.row?.created_at ?? params.value;
-        return v ? new Date(v) : null;
-      },
       width: 180,
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : '',
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
-      type: 'dateTime',
-      valueGetter: (params) => {
-        const v = params.row?.updated_at ?? params.value;
-        return v ? new Date(v) : null;
-      },
       width: 180,
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : '',
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
-      type: 'dateTime',
-      valueGetter: (params) => {
-        const v = params.row?.end_date ?? params.value;
-        return v ? new Date(v) : null;
-      },
       width: 180,
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : '',
     },
   ];
 
@@ -89,11 +79,11 @@ export default function MyBids() {
           <CircularProgress />
         ) : (
           <DataGrid
-            rows={bids ?? []}
+            autoHeight
+            rows={bids}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 25, 50]}
-            autoHeight
             getRowId={(row) => row.bid_id}
           />
         )}
