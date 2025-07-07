@@ -14,5 +14,6 @@ router.post("/status", requireLogin, telegramController.getTelegramStatus);
 router.get("/listings/unposted", requireBotAuth, telegramController.fetchUnpostedListings);
 router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markListingPosted);
 router.get("/check-account/:telegramUserId", requireBotAuth, telegramController.checkTelegramAccount);
+router.post("/bid", requireBotAuth, telegramController.createBidFromTelegram);
 
 export default router;
