@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useTheme } from "@mui/material/styles";
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -17,6 +18,10 @@ const ITEMS_PER_PAGE = 6;
 export default function ListingPage() {
   const navigate = useNavigate();
   const currentUserId = Number(localStorage.getItem("userId"));
+
+  const theme = useTheme();
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
 
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -204,7 +209,11 @@ export default function ListingPage() {
                       {isOwner ? (
                         <md-filled-button
                           onClick={() => navigate(`/edit/${item.id}`)}
-                          style={{ flexGrow: 1 }}
+                          style={{
+                            flexGrow: 1,
+                            "--md-sys-color-primary":    yellow,
+                            "--md-sys-color-on-primary": contrastText,
+                          }}
                         >
                           Edit
                         </md-filled-button>

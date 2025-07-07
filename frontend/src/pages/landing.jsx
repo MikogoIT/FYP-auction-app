@@ -92,10 +92,13 @@ export default function Landing() {
                 <CardContent>
                   <Rating value={fb.website_ratings} readOnly />
                   <p className="feedbackComment" style={{
-                    marginTop: 8,
-                    maxHeight: 150,     // limit to 150px tall
-                    overflowY: "auto",  // scroll only vertically
-                  }}>
+                      marginTop: 8,
+                      maxHeight: 150,     // or whatever height you chose
+                      overflowY: "auto",
+                      padding: "0 12px",  // ← horizontal padding so the text has breathing room
+                      boxSizing: "border-box", // ensures padding is included within maxHeight
+                    }}
+                  >
                     {fb.website_comments}
                   </p>
                 </CardContent>
