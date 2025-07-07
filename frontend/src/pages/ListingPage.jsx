@@ -85,16 +85,17 @@ export default function ListingPage() {
   const handleToggleLike = async (listingId) => {
     const isLiked = !!likedMap[listingId];
     const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
+    const method    = isLiked ? "DELETE" : "POST";
     try {
       const res = await fetch(url, {
-        method: "DELETE", 
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           buyerId: currentUserId,
           auctionId: listingId,
         }),
       });
-      if (!res.ok) throw new Error("Toggle failed");
+      if (!res.ok) throw new Error(`${method} ${url} failed`);
       setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
     } catch (err) {
       console.error("Error toggling watchlist:", err);
