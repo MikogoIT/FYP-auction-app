@@ -13,12 +13,10 @@ export default function FeedbackList() {
       try {
         const res = await fetch("/api/feedback/list");
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-
-        setFeedbacks(data);
-        await fetchProfilePhotos(data);
+        if (res.ok) setFeedbacks(data);
+        else console.error("Failed to load feedbacks:", data.message);
       } catch (err) {
-        console.error("Failed to load feedbacks:", err);
+        console.error("Server error:", err);
       } finally {
         setLoading(false);
       }
@@ -38,7 +36,7 @@ export default function FeedbackList() {
     return 0;
   });
 
-  const visibleFeedbacks = sortedFeedbacks.slice(0, 6);
+  const visibleFeedbacks = sortedFeedbacks.slice(0, 6); // Only show 6
 
   if (loading) {
     return (
@@ -87,10 +85,10 @@ export default function FeedbackList() {
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                 <Avatar
-                  style={{ marginRight: 12 }}
-                  src={fb.profile_photo_url || undefined}
-                  alt={fb.username}
-                />
+                    style={{ marginRight: 12 }}
+                    src={fb.profile_image_url || undefined}
+                    alt={fb.username}
+                  />
                 <div>
                   <strong>{fb.username}</strong>
                   <div style={{ fontSize: 12, color: "#888" }}>
