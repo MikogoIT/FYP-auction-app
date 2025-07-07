@@ -102,7 +102,8 @@ export default function MyListings() {
                       <strong>Ends:</strong>{" "}
                       {new Date(item.end_date).toLocaleString()}
                     </p>
-                    <div className="listingAction">
+                  </div>
+                  <div className="listingAction">
                       <md-filled-button
                         onClick={() => handleEdit(item.id)}
                         style={{ width: "100%" }}
@@ -110,7 +111,6 @@ export default function MyListings() {
                         Edit
                       </md-filled-button>
                     </div>
-                  </div>
                 </div>
               ))}
             </div>

@@ -187,14 +187,9 @@ export default function ListingPage() {
                         : "No bids yet"}
                     </p>
 
-                    <div
-                      className="listingAction"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
+                    
+                  </div>
+                  <div className="listingAction">
                       <IconButton
                         onClick={() => handleToggleLike(item.id)}
                         size="large"
@@ -222,7 +217,6 @@ export default function ListingPage() {
                         </md-filled-button>
                       )}
                     </div>
-                  </div>
                 </div>
               );
             })}
