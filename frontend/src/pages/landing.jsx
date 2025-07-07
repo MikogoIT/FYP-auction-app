@@ -70,10 +70,8 @@ export default function Landing() {
 
       {/* Recent Feedback Section */}
       <Box mt={6} px={2}>
-        <Typography variant="h1" gutterBottom>
-          What Our Users Are Saying
-        </Typography>
-        <Grid container spacing={3}>
+        <h1>What Our Users Are Saying</h1>
+        <Grid container spacing={3} justifyContent="center">
           {feedback.map(fb => (
             <Grid item xs={12} sm={6} md={3} key={fb.id}>
               <Card
