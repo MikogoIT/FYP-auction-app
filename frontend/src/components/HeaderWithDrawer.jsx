@@ -124,6 +124,18 @@ function HeaderWithDrawer({ window }) {
             <ListItemText primary="My Listings" />
           </OutlineListItemButton>
         </ListItem>
+
+        <Divider/>
+
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/MyBids'}
+            onClick={() => navigate('/MyBids')}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="My Bids" />
+          </OutlineListItemButton>
+        </ListItem>
       </List>
     </Box>
   );

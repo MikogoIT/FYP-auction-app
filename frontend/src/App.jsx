@@ -61,7 +61,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/ListingPage" element={<ListingPage />} />
             <Route path="/Feedback" element={<Feedback />} />
             <Route path="/FeedbackList" element={<FeedbackList />} />
-            <Route path="/myBids" element={<MyBids />} />
+            <Route path="/MyBids" element={<MyBids />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />

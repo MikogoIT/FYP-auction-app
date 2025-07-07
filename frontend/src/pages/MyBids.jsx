@@ -56,7 +56,7 @@ export default function MyBids() {
         <div className="profileTitle">My Bids</div>
         <Crud
           dataSource={bidsDataSource}
-          rootPath="/my-bids"
+          rootPath="/MyBids"
           initialPageSize={10}
         />
       </div>
