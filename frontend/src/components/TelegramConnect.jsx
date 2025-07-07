@@ -77,7 +77,7 @@ export default function TelegramConnect({ user }) {
             script.setAttribute("data-size", "large");
             script.setAttribute("data-userpic", "true");
             script.setAttribute("data-request-access", "write");
-            script.setAttribute("data-onauth", "onTelegramAuth(user)");
+            script.setAttribute("data-onauth", "onTelegramAuth");
             script.id = "telegram-login-script";
             script.async = true;
             container.appendChild(script);
