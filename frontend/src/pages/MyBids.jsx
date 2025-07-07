@@ -26,7 +26,7 @@ export default function MyBids() {
     })();
   }, []);
 
-  // Map each bid to a row with an 'id' property for DataGrid
+  // Map each bid into a row with 'id'
   const rows = bids.map((bid) => ({ id: bid.bid_id, ...bid }));
 
   const columns = [
@@ -46,21 +46,21 @@ export default function MyBids() {
       headerName: 'Placed On',
       width: 180,
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : '',
+        params.value != null ? new Date(params.value).toLocaleString() : '',
     },
     {
       field: 'updated_at',
       headerName: 'Last Updated',
       width: 180,
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : '',
+        params.value != null ? new Date(params.value).toLocaleString() : '',
     },
     {
       field: 'end_date',
       headerName: 'Ends On',
       width: 180,
       valueFormatter: (params) =>
-        params.value ? new Date(params.value).toLocaleString() : '',
+        params.value != null ? new Date(params.value).toLocaleString() : '',
     },
   ];
 
