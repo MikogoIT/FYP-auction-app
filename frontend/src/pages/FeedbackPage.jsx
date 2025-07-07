@@ -31,13 +31,9 @@ export default function Feedback() {
         body: JSON.stringify({ website_comments, website_ratings }),
       });
       const data = await res.json();
-      if (res.status === 409) {
-        setMsg("❌ You have already submitted feedback.");
-        setSubmitted(true);
-      } else if (res.ok) {
+      if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
         setComments("");
-        setSubmitted(true);
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -78,14 +74,14 @@ export default function Feedback() {
             border: "1.5px solid #ccc",
             fontSize: 16,
             marginBottom: 16,
-            resize: "none",
+            resize: "none", // prevents resizing
           }}
           disabled={submitted || loading}
         />
         <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
           {website_comments.length}/500
         </div>
-        <button type="submit" disabled={loading || submitted} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
+        <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: 8, fontWeight: "bold", fontSize: 16, cursor: "pointer" }}>
           {loading ? "Submitting..." : "Submit Feedback"}
         </button>
         {msg && <p style={{ marginTop: 14, color: msg.startsWith("✅") ? "green" : "red", fontWeight: 600 }}>{msg}</p>}
