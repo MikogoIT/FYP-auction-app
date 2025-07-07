@@ -1,6 +1,6 @@
 // src/pages/MyBids.jsx
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box,
@@ -21,8 +21,6 @@ export default function MyBids() {
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Confirmation dialog state for single delete
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
 
@@ -60,7 +58,7 @@ export default function MyBids() {
         method: 'DELETE',
         credentials: 'include',
       });
-      await fetchBids();
+      fetchBids();
     } catch (err) {
       console.error(err);
     } finally {
@@ -88,14 +86,16 @@ export default function MyBids() {
     { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
     {
       field: 'actions',
-      headerName: ' ',
+      headerName: '',
       width: 80,
       sortable: false,
+      cellClassName: 'actionsColumn',
+      headerClassName: 'actionsHeader',
       renderCell: (params) => (
         <IconButton
           aria-label="delete"
-          color="error"
           size="small"
+          sx={{ color: 'text.secondary' }}
           onClick={() => openConfirm(params.id)}
         >
           <DeleteIcon fontSize="small" />
@@ -116,10 +116,7 @@ export default function MyBids() {
     <Box className="dashboardCanvas" sx={{ display: 'flex' }}>
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent" sx={{ flexGrow: 1 }}>
-        
-        <div id="wideTitle" className="profileTitle">My Bids</div>
-        
-
+        <div id="wideTitle" className="profileTitle">My Bids </div>
         {loading ? (
           <CircularProgress />
         ) : (
@@ -130,41 +127,43 @@ export default function MyBids() {
               columns={columns}
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
+              sx={{
+                '& .actionsColumn': {
+                  position: 'sticky',
+                  right: 0,
+                  backgroundColor: 'background.paper',
+                  zIndex: 1,
+                },
+                '& .actionsHeader': {
+                  position: 'sticky',
+                  right: 0,
+                  backgroundColor: 'background.paper',
+                  zIndex: 1,
+                },
+              }}
             />
           </Box>
         )}
 
-        {/* Confirmation Dialog */}
         <Dialog
           open={confirmOpen}
           onClose={closeConfirm}
-          PaperProps={{
-            sx: { borderRadius: '24px' }
-          }}
+          PaperProps={{ sx: { borderRadius: '24px' } }}
         >
           <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <WarningAmberIcon color="warning" />
             Withdraw this bid?
           </DialogTitle>
-
           <DialogContent>
             <DialogContentText>
               This will permanently withdraw your bid. A 5% fee will be incurred!
             </DialogContentText>
           </DialogContent>
-
           <DialogActions>
-            <Button
-              onClick={closeConfirm}
-              sx={{ textTransform: 'none' }}
-            >
+            <Button onClick={closeConfirm} sx={{ textTransform: 'none' }}>
               Cancel
             </Button>
-            <Button
-              onClick={handleDelete}
-              color="error"
-              sx={{ textTransform: 'none' }}
-            >
+            <Button onClick={handleDelete} color="error" sx={{ textTransform: 'none' }}>
               Withdraw
             </Button>
           </DialogActions>
