@@ -1,3 +1,4 @@
+// src/pages/FeedbackPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -97,36 +98,37 @@ export default function Feedback() {
           </select>
         </div>
         <textarea
-          value={website_comments}
-          onChange={e => setComments(e.target.value)}
-          placeholder="Share your thoughts, suggestions, or issues..."
-          rows={6}
-          style={{
-          width: "100%",
-          padding: 12,
-          borderRadius: 8,
-          border: "1.5px solid #ccc",
-          fontSize: 16,
-          marginBottom: 16,
-          resize: "none",
-          boxSizing: "border-box", // Ensures padding/border included in width
-          background: submitted || loading ? "#333" : "#fff", // for dark mode
-          color: submitted || loading ? "#aaa" : "#222",
-        }}
-          disabled={submitted || loading}
-        />
-        <div
-          style={{
-            textAlign: "right",
-            fontSize: 12,
-            color: "#888",
-            marginBottom: 8,
-          }}
-        >
+            value={website_comments}
+            onChange={e => {
+              const value = e.target.value;
+              if (countWords(value) <= 100) {
+                setComments(value);
+              }
+            }}
+            placeholder="Share your thoughts, suggestions, or issues..."
+            rows={6}
+            style={{
+              width: "100%",
+              padding: 12,
+              borderRadius: 8,
+              border: "1.5px solid #ccc",
+              fontSize: 16,
+              marginBottom: 16,
+              resize: "none",
+              boxSizing: "border-box",
+              background: submitted || loading ? "#333" : "#fff",
+              color: submitted || loading ? "#aaa" : "#222",
+            }}
+            disabled={submitted || loading}
+          />
           <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
-            {wordCount} words
+            {wordCount} / 100 words
+            {wordCount >= 100 && (
+              <span style={{ color: "red", marginLeft: 8 }}>
+                (Word limit reached)
+              </span>
+            )}
           </div>
-        </div>
         <button
           type="submit"
           disabled={loading || submitted}

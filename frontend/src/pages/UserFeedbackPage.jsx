@@ -1,7 +1,7 @@
+// src/pages/UserFeedbackPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Helper for word count
 function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
@@ -134,7 +134,6 @@ export default function UserFeedbackPage({ users }) {
           </select>
         </div>
         <textarea
-          maxLength={MAX_COMMENT_LENGTH}
           value={userComments}
           onChange={e => setUserComments(e.target.value)}
           placeholder="Share your feedback about this user..."
@@ -161,7 +160,9 @@ export default function UserFeedbackPage({ users }) {
             marginBottom: 8,
           }}
         >
-          {wordCount} words / {userComments.length}/{MAX_COMMENT_LENGTH} chars
+          <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
+            {wordCount} words
+          </div>
         </div>
         <button
           type="submit"
