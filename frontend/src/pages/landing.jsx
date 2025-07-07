@@ -79,6 +79,7 @@ export default function Landing() {
                 sx={{
                   borderRadius: '12px',
                   width: 350,
+                  height: 400,
                   p: 1,
                   mx: 'auto'
                 }}
@@ -90,7 +91,7 @@ export default function Landing() {
                 />
                 <CardContent>
                   <Rating value={fb.website_ratings} readOnly />
-                  <p className="feedbackComment" style={{ marginTop: 8 }}>
+                  <p className="feedbackComment" style={{ marginTop: 8, overflow: "auto" }}>
                     {fb.website_comments}
                   </p>
                 </CardContent>
