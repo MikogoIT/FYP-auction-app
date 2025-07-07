@@ -318,7 +318,6 @@ background-color: #e0e0e0;
 
 .listingCard {
   flex: 0 0 300px;
-  margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
   background-color: #f1f0f0;
@@ -343,11 +342,17 @@ background-color: #e0e0e0;
   margin: 4px 0;
   color: #555;
   font-size: 16px;
+  justify-content: space-between;
 }
 
 .listingDetails p
 {
   margin: 4px 0;
+}
+
+.listingDesc
+{
+  padding: 20px 0px;
 }
 
 .listingTitle {
@@ -357,10 +362,10 @@ background-color: #e0e0e0;
 
 
 .listingAction {
-  margin-top: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 0px 10px;
 }
 
 .paginationControls {
