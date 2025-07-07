@@ -9,7 +9,7 @@ import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
 
-export default function Dashboard() {
+export default function WatchedListings() {
 
   return (
     <div className="dashboardCanvas">

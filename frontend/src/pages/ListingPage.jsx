@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
-
-// Material-Web buttons
+import IconButton from "@mui/material/IconButton";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
-
-
 
 const ITEMS_PER_PAGE = 6;
 
@@ -23,8 +22,9 @@ export default function ListingPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [likedMap, setLikedMap] = useState({});
 
-  // Fetch categories
+  // Fetch all categories
   useEffect(() => {
     (async () => {
       try {
@@ -37,7 +37,7 @@ export default function ListingPage() {
     })();
   }, []);
 
-  // Fetch listings + enrich with image_url
+  // Fetch listings (with optional search & category filters) and their images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -75,19 +75,35 @@ export default function ListingPage() {
     })();
   }, [searchTerm, selectedCategory]);
 
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
+
+  const handleAddToWatchlist = async (listingId) => {
+    try {
+      const res = await fetch("/api/watchlist/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          buyerId: currentUserId,
+          auctionId: listingId,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to add to watchlist");
+      setLikedMap((m) => ({ ...m, [listingId]: true }));
+    } catch (err) {
+      console.error("Error adding to watchlist:", err);
+    }
+  };
+
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
   const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
 
-  const handleBidClick = (id) => navigate(`/bid/${id}`);
-
   return (
     <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
       <div className="dashboardContent">
-
         <div className="profileTitle">📋 All Auction Listings</div>
 
         <div className="filterContainer">
@@ -136,6 +152,7 @@ export default function ListingPage() {
                       <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                     </Avatar>
                   )}
+
                   <div className="listingDetails">
                     <h3 className="listingTitle">{item.title}</h3>
                     <p className="listingDesc">{item.description}</p>
@@ -147,11 +164,27 @@ export default function ListingPage() {
                       {new Date(item.end_date).toLocaleString()}
                     </p>
                     <p>
-                      <strong>Current Bid:</strong> {item.current_bid !== null && item.current_bid !== undefined 
-                        ? `$${item.current_bid}` 
+                      <strong>Current Bid:</strong>{" "}
+                      {item.current_bid != null
+                        ? `$${item.current_bid}`
                         : "No bids yet"}
                     </p>
+
                     <div className="listingAction">
+                      {/* Like button */}
+                      <IconButton
+                        onClick={() => handleAddToWatchlist(item.id)}
+                        size="large"
+                        sx={{ mr: 1 }}
+                      >
+                        {likedMap[item.id] ? (
+                          <FavoriteIcon color="error" />
+                        ) : (
+                          <FavoriteBorderIcon />
+                        )}
+                      </IconButton>
+
+                      {/* Bid or Edit */}
                       {isOwner ? (
                         <md-filled-button
                           onClick={() => navigate(`/edit/${item.id}`)}
@@ -195,7 +228,7 @@ export default function ListingPage() {
           </div>
         )}
       </div>
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }

@@ -24,6 +24,7 @@ import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
 import MyBids from "./pages/MyBids";
 import ContactPage from "./pages/ContactPage";
+import WatchedListings from "./pages/WatchedListings";
 
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
@@ -34,6 +35,7 @@ import FeedbackList from "./pages/FeedbackList";
 import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
+
 
 const hideDrawerRoutes = ["/", "/login", "/register", "/FeedbackList"];
 
@@ -65,6 +67,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/ListingPage" element={<ListingPage />} />
             <Route path="/MyBids" element={<MyBids />} />
             <Route path="/Contact" element={<ContactPage />} />
+            <Route path="/Watchlist" element={<WatchedListings />} />
 
             <Route path="/Feedback" element={<Feedback />} />
             <Route path="/FeedbackList" element={<FeedbackList />} />
