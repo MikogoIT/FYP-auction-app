@@ -77,7 +77,7 @@ export default function Feedback() {
             borderRadius: 8,
             border: "1.5px solid #ccc",
             fontSize: 16,
-            marginBottom: 8,
+            marginBottom: 16,
             resize: "none",
           }}
           disabled={submitted || loading}
