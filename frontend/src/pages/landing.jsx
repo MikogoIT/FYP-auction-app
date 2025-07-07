@@ -13,7 +13,6 @@ import {
   Card,
   CardHeader,
   CardContent,
-  Typography,
   Avatar,
   Rating,
 } from '@mui/material';
@@ -63,14 +62,13 @@ export default function Landing() {
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
-      <div className='squiggleDiv1'>
+      <div className="squiggleDiv1">
         <Squiggle />
       </div>
-      
 
       {/* Recent Feedback Section */}
       <Box mt={6} px={2}>
-        <h1>What Our Users Are Saying</h1>
+        <h1 className="feedbackHeading">What Our Users Are Saying</h1>
         <Grid container spacing={3} justifyContent="center">
           {feedback.map(fb => (
             <Grid item xs={12} sm={6} md={3} key={fb.id}>
@@ -78,11 +76,11 @@ export default function Landing() {
                 elevation={2}
                 sx={{
                   borderRadius: '24px',
-                  width: 400,
-                  p: 3,          // 24px padding (3 × 8px)
-                  mx: 'auto'    // center within the grid cell
+                  width: 350,
+                  p: 2,
+                  mx: 'auto'
                 }}
-            >
+              >
                 <CardHeader
                   avatar={<Avatar src={fb.profile_image_url} />}
                   title={fb.username}
@@ -90,18 +88,17 @@ export default function Landing() {
                 />
                 <CardContent>
                   <Rating value={fb.website_ratings} readOnly />
-                  <Typography variant="body2" mt={1}>
+                  <p className="feedbackComment" style={{ marginTop: 8 }}>
                     {fb.website_comments}
-                  </Typography>
+                  </p>
                 </CardContent>
               </Card>
             </Grid>
           ))}
+
           {feedback.length === 0 && (
             <Grid item xs={12}>
-              <Typography color="textSecondary">
-                No feedback available yet.
-              </Typography>
+              <p className="noFeedback">No feedback available yet.</p>
             </Grid>
           )}
         </Grid>
