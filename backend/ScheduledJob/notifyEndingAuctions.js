@@ -7,7 +7,7 @@ async function notifyEndingAuctions() {
 
   try {
     const results = await sql`
-      SELECT DISTINCT b.user_id, l.id AS listing_id, l.title, l.end_date
+      SELECT DISTINCT b.buyer_id, l.id AS listing_id, l.title, l.end_date
       FROM auction_listings l
       JOIN bids b ON l.id = b.auction_id
       WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
