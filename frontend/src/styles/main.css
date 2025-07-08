@@ -310,11 +310,7 @@ background-color: #e0e0e0;
   text-align: center;
 }
 
-.listingsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
+
 
 .listingCard {
   flex: 0 0 300px;
@@ -411,6 +407,7 @@ background-color: #e0e0e0;
   flex-wrap: wrap;
   gap: 16px;
   justify-content: flex-start;
+  width: 100%;
 }
 
 

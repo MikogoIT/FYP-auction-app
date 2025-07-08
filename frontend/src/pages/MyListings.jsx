@@ -72,7 +72,7 @@ export default function MyListings() {
           <p className="centerText">You haven’t listed any items yet.</p>
         ) : (
           <>
-            <div className="listingsGrid">
+            <div className="listingGrid">
               {currentPageItems.map((item) => (
                 <div key={item.id} className="listingCard">
                   {item.image_url ? (
