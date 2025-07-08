@@ -9,8 +9,6 @@ export default function FeedbackForm({
   heading = "Website Feedback",
   endpoint = "/api/feedback",
   onSuccess,
-  showBackButton = false,
-  onBack,
 }) {
   const [website_comments, setComments] = useState("");
   const [website_ratings, setRatings] = useState(5);
