@@ -18,6 +18,8 @@ import notificationRoutes from "./routes/notificationRoutes.js"
 import watchlistRoutes from "./routes/watchlistRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 
+import "./ScheduledJob/notifyEndingAuctions.js"
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 // session

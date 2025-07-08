@@ -48,9 +48,14 @@ export async function createBid(req, res) {
     const result = await insertBid(userId, auction_id, bid_amount);
 
     if (prevHighest.length > 0 && prevHighest[0].buyer_id !== userId) {
+      const auctionInfo = await sql`
+        SELECT title FROM auction_listings WHERE id = ${auction_id}
+      `;
+      const auctionTitle = auctionInfo.length > 0 ? auctionInfo[0].title : `#${auction_id}`;
+
       await insertNotification(
         prevHighest[0].buyer_id,
-        `Your bid for auction #${auction_id} has been outbid.`
+        `Your bid for auction "${auctionTitle}" has been outbid.`
       );
     }
 
