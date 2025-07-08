@@ -1,9 +1,15 @@
 import { sql } from "../utils/db.js";
 import { insertNotification, hasRecentNotification } from "../models/notificationModel.js";
 
-async function notifyEndingAuctions() {
+function getSingaporeTime() {
   const now = new Date();
-  const tenMinLater = new Date(now.getTime() + 10 * 60 * 1000);
+  const sgOffsetMs = 8 * 60 * 60 * 1000; // +8 小时
+  return new Date(now.getTime() + sgOffsetMs);
+}
+
+async function notifyEndingAuctions() {
+  const sgNow = getSingaporeTime();
+  const tenMinLater = new Date(sgNow.getTime() + 10 * 60 * 1000);
 
   try {
     const results = await sql`
@@ -11,7 +17,7 @@ async function notifyEndingAuctions() {
         SELECT b.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN bids b ON l.id = b.auction_id
-        WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
+        WHERE l.end_date BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
           AND l.is_active = true
 
         UNION
@@ -19,7 +25,7 @@ async function notifyEndingAuctions() {
         SELECT w.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN watchlist w ON l.id = w.auction_id
-        WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
+        WHERE l.end_date BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
           AND l.is_active = true
       ) AS combined
     `;
@@ -28,7 +34,9 @@ async function notifyEndingAuctions() {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
 
-      const formattedTime = new Date(end_date).toLocaleString("en-SG");
+      const endDateSG = new Date(new Date(end_date).getTime() + 8 * 60 * 60 * 1000);
+      const formattedTime = endDateSG.toLocaleString("en-SG");
+
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
       await insertNotification(user_id, listing_id, content);
     }
