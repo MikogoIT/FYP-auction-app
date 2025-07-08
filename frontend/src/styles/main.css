@@ -106,6 +106,9 @@ background-color: #e0e0e0;
   max-width: 1000px;
   width: 100%;
   flex-direction: column;
+  font-size: 16px;
+  font-family: 'Roboto';
+  align-items: center;
 }
 
 .title1
@@ -263,7 +266,7 @@ background-color: #e0e0e0;
 {
   font-family: 'Roboto';
   font-size: 16px;
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
 }
 
@@ -307,20 +310,17 @@ background-color: #e0e0e0;
   text-align: center;
 }
 
-.listingsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
+
 
 .listingCard {
-  max-width: 300px;
-  margin: 0 auto;
+  flex: 0 0 300px;
   border-radius: 16px;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #f1f0f0;
   display: flex;
   flex-direction: column;
+  width: 300px;
+  height: 500px;
 }
 
 .listingImage {
@@ -330,27 +330,39 @@ background-color: #e0e0e0;
 }
 
 .listingDetails {
-  background-color: #f1f0f0;
-  padding: 16px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  border-top: 1px solid #eee;
+  flex: 1;
+  overflow-y: auto;
+  margin: 4px 0;
+  color: #555;
+  font-size: 16px;
+  justify-content: space-between;
+}
+
+.listingDetails p
+{
+  margin: 4px 0;
+}
+
+.listingDesc
+{
+  overflow: auto;
 }
 
 .listingTitle {
   margin: 0 0 8px 0;
 }
 
-.listingDesc,
-.listingMinBid,
-.listingEndDate {
-  margin: 4px 0;
-  color: #555;
-}
+
 
 .listingAction {
-  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0px 5px;
+  height: 55px;
 }
 
 .paginationControls {
@@ -391,9 +403,11 @@ background-color: #e0e0e0;
 }
 
 .listingGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 
@@ -419,4 +433,10 @@ background-color: #e0e0e0;
 {
   max-width: unset;
   width: 100%;
+}
+
+.squiggleDiv1
+{
+  width: 100%;
+  margin: 30px 0px;
 }

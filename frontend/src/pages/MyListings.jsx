@@ -72,7 +72,7 @@ export default function MyListings() {
           <p className="centerText">You haven’t listed any items yet.</p>
         ) : (
           <>
-            <div className="listingsGrid">
+            <div className="listingGrid">
               {currentPageItems.map((item) => (
                 <div key={item.id} className="listingCard">
                   {item.image_url ? (
@@ -91,6 +91,9 @@ export default function MyListings() {
                   )}
                   <div className="listingDetails">
                     <h3 className="listingTitle">{item.title}</h3>
+                    <p className="listingCategory">
+                      <strong>Category:</strong> {item.category_name || "—"}
+                    </p>
                     <p className="listingDesc">{item.description}</p>
                     <p className="listingMinBid">
                       <strong>Min Bid:</strong> ${item.min_bid}
@@ -99,7 +102,8 @@ export default function MyListings() {
                       <strong>Ends:</strong>{" "}
                       {new Date(item.end_date).toLocaleString()}
                     </p>
-                    <div className="listingAction">
+                  </div>
+                  <div className="listingAction">
                       <md-filled-button
                         onClick={() => handleEdit(item.id)}
                         style={{ width: "100%" }}
@@ -107,7 +111,6 @@ export default function MyListings() {
                         Edit
                       </md-filled-button>
                     </div>
-                  </div>
                 </div>
               ))}
             </div>

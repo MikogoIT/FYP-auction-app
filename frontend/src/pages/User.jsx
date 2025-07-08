@@ -1,4 +1,4 @@
-// src/pages/Template.jsx
+// src/pages/User.jsx
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
 
-export default function WatchedListings() {
+export default function Dashboard() {
 
   return (
     <div className="dashboardCanvas">
@@ -17,7 +17,7 @@ export default function WatchedListings() {
       <div className="dashboardContent">
 
         {/* page title */}
-        <div className="profileTitle">Recent Listings</div>
+        <div className="profileTitle">user</div>
 
     
       </div>

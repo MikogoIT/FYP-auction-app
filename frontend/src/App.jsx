@@ -22,16 +22,23 @@ import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
+import MyBids from "./pages/MyBids";
+import ContactPage from "./pages/ContactPage";
+import WatchedListings from "./pages/WatchedListings";
+
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
-import MyBids from "./pages/MyBids";
+import UserFeedback from "./pages/UserFeedbackPage";
+
+
 
 // components
 import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
 
-const hideDrawerRoutes = ["/", "/login", "/register"];
+
+const hideDrawerRoutes = ["/", "/login", "/register", "/FeedbackList"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();
@@ -59,9 +66,12 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
             <Route path="/ListingPage" element={<ListingPage />} />
-            <Route path="/Feedback" element={<Feedback />} />
-            <Route path="/FeedbackList" element={<FeedbackList />} />
             <Route path="/MyBids" element={<MyBids />} />
+            <Route path="/Contact" element={<ContactPage />} />
+            <Route path="/Watchlist" element={<WatchedListings />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/feedbacklist" element={<FeedbackList />} />
+            <Route path="/feedback-user" element={<UserFeedback />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />

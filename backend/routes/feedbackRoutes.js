@@ -1,13 +1,19 @@
 // routes/feedbackRoutes.js
 import express from "express";
-import { submitWebsiteFeedback } from "../controllers/feedbackController.js";
-import { getAllWebsiteFeedback } from "../controllers/feedbackController.js";
+import * as feedbackController from "../controllers/feedbackController.js";
 import { requireLogin } from "../utils/requireLogin.js";
 
 const router = express.Router();
 
 
-router.post("/", requireLogin, submitWebsiteFeedback);
-router.get("/list", getAllWebsiteFeedback);
+// POST   /feedback       (requires login)
+router.post(  "/",  requireLogin,  feedbackController.submitWebsiteFeedback);
+
+// GET    /feedback/list
+router.get(  "/list",  feedbackController.getAllWebsiteFeedback);
+
+// GET    /feedback/recent
+router.get(  "/recent",  feedbackController.getRecentFeedback);
+
 
 export default router;

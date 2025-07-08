@@ -61,10 +61,14 @@ export const deleteListing = async (id) => {
 
 export const getMyListings = async (userId) => {
   return await sql`
-    SELECT id, title, description, min_bid, end_date
-    FROM auction_listings
-    WHERE seller_id = ${userId}
-    ORDER BY end_date ASC
+    SELECT
+      l.*,
+      c.name AS category_name
+    FROM auction_listings l
+    LEFT JOIN listing_categories c
+      ON l.category_id = c.id
+    WHERE l.seller_id = ${userId}
+    ORDER BY l.end_date ASC
   `;
 };
 

@@ -2,20 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import ImageIcon from "@mui/icons-material/Image";
 
-// Material-Web buttons
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import ImageIcon from "@mui/icons-material/Image";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useTheme } from "@mui/material/styles";
+
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
-
-
 
 const ITEMS_PER_PAGE = 6;
 
 export default function ListingPage() {
   const navigate = useNavigate();
-  const currentUserId = localStorage.getItem("userId");
+  const currentUserId = Number(localStorage.getItem("userId"));
+
+  const theme = useTheme();
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
 
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -24,20 +30,28 @@ export default function ListingPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  // Fetch categories
+  // track which listings are liked
+  const [likedMap, setLikedMap] = useState({});
+
+  // 1) on mount, load user's watchlist to seed likedMap
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch("/api/watchlist/");
         const data = await res.json();
-        if (res.ok) setCategories(data.categories);
+        if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
+        const map = {};
+        data.forEach((item) => {
+          map[item.auction_id] = true;
+        });
+        setLikedMap(map);
       } catch (err) {
-        console.error("Failed to fetch categories:", err);
+        console.error("Could not load watchlist:", err);
       }
     })();
   }, []);
 
-  // Fetch listings + enrich with image_url
+  // 2) fetch listings + images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -54,9 +68,8 @@ export default function ListingPage() {
           data.listings.map(async (item) => {
             try {
               const imgRes = await fetch(
-                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+                `/api/listingimg?listingId=${item.id}`
               );
-              if (!imgRes.ok) throw new Error();
               const { imageUrl } = await imgRes.json();
               return { ...item, image_url: imageUrl };
             } catch {
@@ -75,26 +88,51 @@ export default function ListingPage() {
     })();
   }, [searchTerm, selectedCategory]);
 
+  // 3) toggle like/unlike
+  const handleToggleLike = async (listingId) => {
+    const isLiked = !!likedMap[listingId];
+    const url = isLiked
+      ? "/api/watchlist/remove"
+      : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auction_id: listingId }),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `${method} ${url} failed`);
+      }
+
+      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
+    } catch (err) {
+      console.error("Error toggling watchlist:", err);
+    }
+  };
+
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
+
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
   const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
 
-  const handleBidClick = (id) => navigate(`/bid/${id}`);
-
   return (
     <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
       <div className="dashboardContent">
-
-        <div className="profileTitle">📋 All Auction Listings</div>
+        <div id="wideTitle" className="profileTitle">All Auction Listings</div>
 
         <div className="filterContainer">
           <input
             className="searchInput"
             type="text"
-            placeholder="🔍 Search by title or description..."
+            placeholder="🔍 Search by title or description…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -119,7 +157,7 @@ export default function ListingPage() {
         ) : (
           <div className="listingGrid">
             {paginated.map((item) => {
-              const isOwner = String(item.seller_id) === String(currentUserId);
+              const isOwner = item.seller_id === currentUserId;
               return (
                 <div key={item.id} className="listingCard">
                   {item.image_url ? (
@@ -136,6 +174,7 @@ export default function ListingPage() {
                       <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                     </Avatar>
                   )}
+
                   <div className="listingDetails">
                     <h3 className="listingTitle">{item.title}</h3>
                     <p className="listingDesc">{item.description}</p>
@@ -147,28 +186,46 @@ export default function ListingPage() {
                       {new Date(item.end_date).toLocaleString()}
                     </p>
                     <p>
-                      <strong>Current Bid:</strong> {item.current_bid !== null && item.current_bid !== undefined 
-                        ? `$${item.current_bid}` 
+                      <strong>Current Bid:</strong>{" "}
+                      {item.current_bid != null
+                        ? `$${item.current_bid}`
                         : "No bids yet"}
                     </p>
-                    <div className="listingAction">
+
+                    
+                  </div>
+                  <div className="listingAction">
+                      <IconButton
+                        onClick={() => handleToggleLike(item.id)}
+                        size="large"
+                      >
+                        {likedMap[item.id] ? (
+                          <FavoriteIcon color="error" />
+                        ) : (
+                          <FavoriteBorderIcon />
+                        )}
+                      </IconButton>
+
                       {isOwner ? (
                         <md-filled-button
                           onClick={() => navigate(`/edit/${item.id}`)}
-                          style={{ width: "100%" }}
+                          style={{
+                            flexGrow: 1,
+                            "--md-sys-color-primary":    yellow,
+                            "--md-sys-color-on-primary": contrastText,
+                          }}
                         >
-                          ✏️ Edit
+                          Edit
                         </md-filled-button>
                       ) : (
                         <md-filled-button
                           onClick={() => handleBidClick(item.id)}
-                          style={{ width: "100%" }}
+                          style={{ flexGrow: 1 }}
                         >
-                          💰 Bid
+                          Bid
                         </md-filled-button>
                       )}
                     </div>
-                  </div>
                 </div>
               );
             })}
@@ -195,7 +252,7 @@ export default function ListingPage() {
           </div>
         )}
       </div>
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }

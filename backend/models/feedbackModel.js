@@ -39,3 +39,19 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
     ${orderByClause}
   `;
 }
+
+export async function getLatestWebsiteFeedback() {
+  return await sql`
+    SELECT
+      f.id,
+      f.website_ratings,
+      f.website_comments,
+      f.created_at,
+      u.username,
+      u.profile_image_url
+    FROM website_feedback f
+    JOIN users u ON f.user_id = u.id
+    ORDER BY f.created_at DESC
+    LIMIT 4
+  `;
+}
