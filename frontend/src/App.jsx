@@ -29,13 +29,14 @@ import WatchedListings from "./pages/WatchedListings";
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
-
+import Notif from "./pages/Notif";
 
 
 // components
 import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
+
 
 
 const hideDrawerRoutes = ["/", "/login", "/register", "/FeedbackList"];
@@ -72,6 +73,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedback-user" element={<UserFeedback />} />
+            <Route path="/notif" element={<Notif />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />

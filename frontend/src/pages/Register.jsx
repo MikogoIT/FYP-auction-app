@@ -43,8 +43,8 @@ export default function Register() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Registration failed");
 
-      setSuccessMsg("🎉 Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 2000);
+      setSuccessMsg("Registration successful! Redirecting to login...");
+      navigate("/login");
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
