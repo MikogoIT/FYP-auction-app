@@ -1,9 +1,7 @@
-import cron from "node-cron";
 import { sql } from "../utils/db.js";
 import { insertNotification, hasRecentNotification } from "../models/notificationModel.js";
 
-// each mins
-cron.schedule("* * * * *", async () => {
+async function notifyEndingAuctions() {
   const now = new Date();
   const tenMinLater = new Date(now.getTime() + 10 * 60 * 1000);
 
@@ -31,4 +29,12 @@ cron.schedule("* * * * *", async () => {
   } catch (err) {
     console.error("[notifyEndingAuctions] ❌ Error:", err);
   }
-});
+}
+
+setInterval(() => {
+  notifyEndingAuctions();
+}, 60 * 1000);
+
+notifyEndingAuctions();
+
+export default notifyEndingAuctions;
