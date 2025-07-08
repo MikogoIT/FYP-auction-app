@@ -1,14 +1,9 @@
 import { sql } from "../utils/db.js";
 import { insertNotification, hasRecentNotification } from "../models/notificationModel.js";
 
-function getSingaporeTime() {
-  const now = new Date();
-  return new Date(now.getTime());
-}
-
 async function notifyEndingAuctions() {
-  const sgNow = getSingaporeTime();
-  const tenMinLater = new Date(sgNow.getTime() + 10 * 60 * 1000);
+  const nowUTC = new Date();
+  const tenMinLaterUTC = new Date(nowUTC.getTime() + 10 * 60 * 1000);
 
   try {
     const results = await sql`
@@ -16,7 +11,7 @@ async function notifyEndingAuctions() {
         SELECT b.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN bids b ON l.id = b.auction_id
-        WHERE (l.end_date - interval '8 hours') BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
+        WHERE (l.end_date - interval '8 hours') BETWEEN ${nowUTC.toISOString()} AND ${tenMinLaterUTC.toISOString()}
           AND l.is_active = true
 
         UNION
@@ -24,7 +19,7 @@ async function notifyEndingAuctions() {
         SELECT w.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN watchlist w ON l.id = w.auction_id
-        WHERE (l.end_date - interval '8 hours') BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
+        WHERE (l.end_date - interval '8 hours') BETWEEN ${nowUTC.toISOString()} AND ${tenMinLaterUTC.toISOString()}
           AND l.is_active = true
       ) AS combined
     `;
@@ -33,8 +28,8 @@ async function notifyEndingAuctions() {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
 
-      const endDateSG = new Date(new Date(end_date).getTime() - 8 * 60 * 60 * 1000);
-      const formattedTime = endDateSG.toLocaleString("en-SG");
+      const endDateSG = new Date(end_date);
+      const formattedTime = endDateSG.toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
       await insertNotification(user_id, listing_id, content);
