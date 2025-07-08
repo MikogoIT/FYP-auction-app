@@ -69,8 +69,8 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/MyBids" element={<MyBids />} />
             <Route path="/Contact" element={<ContactPage />} />
             <Route path="/Watchlist" element={<WatchedListings />} />
-            <Route path="/Feedback" element={<Feedback />} />
-            <Route path="/feedback-list" element={<FeedbackList />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedback-user" element={<UserFeedback />} />
 
           {!isApiRoute && (
