@@ -32,7 +32,7 @@ async function notifyEndingAuctions() {
       if (alreadySent) continue;
 
       const endDateSG = new Date(end_date);
-      const formattedTime = new Date(endDateSG.getTime() + 8 * 60 * 60 * 1000)
+      const formattedTime = new Date(endDateSG.getTime())
         .toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
