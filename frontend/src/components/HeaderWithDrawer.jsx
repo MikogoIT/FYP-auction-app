@@ -65,6 +65,7 @@ function HeaderWithDrawer({ window }) {
   const goToAdminPage = () => navigate('/admin');
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    setIsAdmin(false);
     setIsLoggedIn(false);
     setPhotoUrl(null);
     navigate('/');
