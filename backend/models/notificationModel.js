@@ -34,6 +34,6 @@ export async function hasRecentNotification(userId, listingId, minutes = 15) {
       AND listing_id = $2
       AND created_at > NOW() - INTERVAL '${intervalStr}'
   `;
-  const result = await sql(query, [userId, listingId]);
+  const result = await sql.query(query, [userId, listingId]);
   return result.length > 0;
 }
