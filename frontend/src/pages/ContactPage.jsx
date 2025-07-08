@@ -19,7 +19,12 @@ export default function ContactPage() {
         {/* page title */}
         <div className="profileTitle">Contact us!!</div>
 
-    
+        {/* Feedback form */}
+        <FeedbackForm
+          heading="Send Us Your Feedback"
+          endpoint="/api/feedback" // or your desired endpoint
+        />
+
       </div>
       <div className="sidebarSpacer"></div>
     </div>
