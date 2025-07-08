@@ -31,12 +31,12 @@ async function notifyEndingAuctions() {
       const endDateSG = new Date(end_date);
       const formattedTime = endDateSG.toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
 
-      const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
+      const content = '⏰ Auction "${title}" is ending at ${formattedTime}';
       await insertNotification(user_id, listing_id, content);
     }
 
     if (results.length > 0) {
-      console.log(`[notifyEndingAuctions] ✅ Notified ${results.length} users`);
+      console.log('[notifyEndingAuctions] ✅ Notified ${results.length} users');
     }
   } catch (err) {
     console.error("[notifyEndingAuctions] ❌ Error:", err);
