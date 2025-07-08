@@ -16,7 +16,7 @@ async function notifyEndingAuctions() {
         SELECT b.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN bids b ON l.id = b.auction_id
-        WHERE l.end_date BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
+        WHERE (l.end_date - interval '8 hours') BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
           AND l.is_active = true
 
         UNION
@@ -24,7 +24,7 @@ async function notifyEndingAuctions() {
         SELECT w.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
         FROM auction_listings l
         JOIN watchlist w ON l.id = w.auction_id
-        WHERE l.end_date BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
+        WHERE (l.end_date - interval '8 hours') BETWEEN ${sgNow.toISOString()} AND ${tenMinLater.toISOString()}
           AND l.is_active = true
       ) AS combined
     `;
