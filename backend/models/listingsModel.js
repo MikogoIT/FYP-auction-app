@@ -19,7 +19,7 @@ export const getActiveListings = async () => {
       l.end_date, 
       l.seller_id, 
       u.username AS seller,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      COALESCE MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
@@ -35,13 +35,14 @@ export const getListingById = async (id) => {
   return await sql`
     SELECT 
       l.id, l.title, l.description, l.min_bid, l.end_date,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      COALESCE MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.id = ${id}
     GROUP BY l.id
   `;
 };
+
 export const getSellerId = async (id) => {
   return await sql`
     SELECT seller_id FROM auction_listings WHERE id = ${id}
@@ -67,7 +68,7 @@ export const getMyListings = async (userId) => {
     SELECT 
       l.*,
       c.name AS category_name,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      COALESCE MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     LEFT JOIN listing_categories c ON l.category_id = c.id
     LEFT JOIN bids b ON l.id = b.auction_id
@@ -82,7 +83,7 @@ export async function getListingsWithFilters(searchTerm, categoryId) {
     SELECT 
       l.*, 
       u.username AS seller,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      COALESCE MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
@@ -99,7 +100,7 @@ export async function getRecentListings(limit = 5) {
     SELECT 
       l.*, 
       u.username AS seller,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      COALESCE MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
