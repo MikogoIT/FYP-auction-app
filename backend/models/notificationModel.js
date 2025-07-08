@@ -1,7 +1,7 @@
 import { sql } from "../utils/db.js";
 
 // insert notification
-export async function insertNotification(userId, content) {
+export async function insertNotification(userId, listingId, content) {
   return await sql`
     INSERT INTO notifications (user_id, listing_id, content, is_read)
     VALUES (${userId}, ${listingId}, ${content}, FALSE)
