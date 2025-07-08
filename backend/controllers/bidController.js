@@ -55,6 +55,7 @@ export async function createBid(req, res) {
 
       await insertNotification(
         prevHighest[0].buyer_id,
+        auction_id,
         `Your bid for auction "${auctionTitle}" has been outbid.`
       );
     }
