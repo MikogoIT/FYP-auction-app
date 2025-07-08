@@ -31,9 +31,8 @@ async function notifyEndingAuctions() {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
 
-      const endDateSG = new Date(end_date);
-      const formattedTime = new Date(endDateSG.getTime() + 8 * 60 * 60 * 1000)
-        .toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
+      const endDateSG = new Date(end_date.replace('Z', ''));
+      const formattedTime = endDateSG.toLocaleString("en-SG");
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
       await insertNotification(user_id, listing_id, content);
