@@ -1,5 +1,5 @@
 // models/feedbackModel.js
-import { sql } from '../utils/db.js';
+import { sql } from "../utils/db.js";
 
 export async function insertWebsiteFeedback(user_id, website_ratings, website_comments) {
   return await sql`
@@ -15,31 +15,22 @@ export async function hasSubmittedFeedback(user_id) {
   return result.length > 0;
 }
 
-export async function getAllWebsiteFeedback(sortOption = 'latest') {
+export async function getAllWebsiteFeedback(sortOption = "latest") {
   let orderByClause;
 
   switch (sortOption) {
-    case 'highest':
+    case "highest":
       orderByClause = sql`ORDER BY f.website_ratings DESC`;
       break;
-    case 'lowest':
+    case "lowest":
       orderByClause = sql`ORDER BY f.website_ratings ASC`;
       break;
-    case 'latest':
+    case "latest":
     default:
       orderByClause = sql`ORDER BY f.created_at DESC`;
       break;
   }
 
-  return await sql`
-    SELECT f.id, f.website_ratings, f.website_comments, f.created_at,
-           u.username, u.profile_image_url
-    FROM website_feedback f
-    JOIN users u ON f.user_id = u.id
-    ${orderByClause}
-  `;
-
-  /*
   return await sql`
     SELECT f.id, f.website_ratings, f.website_comments, f.created_at,
            u.username, u.profile_image_url
@@ -63,7 +54,4 @@ export async function getLatestWebsiteFeedback() {
     ORDER BY f.created_at DESC
     LIMIT 4
   `;
-}
-
-  */
 }
