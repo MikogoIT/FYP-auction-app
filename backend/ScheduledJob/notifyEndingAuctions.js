@@ -3,7 +3,7 @@ import { insertNotification, hasRecentNotification } from "../models/notificatio
 
 function getSingaporeTime() {
   const now = new Date();
-  const sgOffsetMs = 8 * 60 * 60 * 1000; // +8 小时
+  // const sgOffsetMs = 8 * 60 * 60 * 1000; // +8 小时
   return new Date(now.getTime() + sgOffsetMs);
 }
 
@@ -34,7 +34,7 @@ async function notifyEndingAuctions() {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
 
-      const endDateSG = new Date(new Date(end_date).getTime() + 8 * 60 * 60 * 1000);
+      const endDateSG = new Date(new Date(end_date).getTime() - 8 * 60 * 60 * 1000);
       const formattedTime = endDateSG.toLocaleString("en-SG");
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
