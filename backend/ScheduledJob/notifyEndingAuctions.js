@@ -35,7 +35,6 @@ async function notifyEndingAuctions() {
       const formattedTime = endDateSG.toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
-      const content = '⏰ Auction "${title}" is ending at ${formattedTime}';
       await insertNotification(user_id, listing_id, content);
     }
 
