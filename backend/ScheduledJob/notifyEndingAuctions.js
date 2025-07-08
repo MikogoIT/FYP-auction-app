@@ -31,7 +31,7 @@ async function notifyEndingAuctions() {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
 
-      const endDateSG = new Date(end_date.replace('Z', ''));
+      const endDateSG = new Date(end_date);
       const formattedTime = endDateSG.toLocaleString("en-SG");
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
@@ -39,7 +39,7 @@ async function notifyEndingAuctions() {
     }
 
     if (results.length > 0) {
-      console.log('[notifyEndingAuctions] ✅ Notified ${results.length} users');
+      console.log(`[notifyEndingAuctions] ✅ Notified ${results.length} users`);
     }
   } catch (err) {
     console.error("[notifyEndingAuctions] ❌ Error:", err);
