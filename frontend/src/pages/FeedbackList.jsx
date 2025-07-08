@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/pages/FeedbackList.jsx
+import { useEffect, useState } from 'react';
 import {
   Box,
   Grid,
@@ -7,19 +8,23 @@ import {
   CardContent,
   Avatar,
   Rating,
-  CircularProgress,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+} from '@mui/material';
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function FeedbackList() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState("latest");
   const [error, setError] = useState("");
+
+  // Responsive grid columns
+  const [gridColumns, setGridColumns] = useState(window.innerWidth < 700 ? 1 : 3);
+
+  useEffect(() => {
+    const handleResize = () => setGridColumns(window.innerWidth < 700 ? 1 : 3);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
@@ -48,98 +53,97 @@ export default function FeedbackList() {
     return 0;
   });
 
-  // Show up to 6 feedbacks
   const visibleFeedbacks = sortedFeedbacks.slice(0, 6);
 
   if (loading) {
     return (
-      <Box sx={{ textAlign: "center", mt: 8 }}>
+      <div style={{ textAlign: "center", marginTop: 50 }}>
         <CircularProgress />
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: "auto" }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        ⭐ Website Feedback
-      </Typography>
-      <Box sx={{ textAlign: "center", mb: 4 }}>
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 180 }}>
-          <InputLabel id="sortOption-label">Sort by</InputLabel>
-          <Select
-            labelId="sortOption-label"
-            id="sortOption"
-            value={sortOption}
-            label="Sort by"
-            onChange={(e) => setSortOption(e.target.value)}
-          >
-            <MenuItem value="latest">Latest</MenuItem>
-            <MenuItem value="highest">Highest Rating</MenuItem>
-            <MenuItem value="lowest">Lowest Rating</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+    <div style={{ padding: "40px 20px", maxWidth: 1200, margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center", marginBottom: 16 }}>⭐ Website Feedback</h2>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <label htmlFor="sortOption" style={{ marginRight: 10 }}>
+          Sort by:
+        </label>
+        <select
+          id="sortOption"
+          aria-label="Sort feedback"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          <option value="latest">Latest</option>
+          <option value="highest">Highest Rating</option>
+          <option value="lowest">Lowest Rating</option>
+        </select>
+      </div>
 
       {error && (
-        <Typography color="error" align="center" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
+        <p style={{ color: "red", textAlign: "center", marginBottom: 20 }}>{error}</p>
       )}
 
-      <Grid container spacing={3} justifyContent="center">
-        {visibleFeedbacks.length === 0 ? (
-          <Grid item xs={12}>
-            <Typography align="center">No feedback submitted yet.</Typography>
-          </Grid>
-        ) : (
-          visibleFeedbacks.map((fb) => (
-            <Grid item xs={12} sm={6} md={4} key={fb.id}>
-              <Card
-                elevation={2}
-                sx={{
-                  borderRadius: 3,
-                  width: "100%",
-                  minHeight: 230,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
+      {visibleFeedbacks.length === 0 ? (
+        <p style={{ textAlign: "center" }}>No feedback submitted yet.</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
+            gap: 20,
+          }}
+        >
+          {visibleFeedbacks.map((fb) => (
+            <div
+              key={fb.id}
+              style={{
+                borderRadius: 12,
+                padding: 20,
+                background: "#fff",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                border: "1px solid #ccc",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+                <Avatar
+                  style={{ marginRight: 12 }}
+                  src={fb.profile_image_url || undefined}
+                  alt={fb.username}
+                />
+                <div>
+                  <strong>{fb.username}</strong>
+                  <div style={{ fontSize: 12, color: "#888" }}>
+                    {new Date(fb.created_at).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                </div>
+              </div>
+              <Rating value={fb.website_ratings} readOnly size="small" />
+              <div
+                style={{
+                  marginTop: 12,
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  maxHeight: 120,
+                  overflowY: "auto",
+                  whiteSpace: "pre-line",
                 }}
               >
-                <CardHeader
-                  avatar={
-                    <Avatar
-                      src={fb.profile_image_url || undefined}
-                      alt={fb.username}
-                    />
-                  }
-                  title={fb.username}
-                  subheader={new Date(fb.created_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                  sx={{ pb: 0 }}
-                />
-                <CardContent sx={{ pt: 1 }}>
-                  <Rating value={fb.website_ratings} readOnly size="small" />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mt: 1,
-                      maxHeight: 80,
-                      overflowY: "auto",
-                      whiteSpace: "pre-line",
-                    }}
-                  >
-                    {fb.website_comments}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))
-        )}
-      </Grid>
-    </Box>
+                {fb.website_comments}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

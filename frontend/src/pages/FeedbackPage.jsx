@@ -1,5 +1,5 @@
 // src/pages/FeedbackPage.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function countWords(text) {
