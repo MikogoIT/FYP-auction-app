@@ -27,11 +27,12 @@ export async function markNotificationsAsRead(userId) {
 }
 
 export async function hasRecentNotification(userId, listingId, minutes = 15) {
+  const intervalStr = `${minutes} minutes`;
   const result = await sql`
     SELECT 1 FROM notifications
     WHERE user_id = ${userId}
       AND listing_id = ${listingId}
-      AND created_at > NOW() - INTERVAL '${minutes} minutes'
+      AND created_at > NOW() - INTERVAL '${intervalStr}'
   `;
   return result.length > 0;
 }
