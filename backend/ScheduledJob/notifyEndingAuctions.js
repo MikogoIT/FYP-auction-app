@@ -7,11 +7,21 @@ async function notifyEndingAuctions() {
 
   try {
     const results = await sql`
-      SELECT DISTINCT b.buyer_id, l.id AS listing_id, l.title, l.end_date
-      FROM auction_listings l
-      JOIN bids b ON l.id = b.auction_id
-      WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
-        AND l.is_active = true
+      SELECT DISTINCT user_id, listing_id, title, end_date FROM (
+        SELECT b.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
+        FROM auction_listings l
+        JOIN bids b ON l.id = b.auction_id
+        WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
+          AND l.is_active = true
+
+        UNION
+
+        SELECT w.buyer_id AS user_id, l.id AS listing_id, l.title, l.end_date
+        FROM auction_listings l
+        JOIN watchlist w ON l.id = w.auction_id
+        WHERE l.end_date BETWEEN ${now} AND ${tenMinLater}
+          AND l.is_active = true
+      ) AS combined
     `;
 
     for (const { user_id, listing_id, title, end_date } of results) {
