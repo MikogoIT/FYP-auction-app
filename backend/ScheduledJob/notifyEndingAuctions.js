@@ -3,8 +3,7 @@ import { insertNotification, hasRecentNotification } from "../models/notificatio
 
 function getSingaporeTime() {
   const now = new Date();
-  // const sgOffsetMs = 8 * 60 * 60 * 1000; // +8 小时
-  return new Date(now.getTime() + sgOffsetMs);
+  return new Date(now.getTime());
 }
 
 async function notifyEndingAuctions() {
