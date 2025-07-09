@@ -26,7 +26,6 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import MyBids from "./pages/MyBids";
 import ContactPage from "./pages/ContactPage";
 import WatchedListings from "./pages/WatchedListings";
-import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
