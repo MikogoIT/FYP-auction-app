@@ -40,11 +40,12 @@ export default function UserFeedback() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          recipient_id: sellerInput, 
-          author_role: authorRole,
-          user_ratings: userRating,
-          user_comments: userComments,
-        }),
+        auction_id,        // from props or state
+        recipient_id,      // seller_id or buyer_id
+        author_role,       // "buyer" or "seller"
+        user_ratings,
+        user_comments,
+      }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -90,25 +91,12 @@ export default function UserFeedback() {
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>User Feedback</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="seller">Seller ID:</label>
-          <input
-            type="text"
-            id="seller"
-            value={sellerInput}
-            onChange={e => setSellerInput(e.target.value)}
-            placeholder="Enter sellerID"
-            disabled={submitted || loading}
-            style={{
-              width: "100%",
-              padding: 8,
-              borderRadius: 6,
-              border: "1px solid #ccc",
-              fontSize: 16,
-            }}
-            required
-          />
-        </div>
+        <input type="hidden" name="auction_id" value={auctionId} />
+        <input type="hidden" name="recipient_id" value={sellerId} />
+
+        {/* Show seller info here if you want */}
+        {/* <div>{sellerUsername}</div> */}
+
         <div style={{ marginBottom: 16 }}>
           <label htmlFor="userRating">Rating:</label>
           <select
