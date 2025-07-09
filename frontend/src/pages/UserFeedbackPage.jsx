@@ -16,12 +16,12 @@ export default function UserFeedback() {
   const [sellerInput, setSellerInput] = useState(""); // Use for text input
   const [userRating, setUserRating] = useState(5);
   const [userComments, setUserComments] = useState("");
+  const [authorRole] = useState("buyer"); // defaults to buyer
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const wordCount = countWords(userComments);
-  const feedbackType = "Buyer"; // fixed as buyer author role
 
   // Enforce 100-word limit
   const handleCommentChange = (e) => {
@@ -41,7 +41,7 @@ export default function UserFeedback() {
         credentials: "include",
         body: JSON.stringify({
           recipient_id: sellerInput, 
-          author_role: feedbackType,
+          author_role: authorRole,
           user_ratings: userRating,
           user_comments: userComments,
         }),
