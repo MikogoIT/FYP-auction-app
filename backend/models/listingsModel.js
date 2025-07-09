@@ -19,7 +19,7 @@ export const getActiveListings = async () => {
       l.end_date, 
       l.seller_id, 
       u.username AS seller,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
@@ -33,9 +33,13 @@ export const getActiveListings = async () => {
 
 export const getListingById = async (id) => {
   return await sql`
-    SELECT id, title, description, min_bid, end_date
-    FROM auction_listings
-    WHERE id = ${id}
+    SELECT 
+      l.id, l.title, l.description, l.min_bid, l.end_date,
+      MAX(b.bid_amount) AS current_bid
+    FROM auction_listings l
+    LEFT JOIN bids b ON l.id = b.auction_id
+    WHERE l.id = ${id}
+    GROUP BY l.id
   `;
 };
 
@@ -61,25 +65,32 @@ export const deleteListing = async (id) => {
 
 export const getMyListings = async (userId) => {
   return await sql`
-    SELECT
+    SELECT 
       l.*,
-      c.name AS category_name
+      c.name AS category_name,
+      MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
-    LEFT JOIN listing_categories c
-      ON l.category_id = c.id
+    LEFT JOIN listing_categories c ON l.category_id = c.id
+    LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.seller_id = ${userId}
+    GROUP BY l.id, c.name
     ORDER BY l.end_date ASC
   `;
 };
 
 export async function getListingsWithFilters(searchTerm, categoryId) {
   return await sql`
-    SELECT l.*, u.username AS seller
+    SELECT 
+      l.*, 
+      u.username AS seller,
+      MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
+    LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
-      AND (${searchTerm} = '' OR l.title ILIKE ${"%" + searchTerm + "%"} OR l.description ILIKE ${"%" + searchTerm + "%"})
+      AND (${searchTerm} = '' OR l.title ILIKE ${'%' + searchTerm + '%'} OR l.description ILIKE ${'%' + searchTerm + '%'})
       AND (${categoryId} = '' OR l.category_id::text = ${categoryId})
+    GROUP BY l.id, u.username
     ORDER BY l.end_date ASC
   `;
 }
@@ -89,7 +100,7 @@ export async function getRecentListings(limit = 5) {
     SELECT 
       l.*, 
       u.username AS seller,
-      COALESCE(MAX(b.bid_amount), 0) AS current_bid
+      MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id

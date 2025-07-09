@@ -5,7 +5,11 @@ export async function insertBid(buyerId, auctionId, bidAmount) {
   return await sql`
     INSERT INTO bids (buyer_id, auction_id, bid_amount)
     VALUES (${buyerId}, ${auctionId}, ${bidAmount})
-    RETURNING *
+    ON CONFLICT (buyer_id, auction_id)
+    DO UPDATE SET
+      bid_amount = EXCLUDED.bid_amount,
+      updated_at = CURRENT_TIMESTAMP
+    RETURNING *;
   `;
 }
 

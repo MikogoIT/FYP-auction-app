@@ -2,6 +2,7 @@
 import crypto from "crypto";
 
 export function isTelegramDataValid(data, botToken) {
+
     const { hash, ...rest } = data;
 
     const dataCheckString = Object.keys(rest)
@@ -10,7 +11,7 @@ export function isTelegramDataValid(data, botToken) {
                                 .join("\n");
 
     const secret = crypto
-                    .createHmac("sha256")
+                    .createHash("sha256")
                     .update(botToken)
                     .digest();
 

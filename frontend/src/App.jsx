@@ -25,7 +25,6 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import MyBids from "./pages/MyBids";
 import ContactPage from "./pages/ContactPage";
 import WatchedListings from "./pages/WatchedListings";
-
 import Feedback from "./pages/FeedbackPage";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
@@ -72,7 +71,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/Watchlist" element={<WatchedListings />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/feedbacklist" element={<FeedbackList />} />
-            <Route path="/feedback-user" element={<UserFeedback />} />
+            <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
 
           {!isApiRoute && (

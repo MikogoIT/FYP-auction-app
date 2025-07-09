@@ -1,5 +1,6 @@
 // controllers/telegramController.js
 import * as telegramModel from "../models/telegramModel.js";
+import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
@@ -74,3 +75,70 @@ export async function markListingPosted(req, res) {
     }
 }
 
+export async function checkTelegramAccount(req, res) {
+    const telegramUserId = req.params.telegramUserId;
+
+    if (!telegramUserId) {
+        return res.status(400).json({ linked: false, error: "Missing telegramUserId" });
+    }
+
+    try {
+        const linkedAccount = await telegramModel.getTelegramAccountsByTelegramId(telegramUserId);
+
+        if (linkedAccount) {
+            return res.json({ 
+                linked: true,
+                user_id: linkedAccount.user_id
+            });
+        } else {
+            return res.json({ linked: false })
+        }
+    } catch (err) {
+        console.error("Error checking telegram account: ", err);
+        return res.status(500).json({ linked: false, error: "Server error" });
+    }
+}
+
+export async function createBidFromTelegram(req, res) {
+    const { user_id, auction_id, bid_amount } = req.body;
+
+    if (!user_id || !auction_id || !bid_amount) {
+        return res.status(400).json({ message: "Missing bid information" });
+    }
+
+    try {
+        const minBidData = await getAuctionMinBid(auction_id);
+        if (!minBidData) {
+            return res.status(404).json({ message: "Auction not found" });
+        }
+
+        const minBid = Math.max(minBidData.min_bid, minBidData.highest_bid || 0);
+
+        if (parseFloat(bid_amount) < minBid) {
+            return res.status(400).json({ message: `Bid must be at least $${minBid}` });
+        }
+
+        // Insert the bid
+        const bid = await insertBid(user_id, auction_id, bid_amount);
+        return res.status(201).json({ bid: bid[0] });
+    } catch (err) {
+        console.error("Bid creation error: ", err);
+        return res.status(500).json({ message: "Failed to place bid" });
+    }
+}
+
+export async function getBidsByTelegramUser(req, res) {
+    const userId = req.params.user_id;
+
+    if (!userId) {
+        return res.status(400).json({ message: "Missing user_id parameter" });
+    }
+
+    try {
+        const bids = await telegramModel.getBidsByUserId(userId);
+        res.json({ bids });
+    } catch (err) {
+        console.error("Error fetching bids for user: ", err);
+        res.status(500).json({ message: "Failed to fetch bids" });
+    }
+}

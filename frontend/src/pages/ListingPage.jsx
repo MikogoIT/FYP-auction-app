@@ -183,7 +183,7 @@ export default function ListingPage() {
                     </p>
                     <p className="listingEndDate">
                       <strong>Ends:</strong>{" "}
-                      {new Date(item.end_date).toLocaleString()}
+                      {new Date(item.end_date).toLocaleString("en-SG")}
                     </p>
                     <p>
                       <strong>Current Bid:</strong>{" "}
