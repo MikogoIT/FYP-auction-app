@@ -31,7 +31,8 @@ export default function UserFeedback() {
     }
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const res = await fetch("/api/user-feedback", {
@@ -39,8 +40,8 @@ export default function UserFeedback() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          seller_id: sellerId,
-          type: feedbackType,
+          recipient_id: sellerInput, 
+          author_role: feedbackType,
           user_ratings: userRating,
           user_comments: userComments,
         }),
@@ -50,6 +51,7 @@ export default function UserFeedback() {
         setMsg("✅ Thank you for your feedback!");
         setSubmitted(true);
         setUserComments("");
+        setSellerInput(""); // Optionally clear sellerInput after submit
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -88,29 +90,14 @@ export default function UserFeedback() {
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>User Feedback</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        {/*<div style={{ marginBottom: 16 }}>
-          <label htmlFor="seller">Seller:</label>
-          <select
-            id="seller"
-            value={sellerId}
-            onChange={e => setSellerId(e.target.value)}
-            required
-            disabled={submitted || loading}
-          >
-            <option value="">Select Seller</option>
-            {users.map(u => (
-              <option key={u.id} value={u.id}>{u.username}</option>
-            ))}
-          </select>
-        </div> */}
         <div style={{ marginBottom: 16 }}>
-          <label htmlFor="seller">Seller Username or ID:</label>
+          <label htmlFor="seller">Seller ID:</label>
           <input
             type="text"
             id="seller"
             value={sellerInput}
             onChange={e => setSellerInput(e.target.value)}
-            placeholder="Enter seller username or ID"
+            placeholder="Enter sellerID"
             disabled={submitted || loading}
             style={{
               width: "100%",
