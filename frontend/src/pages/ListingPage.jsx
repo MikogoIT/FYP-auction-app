@@ -1,5 +1,4 @@
 // src/pages/ListingPage.jsx
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +8,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
+import { Box, Pagination } from '@mui/material';
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -33,7 +33,6 @@ export default function ListingPage() {
   // track which listings are liked
   const [likedMap, setLikedMap] = useState({});
 
-  // 1) on mount, load user's watchlist to seed likedMap
   useEffect(() => {
     (async () => {
       try {
@@ -51,7 +50,6 @@ export default function ListingPage() {
     })();
   }, []);
 
-  // 2) fetch listings + images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -88,7 +86,6 @@ export default function ListingPage() {
     })();
   }, [searchTerm, selectedCategory]);
 
-  // 3) toggle like/unlike
   const handleToggleLike = async (listingId) => {
     const isLiked = !!likedMap[listingId];
     const url = isLiked
@@ -116,11 +113,11 @@ export default function ListingPage() {
 
   const handleBidClick = (id) => navigate(`/bid/${id}`);
 
+  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
   const paginated = listings.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
-  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
 
   return (
     <div className="dashboardCanvas">
@@ -182,50 +179,48 @@ export default function ListingPage() {
                       <strong>Min Bid:</strong> ${item.min_bid}
                     </p>
                     <p className="listingEndDate">
-                      <strong>Ends:</strong>{" "}
+                      <strong>Ends:</strong>{' '}
                       {new Date(item.end_date).toLocaleString("en-SG")}
                     </p>
                     <p>
-                      <strong>Current Bid:</strong>{" "}
+                      <strong>Current Bid:</strong>{' '}
                       {item.current_bid != null
                         ? `$${item.current_bid}`
                         : "No bids yet"}
                     </p>
-
-                    
                   </div>
                   <div className="listingAction">
-                      <IconButton
-                        onClick={() => handleToggleLike(item.id)}
-                        size="large"
-                      >
-                        {likedMap[item.id] ? (
-                          <FavoriteIcon color="error" />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
-                      </IconButton>
-
-                      {isOwner ? (
-                        <md-filled-button
-                          onClick={() => navigate(`/edit/${item.id}`)}
-                          style={{
-                            flexGrow: 1,
-                            "--md-sys-color-primary":    yellow,
-                            "--md-sys-color-on-primary": contrastText,
-                          }}
-                        >
-                          Edit
-                        </md-filled-button>
+                    <IconButton
+                      onClick={() => handleToggleLike(item.id)}
+                      size="large"
+                    >
+                      {likedMap[item.id] ? (
+                        <FavoriteIcon color="error" />
                       ) : (
-                        <md-filled-button
-                          onClick={() => handleBidClick(item.id)}
-                          style={{ flexGrow: 1 }}
-                        >
-                          Bid
-                        </md-filled-button>
+                        <FavoriteBorderIcon />
                       )}
-                    </div>
+                    </IconButton>
+
+                    {isOwner ? (
+                      <md-filled-button
+                        onClick={() => navigate(`/edit/${item.id}`)}
+                        style={{
+                          flexGrow: 1,
+                          "--md-sys-color-primary": yellow,
+                          "--md-sys-color-on-primary": contrastText,
+                        }}
+                      >
+                        Edit
+                      </md-filled-button>
+                    ) : (
+                      <md-filled-button
+                        onClick={() => handleBidClick(item.id)}
+                        style={{ flexGrow: 1 }}
+                      >
+                        Bid
+                      </md-filled-button>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -233,23 +228,14 @@ export default function ListingPage() {
         )}
 
         {totalPages > 1 && (
-          <div className="paginationControls">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              ◀ Prev
-            </button>
-            <span className="pageIndicator">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Next ▶
-            </button>
-          </div>
+          <Box mt={4} display="flex" justifyContent="center">
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
         )}
       </div>
       <div className="sidebarSpacer" />
