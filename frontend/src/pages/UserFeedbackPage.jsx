@@ -35,7 +35,7 @@ export default function UserFeedback() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/user-feedback", {
+      const res = await fetch("/api/feedback/user-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
