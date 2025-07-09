@@ -89,3 +89,12 @@ export async function insertUserFeedback(author_id, recipient_id, author_role, u
     VALUES (${author_id}, ${recipient_id}, ${author_role}, ${user_ratings}, ${user_comments})
   `;
 }
+
+export async function hasSubmittedUserFeedback(author_id, recipient_id) {
+  const result = await sql`
+    SELECT 1 FROM user_feedback
+    WHERE author_id = ${author_id} AND recipient_id = ${recipient_id}
+    LIMIT 1
+  `;
+  return result.length > 0;
+}
