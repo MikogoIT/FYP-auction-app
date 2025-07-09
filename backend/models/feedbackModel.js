@@ -83,3 +83,9 @@ export async function hasFeedback(author_id, recipient_id, auction_id) {
   `;
   return result.length > 0;
 }
+export async function insertUserFeedback(author_id, recipient_id, author_role, user_ratings, user_comments) {
+  return await sql`
+    INSERT INTO user_feedback (author_id, recipient_id, author_role, user_ratings, user_comments)
+    VALUES (${author_id}, ${recipient_id}, ${author_role}, ${user_ratings}, ${user_comments})
+  `;
+}
