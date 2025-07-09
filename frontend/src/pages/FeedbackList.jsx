@@ -1,40 +1,45 @@
 // src/pages/FeedbackList.jsx
 import { useEffect, useState } from 'react';
 import {
+  Avatar,
+  Rating,
   Box,
   Grid,
   Card,
   CardHeader,
   CardContent,
-  Avatar,
-  Rating,
+  Select,
+  MenuItem,
+  Pagination,
+  CircularProgress,
 } from '@mui/material';
-import CircularProgress from "@mui/material/CircularProgress";
 
 export default function FeedbackList() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortOption, setSortOption] = useState("latest");
-  const [error, setError] = useState("");
+  const [sortOption, setSortOption] = useState('latest');
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const reviewsPerPage = 12;
 
   // Responsive grid columns
   const [gridColumns, setGridColumns] = useState(window.innerWidth < 700 ? 1 : 3);
 
   useEffect(() => {
     const handleResize = () => setGridColumns(window.innerWidth < 700 ? 1 : 3);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const res = await fetch("/api/feedback/list");
+        const res = await fetch('/api/feedback/list');
         const data = await res.json();
         if (res.ok) setFeedbacks(data);
-        else setError(data.message || "Failed to load feedbacks.");
+        else setError(data.message || 'Failed to load feedbacks.');
       } catch (err) {
-        setError("Server error. Please try again later.");
+        setError('Server error. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -43,107 +48,105 @@ export default function FeedbackList() {
   }, []);
 
   const sortedFeedbacks = [...feedbacks].sort((a, b) => {
-    if (sortOption === "latest") {
+    if (sortOption === 'latest') {
       return new Date(b.created_at) - new Date(a.created_at);
-    } else if (sortOption === "highest") {
+    } else if (sortOption === 'highest') {
       return b.website_ratings - a.website_ratings;
-    } else if (sortOption === "lowest") {
+    } else if (sortOption === 'lowest') {
       return a.website_ratings - b.website_ratings;
     }
     return 0;
   });
 
-  const visibleFeedbacks = sortedFeedbacks.slice(0, 6);
+  const totalPages = Math.ceil(sortedFeedbacks.length / reviewsPerPage);
+  const startIndex = (page - 1) * reviewsPerPage;
+  const visibleFeedbacks = sortedFeedbacks.slice(startIndex, startIndex + reviewsPerPage);
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", marginTop: 50 }}>
+      <Box textAlign="center" mt={5}>
         <CircularProgress />
-      </div>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box textAlign="center" mt={5}>
+        <p>{error}</p>
+      </Box>
     );
   }
 
   return (
-    <div style={{ padding: "40px 20px", maxWidth: 1200, margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", marginBottom: 16 }}>⭐ Website Feedback</h2>
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <label htmlFor="sortOption" style={{ marginRight: 10 }}>
-          Sort by:
-        </label>
-        <select
-          id="sortOption"
-          aria-label="Sort feedback"
+    <Box p={2}>
+      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+        <h1 className="feedbackHeading">Reviews From Our Users</h1>
+        <Select
           value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-        >
-          <option value="latest">Latest</option>
-          <option value="highest">Highest Rating</option>
-          <option value="lowest">Lowest Rating</option>
-        </select>
-      </div>
-
-      {error && (
-        <p style={{ color: "red", textAlign: "center", marginBottom: 20 }}>{error}</p>
-      )}
-
-      {visibleFeedbacks.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No feedback submitted yet.</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
-            gap: 20,
+          onChange={(e) => {
+            setSortOption(e.target.value);
+            setPage(1);
           }}
         >
-          {visibleFeedbacks.map((fb) => (
-            <div
-              key={fb.id}
-              style={{
-                borderRadius: 12,
-                padding: 20,
-                background: "#fff",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-                border: "1px solid #ccc",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
+          <MenuItem value="latest">Latest</MenuItem>
+          <MenuItem value="highest">Highest Rating</MenuItem>
+          <MenuItem value="lowest">Lowest Rating</MenuItem>
+        </Select>
+      </Box>
+      <Grid container spacing={3} justifyContent="center">
+        {visibleFeedbacks.map((fb) => (
+          <Grid item xs={12} sm={6} md={Math.floor(12 / gridColumns)} key={fb.id}>
+            <Card
+              elevation={2}
+              sx={{
+                borderRadius: '12px',
+                width: 350,
+                height: 230,
+                p: 1,
+                mx: 'auto',
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <Avatar
-                  style={{ marginRight: 12 }}
-                  src={fb.profile_image_url || undefined}
-                  alt={fb.username}
-                />
-                <div>
-                  <strong>{fb.username}</strong>
-                  <div style={{ fontSize: 12, color: "#888" }}>
-                    {new Date(fb.created_at).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                </div>
-              </div>
-              <Rating value={fb.website_ratings} readOnly size="small" />
-              <div
-                style={{
-                  marginTop: 12,
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  maxHeight: 120,
-                  overflowY: "auto",
-                  whiteSpace: "pre-line",
-                }}
-              >
-                {fb.website_comments}
-              </div>
-            </div>
-          ))}
-        </div>
+              <CardHeader
+                avatar={<Avatar src={fb.profile_image_url} />}
+                title={fb.username}
+                subheader={new Date(fb.created_at).toLocaleDateString()}
+              />
+              <CardContent>
+                <Rating value={fb.website_ratings} readOnly />
+                <Box
+                  className="feedbackComment"
+                  mt={1}
+                  sx={{
+                    maxHeight: 80,
+                    overflowY: 'auto',
+                    boxSizing: 'border-box',
+                    p: 1,
+                  }}
+                >
+                  {fb.website_comments}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+
+        {feedbacks.length === 0 && (
+          <Grid item xs={12}>
+            <p className="noFeedback">No feedback available yet.</p>
+          </Grid>
+        )}
+      </Grid>
+      {totalPages > 1 && (
+        <Box mt={4} display="flex" justifyContent="center">
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(e, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
