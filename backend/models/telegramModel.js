@@ -41,6 +41,7 @@ export async function getUnpostedListings() {
         LEFT JOIN bids b ON al.id = b.auction_id
         WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
         GROUP BY al.id, lc.name
+        ORDER BY al.id ASC
     `;
 }
 
@@ -51,4 +52,28 @@ export async function markListingAsPosted(listingId) {
         SET posted_to_telegram = TRUE
         WHERE id = ${listingId}
     `;
+}
+
+export async function getTelegramAccountsByTelegramId(telegramId) {
+    const result = await sql`
+        SELECT user_id FROM telegram_accounts WHERE telegram_id = ${telegramId}
+    `;
+
+    return result[0];
+}
+
+export async function getBidsByUserId(userId) {
+    const result = await sql`
+        SELECT
+            b.*,
+            al.title AS listing_title,
+            al.end_date,
+            al.auction_type
+        FROM bids b
+        JOIN auction_listings al on b.auction_id = al.id
+        WHERE b.buyer_id = ${userId}
+        ORDER BY b.created_at DESC
+    `;
+
+    return result;
 }

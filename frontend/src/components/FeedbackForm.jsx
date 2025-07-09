@@ -1,24 +1,21 @@
-// src/pages/FeedbackPage.jsx
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// src/components/FeedbackForm.jsx
+import { useState } from "react";
 
 function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-export default function Feedback() {
+export default function FeedbackForm({
+  heading = "Website Feedback",
+  endpoint = "/api/feedback",
+  onSuccess,
+}) {
   const [website_comments, setComments] = useState("");
   const [website_ratings, setRatings] = useState(5);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
   const wordCount = countWords(website_comments);
-
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) navigate("/login");
-  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +26,7 @@ export default function Feedback() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/feedback", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -43,6 +40,7 @@ export default function Feedback() {
         setMsg("✅ Thank you for your feedback!");
         setComments("");
         setSubmitted(true);
+        if (onSuccess) onSuccess();
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -66,20 +64,7 @@ export default function Feedback() {
         boxSizing: "border-box",
       }}
     >
-      <button
-        onClick={() => navigate("/dashboard")}
-        style={{
-          marginBottom: 16,
-          background: "#eee",
-          border: "none",
-          borderRadius: 6,
-          padding: "6px 12px",
-          cursor: "pointer",
-        }}
-      >
-        ← Back to Dashboard
-      </button>
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>Website Feedback</h2>
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>{heading}</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <div style={{ marginBottom: 16 }}>
           <label htmlFor="website_ratings">Rating: </label>
@@ -98,37 +83,37 @@ export default function Feedback() {
           </select>
         </div>
         <textarea
-            value={website_comments}
-            onChange={e => {
-              const value = e.target.value;
-              if (countWords(value) <= 100) {
-                setComments(value);
-              }
-            }}
-            placeholder="Share your thoughts, suggestions, or issues..."
-            rows={6}
-            style={{
-              width: "100%",
-              padding: 12,
-              borderRadius: 8,
-              border: "1.5px solid #ccc",
-              fontSize: 16,
-              marginBottom: 16,
-              resize: "none",
-              boxSizing: "border-box",
-              background: submitted || loading ? "#333" : "#fff",
-              color: submitted || loading ? "#aaa" : "#222",
-            }}
-            disabled={submitted || loading}
-          />
-          <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
-            {wordCount} / 100 words
-            {wordCount >= 100 && (
-              <span style={{ color: "red", marginLeft: 8 }}>
-                (Word limit reached)
-              </span>
-            )}
-          </div>
+          value={website_comments}
+          onChange={e => {
+            const value = e.target.value;
+            if (countWords(value) <= 100) {
+              setComments(value);
+            }
+          }}
+          placeholder="Share your thoughts, suggestions, or issues..."
+          rows={6}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 8,
+            border: "1.5px solid #ccc",
+            fontSize: 16,
+            marginBottom: 16,
+            resize: "none",
+            boxSizing: "border-box",
+            background: submitted || loading ? "#333" : "#fff",
+            color: submitted || loading ? "#aaa" : "#222",
+          }}
+          disabled={submitted || loading}
+        />
+        <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
+          {wordCount} / 100 words
+          {wordCount >= 100 && (
+            <span style={{ color: "red", marginLeft: 8 }}>
+              (Word limit reached)
+            </span>
+          )}
+        </div>
         <button
           type="submit"
           disabled={loading || submitted}
@@ -142,7 +127,7 @@ export default function Feedback() {
             fontWeight: "bold",
             fontSize: 16,
             cursor: "pointer",
-            boxSizing: "border-box", // Ensures padding doesn't shrink button
+            boxSizing: "border-box",
           }}
         >
           {loading ? "Submitting..." : "Submit Feedback"}

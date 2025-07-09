@@ -68,7 +68,7 @@ export default function Landing() {
       {/* Recent Feedback Section */}
       <Box>
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
-        <Link to="/FeedbackList" className="viewAll">
+        <Link to="/feedbacklist" className="viewAll">
           View all
         </Link>
         <Grid container spacing={3} justifyContent="center">
