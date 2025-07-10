@@ -61,11 +61,13 @@ export default function FeedbackForm({
     <Box
       component="section"
       sx={{
-        width: 700,
+        width: "100%",
+        maxWidth: 500,
         p: 3,
         borderRadius: 2,
         bgcolor: "background.paper",
         boxShadow: 1,
+        boxSizing: "border-box",
 
         // force 16px/Roboto on everything inside here:
         "&, & *": {
@@ -84,6 +86,7 @@ export default function FeedbackForm({
             value={website_ratings}
             onChange={(_, value) => setRatings(value)}
             readOnly={submitted || loading}
+            sx={{ fontSize: 24 /* or whatever you like */ }}
           />
         </Box>
 
@@ -120,11 +123,11 @@ export default function FeedbackForm({
         </Box>
 
         {/* Submit */}
-        <Box mt={3}>
+        <Box mt={3} sx={{ textAlign:"center"}}>
           <md-filled-button
             type="submit"
             disabled={loading || submitted}
-            
+            sx={{ padding:"0px 40px"}}
           >
             {loading ? "Submitting…" : "Submit"}
           </md-filled-button>
