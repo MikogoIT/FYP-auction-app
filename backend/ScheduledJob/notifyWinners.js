@@ -2,9 +2,12 @@ import { sql } from "../utils/db.js";
 import { insertNotification, hasRecentNotification } from "../models/notificationModel.js";
 import { getEndedAscendingAuctions, getHighestBidderForAuction } from "../models/auctionModel.js";
 
+console.log("notifyAuctionWinners 定时任务已触发");
 async function notifyAuctionWinners() {
   try {
     const auctions = await getEndedAscendingAuctions();
+
+    console.log("auctions found:", auctions);
 
     for (const auction of auctions) {
       const { id: auctionId, title, seller_id } = auction;
