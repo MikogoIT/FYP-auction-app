@@ -78,13 +78,14 @@ export default function Landing() {
                 elevation={2}
                 sx={{
                   borderRadius: '12px',
+                  boxSizing: 'border-box',
                   width: 300,
                   height: 200,
                   p: 2,
                   mx: 'auto',
-                '& .MuiCardHeader-root, & .MuiCardContent-root': {
-                  p: '4px',
-                },
+                  '& .MuiCardHeader-root, & .MuiCardContent-root': {
+                    p: '4px',
+                  },
                 }}
               >
                 <CardHeader

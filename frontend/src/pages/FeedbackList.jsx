@@ -115,6 +115,7 @@ export default function FeedbackList() {
               elevation={2}
               sx={{
                 borderRadius: '12px',
+                boxSizing: 'border-box',
                 width: 300,
                 height: 200,
                 p: 2,
