@@ -11,8 +11,8 @@ async function notifyAuctionWinners() {
 
     for (const auction of auctions) {
       const { id: auctionId, title, seller_id } = auction;
-
       const highestBidder = await getHighestBidderForAuction(auctionId);
+      console.log("auctionId:", auctionId, "highestBidder:", highestBidder);
 
       if (highestBidder) {
         // notify winner
@@ -24,8 +24,9 @@ async function notifyAuctionWinners() {
 
         console.log(`[notifyAuctionWinners] ✅ Notified winner ${highestBidder.buyer_id} for listing ${auctionId}`);
       } else {
-        // No one bids, notify the seller & set is_active = false
+        console.log("No highest bidder, checking seller notification...");
         const alreadyNotified = await hasRecentNotification(seller_id, auctionId, 60 * 24 * 7);
+        console.log("alreadyNotified for seller:", alreadyNotified);
         if (!alreadyNotified) {
           const content = `No one bid on your item "${title}". Please consider relisting it.`;
           await insertNotification(seller_id, auctionId, content);
