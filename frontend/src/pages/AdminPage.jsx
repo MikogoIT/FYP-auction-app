@@ -199,7 +199,20 @@ const AdminPage = () => {
       );
     }
   },
-  
+
+ { field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
+      return(
+        <Button 
+        variant="contained" 
+        sx={{ backgroundColor: red[500], color: "ffffff" }}
+        onClick={(e) => deleteUser(e, params.row.id)}
+        >
+          Delete
+        </Button>
+      );
+    }
+  }
+/*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
     const onClick = (e) => {
       const currentRow = params.row;
@@ -212,6 +225,7 @@ const AdminPage = () => {
       </Stack>
     );
   }}
+*/
 ]
 
 
