@@ -68,12 +68,8 @@ export default function FeedbackForm({
         bgcolor: "background.paper",
         boxShadow: 1,
         boxSizing: "border-box",
-
-        // force 16px/Roboto on everything inside here:
-        "& .MuiSvgIcon-root": {
-          fontFamily: "Roboto, sans-serif",
-          fontSize: "16px",
-        },
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "16px",
   }}
     >
 
