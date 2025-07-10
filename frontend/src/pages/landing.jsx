@@ -72,7 +72,6 @@ export default function Landing() {
           View all
         </Link>
         <Box className="gridContainer">
-          <Grid container spacing={3} justifyContent="center">
             {feedback.map(fb => (
               <Grid item xs={12} sm={6} md={3} key={fb.id}>
                 <Card
@@ -115,7 +114,7 @@ export default function Landing() {
                 <p className="noFeedback">No feedback available yet.</p>
               </Grid>
             )}
-          </Grid>
+          
         </Box>
       </Box>
     </div>

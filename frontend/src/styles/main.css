@@ -443,6 +443,8 @@ background-color: #e0e0e0;
 
 .gridContainer
 {
-  width: fit-content;
-  margin: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;              /* matches your spacing={3} */
+  justify-items: start;   /* keep cards left-aligned within each cell */
 }
