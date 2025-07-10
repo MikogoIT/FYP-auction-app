@@ -24,11 +24,11 @@ async function notifyAuctionWinners() {
         const content = `🏆 You have won the item "${title}", please pay as soon as possible.`;
         await insertNotification(highestBidder.buyer_id, auctionId, content);
 
-        console.log(`[notifyAuctionWinners] ✅ Notified winner ${highestBidder.buyer_id} for listing ${auctionId}`);
+        //console.log(`[notifyAuctionWinners] ✅ Notified winner ${highestBidder.buyer_id} for listing ${auctionId}`);
       } else {
-        console.log("No highest bidder, checking seller notification...");
+        //console.log("No highest bidder, checking seller notification...");
         const alreadyNotified = await hasRecentNotification(seller_id, auctionId, 60 * 24 * 7);
-        console.log("alreadyNotified for seller:", alreadyNotified);
+        //console.log("alreadyNotified for seller:", alreadyNotified);
         if (!alreadyNotified) {
           const content = `No one bid on your item "${title}". Please consider relisting it.`;
           await insertNotification(seller_id, auctionId, content);
@@ -38,7 +38,7 @@ async function notifyAuctionWinners() {
           UPDATE auction_listings SET is_active = false WHERE id = ${auctionId}
         `;
 
-        console.log(`[notifyAuctionWinners] ❌ No bidders for listing ${auctionId}. Seller notified and marked inactive.`);
+        //console.log(`[notifyAuctionWinners] ❌ No bidders for listing ${auctionId}. Seller notified and marked inactive.`);
       }
     }
 
