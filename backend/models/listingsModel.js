@@ -50,19 +50,12 @@ export const getActiveListings = async () => {
 export const getListingById = async (id) => {
   return await sql`
     SELECT 
-      l.id, l.title, l.description, l.min_bid, l.end_date,
-      l.auction_type, l.start_price, l.discount_steps, l.discount_percentages, l.step_duration,
-      l.category_id, l.seller_id, l.image_url, l.is_active, l.posted_to_telegram,
-      l.created_at,
-      MAX(b.bid_amount) AS current_bid
-    FROM auction_listings l
-    LEFT JOIN bids b ON l.id = b.auction_id
-    WHERE l.id = ${id}
-    GROUP BY 
-      l.id, l.title, l.description, l.min_bid, l.end_date,
-      l.auction_type, l.start_price, l.discount_steps, l.discount_percentages, l.step_duration,
-      l.category_id, l.seller_id, l.image_url, l.is_active, l.posted_to_telegram,
-      l.created_at
+      id, title, description, min_bid, end_date,
+      auction_type, start_price, discount_percentage,
+      category_id, seller_id, image_url, is_active, posted_to_telegram,
+      created_at
+    FROM auction_listings
+    WHERE id = ${id}
   `;
 };
 
