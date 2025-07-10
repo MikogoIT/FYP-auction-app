@@ -26,14 +26,27 @@ export async function markNotificationsAsRead(userId) {
   `;
 }
 
-export async function hasRecentNotification(userId, listingId, minutes = 15) {
+export async function hasRecentNotification(userId, listingId, minutes = 15, contentLike = null) {
   const intervalStr = `${minutes} minutes`;
-  const query = `
-    SELECT 1 FROM notifications
-    WHERE user_id = $1
-      AND listing_id = $2
-      AND created_at > NOW() - INTERVAL '${intervalStr}'
-  `;
-  const result = await sql.query(query, [userId, listingId]);
+  let query, params;
+  if (contentLike) {
+    query = `
+      SELECT 1 FROM notifications
+      WHERE user_id = $1
+        AND listing_id = $2
+        AND created_at > NOW() - INTERVAL '${intervalStr}'
+        AND content LIKE $3
+    `;
+    params = [userId, listingId, `%${contentLike}%`];
+  } else {
+    query = `
+      SELECT 1 FROM notifications
+      WHERE user_id = $1
+        AND listing_id = $2
+        AND created_at > NOW() - INTERVAL '${intervalStr}'
+    `;
+    params = [userId, listingId];
+  }
+  const result = await sql.query(query, params);
   return result.length > 0;
 }

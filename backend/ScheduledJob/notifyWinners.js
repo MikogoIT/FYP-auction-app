@@ -16,7 +16,12 @@ async function notifyAuctionWinners() {
 
       if (highestBidder) {
         // notify winner
-        const alreadyNotified = await hasRecentNotification(highestBidder.buyer_id, auctionId, 60 * 24 * 7);
+        const alreadyNotified = await hasRecentNotification(
+          highestBidder.buyer_id,
+          auctionId,
+          60 * 24 * 7,
+          "won the item"
+        );
         if (alreadyNotified) continue;
 
         const content = `🏆 You have won the item "${title}", please pay as soon as possible.`;
