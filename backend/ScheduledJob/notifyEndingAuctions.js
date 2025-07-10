@@ -24,8 +24,8 @@ async function notifyEndingAuctions() {
       ) AS combined
     `;
 
-    for (const { user_id, listing_id, title, end_date } of results) {
-      const alreadySent = await hasRecentNotification(user_id, listing_id, 15, "ending at");
+    for (const { user_id, auction_id, title, end_date } of results) {
+      const alreadySent = await hasRecentNotification(user_id, auction_id, 15, "ending at");
       if (alreadySent) continue;
 
       const endDateSG = new Date(end_date);
@@ -33,7 +33,7 @@ async function notifyEndingAuctions() {
 
       const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
 
-      await insertNotification(user_id, listing_id, content);
+      await insertNotification(user_id, auction_id, content);
     }
 
     if (results.length > 0) {

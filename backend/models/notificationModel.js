@@ -1,10 +1,10 @@
 import { sql } from "../utils/db.js";
 
 // insert notification
-export async function insertNotification(userId, listingId, content) {
+export async function insertNotification(userId, auctionId, content) {
   return await sql`
-    INSERT INTO notifications (user_id, listing_id, content, is_read)
-    VALUES (${userId}, ${listingId}, ${content}, FALSE)
+    INSERT INTO notifications (user_id, auction_id, content, is_read)
+    VALUES (${userId}, ${auctionId}, ${content}, FALSE)
     RETURNING *;
   `;
 }
@@ -26,26 +26,26 @@ export async function markNotificationsAsRead(userId) {
   `;
 }
 
-export async function hasRecentNotification(userId, listingId, minutes = 15, contentLike = null) {
+export async function hasRecentNotification(userId, auctionId, minutes = 15, contentLike = null) {
   const intervalStr = `${minutes} minutes`;
   let query, params;
   if (contentLike) {
     query = `
       SELECT 1 FROM notifications
       WHERE user_id = $1
-        AND listing_id = $2
+        AND auction_id = $2
         AND created_at > NOW() - INTERVAL '${intervalStr}'
         AND content LIKE $3
     `;
-    params = [userId, listingId, `%${contentLike}%`];
+    params = [userId, auctionId, `%${contentLike}%`];
   } else {
     query = `
       SELECT 1 FROM notifications
       WHERE user_id = $1
-        AND listing_id = $2
+        AND auction_id = $2
         AND created_at > NOW() - INTERVAL '${intervalStr}'
     `;
-    params = [userId, listingId];
+    params = [userId, auctionId];
   }
   const result = await sql.query(query, params);
   return result.length > 0;
