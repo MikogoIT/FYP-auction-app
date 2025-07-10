@@ -53,6 +53,9 @@ export const getListingById = async (id) => {
   return await sql`
     SELECT 
       l.id, l.title, l.description, l.min_bid, l.end_date,
+      l.auction_type, l.start_price, l.discount_steps, l.discount_percentages, l.step_duration,
+      l.category_id, l.seller_id, l.image_url, l.is_active, l.posted_to_telegram,
+      l.created_at,
       MAX(b.bid_amount) AS current_bid
     FROM auction_listings l
     LEFT JOIN bids b ON l.id = b.auction_id
