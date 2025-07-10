@@ -403,11 +403,12 @@ background-color: #e0e0e0;
 }
 
 .listingGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: flex-start;
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 300px);
+  gap: 16px;             
+  justify-items: start;   /* keep cards left-aligned within each cell */
+  justify-content: center;
 }
 
 
@@ -444,7 +445,13 @@ background-color: #e0e0e0;
 .gridContainer
 {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, 300px);
   gap: 24px;              /* matches your spacing={3} */
   justify-items: start;   /* keep cards left-aligned within each cell */
+  justify-content: center;
+}
+
+.gridCanvas
+{
+  width: 100%;
 }
