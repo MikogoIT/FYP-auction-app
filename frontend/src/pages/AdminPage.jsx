@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
+import { DataGrid, } from "@mui/x-data-grid";
+import { Box, Typography } from "@mui/material";
+// import { useTheme } from "@mui/material/styles";
+// import { tokens } from "../styles/theme";
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
+import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import Header from "../components/Header";
+import Button from '@mui/material/Button';
+import Stack from "@mui/material/Stack";
+import { red } from "@mui/material/colors";
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -119,140 +131,138 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
+  // set themes
+  // const theme = useTheme();
+  // const colors = tokens(theme.palette.mode);
+
+
+  const column = [
+    { field: 'id', headerName: 'ID' }, 
+    { field: 'username', headerName: 'Username' },
+    { field: 'email', headerName: 'Email' }, 
+    { field: 'phone_number', headerName: 'Phone' }, 
+    { field: 'suspend', headerName: 'frozen', display: "flex", renderCell: ({ row: { is_frozen } }) => {
+        return (
+          <Box
+            width="60%"
+            m="0 auto"
+            p="5px"
+            display="flex"
+            justifyContent="center"
+            backgroundColor={
+              is_frozen
+              ? "#ff0000"
+              : "#008000"
+            }
+            borderRadius="4px"
+            color="#ffffff"
+          >
+            {is_frozen && <AcUnitOutlinedIcon />}
+            {!is_frozen && <ThumbUpOutlinedIcon />}
+            <Typography sx={{ ml: "5px" }}>
+              {is_frozen}
+            </Typography>
+          </Box>
+        );
+      }
+    },
+    {field: "Access", headerName: "Role", display: "flex", renderCell: ({ row: {is_admin} }) => {
+      return (
+        <Box
+        width="100%"
+        m="0 auto"
+        p="5px"
+        display="flex"
+        justifyContent="center"
+        backgroundColor={
+          is_admin 
+            ? "#6750a4"
+            : "#e9def8"
+        }
+        borderRadius="4px"
+        color={
+          is_admin
+            ? "#ffffff"
+            : "#000000"
+        }
+        >
+          {is_admin && <AdminPanelSettingsOutlinedIcon />}
+          {!is_admin && <Person4OutlinedIcon />}
+          <Typography sx={{ ml: "5px" }}>
+            {
+              is_admin
+                ? "Admin"
+                : "User"
+            }
+          </Typography>
+        </Box>
+      );
+    }
+  },
+  {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
+    const onClick = (e) => {
+      const currentRow = params.row;
+      return alert(JSON.stringify(currentRow, null, 4));
+    };
+
+    return(
+      <Stack direction="row" spacing={2}>
+        <Button variant="contained" sx={{ backgroundColor: red[500], color: "#ffffff" }}>Delete</Button>
+      </Stack>
+    );
+  }}
+]
+
+
   return (
-    <div style={{ padding: "40px" }}>
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginBottom: "16px"
-        }}
-      >
-        ← Back
-      </button>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>👑 Admin Panel - Manage Users</h2>
-      
-      <div style={{ display: "flex", gap: "20px", justifyContent: "center", marginBottom: "30px" }}>
-        <button
-          onClick={() => navigate("/admin/create-category")}
-          style={{ padding: "10px 20px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
-        >
-          ➕ Create Category
-        </button>
-        <button
-          onClick={() => navigate("/admin/search-category")}
-          style={{ padding: "10px 20px", backgroundColor: "#17a2b8", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
-        >
-          🔍 Search Category
-        </button>
-      </div>
-
-      <div style={{ display: "flex", marginBottom: "20px", gap: "10px" }}>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="🔍 Search by username or email..."
-          style={{
-            flex: 1,
-            padding: "10px",
-            fontSize: "16px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
+    <Box m="20px">
+      <Header title="ADMIN" subtitle="Admin User Management" />
+        <Box
+          m="40px 0 0 0"
+          sx={{
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              color: "#000000"
+            },
+            "& .MuiCheckbox-root": {
+            },
           }}
+      >
+        <DataGrid 
+          rows={users}
+          columns={column}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
+          pageSizeOptions={[5]}
+          sx={{
+            color: "#000000",
+          }}
+          width="100%"
+          loading={loading}
+          showToolbar
         />
-        <button onClick={handleSearch} style={{ padding: "10px 20px", cursor: "pointer" }}>
-          Search
-        </button>
-      </div>
-
-      {loading ? (
-        <p>Loading users...</p>
-      ) : (
-        <>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ backgroundColor: "#007bff", color: "white" }}>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Username</th>
-                <th style={thStyle}>Email</th>
-                <th style={thStyle}>Phone</th>
-                <th style={thStyle}>Admin</th>
-                <th style={thStyle}>Suspend</th>
-                <th style={thStyle}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPageUsers.map((user) => (
-                <tr key={user.id} style={{ backgroundColor: user.is_frozen ? "#f8d7da" : "#ffffff" }}>
-                  <td style={tdStyle}>{user.id}</td>
-                  <td style={tdStyle}>{user.username}</td>
-                  <td style={tdStyle}>{user.email}</td>
-                  <td style={tdStyle}>{user.phone_number}</td>
-                  <td style={tdStyle}>{user.is_admin ? "✅" : "❌"}</td>
-                  <td style={tdStyle}>{user.is_frozen ? "❄️" : "✔️"}</td>
-                  <td style={tdStyle}>
-                    {!user.is_admin && (
-                      <>
-                        <button
-                          onClick={() => toggleFreeze(user.id)}
-                          style={{
-                            padding: "6px 10px",
-                            marginRight: "10px",
-                            backgroundColor: user.is_frozen ? "#28a745" : "#dc3545",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          {user.is_frozen ? "Unsuspend" : "Suspend"}
-                        </button>
-                        <button
-                          onClick={() => deleteUser(user.id)}
-                          style={{
-                            padding: "6px 10px",
-                            backgroundColor: "#6c757d",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Pagination Controls */}
-          <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-              ◀ Prev
-            </button>
-            <span>
-              Page {page} of {totalPages}
-            </span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
-              Next ▶
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+      </Box>
+    </Box>
   );
 };
 
+
+/*
 const thStyle = {
   padding: "12px",
   textAlign: "left",
@@ -263,5 +273,5 @@ const tdStyle = {
   padding: "12px",
   borderBottom: "1px solid #eee",
 };
-
+*/
 export default AdminPage;
