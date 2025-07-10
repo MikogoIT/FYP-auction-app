@@ -148,3 +148,61 @@ export async function getRecentListings(limit = 5) {
     LIMIT ${limit}
   `;
 }
+
+/**
+ * get current descending price for a listing
+ * @param {number} listingId
+ * @returns {number|null} current price or null if not a descending auction
+ */
+export async function getCurrentDescendingPrice(listingId) {
+  const result = await sql`
+    SELECT 
+      auction_type,
+      start_price,
+      discount_steps,
+      discount_percentages,
+      step_duration,
+      end_date,
+      created_at
+    FROM auction_listings
+    WHERE id = ${listingId}
+  `;
+  if (!result[0] || result[0].auction_type !== "descending") return null;
+
+  const {
+    start_price,
+    discount_steps,
+    discount_percentages,
+    step_duration,
+    end_date,
+    created_at
+  } = result[0];
+
+  let discounts = discount_percentages;
+  if (typeof discounts === "string") {
+    try {
+      discounts = JSON.parse(discounts);
+    } catch {
+      discounts = [];
+    }
+  }
+
+  // calculate current price based on time elapsed
+  const now = new Date();
+  const start = created_at ? new Date(created_at) : new Date(now.getTime() - (discount_steps * step_duration * 1000));
+  const elapsedSeconds = Math.floor((now - start) / 1000);
+  const stepsPassed = Math.min(
+    Math.floor(elapsedSeconds / step_duration),
+    discount_steps
+  );
+
+  // apply each step discount
+  let price = Number(start_price);
+  for (let i = 0; i < stepsPassed && i < discounts.length; i++) {
+    price = price * (1 - discounts[i] / 100);
+  }
+  // keep two decimal places
+  price = Math.max(price, 0).toFixed(2);
+
+  return Number(price);
+}
