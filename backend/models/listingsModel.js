@@ -10,18 +10,16 @@ export const createListing = async (
   category_id,
   auction_type = "ascending",
   start_price = null,
-  discount_steps = null,
-  discount_percentages = null,
-  step_duration = null
+  discount_percentage = null 
 ) => {
   return await sql`
     INSERT INTO auction_listings (
       seller_id, title, description, min_bid, end_date, category_id,
-      auction_type, start_price, discount_steps, discount_percentages, step_duration
+      auction_type, start_price, discount_percentage
     )
     VALUES (
       ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
-      ${auction_type}, ${start_price}, ${discount_steps}, ${discount_percentages}, ${step_duration}
+      ${auction_type}, ${start_price}, ${discount_percentage}
     )
     RETURNING *
   `;
@@ -82,9 +80,7 @@ export const updateListing = async (
   end_date,
   auction_type = "ascending",
   start_price = null,
-  discount_steps = null,
-  discount_percentages = null,
-  step_duration = null
+  discount_percentage = null 
 ) => {
   return await sql`
     UPDATE auction_listings
@@ -95,9 +91,7 @@ export const updateListing = async (
       end_date = ${end_date},
       auction_type = ${auction_type},
       start_price = ${start_price},
-      discount_steps = ${discount_steps},
-      discount_percentages = ${discount_percentages},
-      step_duration = ${step_duration}
+      discount_percentage = ${discount_percentage}
     WHERE id = ${id}
   `;
 };
@@ -166,11 +160,10 @@ export async function getCurrentDescendingPrice(listingId) {
     SELECT 
       auction_type,
       start_price,
-      discount_steps,
-      discount_percentages,
-      step_duration,
-      end_date,
-      created_at
+      min_bid,
+      discount_percentage,
+      created_at,
+      end_date
     FROM auction_listings
     WHERE id = ${listingId}
   `;
@@ -178,38 +171,36 @@ export async function getCurrentDescendingPrice(listingId) {
 
   const {
     start_price,
-    discount_steps,
-    discount_percentages,
-    step_duration,
-    end_date,
-    created_at
+    min_bid,
+    discount_percentage,
+    created_at,
+    end_date
   } = result[0];
 
-  let discounts = discount_percentages;
-  if (typeof discounts === "string") {
-    try {
-      discounts = JSON.parse(discounts);
-    } catch {
-      discounts = [];
+  // step duration in seconds
+  const step_duration = 60;
+
+  const now = new Date();
+  const start = new Date(created_at);
+  const end = new Date(end_date);
+
+  // if auction has not started yet
+  if (now >= end) return Number(min_bid);
+
+  // calculate elapsed time since auction started
+  const elapsedSeconds = Math.floor((now - start) / 1000);
+  let stepsPassed = Math.floor(elapsedSeconds / step_duration);
+
+  // calculate current price
+  let price = Number(start_price);
+  for (let i = 0; i < stepsPassed; i++) {
+    price = price * (1 - Number(discount_percentage) / 100);
+    if (price <= min_bid) {
+      price = Number(min_bid);
+      break;
     }
   }
-
-  // calculate current price based on time elapsed
-  const now = new Date();
-  const start = created_at ? new Date(created_at) : new Date(now.getTime() - (discount_steps * step_duration * 1000));
-  const elapsedSeconds = Math.floor((now - start) / 1000);
-  const stepsPassed = Math.min(
-    Math.floor(elapsedSeconds / step_duration),
-    discount_steps
-  );
-
-  // apply each step discount
-  let price = Number(start_price);
-  for (let i = 0; i < stepsPassed && i < discounts.length; i++) {
-    price = price * (1 - discounts[i] / 100);
-  }
-  // keep two decimal places
-  price = Math.max(price, 0).toFixed(2);
-
-  return Number(price);
+  // ensure price does not go below min_bid
+  price = Math.max(price, Number(min_bid));
+  return Number(price.toFixed(2));
 }

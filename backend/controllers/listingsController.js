@@ -45,9 +45,7 @@ export async function postListing(req, res) {
     category_id,
     auction_type = "ascending",
     start_price,
-    discount_steps,
-    discount_percentages,
-    step_duration
+    discount_percentage 
   } = req.body;
 
   // basic field validation
@@ -60,14 +58,9 @@ export async function postListing(req, res) {
     return res.status(400).json({ message: "Invalid auction_type" });
   }
 
-  // descending auctions require additional fields
+  // descending auction only requires validation for start_price and discount_percentage
   if (auction_type === "descending") {
-    if (
-      !start_price ||
-      !discount_steps ||
-      !discount_percentages ||
-      !step_duration
-    ) {
+    if (!start_price || !discount_percentage) {
       return res.status(400).json({ message: "Missing descending auction fields" });
     }
   }
@@ -82,9 +75,7 @@ export async function postListing(req, res) {
       category_id,
       auction_type,
       start_price,
-      discount_steps,
-      discount_percentages,
-      step_duration
+      discount_percentage 
     );
     res.status(201).json({ listing: result[0] });
   } catch (err) {
@@ -133,9 +124,7 @@ export async function putListing(req, res) {
     end_date,
     auction_type = "ascending",
     start_price,
-    discount_steps,
-    discount_percentages,
-    step_duration
+    discount_percentage 
   } = req.body;
 
   if (!title || !min_bid || !end_date) {
@@ -147,12 +136,7 @@ export async function putListing(req, res) {
   }
 
   if (auction_type === "descending") {
-    if (
-      !start_price ||
-      !discount_steps ||
-      !discount_percentages ||
-      !step_duration
-    ) {
+    if (!start_price || !discount_percentage) {
       return res.status(400).json({ message: "Missing descending auction fields" });
     }
   }
@@ -172,9 +156,7 @@ export async function putListing(req, res) {
       end_date,
       auction_type,
       start_price,
-      discount_steps,
-      discount_percentages,
-      step_duration
+      discount_percentage 
     );
     res.json({ message: "Listing updated successfully" });
   } catch (err) {
