@@ -70,7 +70,7 @@ export default function FeedbackForm({
         boxSizing: "border-box",
 
         // force 16px/Roboto on everything inside here:
-        "&, & *": {
+        "& .MuiSvgIcon-root": {
           fontFamily: "Roboto, sans-serif",
           fontSize: "16px",
         },
@@ -86,7 +86,7 @@ export default function FeedbackForm({
             value={website_ratings}
             onChange={(_, value) => setRatings(value)}
             readOnly={submitted || loading}
-            sx={{ fontSize: 24 /* or whatever you like */ }}
+            size="medium"
           />
         </Box>
 
@@ -123,7 +123,7 @@ export default function FeedbackForm({
         </Box>
 
         {/* Submit */}
-        <Box mt={3} sx={{ textAlign:"center"}}>
+        <Box  sx={{ textAlign:"center"}}>
           <md-filled-button
             type="submit"
             disabled={loading || submitted}
