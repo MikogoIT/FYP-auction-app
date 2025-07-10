@@ -86,7 +86,7 @@ export default function FeedbackForm({
             value={website_ratings}
             onChange={(_, value) => setRatings(value)}
             readOnly={submitted || loading}
-            size="medium"
+            size="large"
           />
         </Box>
 
