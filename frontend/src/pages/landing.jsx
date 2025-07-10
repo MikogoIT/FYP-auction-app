@@ -78,8 +78,8 @@ export default function Landing() {
                 elevation={2}
                 sx={{
                   borderRadius: '12px',
-                  width: 350,
-                  height: 230,
+                  width: 320,
+                  height: 200,
                   p: 1,
                   mx: 'auto'
                 }}
