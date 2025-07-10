@@ -13,7 +13,6 @@ function countWords(text) {
 }
 
 export default function FeedbackForm({
-  heading = "Review",
   endpoint = "/api/feedback",
   onSuccess,
 }) {
@@ -62,25 +61,23 @@ export default function FeedbackForm({
     <Box
       component="section"
       sx={{
-        maxWidth: 500,
-        m: "40px auto",
+        width: 700,
         p: 3,
         borderRadius: 2,
         bgcolor: "background.paper",
         boxShadow: 1,
-      }}
+
+        // force 16px/Roboto on everything inside here:
+        "&, & *": {
+          fontFamily: "Roboto, sans-serif",
+          fontSize: "16px",
+        },
+  }}
     >
-      {/* Heading */}
-      <Typography variant="h5" align="center" gutterBottom>
-        {heading}
-      </Typography>
 
       <form onSubmit={handleSubmit}>
         {/* Rating */}
         <Box mb={2} display="flex" alignItems="center" gap={1}>
-          <Typography component="label" htmlFor="website_ratings">
-            Rating:
-          </Typography>
           <Rating
             name="website_ratings"
             id="website_ratings"
@@ -127,9 +124,9 @@ export default function FeedbackForm({
           <md-filled-button
             type="submit"
             disabled={loading || submitted}
-            style={{ width: "100%" }}
+            
           >
-            {loading ? "Submitting…" : "Submit Feedback"}
+            {loading ? "Submitting…" : "Submit"}
           </md-filled-button>
         </Box>
 
