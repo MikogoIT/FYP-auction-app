@@ -71,50 +71,52 @@ export default function Landing() {
         <Link to="/feedbacklist" className="viewAll">
           View all
         </Link>
-        <Grid container spacing={3} justifyContent="center">
-          {feedback.map(fb => (
-            <Grid item xs={12} sm={6} md={3} key={fb.id}>
-              <Card
-                elevation={2}
-                sx={{
-                  borderRadius: '12px',
-                  boxSizing: 'border-box',
-                  width: 300,
-                  height: 200,
-                  p: 2,
-                  mx: 'auto',
-                  '& .MuiCardHeader-root, & .MuiCardContent-root': {
-                    p: '4px',
-                  },
-                }}
-              >
-                <CardHeader
-                  avatar={<Avatar src={fb.profile_image_url} />}
-                  title={fb.username}
-                  subheader={new Date(fb.created_at).toLocaleDateString()}
-                />
-                <CardContent>
-                  <Rating value={fb.website_ratings} readOnly />
-                  <p className="feedbackComment" style={{
-                      marginTop: 8,
-                      maxHeight: 80,   
-                      overflowY: "auto",
-                      boxSizing: "border-box", // ensures padding is included within maxHeight
-                    }}
-                  >
-                    {fb.website_comments}
-                  </p>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+        <Box className="gridContainer">
+          <Grid container spacing={3} justifyContent="center">
+            {feedback.map(fb => (
+              <Grid item xs={12} sm={6} md={3} key={fb.id}>
+                <Card
+                  elevation={2}
+                  sx={{
+                    borderRadius: '12px',
+                    boxSizing: 'border-box',
+                    width: 300,
+                    height: 200,
+                    p: 2,
+                    mx: 'auto',
+                    '& .MuiCardHeader-root, & .MuiCardContent-root': {
+                      p: '4px',
+                    },
+                  }}
+                >
+                  <CardHeader
+                    avatar={<Avatar src={fb.profile_image_url} />}
+                    title={fb.username}
+                    subheader={new Date(fb.created_at).toLocaleDateString()}
+                  />
+                  <CardContent>
+                    <Rating value={fb.website_ratings} readOnly />
+                    <p className="feedbackComment" style={{
+                        marginTop: 8,
+                        maxHeight: 80,   
+                        overflowY: "auto",
+                        boxSizing: "border-box", // ensures padding is included within maxHeight
+                      }}
+                    >
+                      {fb.website_comments}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
 
-          {feedback.length === 0 && (
-            <Grid item xs={12}>
-              <p className="noFeedback">No feedback available yet.</p>
-            </Grid>
-          )}
-        </Grid>
+            {feedback.length === 0 && (
+              <Grid item xs={12}>
+                <p className="noFeedback">No feedback available yet.</p>
+              </Grid>
+            )}
+          </Grid>
+        </Box>
       </Box>
     </div>
   );
