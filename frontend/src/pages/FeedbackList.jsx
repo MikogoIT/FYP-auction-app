@@ -79,7 +79,7 @@ export default function FeedbackList() {
   }
 
   return (
-    <Box p={2}>
+    <Box className="landingContent">
       <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
         <h1 className="feedbackHeading">Reviews From Our Users</h1>
         <Select
