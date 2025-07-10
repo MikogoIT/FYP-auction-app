@@ -7,11 +7,14 @@ export async function getAuctionMinBid(auctionId) {
   return result.length > 0 ? result[0].min_bid : null;
 }
 
+
+
 export async function getEndedAscendingAuctions() {
   return await sql`
     SELECT id, title, seller_id FROM auction_listings
     WHERE auction_type = 'ascending'
-      AND end_date <= NOW();
+      AND end_date <= (NOW() AT TIME ZONE 'Asia/Singapore')
+      AND is_active = true
   `;
 }
 

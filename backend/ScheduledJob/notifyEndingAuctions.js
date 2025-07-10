@@ -24,9 +24,6 @@ async function notifyEndingAuctions() {
       ) AS combined
     `;
 
-    // console.log('nowUTC:', nowUTC, 'tenMinLaterUTC:', tenMinLaterUTC);
-    // console.log('SQL results:', results);
-
     for (const { user_id, listing_id, title, end_date } of results) {
       const alreadySent = await hasRecentNotification(user_id, listing_id);
       if (alreadySent) continue;
