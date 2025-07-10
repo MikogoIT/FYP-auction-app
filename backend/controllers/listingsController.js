@@ -7,7 +7,8 @@ import {
   updateListing,
   deleteListing,
   getMyListings,
-  getListingsWithFilters
+  getListingsWithFilters,
+  getCurrentDescendingPrice
 } from "../models/listingsModel.js";
 import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
 import { sql } from "../utils/db.js";
@@ -108,7 +109,12 @@ export async function getListing(req, res) {
   try {
     const result = await getListingById(req.params.id);
     if (result.length === 0) return res.status(404).json({ message: "Listing not found" });
-    res.json({ listing: result[0] });
+
+    const listing = result[0];
+    if (listing.auction_type === "descending") {
+      listing.current_price = await getCurrentDescendingPrice(req.params.id);
+    }
+    res.json({ listing });
   } catch (err) {
     console.error("Fetch listing error:", err);
     res.status(500).json({ message: "Failed to fetch listing" });
