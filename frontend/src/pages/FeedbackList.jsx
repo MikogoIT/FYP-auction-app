@@ -80,7 +80,7 @@ export default function FeedbackList() {
 
   return (
     <Box className="landingContent">
-      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center" width="100%">
         <h1 className="feedbackHeading">Reviews From Our Users</h1>
         <Select
           value={sortOption}
@@ -88,21 +88,35 @@ export default function FeedbackList() {
             setSortOption(e.target.value);
             setPage(1);
           }}
+          sx={{
+            // overall font size
+            fontSize: '16px',
+            // round the outline
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderRadius: '24px',
+            },
+            // round the inner select container & adjust padding
+            '& .MuiSelect-select': {
+              borderRadius: '24px',
+              padding: '8px 16px',
+              fontSize: '16px',
+            },
+          }}
         >
           <MenuItem value="latest">Latest</MenuItem>
           <MenuItem value="highest">Highest Rating</MenuItem>
           <MenuItem value="lowest">Lowest Rating</MenuItem>
         </Select>
       </Box>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={2} justifyContent="center">
         {visibleFeedbacks.map((fb) => (
           <Grid item xs={12} sm={6} md={Math.floor(12 / gridColumns)} key={fb.id}>
             <Card
               elevation={2}
               sx={{
                 borderRadius: '12px',
-                width: 350,
-                height: 230,
+                width: 320,
+                height: 200,
                 p: 1,
                 mx: 'auto',
               }}
