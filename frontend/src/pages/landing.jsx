@@ -66,7 +66,7 @@ export default function Landing() {
       </div>
 
       {/* Recent Feedback Section */}
-      <Box>
+      <Box className="gridCanvas">
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
         <Link to="/feedbacklist" className="viewAll">
           View all

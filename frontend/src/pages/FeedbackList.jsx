@@ -107,8 +107,8 @@ export default function FeedbackList() {
           <MenuItem value="highest">Highest Rating</MenuItem>
           <MenuItem value="lowest">Lowest Rating</MenuItem>
         </Select>
-      </Box>
-      <Grid container spacing={2} justifyContent="center">
+      </Box >
+      <Box className="gridContainer">
         {visibleFeedbacks.map((fb) => (
           <Grid item xs={12} sm={6} md={Math.floor(12 / gridColumns)} key={fb.id}>
             <Card
@@ -154,7 +154,6 @@ export default function FeedbackList() {
             <p className="noFeedback">No feedback available yet.</p>
           </Grid>
         )}
-      </Grid>
       {totalPages > 1 && (
         <Box mt={4} display="flex" justifyContent="center">
           <Pagination
@@ -165,6 +164,7 @@ export default function FeedbackList() {
           />
         </Box>
       )}
+      </Box>
     </Box>
   );
 }
