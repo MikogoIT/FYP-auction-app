@@ -119,6 +119,9 @@ export default function FeedbackList() {
                 height: 200,
                 p: 1,
                 mx: 'auto',
+                '& .MuiCardHeader-root, & .MuiCardContent-root': {
+                  p: '4px',
+                },
               }}
             >
               <CardHeader
