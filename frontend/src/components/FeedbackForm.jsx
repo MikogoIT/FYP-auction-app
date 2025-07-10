@@ -1,12 +1,19 @@
 // src/components/FeedbackForm.jsx
 import { useState } from "react";
+import {
+  Box,
+  Rating,
+  TextField,
+  Typography
+} from "@mui/material";
+import "@material/web/button/filled-button.js";
 
 function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 export default function FeedbackForm({
-  heading = "Website Feedback",
+  heading = "Review",
   endpoint = "/api/feedback",
   onSuccess,
 }) {
@@ -21,7 +28,7 @@ export default function FeedbackForm({
     e.preventDefault();
     setMsg("");
     if (!website_comments.trim()) {
-      setMsg("❌ Feedback cannot be empty.");
+      setMsg("Feedback cannot be empty.");
       return;
     }
     setLoading(true);
@@ -34,7 +41,7 @@ export default function FeedbackForm({
       });
       const data = await res.json();
       if (res.status === 409) {
-        setMsg("❌ You have already submitted feedback.");
+        setMsg("You have already submitted feedback.");
         setSubmitted(true);
       } else if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
@@ -42,109 +49,106 @@ export default function FeedbackForm({
         setSubmitted(true);
         if (onSuccess) onSuccess();
       } else {
-        setMsg("❌ " + (data.message || "Failed to submit feedback."));
+        setMsg( (data.message || "Failed to submit feedback."));
       }
     } catch {
-      setMsg("❌ Server error. Please try again later.");
+      setMsg("Server error. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
+    <Box
+      component="section"
+      sx={{
         maxWidth: 500,
-        margin: "40px auto",
-        padding: 30,
-        borderRadius: 12,
-        background: "#fff",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-        width: "100%",
-        boxSizing: "border-box",
+        m: "40px auto",
+        p: 3,
+        borderRadius: 2,
+        bgcolor: "background.paper",
+        boxShadow: 1,
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>{heading}</h2>
-      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="website_ratings">Rating: </label>
-          <select
+      {/* Heading */}
+      <Typography variant="h5" align="center" gutterBottom>
+        {heading}
+      </Typography>
+
+      <form onSubmit={handleSubmit}>
+        {/* Rating */}
+        <Box mb={2} display="flex" alignItems="center" gap={1}>
+          <Typography component="label" htmlFor="website_ratings">
+            Rating:
+          </Typography>
+          <Rating
+            name="website_ratings"
             id="website_ratings"
             value={website_ratings}
-            onChange={e => setRatings(Number(e.target.value))}
-            aria-label="Website rating"
-            disabled={submitted || loading}
-          >
-            {[5, 4, 3, 2, 1].map(n => (
-              <option key={n} value={n}>
-                {n} ★
-              </option>
-            ))}
-          </select>
-        </div>
-        <textarea
-          value={website_comments}
-          onChange={e => {
-            const value = e.target.value;
-            if (countWords(value) <= 100) {
-              setComments(value);
-            }
-          }}
-          placeholder="Share your thoughts, suggestions, or issues..."
+            onChange={(_, value) => setRatings(value)}
+            readOnly={submitted || loading}
+          />
+        </Box>
+
+        {/* Comments */}
+        <TextField
+          label="Review"
+          placeholder="Tell us what you think of Auctioneer!"
+          multiline
           rows={6}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 8,
-            border: "1.5px solid #ccc",
-            fontSize: 16,
-            marginBottom: 16,
-            resize: "none",
-            boxSizing: "border-box",
-            background: submitted || loading ? "#333" : "#fff",
-            color: submitted || loading ? "#aaa" : "#222",
+          fullWidth
+          variant="outlined"
+          value={website_comments}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (countWords(v) <= 100) setComments(v);
           }}
           disabled={submitted || loading}
         />
-        <div style={{ textAlign: "right", fontSize: 12, color: "#888", marginBottom: 8 }}>
-          {wordCount} / 100 words
-          {wordCount >= 100 && (
-            <span style={{ color: "red", marginLeft: 8 }}>
-              (Word limit reached)
-            </span>
-          )}
-        </div>
-        <button
-          type="submit"
-          disabled={loading || submitted}
-          style={{
-            width: "100%",
-            padding: "10px",
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            fontWeight: "bold",
-            fontSize: 16,
-            cursor: "pointer",
-            boxSizing: "border-box",
-          }}
-        >
-          {loading ? "Submitting..." : "Submit Feedback"}
-        </button>
+
+        {/* Word count */}
+        <Box display="flex" justifyContent="flex-end" mt={1}>
+          <Typography variant="caption" color="text.secondary">
+            {wordCount} / 100 words
+            {wordCount >= 100 && (
+              <Typography
+                component="span"
+                variant="caption"
+                sx={{ color: "error.main", ml: 1 }}
+              >
+                (Word limit reached)
+              </Typography>
+            )}
+          </Typography>
+        </Box>
+
+        {/* Submit */}
+        <Box mt={3}>
+          <md-filled-button
+            type="submit"
+            disabled={loading || submitted}
+            style={{ width: "100%" }}
+          >
+            {loading ? "Submitting…" : "Submit Feedback"}
+          </md-filled-button>
+        </Box>
+
+        {/* Message */}
         {msg && (
-          <p
-            style={{
-              marginTop: 14,
-              color: msg.startsWith("✅") ? "green" : "red",
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              mt: 2,
               fontWeight: 600,
+              color: msg.startsWith("✅") ? "success.main" : "error.main",
             }}
             aria-live="polite"
           >
             {msg}
-          </p>
+          </Typography>
         )}
       </form>
-    </div>
+    </Box>
   );
 }

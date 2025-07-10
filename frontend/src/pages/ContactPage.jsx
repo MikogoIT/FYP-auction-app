@@ -1,7 +1,5 @@
 // src/pages/ContactPage.jsx
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 import FeedbackForm from "../components/FeedbackForm";
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
@@ -17,13 +15,12 @@ export default function ContactPage() {
       <div className="dashboardContent">
 
         {/* page title */}
-        <div className="profileTitle">Contact us!!</div>
+        <div className="profileTitle">Contact us</div>
+        <p>Please send us an email: auctioneer@support.mock.com</p>
+        <p>You may write a public review for us instead,</p>
 
         {/* Feedback form */}
-        <FeedbackForm
-          heading="Send Us Your Feedback"
-          endpoint="/api/feedback" // or your desired endpoint
-        />
+        <FeedbackForm/>
 
       </div>
       <div className="sidebarSpacer"></div>
