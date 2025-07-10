@@ -115,9 +115,9 @@ export default function FeedbackList() {
               elevation={2}
               sx={{
                 borderRadius: '12px',
-                width: 320,
+                width: 300,
                 height: 200,
-                p: 1,
+                p: 2,
                 mx: 'auto',
                 '& .MuiCardHeader-root, & .MuiCardContent-root': {
                   p: '4px',
