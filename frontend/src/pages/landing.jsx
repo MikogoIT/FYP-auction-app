@@ -68,9 +68,11 @@ export default function Landing() {
       {/* Recent Feedback Section */}
       <Box className="gridCanvas">
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
-        <Link to="/feedbacklist" className="viewAll">
-          View all
-        </Link>
+        <div className="viewAll">
+          <Link to="/feedbacklist" >
+            View all
+          </Link>
+        </div>
         <Box className="gridContainer">
             {feedback.map(fb => (
               <Grid item xs={12} sm={6} md={3} key={fb.id}>

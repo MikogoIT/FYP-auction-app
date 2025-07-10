@@ -52,6 +52,6 @@ export async function getLatestWebsiteFeedback() {
     FROM website_feedback f
     JOIN users u ON f.user_id = u.id
     ORDER BY f.created_at DESC
-    LIMIT 4
+    LIMIT 3
   `;
 }

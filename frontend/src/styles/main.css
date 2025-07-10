@@ -446,7 +446,7 @@ background-color: #e0e0e0;
 {
   display: grid;
   grid-template-columns: repeat(auto-fill, 300px);
-  gap: 24px;              /* matches your spacing={3} */
+  gap: 16px;            
   justify-items: start;   /* keep cards left-aligned within each cell */
   justify-content: center;
 }
@@ -454,4 +454,9 @@ background-color: #e0e0e0;
 .gridCanvas
 {
   width: 100%;
+}
+
+.viewAll
+{
+  margin: 15px 0px;
 }
