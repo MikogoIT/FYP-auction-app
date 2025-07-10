@@ -440,3 +440,12 @@ background-color: #e0e0e0;
   width: 100%;
   margin: 30px 0px;
 }
+
+.feedbacklistCanvas
+{
+  width: 100%;
+  max-width: 1000px;
+  font-family: "Roboto";
+  font-size: 16px;
+  margin-top: 60px;
+}
