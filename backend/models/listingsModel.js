@@ -1,10 +1,28 @@
 // models/listingsModel.js
 import { sql } from "../utils/db.js";
 
-export const createListing = async (sellerId, title, description, min_bid, end_date) => {
+export const createListing = async (
+  sellerId,
+  title,
+  description,
+  min_bid,
+  end_date,
+  category_id,
+  auction_type = "ascending",
+  start_price = null,
+  discount_steps = null,
+  discount_percentages = null,
+  step_duration = null
+) => {
   return await sql`
-    INSERT INTO auction_listings (seller_id, title, description, min_bid, end_date)
-    VALUES (${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date})
+    INSERT INTO auction_listings (
+      seller_id, title, description, min_bid, end_date, category_id,
+      auction_type, start_price, discount_steps, discount_percentages, step_duration
+    )
+    VALUES (
+      ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
+      ${auction_type}, ${start_price}, ${discount_steps}, ${discount_percentages}, ${step_duration}
+    )
     RETURNING *
   `;
 };
@@ -49,10 +67,30 @@ export const getSellerId = async (id) => {
   `;
 };
 
-export const updateListing = async (id, title, description, min_bid, end_date) => {
+export const updateListing = async (
+  id,
+  title,
+  description,
+  min_bid,
+  end_date,
+  auction_type = "ascending",
+  start_price = null,
+  discount_steps = null,
+  discount_percentages = null,
+  step_duration = null
+) => {
   return await sql`
     UPDATE auction_listings
-    SET title = ${title}, description = ${description}, min_bid = ${min_bid}, end_date = ${end_date}
+    SET 
+      title = ${title},
+      description = ${description},
+      min_bid = ${min_bid},
+      end_date = ${end_date},
+      auction_type = ${auction_type},
+      start_price = ${start_price},
+      discount_steps = ${discount_steps},
+      discount_percentages = ${discount_percentages},
+      step_duration = ${step_duration}
     WHERE id = ${id}
   `;
 };
