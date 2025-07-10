@@ -60,7 +60,11 @@ export const getListingById = async (id) => {
     FROM auction_listings l
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.id = ${id}
-    GROUP BY l.id
+    GROUP BY 
+      l.id, l.title, l.description, l.min_bid, l.end_date,
+      l.auction_type, l.start_price, l.discount_steps, l.discount_percentages, l.step_duration,
+      l.category_id, l.seller_id, l.image_url, l.is_active, l.posted_to_telegram,
+      l.created_at
   `;
 };
 
