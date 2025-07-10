@@ -1,10 +1,26 @@
 // models/listingsModel.js
 import { sql } from "../utils/db.js";
 
-export const createListing = async (sellerId, title, description, min_bid, end_date) => {
+export const createListing = async (
+  sellerId,
+  title,
+  description,
+  min_bid,
+  end_date,
+  category_id,
+  auction_type = "ascending",
+  start_price = null,
+  discount_percentage = null 
+) => {
   return await sql`
-    INSERT INTO auction_listings (seller_id, title, description, min_bid, end_date)
-    VALUES (${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date})
+    INSERT INTO auction_listings (
+      seller_id, title, description, min_bid, end_date, category_id,
+      auction_type, start_price, discount_percentage
+    )
+    VALUES (
+      ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
+      ${auction_type}, ${start_price}, ${discount_percentage}
+    )
     RETURNING *
   `;
 };
@@ -34,12 +50,12 @@ export const getActiveListings = async () => {
 export const getListingById = async (id) => {
   return await sql`
     SELECT 
-      l.id, l.title, l.description, l.min_bid, l.end_date,
-      MAX(b.bid_amount) AS current_bid
-    FROM auction_listings l
-    LEFT JOIN bids b ON l.id = b.auction_id
-    WHERE l.id = ${id}
-    GROUP BY l.id
+      id, title, description, min_bid, end_date,
+      auction_type, start_price, discount_percentage,
+      category_id, seller_id, image_url, is_active, posted_to_telegram,
+      created_at
+    FROM auction_listings
+    WHERE id = ${id}
   `;
 };
 
@@ -49,10 +65,26 @@ export const getSellerId = async (id) => {
   `;
 };
 
-export const updateListing = async (id, title, description, min_bid, end_date) => {
+export const updateListing = async (
+  id,
+  title,
+  description,
+  min_bid,
+  end_date,
+  auction_type = "ascending",
+  start_price = null,
+  discount_percentage = null 
+) => {
   return await sql`
     UPDATE auction_listings
-    SET title = ${title}, description = ${description}, min_bid = ${min_bid}, end_date = ${end_date}
+    SET 
+      title = ${title},
+      description = ${description},
+      min_bid = ${min_bid},
+      end_date = ${end_date},
+      auction_type = ${auction_type},
+      start_price = ${start_price},
+      discount_percentage = ${discount_percentage}
     WHERE id = ${id}
   `;
 };
@@ -109,4 +141,59 @@ export async function getRecentListings(limit = 5) {
     ORDER BY l.end_date ASC
     LIMIT ${limit}
   `;
+}
+
+/**
+ * get current descending price for a listing
+ * @param {number} listingId
+ * @returns {number|null} current price or null if not a descending auction
+ */
+export async function getCurrentDescendingPrice(listingId) {
+  const result = await sql`
+    SELECT 
+      auction_type,
+      start_price,
+      min_bid,
+      discount_percentage,
+      created_at,
+      end_date
+    FROM auction_listings
+    WHERE id = ${listingId}
+  `;
+  if (!result[0] || result[0].auction_type !== "descending") return null;
+
+  const {
+    start_price,
+    min_bid,
+    discount_percentage,
+    created_at,
+    end_date
+  } = result[0];
+
+  // step duration in seconds
+  const step_duration = 60;
+
+  const now = new Date();
+  const start = new Date(created_at);
+  const end = new Date(end_date);
+
+  // if auction has not started yet
+  if (now >= end) return Number(min_bid);
+
+  // calculate elapsed time since auction started
+  const elapsedSeconds = Math.floor((now - start) / 1000);
+  let stepsPassed = Math.floor(elapsedSeconds / step_duration);
+
+  // calculate current price
+  let price = Number(start_price);
+  for (let i = 0; i < stepsPassed; i++) {
+    price = price * (1 - Number(discount_percentage) / 100);
+    if (price <= min_bid) {
+      price = Number(min_bid);
+      break;
+    }
+  }
+  // ensure price does not go below min_bid
+  price = Math.max(price, Number(min_bid));
+  return Number(price.toFixed(2));
 }

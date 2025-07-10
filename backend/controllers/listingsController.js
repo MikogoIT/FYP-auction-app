@@ -7,7 +7,8 @@ import {
   updateListing,
   deleteListing,
   getMyListings,
-  getListingsWithFilters
+  getListingsWithFilters,
+  getCurrentDescendingPrice
 } from "../models/listingsModel.js";
 import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
 import { sql } from "../utils/db.js";
@@ -36,13 +37,46 @@ export async function postListing(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const { title, description, min_bid, end_date, category_id } = req.body;
+  const {
+    title,
+    description,
+    min_bid,
+    end_date,
+    category_id,
+    auction_type = "ascending",
+    start_price,
+    discount_percentage 
+  } = req.body;
+
+  // basic field validation
   if (!title || !min_bid || !end_date || !category_id) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
+  // validate auction_type
+  if (!["ascending", "descending"].includes(auction_type)) {
+    return res.status(400).json({ message: "Invalid auction_type" });
+  }
+
+  // descending auction only requires validation for start_price and discount_percentage
+  if (auction_type === "descending") {
+    if (!start_price || !discount_percentage) {
+      return res.status(400).json({ message: "Missing descending auction fields" });
+    }
+  }
+
   try {
-    const result = await createListing(userId, title, description, min_bid, end_date, category_id);
+    const result = await createListing(
+      userId,
+      title,
+      description,
+      min_bid,
+      end_date,
+      category_id,
+      auction_type,
+      start_price,
+      discount_percentage 
+    );
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
@@ -66,7 +100,12 @@ export async function getListing(req, res) {
   try {
     const result = await getListingById(req.params.id);
     if (result.length === 0) return res.status(404).json({ message: "Listing not found" });
-    res.json({ listing: result[0] });
+
+    const listing = result[0];
+    if (listing.auction_type === "descending") {
+      listing.current_price = await getCurrentDescendingPrice(req.params.id);
+    }
+    res.json({ listing });
   } catch (err) {
     console.error("Fetch listing error:", err);
     res.status(500).json({ message: "Failed to fetch listing" });
@@ -78,9 +117,28 @@ export async function putListing(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const { title, description, min_bid, end_date } = req.body;
+  const {
+    title,
+    description,
+    min_bid,
+    end_date,
+    auction_type = "ascending",
+    start_price,
+    discount_percentage 
+  } = req.body;
+
   if (!title || !min_bid || !end_date) {
     return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  if (!["ascending", "descending"].includes(auction_type)) {
+    return res.status(400).json({ message: "Invalid auction_type" });
+  }
+
+  if (auction_type === "descending") {
+    if (!start_price || !discount_percentage) {
+      return res.status(400).json({ message: "Missing descending auction fields" });
+    }
   }
 
   try {
@@ -90,7 +148,16 @@ export async function putListing(req, res) {
       return res.status(403).json({ message: "Unauthorized to edit this listing" });
     }
 
-    await updateListing(req.params.id, title, description, min_bid, end_date);
+    await updateListing(
+      req.params.id,
+      title,
+      description,
+      min_bid,
+      end_date,
+      auction_type,
+      start_price,
+      discount_percentage 
+    );
     res.json({ message: "Listing updated successfully" });
   } catch (err) {
     console.error("Update listing error:", err);
