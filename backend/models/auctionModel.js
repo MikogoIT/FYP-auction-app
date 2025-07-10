@@ -6,3 +6,21 @@ export async function getAuctionMinBid(auctionId) {
   `;
   return result.length > 0 ? result[0].min_bid : null;
 }
+
+export async function getEndedAscendingAuctions() {
+  return await sql`
+    SELECT id, title, seller_id FROM auction_listings
+    WHERE auction_type = 'ascending'
+      AND end_date <= NOW();
+  `;
+}
+
+export async function getHighestBidderForAuction(auctionId) {
+  const result = await sql`
+    SELECT buyer_id, bid_amount FROM bids
+    WHERE auction_id = ${auctionId}
+    ORDER BY bid_amount DESC, created_at ASC
+    LIMIT 1;
+  `;
+  return result[0];
+}
