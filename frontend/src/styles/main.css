@@ -449,6 +449,7 @@ background-color: #e0e0e0;
   gap: 16px;            
   justify-items: start;   /* keep cards left-aligned within each cell */
   justify-content: center;
+  width: 100%;
 }
 
 .gridCanvas
