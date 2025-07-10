@@ -15,7 +15,7 @@ export default function ContactPage() {
       <div className="dashboardContent">
 
         {/* page title */}
-        <div className="profileTitle">Contact us</div>
+        <div className="profileTitle">Contact</div>
         <div className="contactBody">
           <p>Please send us an email: auctioneer@support.mock.com</p>
           <p>You may write a public review for us instead,</p>
