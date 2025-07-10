@@ -132,18 +132,9 @@ export default function FeedbackList() {
               />
               <CardContent>
                 <Rating value={fb.website_ratings} readOnly />
-                <Box
-                  className="feedbackComment"
-                  mt={1}
-                  sx={{
-                    maxHeight: 80,
-                    overflowY: 'auto',
-                    boxSizing: 'border-box',
-                    p: 1,
-                  }}
-                >
+                <p  className="feedbackComment">
                   {fb.website_comments}
-                </Box>
+                </p>
               </CardContent>
             </Card>
           </Grid>
