@@ -145,17 +145,18 @@ export default function FeedbackList() {
             <p className="noFeedback">No feedback available yet.</p>
           </Grid>
         )}
-      {totalPages > 1 && (
-        <Box mt={4} display="flex" justifyContent="center">
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(e, value) => setPage(value)}
-            color="primary"
-          />
-        </Box>
-      )}
       </Box>
+      {totalPages > 1 && (
+      <Box mt={4} display="flex" justifyContent="center">
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={(e, value) => setPage(value)}
+          color="primary"
+        />
+      </Box>
+      )}
+      
     </Box>
   );
 }
