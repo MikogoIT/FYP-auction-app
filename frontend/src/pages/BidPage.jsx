@@ -15,18 +15,16 @@ export default function BidPage() {
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
 
-  // 1) Fetch listing details
+  // 1) Fetch full listing details
   useEffect(() => {
     async function fetchListing() {
-      console.log("➡️ Fetching listing details for id:", id);
       try {
         const res = await fetch(`/api/listings/${id}`);
-        console.log("📥 Listing fetch response status:", res.status);
+        if (!res.ok) throw new Error("Failed to load listing");
         const data = await res.json();
-        console.log("📄 Listing data:", data);
-        setListing(data);
+        setListing(data.listing);  // ← grab the inner object
       } catch (err) {
-        console.error("❌ Error in fetchListing:", err);
+        console.error(err);
       }
     }
     fetchListing();
@@ -35,28 +33,23 @@ export default function BidPage() {
   // 2) Fetch minimum‐allowed bid
   useEffect(() => {
     async function fetchMinAllowed() {
-      console.log("➡️ Fetching min-bid for auction:", id);
       try {
         const res = await fetch(`/api/auctions/${id}/min-bid`);
-        console.log("📥 MinBid response status:", res.status);
+        if (!res.ok) throw new Error("Failed to load min bid");
         const data = await res.json();
-        console.log("📄 MinBid data:", data);
         setMinPrice(data.min_allowed);
       } catch (err) {
-        console.error("❌ Error in fetchMinAllowed:", err);
+        console.error(err);
       }
     }
     fetchMinAllowed();
   }, [id]);
 
-  // 3) Submit bid
+  // 3) Submit your bid
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-
     const amount = parseFloat(bidAmount);
-    console.log("➡️ Submitting bid:", { auction_id: id, bid_amount: amount });
-
     if (amount <= minPrice) {
       setMessage(`❌ The bid must be higher than $${minPrice.toFixed(2)}`);
       return;
@@ -65,7 +58,6 @@ export default function BidPage() {
       alert("The bid amount cannot exceed 99,999,999.99");
       return;
     }
-
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -73,21 +65,22 @@ export default function BidPage() {
         credentials: "include",
         body: JSON.stringify({ auction_id: id, bid_amount: amount }),
       });
-      console.log("📥 Bid submit response status:", res.status);
       const data = await res.json();
-      console.log("📄 Bid submit response data:", data);
       if (!res.ok) throw new Error(data.message);
       setMessage("✅ Bid submitted!");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
-      console.error("❌ Error submitting bid:", err);
       setMessage(err.message);
     }
   };
 
-  // Loading states
+  // Loading state
   if (!listing || minPrice === null) {
-    return <p style={{ textAlign: "center", marginTop: 50 }}>Loading auction info…</p>;
+    return (
+      <Box sx={{ textAlign: "center", mt: 5 }}>
+        <Typography>Loading auction info…</Typography>
+      </Box>
+    );
   }
 
   return (
@@ -102,6 +95,7 @@ export default function BidPage() {
         boxSizing: "border-box",
       }}
     >
+      {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         style={{
@@ -133,10 +127,18 @@ export default function BidPage() {
           <img
             src={listing.image_url}
             alt={listing.title}
-            style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 4 }}
+            style={{
+              width: "100%",
+              maxHeight: 200,
+              objectFit: "cover",
+              borderRadius: 4,
+            }}
           />
         ) : (
-          <Avatar variant="square" sx={{ width: "100%", height: 200, bgcolor: "#eee" }}>
+          <Avatar
+            variant="square"
+            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+          >
             <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
           </Avatar>
         )}
@@ -154,7 +156,9 @@ export default function BidPage() {
         </Typography>
         <Typography variant="subtitle2">
           Current bid:{" "}
-          {listing.current_bid != null ? `$${listing.current_bid}` : "No bids yet"}
+          {listing.current_bid != null
+            ? `$${listing.current_bid}`
+            : "No bids yet"}
         </Typography>
       </Box>
 
@@ -183,7 +187,6 @@ export default function BidPage() {
             boxSizing: "border-box",
           }}
         />
-
         <md-filled-button
           type="submit"
           disabled={message.startsWith("✅")}
@@ -197,7 +200,10 @@ export default function BidPage() {
         <Typography
           variant="body2"
           align="center"
-          sx={{ mt: 2, color: message.startsWith("✅") ? "success.main" : "error.main" }}
+          sx={{
+            mt: 2,
+            color: message.startsWith("✅") ? "success.main" : "error.main",
+          }}
         >
           {message}
         </Typography>
