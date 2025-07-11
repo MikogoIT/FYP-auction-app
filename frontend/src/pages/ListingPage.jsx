@@ -181,38 +181,43 @@ export default function ListingPage() {
           </select> */}
         </div>
 
-        <Grid container spacing={3}>
-          {categories.map((cat) => (
-            <Grid item xs={12} sm={6} md={4} key={cat.id}>
-              <Card
-                onClick={() => navigate(`/listings?category=${cat.id}`)}
-                sx={{
-                  cursor: "pointer",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  transition: "0.2s",
-                  "&:hover": {
-                    transform: "scale(1.02)",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Typography variant="h6">{cat.name}</Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                    {cat.description}
-                  </Typography>
-                </CardContent>
+        <div className="listingGrid">
+        {categories.map((cat) => (
+          <div key={cat.id} className="listingCard">
+            <Avatar
+              variant="square"
+              sx={{
+                width: "100%",
+                height: 200,
+                bgcolor: "#eee",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* You can use a Category Icon instead if you like */}
+              <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+            </Avatar>
 
-                <Box sx={{ position: "absolute", bottom: 8, right: 8 }}>
-                  <TelegramFollowButton category={cat.name} />
-                </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+            <div className="listingDetails">
+              <h3 className="listingTitle">{cat.name}</h3>
+              <p className="listingDesc">
+                {cat.description || "No description provided."}
+              </p>
+            </div>
+
+            <div className="listingAction">
+              <md-filled-button
+                onClick={() => navigate(`/listings?category=${cat.id}`)}
+                style={{ flexGrow: 1 }}
+              >
+                View Listings
+              </md-filled-button>
+              <TelegramFollowButton category={cat.name} />
+            </div>
+          </div>
+        ))}
+      </div>
 
         {/* {loading ? (
           <p className="centerText">Loading listings…</p>
