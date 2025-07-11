@@ -22,7 +22,6 @@ import {
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
 import ListingSearchBar from "../components/ListingSearchBar";
-import { Box, Pagination } from '@mui/material';
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
