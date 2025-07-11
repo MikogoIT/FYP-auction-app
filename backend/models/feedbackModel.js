@@ -89,36 +89,3 @@ export async function insertUserFeedback(author_id, recipient_id, author_role, u
     VALUES (${author_id}, ${recipient_id}, ${author_role}, ${user_ratings}, ${user_comments})
   `;
 }
-
-export async function hasSubmittedUserFeedback(author_id, recipient_id) {
-export async function isValidAuctionParticipant(auction_id, user_id) {
-  const result = await sql`
-    SELECT 1
-    FROM bids b
-    JOIN auction_listings al ON b.auction_id = al.id
-    WHERE b.auction_id = ${auction_id}
-      AND b.status = 'Completed'
-      AND (b.buyer_id = ${user_id} OR al.seller_id = ${user_id})
-    LIMIT 1
-  `;
-  return result.length > 0;
-}
-
-
-export async function insertUserFeedback(author_id, recipient_id, auction_id, author_role, user_ratings, user_comments) {
-  return await sql`
-    INSERT INTO user_feedback (author_id, recipient_id, auction_id, author_role, user_ratings, user_comments)
-    VALUES (${author_id}, ${recipient_id}, ${auction_id}, ${author_role}, ${user_ratings}, ${user_comments})
-  `;
-}
-
-export async function hasSubmittedUserFeedback(author_id, recipient_id, auction_id) {
-  const result = await sql`
-    SELECT 1 FROM user_feedback
-    WHERE author_id = ${author_id}
-      AND recipient_id = ${recipient_id}
-      AND auction_id = ${auction_id}
-    LIMIT 1
-  `;
-  return result.length > 0;
-}
