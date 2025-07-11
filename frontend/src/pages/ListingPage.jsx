@@ -142,7 +142,7 @@ export default function ListingPage() {
           Browse Listings by Category
         </div>
 
-        <div className="filterContainer" style={{ marginBottom: "2rem", display: "flex", gap: "0.75rem" }}>
+        <div className="filterContainer">
           <ListingSearchBar />
           {/* <select
             className="categorySelect"

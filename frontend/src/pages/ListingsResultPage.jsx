@@ -27,6 +27,7 @@ export default function ListingsResultPage() {
     const currentUserId = Number(localStorage.getItem("userId"));
 
     const [listings, setListings] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [likedMap, setLikedMap] = useState({});
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -82,6 +83,19 @@ export default function ListingsResultPage() {
         })();
     }, [searchTerm, selectedCategory]);
 
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/categories");
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+                setCategories(data.categories);
+            } catch (err) {
+                console.error("Failed to load categories: ", err);
+            }
+        })();
+    }, []);
+
     const handleToggleLike = async (listingId) => {
         const isLiked = !!likedMap[listingId];
         const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
@@ -113,15 +127,36 @@ export default function ListingsResultPage() {
         page * ITEMS_PER_PAGE
     );
 
+    const selectedCategoryName =
+        selectedCategory &&
+        categories.find((cat) => String(cat.id) === String(selectedCategory))?.name;
+
     return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <div id="wideTitle" className="profileTitle">
-          Auction Listings
+        <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+                {selectedCategoryName && (
+                    <h3>
+                        Showing results for category <em>{selectedCategoryName}</em>
+                        {searchTerm ? ` matching "${searchTerm}"`: ""}
+                    </h3>
+                )}
+                {!selectedCategoryName && searchTerm && (
+                    <h3>Showing results matching "{searchTerm}"</h3>
+                )}
+            </div>
+
+            {selectedCategoryName && (
+                <TelegramFollowButton category={selectedCategoryName} />
+            )}
+
         </div>
 
-        <ListingSearchBar initialSearch={searchTerm} />
+        <div className="filterContainer">
+            <ListingSearchBar initialSearch={searchTerm} />
+        </div>
 
         {loading ? (
           <p className="centerText">Loading listings…</p>
@@ -140,11 +175,14 @@ export default function ListingsResultPage() {
                       className="listingImage"
                     />
                   ) : (
-                    <Avatar
-                      variant="square"
-                      sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-                    >
-                      <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                    <Avatar 
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            bgcolor: "#eee",
+                        }}> 
+                          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                     </Avatar>
                   )}
 

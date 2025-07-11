@@ -11,16 +11,14 @@ const getChannelUrl = (category) => {
 export default function TelegramFollowButton({ category }) {
     const channelUrl = getChannelUrl(category);
 
-    const handleFollow = () => {
+    const handleFollow = (e) => {
+        e.stopPropagation();
         window.open(channelUrl, "_blank");
     };
 
     return (
         <md-filled-button
-        onClick={(e) => {
-            e.stopPropogation();
-            handleFollow();
-        }}
+        onClick={handleFollow}
         style={{ 
             flexGrow: 1, 
             display: "flex", 
@@ -30,8 +28,8 @@ export default function TelegramFollowButton({ category }) {
             "--md-sys-color-on-primary": "#ffffff"
         }}
         >
-            <TelegramIcon style={{ fontSize: "1.2rem" }} />
-            Follow on Telegram
+            <TelegramIcon style={{ fontSize: "1.3rem", lineHeight: "1" }} />
+            {`Follow ${category} on Telegram`}
         </md-filled-button>
     );
 }
