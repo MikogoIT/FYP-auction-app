@@ -26,3 +26,4 @@ export async function createUser({ username, email, passwordHash, full_name, pho
   `;
   return result[0];
 }
+
