@@ -17,5 +17,11 @@ router.get(  "/list",  feedbackController.getAllWebsiteFeedback);
 // GET    /feedback/recent
 router.get(  "/recent",  feedbackController.getRecentFeedback);
 
+// GET    /feedback/user/:userId
+router.get("/user/:userId", feedbackController.getUserFeedback);
+
+// GET    /feedback/auction/:auctionId
+router.get("/auction/:auctionId", feedbackController.getAuctionFeedback);
+
 
 export default router;
