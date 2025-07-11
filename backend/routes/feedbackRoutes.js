@@ -23,9 +23,4 @@ router.get("/user/:userId", feedbackController.getUserFeedback);
 // GET    /feedback/auction/:auctionId
 router.get("/auction/:auctionId", feedbackController.getAuctionFeedback);
 
-// POST    /feedback/userFeedback
-router.post("/user-feedback", requireLogin, feedbackController.submitUserFeedback);
-// POST    /feedback/userFeedback       (requires login)
-router.post(  "/user-feedback", requireLogin, feedbackController.submitUserFeedback);
-
 export default router;

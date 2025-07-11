@@ -8,10 +8,6 @@ import {
   getFeedbackForUser,
   getFeedbackForAuction,
   hasFeedback,
-  getAuctionDetails,
-  insertUserFeedback,
-  hasSubmittedUserFeedback,
-  isValidAuctionParticipant,
 } from "../models/feedbackModel.js";
 
 // POST   /feedback
@@ -116,59 +112,3 @@ export async function getAuctionFeedback(req, res) {
   }
 }
 
-const userId = 5; // for example
-const notifications = await getAuctionDetails(userId);
-
-console.log(notifications);
-
-// POST  /feedback/user-feedback
-export async function submitUserFeedback(req, res) {
-  const author_id = req.session.userId;
-  const { recipient_id, author_role, user_ratings, user_comments, auction_id } = req.body;
-
-  // 1. Authentication check
-  if (!author_id) {
-    return res.status(401).json({ message: "You must be logged in to submit feedback." });
-  }
-
-  // 2. Validation
-  if (!recipient_id) {
-    return res.status(400).json({ message: "Recipient ID is required." });
-  }
-  if (!auction_id) {
-    return res.status(400).json({ message: "Auction ID is required." });
-  }
-  if (!author_role || !["buyer", "seller"].includes(author_role)) {
-    return res.status(400).json({ message: "Author role must be 'buyer' or 'seller'." });
-  }
-  if (!user_comments?.trim()) {
-    return res.status(400).json({ message: "Feedback cannot be empty." });
-  }
-  if (!user_ratings || user_ratings < 1 || user_ratings > 5) {
-    return res.status(400).json({ message: "Rating must be between 1 and 5." });
-  }
-  if (author_id == recipient_id) {
-    return res.status(400).json({ message: "You cannot submit feedback for yourself." });
-  }
-
-  try {
-    // 3. Prevent duplicate submissions per auction
-    const alreadySubmitted = await hasSubmittedUserFeedback(author_id, recipient_id, auction_id);
-    if (alreadySubmitted) {
-      return res.status(409).json({ message: "You have already submitted feedback for this user in this transaction." });
-    }
-
-    // 4. Validate that the user is a participant in the completed auction
-    const isParticipant = await isValidAuctionParticipant(auction_id, author_id);
-    if (!isParticipant) {
-      return res.status(403).json({ message: "You are not authorized to leave feedback for this auction." });
-    }
-
-    // 5. Insert feedback
-    await insertUserFeedback(author_id, recipient_id, auction_id, author_role, user_ratings, user_comments);
-    res.status(201).json({ message: "Feedback submitted successfully." });
-  } catch (err) {
-    console.error(`User feedback submission error (author_id: ${author_id}):`, err);
-    res.status(500).json({ message: "Server error" });
-  }
-}
