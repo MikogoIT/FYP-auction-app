@@ -207,7 +207,7 @@ export default function ListingPage() {
                 </CardContent>
 
                 <Box sx={{ position: "absolute", bottom: 8, right: 8 }}>
-                  <TelegramFollowButton categoryId={cat.id} />
+                  <TelegramFollowButton category={cat.name} />
                 </Box>
               </Card>
             </Grid>
