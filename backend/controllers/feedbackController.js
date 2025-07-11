@@ -68,3 +68,46 @@ export async function getRecentFeedback(req, res) {
     res.status(500).json({ message: "Failed to fetch recent feedback" });
   }
 }
+
+// Create an auction review
+export async function postAuctionFeedback(req, res) {
+  try {
+    const { author_id, recipient_id, auction_id, author_role, user_ratings, user_comments } = req.body;
+    if (!author_id || !recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    if (author_id === recipient_id) {
+      return res.status(400).json({ error: "Author and recipient cannot be the same user" });
+    }
+    const alreadyReviewed = await hasFeedback(author_id, recipient_id, auction_id);
+    if (alreadyReviewed) {
+      return res.status(409).json({ error: "You have already submitted feedback for this auction and user" });
+    }
+    const feedback = await createFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments });
+    res.status(201).json(feedback[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
+
+// Get the reviews received by a user
+export async function getUserFeedback(req, res) {
+  try {
+    const userId = req.params.userId;
+    const feedback = await getFeedbackForUser(userId);
+    res.json(feedback);
+  } catch (err) {
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
+
+// Get all reviews for an auction
+export async function getAuctionFeedback(req, res) {
+  try {
+    const auctionId = req.params.auctionId;
+    const feedback = await getFeedbackForAuction(auctionId);
+    res.json(feedback);
+  } catch (err) {
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
