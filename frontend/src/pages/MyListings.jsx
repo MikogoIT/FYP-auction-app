@@ -13,6 +13,9 @@ import "@material/web/button/filled-tonal-button.js";
 export default function MyListings() {
   const navigate = useNavigate();
 
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
+
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -106,8 +109,12 @@ export default function MyListings() {
                   <div className="listingAction">
                       <md-filled-button
                         onClick={() => handleEdit(item.id)}
-                        style={{ width: "100%" }}
-                      >
+                        style={{ 
+                          width: "100%" ,
+                          "--md-sys-color-primary": yellow,
+                          "--md-sys-color-on-primary": contrastText,
+                          }}
+                        >
                         Edit
                       </md-filled-button>
                     </div>

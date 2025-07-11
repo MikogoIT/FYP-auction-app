@@ -15,14 +15,14 @@ export default function BidPage() {
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
 
-  // 1) Fetch full listing details
+  // Fetch listing details
   useEffect(() => {
     async function fetchListing() {
       try {
         const res = await fetch(`/api/listings/${id}`);
         if (!res.ok) throw new Error("Failed to load listing");
         const data = await res.json();
-        setListing(data.listing);  // ← grab the inner object
+        setListing(data.listing);
       } catch (err) {
         console.error(err);
       }
@@ -30,7 +30,7 @@ export default function BidPage() {
     fetchListing();
   }, [id]);
 
-  // 2) Fetch minimum‐allowed bid
+  // Fetch highest bid so far (min allowed)
   useEffect(() => {
     async function fetchMinAllowed() {
       try {
@@ -45,19 +45,21 @@ export default function BidPage() {
     fetchMinAllowed();
   }, [id]);
 
-  // 3) Submit your bid
+  // Submit a new bid
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     const amount = parseFloat(bidAmount);
+
     if (amount <= minPrice) {
-      setMessage(`❌ The bid must be higher than $${minPrice.toFixed(2)}`);
+      setMessage(`❌ Your bid must be higher than $${minPrice.toFixed(2)}`);
       return;
     }
     if (amount > 99999999.99) {
       alert("The bid amount cannot exceed 99,999,999.99");
       return;
     }
+
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -74,7 +76,7 @@ export default function BidPage() {
     }
   };
 
-  // Loading state
+  // Loading fallback
   if (!listing || minPrice === null) {
     return (
       <Box sx={{ textAlign: "center", mt: 5 }}>
@@ -95,7 +97,7 @@ export default function BidPage() {
         boxSizing: "border-box",
       }}
     >
-      {/* Back Button */}
+      {/* Back */}
       <button
         onClick={() => navigate(-1)}
         style={{
@@ -155,10 +157,7 @@ export default function BidPage() {
           Starting bid: <strong>${listing.min_bid}</strong>
         </Typography>
         <Typography variant="subtitle2">
-          Current bid:{" "}
-          {listing.current_bid != null
-            ? `$${listing.current_bid}`
-            : "No bids yet"}
+          Current bid: <strong>${minPrice.toFixed(2)}</strong>
         </Typography>
       </Box>
 
@@ -167,7 +166,7 @@ export default function BidPage() {
         💰 Place Your Bid
       </Typography>
       <Typography sx={{ mb: 2 }}>
-        Minimum bid: <strong>${minPrice.toFixed(2)}</strong>
+        Current bid: <strong>${minPrice.toFixed(2)}</strong>
       </Typography>
 
       <form onSubmit={handleSubmit}>
