@@ -55,37 +55,3 @@ export async function getLatestWebsiteFeedback() {
     LIMIT 4
   `;
 }
-
-// User auction feedback
-export async function createFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments }) {
-  return await sql`
-    INSERT INTO user_feedback (author_id, recipient_id, auction_id, author_role, user_ratings, user_comments)
-    VALUES (${author_id}, ${recipient_id}, ${auction_id}, ${author_role}, ${user_ratings}, ${user_comments})
-    RETURNING *;
-  `;
-}
-
-export async function getFeedbackForUser(userId) {
-  return await sql`
-    SELECT * FROM user_feedback WHERE recipient_id = ${userId} ORDER BY created_at DESC;
-  `;
-}
-
-export async function getFeedbackForAuction(auctionId) {
-  return await sql`
-    SELECT * FROM user_feedback WHERE auction_id = ${auctionId} ORDER BY created_at DESC;
-  `;
-}
-
-export async function hasFeedback(author_id, recipient_id, auction_id) {
-  const result = await sql`
-    SELECT 1 FROM user_feedback WHERE author_id = ${author_id} AND recipient_id = ${recipient_id} AND auction_id = ${auction_id};
-  `;
-  return result.length > 0;
-}
-export async function insertUserFeedback(author_id, recipient_id, author_role, user_ratings, user_comments) {
-  return await sql`
-    INSERT INTO user_feedback (author_id, recipient_id, author_role, user_ratings, user_comments)
-    VALUES (${author_id}, ${recipient_id}, ${author_role}, ${user_ratings}, ${user_comments})
-  `;
-}
