@@ -86,127 +86,104 @@ export default function BidPage() {
   }
 
   return (
-    <Box
-      sx={{
-        maxWidth: 500,
-        m: "50px auto",
-        p: 3,
-        borderRadius: 2,
-        bgcolor: "background.paper",
-        boxShadow: 1,
-        boxSizing: "border-box",
-      }}
-    >
-      {/* Back */}
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          backgroundColor: "#ddd",
-          border: "none",
-          padding: "8px 12px",
-          borderRadius: 4,
-          cursor: "pointer",
-          marginBottom: 16,
-        }}
-      >
-        ← Back
-      </button>
+    <div className="dashboardCanvas">
+    <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+        {/* Listing Details */}
+        <Box
+          sx={{
+            mb: 3,
+            p: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {listing.image_url ? (
+            <img
+              src={listing.image_url}
+              alt={listing.title}
+              style={{
+                width: "100%",
+                maxHeight: 200,
+                objectFit: "cover",
+                borderRadius: 4,
+              }}
+            />
+          ) : (
+            <Avatar
+              variant="square"
+              sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+            >
+              <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+            </Avatar>
+          )}
+          <div className="profileTitle">
+            {listing.title}
+          </div>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            {listing.description}
+          </Typography>
+          <Typography variant="subtitle2">
+            Starting bid: <strong>${listing.min_bid}</strong>
+          </Typography>
+          <Typography variant="subtitle2">
+            Current bid: <strong>${minPrice.toFixed(2)}</strong>
+          </Typography>
+        </Box>
 
-      {/* Listing Details */}
-      <Box
-        sx={{
-          mb: 3,
-          p: 2,
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {listing.image_url ? (
-          <img
-            src={listing.image_url}
-            alt={listing.title}
+        {/* Bid Form */}
+        <Typography variant="h6" align="center" gutterBottom>
+        Place Your Bid
+        </Typography>
+        
+
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="bidAmount">Bid Amount ($):</label>
+          <input
+            id="bidAmount"
+            type="number"
+            value={bidAmount}
+            onChange={(e) => setBidAmount(e.target.value)}
+            required
+            min={minPrice}
+            step="0.01"
             style={{
               width: "100%",
-              maxHeight: 200,
-              objectFit: "cover",
-              borderRadius: 4,
+              padding: "8px",
+              margin: "8px 0 16px",
+              boxSizing: "border-box",
             }}
           />
-        ) : (
-          <Avatar
-            variant="square"
-            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+          <md-filled-button
+            type="submit"
+            disabled={message.startsWith("✅")}
+            style={{ width: "100%", padding: "10px" }}
           >
-            <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-          </Avatar>
+            Submit Bid
+          </md-filled-button>
+        </form>
+
+        {message && (
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              mt: 2,
+              color: message.startsWith("✅") ? "success.main" : "error.main",
+            }}
+          >
+            {message}
+          </Typography>
         )}
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          {listing.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          {listing.description}
-        </Typography>
-        <Typography variant="subtitle2">
-          Starting bid: <strong>${listing.min_bid}</strong>
-        </Typography>
-        <Typography variant="subtitle2">
-          Current bid: <strong>${minPrice.toFixed(2)}</strong>
-        </Typography>
-      </Box>
-
-      {/* Bid Form */}
-      <Typography variant="h6" align="center" gutterBottom>
-        💰 Place Your Bid
-      </Typography>
-      <Typography sx={{ mb: 2 }}>
-        Current bid: <strong>${minPrice.toFixed(2)}</strong>
-      </Typography>
-
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="bidAmount">Bid Amount ($):</label>
-        <input
-          id="bidAmount"
-          type="number"
-          value={bidAmount}
-          onChange={(e) => setBidAmount(e.target.value)}
-          required
-          min={minPrice}
-          step="0.01"
-          style={{
-            width: "100%",
-            padding: "8px",
-            margin: "8px 0 16px",
-            boxSizing: "border-box",
-          }}
-        />
-        <md-filled-button
-          type="submit"
-          disabled={message.startsWith("✅")}
-          style={{ width: "100%", padding: "10px" }}
-        >
-          Submit Bid
-        </md-filled-button>
-      </form>
-
-      {message && (
-        <Typography
-          variant="body2"
-          align="center"
-          sx={{
-            mt: 2,
-            color: message.startsWith("✅") ? "success.main" : "error.main",
-          }}
-        >
-          {message}
-        </Typography>
-      )}
-    </Box>
+      </div>
+    <div className="sidebarSpacer"></div>
+    </div>
   );
 }
