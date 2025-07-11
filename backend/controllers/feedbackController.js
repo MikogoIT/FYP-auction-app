@@ -6,7 +6,8 @@ import {
   getLatestWebsiteFeedback,
   createFeedback,
   getFeedbackForUser,
-  getFeedbackForAuction
+  getFeedbackForAuction,
+  hasFeedback
 } from "../models/feedbackModel.js";
 
 export async function submitWebsiteFeedback(req, res) {
