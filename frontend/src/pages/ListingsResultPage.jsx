@@ -10,6 +10,7 @@ import { useTheme } from "@mui/material/styles";
 import { Box, Pagination } from "@mui/material";
 
 import ListingSearchBar from "../components/ListingSearchBar";
+import TelegramFollowButton from "../components/TelegramFollowButton";
 
 const ITEMS_PER_PAGE = 6;
 
