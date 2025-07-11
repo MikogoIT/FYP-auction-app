@@ -135,7 +135,7 @@ export default function ListingPage() {
       try {
         const res = await fetch("/api/categories");
         const data = await res.json();
-        setCategories(data);
+        setCategories(data.categories);
       } catch (err) {
         console.error("Failed to load categories: ", err);
       }
