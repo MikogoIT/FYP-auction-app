@@ -18,13 +18,15 @@ export default function BidPage() {
   // 1) Fetch listing details
   useEffect(() => {
     async function fetchListing() {
+      console.log("➡️ Fetching listing details for id:", id);
       try {
         const res = await fetch(`/api/listings/${id}`);
-        if (!res.ok) throw new Error("Failed to load listing");
+        console.log("📥 Listing fetch response status:", res.status);
         const data = await res.json();
+        console.log("📄 Listing data:", data);
         setListing(data);
       } catch (err) {
-        console.error(err);
+        console.error("❌ Error in fetchListing:", err);
       }
     }
     fetchListing();
@@ -33,16 +35,15 @@ export default function BidPage() {
   // 2) Fetch minimum‐allowed bid
   useEffect(() => {
     async function fetchMinAllowed() {
+      console.log("➡️ Fetching min-bid for auction:", id);
       try {
         const res = await fetch(`/api/auctions/${id}/min-bid`);
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Fetch failed: ${text}`);
-        }
+        console.log("📥 MinBid response status:", res.status);
         const data = await res.json();
+        console.log("📄 MinBid data:", data);
         setMinPrice(data.min_allowed);
       } catch (err) {
-        console.error("Error fetching min bid:", err);
+        console.error("❌ Error in fetchMinAllowed:", err);
       }
     }
     fetchMinAllowed();
@@ -54,6 +55,8 @@ export default function BidPage() {
     setMessage("");
 
     const amount = parseFloat(bidAmount);
+    console.log("➡️ Submitting bid:", { auction_id: id, bid_amount: amount });
+
     if (amount <= minPrice) {
       setMessage(`❌ The bid must be higher than $${minPrice.toFixed(2)}`);
       return;
@@ -70,11 +73,14 @@ export default function BidPage() {
         credentials: "include",
         body: JSON.stringify({ auction_id: id, bid_amount: amount }),
       });
+      console.log("📥 Bid submit response status:", res.status);
       const data = await res.json();
+      console.log("📄 Bid submit response data:", data);
       if (!res.ok) throw new Error(data.message);
       setMessage("✅ Bid submitted!");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
+      console.error("❌ Error submitting bid:", err);
       setMessage(err.message);
     }
   };
@@ -110,7 +116,7 @@ export default function BidPage() {
         ← Back
       </button>
 
-      {/* ─── Listing Details ─── */}
+      {/* Listing Details */}
       <Box
         sx={{
           mb: 3,
@@ -130,19 +136,15 @@ export default function BidPage() {
             style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 4 }}
           />
         ) : (
-          <Avatar
-            variant="square"
-            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-          >
+          <Avatar variant="square" sx={{ width: "100%", height: 200, bgcolor: "#eee" }}>
             <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
           </Avatar>
         )}
-
         <Typography variant="h6" sx={{ mt: 2 }}>
           {listing.title}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {new Date(listing.end_date).toLocaleString("en-SG")}
+          Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
         </Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>
           {listing.description}
@@ -152,13 +154,11 @@ export default function BidPage() {
         </Typography>
         <Typography variant="subtitle2">
           Current bid:{" "}
-          {listing.current_bid != null
-            ? `$${listing.current_bid}`
-            : "No bids yet"}
+          {listing.current_bid != null ? `$${listing.current_bid}` : "No bids yet"}
         </Typography>
       </Box>
 
-      {/* ─── Bid Form ─── */}
+      {/* Bid Form */}
       <Typography variant="h6" align="center" gutterBottom>
         💰 Place Your Bid
       </Typography>
