@@ -8,6 +8,8 @@ import {
   getFeedbackForUser,
   getFeedbackForAuction,
   hasFeedback,
+  getAuctionDetails,
+  insertUserFeedback,
   hasSubmittedUserFeedback,
   isValidAuctionParticipant,
 } from "../models/feedbackModel.js";
@@ -113,6 +115,11 @@ export async function getAuctionFeedback(req, res) {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 }
+
+const userId = 5; // for example
+const notifications = await getAuctionDetails(userId);
+
+console.log(notifications);
 
 // POST  /feedback/user-feedback
 export async function submitUserFeedback(req, res) {
