@@ -22,6 +22,7 @@ import {
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
 import ListingSearchBar from "../components/ListingSearchBar";
+import { Box, Pagination } from '@mui/material';
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -143,6 +144,75 @@ export default function ListingPage() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (searchTerm.trim()) params.append("q", searchTerm.trim());
+        if (selectedCategory) params.append("category", selectedCategory);
+
+        const res = await fetch(`/api/listings?${params.toString()}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+
+        const enriched = await Promise.all(
+          data.listings.map(async (item) => {
+            try {
+              const imgRes = await fetch(
+                `/api/listingimg?listingId=${item.id}`
+              );
+              const { imageUrl } = await imgRes.json();
+              return { ...item, image_url: imageUrl };
+            } catch {
+              return { ...item, image_url: null };
+            }
+          })
+        );
+
+        setListings(enriched);
+        setPage(1);
+      } catch (err) {
+        console.error("Failed to fetch listings:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [searchTerm, selectedCategory]);
+
+  const handleToggleLike = async (listingId) => {
+    const isLiked = !!likedMap[listingId];
+    const url = isLiked
+      ? "/api/watchlist/remove"
+      : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auction_id: listingId }),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `${method} ${url} failed`);
+      }
+
+      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
+    } catch (err) {
+      console.error("Error toggling watchlist:", err);
+    }
+  };
+
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
+
+  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+  const paginated = listings.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="dashboardCanvas">
