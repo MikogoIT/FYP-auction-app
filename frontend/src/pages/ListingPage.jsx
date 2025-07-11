@@ -8,7 +8,18 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { Box, Pagination } from '@mui/material';
+import { 
+  Box,
+  Pagination,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button
+ } from '@mui/material';
+
+import TelegramFollowButton from "../components/TelegramFollowButton";
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -23,117 +34,140 @@ export default function ListingPage() {
   const yellow = theme.palette.warning.light;
   const contrastText = theme.palette.getContrastText(yellow);
 
-  const [listings, setListings] = useState([]);
+  // const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  // const [selectedCategory, setSelectedCategory] = useState("");
+  // const [page, setPage] = useState(1);
+  // const [loading, setLoading] = useState(true);
 
   // track which listings are liked
-  const [likedMap, setLikedMap] = useState({});
+  // const [likedMap, setLikedMap] = useState({});
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const res = await fetch("/api/watchlist/");
+  //       const data = await res.json();
+  //       if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
+  //       const map = {};
+  //       data.forEach((item) => {
+  //         map[item.auction_id] = true;
+  //       });
+  //       setLikedMap(map);
+  //     } catch (err) {
+  //       console.error("Could not load watchlist:", err);
+  //     }
+  //   })();
+  // }, []);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     setLoading(true);
+  //     try {
+  //       const params = new URLSearchParams();
+  //       if (searchTerm.trim()) params.append("q", searchTerm.trim());
+  //       if (selectedCategory) params.append("category", selectedCategory);
+
+  //       const res = await fetch(`/api/listings?${params.toString()}`);
+  //       const data = await res.json();
+  //       if (!res.ok) throw new Error(data.message);
+
+  //       const enriched = await Promise.all(
+  //         data.listings.map(async (item) => {
+  //           try {
+  //             const imgRes = await fetch(
+  //               `/api/listingimg?listingId=${item.id}`
+  //             );
+  //             const { imageUrl } = await imgRes.json();
+  //             return { ...item, image_url: imageUrl };
+  //           } catch {
+  //             return { ...item, image_url: null };
+  //           }
+  //         })
+  //       );
+
+  //       setListings(enriched);
+  //       setPage(1);
+  //     } catch (err) {
+  //       console.error("Failed to fetch listings:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   })();
+  // }, [searchTerm, selectedCategory]);
+
+  // const handleToggleLike = async (listingId) => {
+  //   const isLiked = !!likedMap[listingId];
+  //   const url = isLiked
+  //     ? "/api/watchlist/remove"
+  //     : "/api/watchlist/add";
+  //   const method = isLiked ? "DELETE" : "POST";
+
+  //   try {
+  //     const res = await fetch(url, {
+  //       method,
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ auction_id: listingId }),
+  //     });
+
+  //     if (!res.ok) {
+  //       const errBody = await res.json().catch(() => ({}));
+  //       throw new Error(errBody.message || `${method} ${url} failed`);
+  //     }
+
+  //     setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
+  //   } catch (err) {
+  //     console.error("Error toggling watchlist:", err);
+  //   }
+  // };
+
+  // const handleBidClick = (id) => navigate(`/bid/${id}`);
+
+  // const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+  // const paginated = listings.slice(
+  //   (page - 1) * ITEMS_PER_PAGE,
+  //   page * ITEMS_PER_PAGE
+  // );
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/watchlist/");
+        const res = await fetch("/api/categories");
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
-        const map = {};
-        data.forEach((item) => {
-          map[item.auction_id] = true;
-        });
-        setLikedMap(map);
+        setCategories(data);
       } catch (err) {
-        console.error("Could not load watchlist:", err);
+        console.error("Failed to load categories: ", err);
       }
     })();
   }, []);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (searchTerm.trim()) params.append("q", searchTerm.trim());
-        if (selectedCategory) params.append("category", selectedCategory);
-
-        const res = await fetch(`/api/listings?${params.toString()}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-
-        const enriched = await Promise.all(
-          data.listings.map(async (item) => {
-            try {
-              const imgRes = await fetch(
-                `/api/listingimg?listingId=${item.id}`
-              );
-              const { imageUrl } = await imgRes.json();
-              return { ...item, image_url: imageUrl };
-            } catch {
-              return { ...item, image_url: null };
-            }
-          })
-        );
-
-        setListings(enriched);
-        setPage(1);
-      } catch (err) {
-        console.error("Failed to fetch listings:", err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [searchTerm, selectedCategory]);
-
-  const handleToggleLike = async (listingId) => {
-    const isLiked = !!likedMap[listingId];
-    const url = isLiked
-      ? "/api/watchlist/remove"
-      : "/api/watchlist/add";
-    const method = isLiked ? "DELETE" : "POST";
-
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ auction_id: listingId }),
-      });
-
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.message || `${method} ${url} failed`);
-      }
-
-      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
-    } catch (err) {
-      console.error("Error toggling watchlist:", err);
-    }
-  };
-
-  const handleBidClick = (id) => navigate(`/bid/${id}`);
-
-  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
-  const paginated = listings.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
 
   return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <div id="wideTitle" className="profileTitle">All Auction Listings</div>
+        <div id="wideTitle" className="profileTitle">
+          Browse Listings by Category
+        </div>
 
-        <div className="filterContainer">
+        <div className="filterContainer" style={{ marginBottom: "2rem", display: "flex", gap: "0.75rem" }}>
           <input
             className="searchInput"
             type="text"
             placeholder="🔍 Search by title or description…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ flexGrow: 1 }}
           />
-          <select
+          <Button
+            variant="contained"
+            disabled={!searchTerm.trim()}
+            onClick={() => navigate(`/listings?q=${encodeURIComponent(searchTerm.trim())}`)}
+          >
+            Search
+          </Button>
+
+          {/* <select
             className="categorySelect"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -144,10 +178,43 @@ export default function ListingPage() {
                 {cat.name}
               </option>
             ))}
-          </select>
+          </select> */}
         </div>
 
-        {loading ? (
+        <Grid container spacing={3}>
+          {categories.map((cat) => (
+            <Grid item xs={12} sm={6} md={4} key={cat.id}>
+              <Card
+                onClick={() => navigate(`/listings?category=${cat.id}`)}
+                sx={{
+                  cursor: "pointer",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  transition: "0.2s",
+                  "&:hover": {
+                    transform: "scale(1.02)",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6">{cat.name}</Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                    {cat.description}
+                  </Typography>
+                </CardContent>
+
+                <Box sx={{ position: "absolute", bottom: 8, right: 8 }}>
+                  <TelegramFollowButton categoryId={cat.id} />
+                </Box>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* {loading ? (
           <p className="centerText">Loading listings…</p>
         ) : paginated.length === 0 ? (
           <p className="centerText">No listings found.</p>
@@ -236,7 +303,7 @@ export default function ListingPage() {
               color="primary"
             />
           </Box>
-        )}
+        )} */}
       </div>
       <div className="sidebarSpacer" />
     </div>
