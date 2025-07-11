@@ -184,21 +184,6 @@ export default function ListingPage() {
         <div className="listingGrid">
         {categories.map((cat) => (
           <div key={cat.id} className="listingCard">
-            <Avatar
-              variant="square"
-              sx={{
-                width: "100%",
-                height: 200,
-                bgcolor: "#eee",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {/* You can use a Category Icon instead if you like */}
-              <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-            </Avatar>
-
             <div className="listingDetails">
               <h3 className="listingTitle">{cat.name}</h3>
               <p className="listingDesc">
@@ -207,12 +192,6 @@ export default function ListingPage() {
             </div>
 
             <div className="listingAction">
-              <md-filled-button
-                onClick={() => navigate(`/listings?category=${cat.id}`)}
-                style={{ flexGrow: 1 }}
-              >
-                View Listings
-              </md-filled-button>
               <TelegramFollowButton category={cat.name} />
             </div>
           </div>
