@@ -72,7 +72,6 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedback" element={<FeedbackForm />} />
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedbackuser" element={<UserFeedback />} />
-            <Route path="/feedback-user" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
 
           {!isApiRoute && (
