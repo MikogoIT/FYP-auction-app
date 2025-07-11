@@ -17,7 +17,10 @@ export default function TelegramFollowButton({ category }) {
 
     return (
         <md-filled-button
-        onClick={handleFollow}
+        onClick={(e) => {
+            e.stopPropogation();
+            handleFollow();
+        }}
         style={{ 
             flexGrow: 1, 
             display: "flex", 

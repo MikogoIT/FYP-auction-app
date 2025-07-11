@@ -8,18 +8,10 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { 
-  Box,
-  Pagination,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button
- } from '@mui/material';
+import { Box, Pagination } from '@mui/material';
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
+import ListingSearchBar from "../components/ListingSearchBar";
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -151,22 +143,7 @@ export default function ListingPage() {
         </div>
 
         <div className="filterContainer" style={{ marginBottom: "2rem", display: "flex", gap: "0.75rem" }}>
-          <input
-            className="searchInput"
-            type="text"
-            placeholder="🔍 Search by title or description…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ flexGrow: 1 }}
-          />
-          <Button
-            variant="contained"
-            disabled={!searchTerm.trim()}
-            onClick={() => navigate(`/listings?q=${encodeURIComponent(searchTerm.trim())}`)}
-          >
-            Search
-          </Button>
-
+          <ListingSearchBar />
           {/* <select
             className="categorySelect"
             value={selectedCategory}
@@ -183,7 +160,14 @@ export default function ListingPage() {
 
         <div className="listingGrid">
         {categories.map((cat) => (
-          <div key={cat.id} className="listingCard">
+          <div 
+            key={cat.id}
+            className="listingCard"
+            onClick={() => 
+              navigate(`/listings?category=${encodeURIComponent(cat.id)}`)
+            }
+            style={{ cursor: "pointer" }}
+          >
             <div className="listingDetails">
               <h3 className="listingTitle">{cat.name}</h3>
               <p className="listingDesc">
