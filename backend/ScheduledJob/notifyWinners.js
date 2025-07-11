@@ -24,6 +24,19 @@ async function notifyAuctionWinners() {
         const content = `🏆 You have won the item "${title}", please pay as soon as possible.`;
         await insertNotification(highestBidder.buyer_id, auctionId, content);
 
+        // Send review notification to buyers
+        await insertNotification(
+          highestBidder.buyer_id,
+          auctionId,
+          `Please fill in the review for the seller and click to enter the review page.`
+        );
+        // Send review notification to seller
+        await insertNotification(
+          seller_id,
+          auctionId,
+          `Please fill in the review for the buyer and click to enter the review page.`
+        );
+
         //console.log(`[notifyAuctionWinners] ✅ Notified winner ${highestBidder.buyer_id} for listing ${auctionId}`);
       } else {
         //console.log("No highest bidder, checking seller notification...");
