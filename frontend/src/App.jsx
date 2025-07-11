@@ -18,6 +18,7 @@ import EditListing from "./pages/EditListing";
 import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ListingPage from "./pages/ListingPage";
+import ListingsResultPage from "./pages/ListingsResultPage";
 import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
