@@ -19,8 +19,7 @@ export default function TelegramFollowButton({ category }) {
     return (
         <md-filled-button
         onClick={handleFollow}
-        style={{ 
-            flexGrow: 1, 
+        style={{
             display: "flex", 
             alignItems: "center", 
             gap: "0.5rem",

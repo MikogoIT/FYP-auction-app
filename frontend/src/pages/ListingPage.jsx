@@ -8,7 +8,17 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { Box, Pagination } from '@mui/material';
+import { 
+  Box,
+  Pagination,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  CardActionArea,
+  CardActions
+} from '@mui/material';
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
 import ListingSearchBar from "../components/ListingSearchBar";
@@ -158,29 +168,54 @@ export default function ListingPage() {
           </select> */}
         </div>
 
-        <div className="listingGrid">
-        {categories.map((cat) => (
-          <div 
-            key={cat.id}
-            className="listingCard"
-            onClick={() => 
-              navigate(`/listings?category=${encodeURIComponent(cat.id)}`)
-            }
-            style={{ cursor: "pointer" }}
-          >
-            <div className="listingDetails">
-              <h3 className="listingTitle">{cat.name}</h3>
-              <p className="listingDesc">
-                {cat.description || "No description provided."}
-              </p>
-            </div>
-
-            <div className="listingAction">
-              <TelegramFollowButton category={cat.name} />
-            </div>
-          </div>
-        ))}
-      </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          {categories.map((cat) => (
+            <Card
+              key={cat.id}
+              sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+              variant="outlined"
+            >
+              <CardActionArea
+                onClick={() => 
+                  navigate(`/listings?category=${encodeURIComponent(cat.id)}`)
+                }
+              >
+                {/* Optional Image Placeholder */}
+                <CardMedia
+                  component="div"
+                  sx={{
+                    height: 120,
+                    bgcolor: "#f0f0f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#aaa",
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  {cat.name}
+                </CardMedia>
+                <CardContent>
+                  <Typography variant="h6" component="div">
+                    {cat.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {cat.description || "No description provided."}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions>
+                <TelegramFollowButton category={cat.name} />
+              </CardActions>
+            </Card>
+          ))}
+        </div>
 
         {/* {loading ? (
           <p className="centerText">Loading listings…</p>
