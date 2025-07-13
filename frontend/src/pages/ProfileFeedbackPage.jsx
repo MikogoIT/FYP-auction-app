@@ -84,13 +84,24 @@ export default function ProfileFeedbackPage() {
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* Profile Name and Ratings Header */}
-        <div style={{ marginBottom: 16 }}>
+        <div>
           <div
             id="middleTitle"
             className="profileTitle"
-            style={{ fontSize: 20, fontWeight: 300, marginBottom: 12 }}
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              marginBottom: 0,
+              lineHeight: 1.1,
+            }}
           >
             {user?.username}
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 500, color: "#f5a623" }}>
+            <StarRating rating={Math.round(ratingScore)} />
+            <span style={{ marginLeft: 8, color: "#222" }}>
+              {Math.round(ratingScore)}
+            </span>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             {/* Avatar */}
@@ -110,6 +121,9 @@ export default function ProfileFeedbackPage() {
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#f5a623" }}>
                 <StarRating rating={Math.round(ratingScore)} />
+                <span style={{ marginLeft: 8, color: "#222" }}>
+                  {Number(ratingScore).toFixed(1)}
+                </span>
               </div>
               <div style={{ color: "#888" }}>{numReviews} Reviews</div>
             </div>
