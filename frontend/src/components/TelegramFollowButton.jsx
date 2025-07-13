@@ -27,10 +27,11 @@ export default function TelegramFollowButton({ category }) {
         backgroundColor: "#0088cc",     // telegram blue
         color: "#fff",                  // text
         textTransform: "none",          // no uppercase
-        fontSize: "1rem",               // 16px
+        fontSize: 16,               // 16px
+        fontWeight: 400,
         lineHeight: 1,
-        py: 1,                          // vertical padding
-        px: 3,                          // horizontal padding
+        py: 3,                          // vertical padding
+        px: 4,                          // horizontal padding
         "&:hover": {
           backgroundColor: "#007ab8",   // slightly darker on hover
         },

@@ -138,13 +138,13 @@ export default function ListingsResultPage() {
         <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                 {selectedCategoryName && (
-                    <div>
+                    <h3>
                         Showing results for category <em>{selectedCategoryName}</em>
                         {searchTerm ? ` matching "${searchTerm}"`: ""}
-                    </div>
+                    </h3>
                 )}
                 {!selectedCategoryName && searchTerm && (
-                    <div>Showing results matching "{searchTerm}"</div>
+                    <h3>Showing results matching "{searchTerm}"</h3>
                 )}
             </div>
 
@@ -153,6 +153,8 @@ export default function ListingsResultPage() {
             )}
 
         </div>
+
+
 
         {loading ? (
           <p className="centerText">Loading listings…</p>
@@ -183,7 +185,7 @@ export default function ListingsResultPage() {
                   )}
 
                   <div className="listingDetails">
-                    <div className="listingTitle">{item.title}</div>
+                    <h3 className="listingTitle">{item.title}</h3>
                     <p className="listingDesc">{item.description}</p>
                     <p className="listingMinBid">
                       <strong>Min Bid:</strong> ${item.min_bid}

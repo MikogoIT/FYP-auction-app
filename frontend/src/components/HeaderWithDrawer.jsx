@@ -71,7 +71,7 @@ export default function HeaderWithDrawer({ window }) {
 
   // global search
   const handleSearch = query => {
-    navigate(`/listings?search=${encodeURIComponent(query)}`);
+    navigate(`/listings?q=${encodeURIComponent(query.trim())}`);
   };
 
   const OutlineListItemButton = styled(ListItemButton)(() => ({

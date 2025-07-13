@@ -5,8 +5,7 @@ import {
   InputAdornment,
   IconButton,
   styled,
-  useTheme,
-  Box
+  useTheme
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
