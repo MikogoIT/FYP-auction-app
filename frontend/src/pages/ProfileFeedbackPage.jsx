@@ -92,7 +92,7 @@ export default function ProfileFeedbackPage() {
         <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
           {/* Avatar */}
           <Avatar
-            src={user.profile_image_url || undefined}
+            src={user?.profile_image_url || undefined}
             sx={{ width: 120, height: 120 }}
             alt="User Avatar"
             style={{
