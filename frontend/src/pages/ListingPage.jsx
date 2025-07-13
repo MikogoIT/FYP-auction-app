@@ -18,6 +18,8 @@ import ShoppingBagIcon    from '@mui/icons-material/ShoppingBag';
 import CategoryIcon       from '@mui/icons-material/Category';
 
 import TelegramFollowButtonSmall from '../components/TelegramFollowButtonSmall';
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 function getCategoryIcon(name) {
   const key = name.toLowerCase();
@@ -48,6 +50,7 @@ export default function ListingPage() {
       <div className="sidebarSpacer" />
 
       <div className="dashboardContent">
+        <BreadcrumbsNav />
         {/* reverted to original div */}
         <div id="wideTitle" className="profileTitle">Browse Listings by Category</div>
 

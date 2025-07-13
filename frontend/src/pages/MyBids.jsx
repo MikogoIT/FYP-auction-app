@@ -1,6 +1,6 @@
 // src/pages/MyBids.jsx
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box,
@@ -16,6 +16,9 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 export default function MyBids() {
   const [bids, setBids] = useState([]);
@@ -116,6 +119,7 @@ export default function MyBids() {
     <Box className="dashboardCanvas" sx={{ display: 'flex' }}>
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent" sx={{ flexGrow: 1 }}>
+        <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle">My Bids </div>
         {loading ? (
           <CircularProgress />

@@ -11,6 +11,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 const ITEMS_PER_PAGE = 12;  // still 12 per page
 
 export default function WatchedListings() {
@@ -81,6 +83,7 @@ export default function WatchedListings() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
+        <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle">Liked Listings</div>
 
         {loading ? (

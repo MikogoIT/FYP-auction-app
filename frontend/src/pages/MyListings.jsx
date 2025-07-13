@@ -10,6 +10,8 @@ import { useTheme } from "@mui/material/styles";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 export default function MyListings() {
   const navigate = useNavigate();
@@ -70,6 +72,7 @@ export default function MyListings() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
+      <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle">My Listings</div>
 
         {loading ? (

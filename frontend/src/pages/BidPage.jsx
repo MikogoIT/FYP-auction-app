@@ -4,6 +4,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import { Box, Typography } from "@mui/material";
+
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 import "@material/web/button/filled-button.js";
 
 export default function BidPage() {
@@ -89,6 +92,7 @@ export default function BidPage() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
+        <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle">
             {listing.title}
         </div>

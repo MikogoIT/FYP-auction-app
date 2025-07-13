@@ -10,6 +10,8 @@ import { useTheme } from "@mui/material/styles";
 import { Box, Pagination } from "@mui/material";
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 const ITEMS_PER_PAGE = 6;
 
@@ -135,6 +137,7 @@ export default function ListingsResultPage() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
+        <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                 {selectedCategoryName && (

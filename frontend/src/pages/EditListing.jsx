@@ -1,9 +1,10 @@
 // src/pages/EditListing.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import { IMG_BASE_URL } from "../global-vars.jsx";
+
 
 export default function EditListing() {
   const { id } = useParams();
