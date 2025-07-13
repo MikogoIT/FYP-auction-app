@@ -1,9 +1,39 @@
 // src/pages/ProfileFeedbackPage.jsx
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+// Material Web Components
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
+
+// Example reviews data (replace with your real data source)
+const mockReviews = [
+  {
+    id: 1,
+    reviewer: "Jane Doe",
+    role: "Buyer",
+    rating: 5,
+    date: "2025-06-10",
+    text: "Excellent transaction, very responsive!",
+  },
+  {
+    id: 2,
+    reviewer: "John Smith",
+    role: "Seller",
+    rating: 4,
+    date: "2025-05-22",
+    text: "Smooth deal, prompt payment, recommended.",
+  },
+  {
+    id: 3,
+    reviewer: "Alice Lee",
+    role: "Buyer",
+    rating: 3,
+    date: "2025-04-30",
+    text: "Communication was okay, but delivery was delayed.",
+  },
+];
 
 // Helper for star rating
 function StarRating({ rating }) {
@@ -16,44 +46,27 @@ function StarRating({ rating }) {
 }
 
 export default function ProfileFeedbackPage() {
-  const { userId } = useParams();
-  const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
-
-  useEffect(() => {
-    // Fetch user info (optional, if you want avatar/username)
-    fetch(`/api/users/${userId}`)
-      .then(res => res.json())
-      .then(setUser);
-
-    // Fetch feedback for this user
-    fetch(`/api/feedback/user/${userId}`)
-      .then(res => res.json())
-      .then(setReviews);
-  }, [userId]);
 
   // Filter reviews
   const filteredReviews =
     filter === "All"
-      ? reviews
-      : reviews.filter((r) => r.author_role === filter.slice(0, -1));
+      ? mockReviews
+      : mockReviews.filter((r) => r.role === filter.slice(0, -1));
 
   // Sort reviews
   const sortedReviews = [...filteredReviews].sort((a, b) => {
-    if (sort === "Newest") return new Date(b.created_at) - new Date(a.created_at);
-    if (sort === "Oldest") return new Date(a.created_at) - new Date(b.created_at);
-    if (sort === "Highest Rating") return b.user_ratings - a.user_ratings;
-    if (sort === "Lowest Rating") return a.user_ratings - b.user_ratings;
+    if (sort === "Newest") return new Date(b.date) - new Date(a.date);
+    if (sort === "Oldest") return new Date(a.date) - new Date(b.date);
+    if (sort === "Highest Rating") return b.rating - a.rating;
+    if (sort === "Lowest Rating") return a.rating - b.rating;
     return 0;
   });
 
-  // Calculate average rating
-  const ratingScore = reviews.length
-    ? (reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length).toFixed(2)
-    : "N/A";
-  const numReviews = reviews.length;
+  // Example stats (replace with real data)
+  const ratingScore = 4.8;
+  const numReviews = mockReviews.length;
 
   return (
     <div className="dashboardCanvas">
@@ -64,7 +77,7 @@ export default function ProfileFeedbackPage() {
         <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
           {/* Avatar */}
           <img
-            src={user?.profile_image_url || "https://api.dicebear.com/7.x/personas/svg?seed=User"}
+            src="https://api.dicebear.com/7.x/personas/svg?seed=User"
             alt="User Avatar"
             style={{
               width: 80,
@@ -148,16 +161,14 @@ export default function ProfileFeedbackPage() {
               >
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <div>
-                    <strong>{review.author_name || "User"}</strong> <span style={{ color: "#888" }}>({review.author_role})</span>
+                    <strong>{review.reviewer}</strong> <span style={{ color: "#888" }}>({review.role})</span>
                   </div>
                   <div>
-                    <StarRating rating={review.user_ratings} />{" "}
-                    <span style={{ color: "#888", fontSize: 14 }}>
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
+                    <StarRating rating={review.rating} />{" "}
+                    <span style={{ color: "#888", fontSize: 14 }}>{review.date}</span>
                   </div>
                 </div>
-                <div style={{ marginTop: 8 }}>{review.user_comments}</div>
+                <div style={{ marginTop: 8 }}>{review.text}</div>
               </div>
             ))
           )}

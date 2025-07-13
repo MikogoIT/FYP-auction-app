@@ -30,6 +30,7 @@ import FeedbackForm from "./components/FeedbackForm";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
+import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
 
 
 // components
@@ -75,6 +76,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
+            <Route path="/feedbackprofile" element={<ProfileFeedbackPage />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />
