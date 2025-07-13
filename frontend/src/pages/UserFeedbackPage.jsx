@@ -1,29 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
-
-/*const FEEDBACK_TYPES = [
-  { value: "Buyer", label: "Buyer" }, // Buyer Author Role
-  { value: "Seller", label: "Seller" } // Seller Author Role
-];*/
-
 const MAX_WORDS = 100;
 
-export default function UserFeedback() {
-  const [sellerInput, setSellerInput] = useState(""); // Use for text input
+export default function UserFeedback({ auctionId, recipientId, authorRole = "Buyer" }) { // Also to include seller
   const [userRating, setUserRating] = useState(5);
   const [userComments, setUserComments] = useState("");
-  const [authorRole] = useState("buyer"); // defaults to buyer
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const wordCount = countWords(userComments);
 
-  // Enforce 100-word limit
   const handleCommentChange = (e) => {
     const value = e.target.value;
     if (countWords(value) <= MAX_WORDS) {
@@ -31,30 +22,30 @@ export default function UserFeedback() {
     }
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setMsg("");
     try {
-      const res = await fetch("/api/feedback/user-feedback", {
+      const res = await fetch("/api/feedback/auction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-        auction_id,        // from props or state
-        recipient_id,      // seller_id or buyer_id
-        author_role,       // "buyer" or "seller"
-        user_ratings,
-        user_comments,
-      }),
+          auction_id: auctionId,
+          recipient_id: recipientId,
+          author_role: authorRole,
+          user_ratings: userRating,
+          user_comments: userComments,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
         setSubmitted(true);
         setUserComments("");
-        setSellerInput(""); // Optionally clear sellerInput after submit
       } else {
-        setMsg("❌ " + (data.message || "Failed to submit feedback."));
+        setMsg("❌ " + (data.error || data.message || "Failed to submit feedback."));
       }
     } catch {
       setMsg("❌ Server error. Please try again later.");
@@ -64,18 +55,16 @@ export default function UserFeedback() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 500,
-        margin: "40px auto",
-        padding: 30,
-        borderRadius: 12,
-        background: "#fff",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-        width: "100%",
-        boxSizing: "border-box",
-      }}
-    >
+    <div style={{
+      maxWidth: 500,
+      margin: "40px auto",
+      padding: 30,
+      borderRadius: 12,
+      background: "#fff",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+      width: "100%",
+      boxSizing: "border-box",
+    }}>
       <button
         onClick={() => navigate("/dashboard")}
         style={{
@@ -91,12 +80,6 @@ export default function UserFeedback() {
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>User Feedback</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <input type="hidden" name="auction_id" value={auctionId} />
-        <input type="hidden" name="recipient_id" value={sellerId} />
-
-        {/* Show seller info here if you want */}
-        {/* <div>{sellerUsername}</div> */}
-
         <div style={{ marginBottom: 16 }}>
           <label htmlFor="userRating">Rating:</label>
           <select
@@ -129,14 +112,12 @@ export default function UserFeedback() {
           }}
           disabled={submitted || loading}
         />
-        <div
-          style={{
-            textAlign: "right",
-            fontSize: 12,
-            color: "#888",
-            marginBottom: 8,
-          }}
-        >
+        <div style={{
+          textAlign: "right",
+          fontSize: 12,
+          color: "#888",
+          marginBottom: 8,
+        }}>
           {wordCount} / {MAX_WORDS} words
           {wordCount >= MAX_WORDS && (
             <span style={{ color: "red", marginLeft: 8 }}>
@@ -163,14 +144,11 @@ export default function UserFeedback() {
           {loading ? "Submitting..." : "Submit Feedback"}
         </button>
         {msg && (
-          <p
-            style={{
-              marginTop: 14,
-              color: msg.startsWith("✅") ? "green" : "red",
-              fontWeight: 600,
-            }}
-            aria-live="polite"
-          >
+          <p style={{
+            marginTop: 14,
+            color: msg.startsWith("✅") ? "green" : "red",
+            fontWeight: 600,
+          }} aria-live="polite">
             {msg}
           </p>
         )}
