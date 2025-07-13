@@ -7,9 +7,9 @@ import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
 // Helper for star rating
-function StarRating({ rating }) {
+function StarRating({ rating, size = 18 }) {
   return (
-    <span>
+    <span style={{ fontSize: size, color: "#f5a623" }}>
       {"★".repeat(rating)}
       {"☆".repeat(5 - rating)}
     </span>
@@ -96,12 +96,6 @@ export default function ProfileFeedbackPage() {
             }}
           >
             {user?.username}
-          </div>
-          <div style={{ fontSize: 18, fontWeight: 500, color: "#f5a623" }}>
-            <StarRating rating={Math.round(ratingScore)} />
-            <span style={{ marginLeft: 8, color: "#222" }}>
-              {Math.round(ratingScore)}
-            </span>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             {/* Avatar */}
