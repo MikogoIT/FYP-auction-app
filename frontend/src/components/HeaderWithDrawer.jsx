@@ -208,6 +208,7 @@ export default function HeaderWithDrawer({ window }) {
       <AppBar
         position="fixed"
         color="transparent"
+        elevation={0}
         sx={{
           zIndex: theme.zIndex.drawer + 1,              // above the drawer
           top: theme.mixins.toolbar.minHeight,          // sit below the main header
