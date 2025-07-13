@@ -124,6 +124,11 @@ const AdminPage = () => {
     }
   };
 
+  const handleDeleteClick = (id) => () => {
+    deleteUser(id);
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
 
@@ -136,9 +141,9 @@ const AdminPage = () => {
   };
 
   const column = [
-    { field: 'id', headerName: 'ID' , sortable: false, }, 
+    { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email' }, 
+    { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
     { field: 'suspend', headerName: 'frozen', display: "flex", renderCell: ({ row: { is_frozen } }) => {
         return (
@@ -199,18 +204,18 @@ const AdminPage = () => {
     }
   },
 
- { field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
-      return(
-        <Button 
-        variant="contained" 
-        sx={{ backgroundColor: red[500], color: "ffffff" }}
-        onClick={() => deleteUser(getId)}
-        >
-          Delete
-        </Button>
-      );
-    }
-  }
+ { field: "Actions", headerName: "Actions", display: "flex", 
+  cellClassName: "Actions",
+  getActions: ({ id }) => {
+      return [
+          <GridActionsCellItem 
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+          />,
+      ];
+    },
+  },
 /*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
     const onClick = (e) => {
