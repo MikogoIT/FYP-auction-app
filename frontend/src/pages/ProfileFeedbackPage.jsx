@@ -16,6 +16,7 @@ function StarRating({ rating }) {
 }
 
 export default function ProfileFeedbackPage() {
+  const { userId } = useParams();
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
