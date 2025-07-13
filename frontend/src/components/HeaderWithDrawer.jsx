@@ -208,7 +208,6 @@ export default function HeaderWithDrawer({ window }) {
       <AppBar
         position="fixed"
         color="transparent"
-        elevation={1}
         sx={{
           zIndex: theme.zIndex.drawer + 1,              // above the drawer
           top: theme.mixins.toolbar.minHeight,          // sit below the main header
@@ -216,7 +215,6 @@ export default function HeaderWithDrawer({ window }) {
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           bgcolor: 'white',
           borderBottom: '1px solid',
-          borderColor: 'divider',
         }}
       >
         <Toolbar sx={{ minHeight: theme.mixins.toolbar.minHeight }}>

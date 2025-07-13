@@ -1,32 +1,64 @@
 // src/components/ListingSearchBar.jsx
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { 
+  OutlinedInput,
+  InputAdornment,
+  IconButton,
+  styled,
+  useTheme,
+  Box
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-export default function ListingSearchBar({ initialSearch = "" }) {
-    const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = React.useState(initialSearch);
+const Form = styled('form')({
+  width: '100%',
+  display: 'flex',
+});
 
-    const handleSearch = () => {
-        if (searchTerm.trim()) {
-            navigate(`/listings?q=${encodeURIComponent(searchTerm.trim())}`);
-        }
-    };
+const SearchField = styled(OutlinedInput)(({ theme }) => ({
+  flexGrow: 1,
+  borderRadius: theme.shape.borderRadius * 2,       // nicer pill shape
+  '& fieldset': {
+    borderColor: theme.palette.divider,
+  },
+  '&:hover fieldset': {
+    borderColor: theme.palette.text.primary,
+  },
+  '&.Mui-focused fieldset': {
+    borderColor: theme.palette.primary.main,
+    borderWidth: 2,
+  },
+}));
 
-    return (
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-            <input
-                className="searchInput"
-                type="text"
-                placeholder="🔍 Search by title or description…"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <md-filled-button
-                onClick={handleSearch}
-                disabled={!searchTerm.trim()}
+export default function ListingSearchBar({ onSearch }) {
+  const theme = useTheme();
+  const [query, setQuery] = useState('');
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    onSearch(query);
+  };
+
+  return (
+    <Form onSubmit={handleSubmit}>
+      <SearchField
+        placeholder="Search all listings"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+              type="submit"
+              edge="end"
+              sx={{
+                padding: theme.spacing(1),
+              }}
             >
-                Search
-            </md-filled-button>
-        </div>
-    );
+              <SearchIcon />
+            </IconButton>
+          </InputAdornment>
+        }
+      />
+    </Form>
+  );
 }
