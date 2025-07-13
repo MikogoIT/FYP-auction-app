@@ -18,6 +18,9 @@ import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { red } from "@mui/material/colors";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -135,6 +138,10 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
+ const handleEditClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
 
@@ -210,18 +217,54 @@ const AdminPage = () => {
     }
   },
 
-{ field: "id", headerName: "Actions", display: "flex", sortable: false, renderCell: (id) => {
-      return(
-        <Button 
-        variant="contained" 
-        sx={{ backgroundColor: red[500], color: "ffffff" }}
-        onClick={()=>handleDeleteClick(id)}
-        >
-          Delete
-        </Button>
-      );
-    }
-  }
+
+{
+      field: 'id',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      display: "flex",
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              material={{
+                sx: {
+                  color: 'primary.main',
+                },
+              }}
+              onClick={handleSaveClick(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+          />,
+          <GridActionsCellItem
+            icon={<DeleteOutlineOutlinedIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+          />,
+        ];
+      },
+    },
 
 /*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
