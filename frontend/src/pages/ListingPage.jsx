@@ -91,7 +91,7 @@ export default function ListingPage() {
                   {getCategoryIcon(cat.name)}
                 </CardMedia>
 
-                <CardContent sx={{ flexGrow: 0, pb: 7 }}>
+                <CardContent sx={{ flexGrow: 0, pb: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{

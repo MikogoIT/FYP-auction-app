@@ -91,48 +91,50 @@ export default function BidPage() {
       <div className="dashboardContent">
         <div id="wideTitle" className="profileTitle">
             {listing.title}
-          </div>
-        {/* Listing Details */}
-        <div className="listingDeets">
-          
-          {listing.image_url ? (
-            <img
-              src={listing.image_url}
-              alt={listing.title}
-              style={{
-                width: "100%",
-                maxHeight: 200,
-                objectFit: "cover",
-                borderRadius: 4,
-              }}
-            />
-          ) : (
-            <Avatar
-              variant="square"
-              sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-            >
-              <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-            </Avatar>
-          )}
-          <div className="listingWords">
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              {listing.description}
-            </Typography>
-            <Typography variant="subtitle2">
-              Starting bid: <strong>${listing.min_bid}</strong>
-            </Typography>
-            <Typography variant="subtitle2">
-              Current bid: <strong>${minPrice.toFixed(2)}</strong>
-            </Typography>
-          </div>
-
         </div>
 
-        {/* Bid Form */}
-        <div className="bidDeets">
+        <div className="2boxes">
+        {/* Listing Details */}
+          <div className="listingDeets">
+            
+            {listing.image_url ? (
+              <img
+                src={listing.image_url}
+                alt={listing.title}
+                style={{
+                  width: "100%",
+                  maxHeight: 200,
+                  objectFit: "cover",
+                  borderRadius: 4,
+                }}
+              />
+            ) : (
+              <Avatar
+                variant="square"
+                sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+              >
+                <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+              </Avatar>
+            )}
+            <div className="listingWords">
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {listing.description}
+              </Typography>
+              <Typography variant="subtitle2">
+                Starting bid: <strong>${listing.min_bid}</strong>
+              </Typography>
+              <Typography variant="subtitle2">
+                Current bid: <strong>${minPrice.toFixed(2)}</strong>
+              </Typography>
+            </div>
+
+          </div>
+
+          {/* Bid Form */}
+          <div className="bidDeets">
           <h2>Place your bid</h2>
         
           
@@ -175,6 +177,7 @@ export default function BidPage() {
               {message}
             </Typography>
           )}
+          </div>
         </div>
       </div>
     <div className="sidebarSpacer"></div>

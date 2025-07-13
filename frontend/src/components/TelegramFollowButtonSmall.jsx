@@ -27,8 +27,8 @@ export default function TelegramFollowButtonSmall({ category }) {
         right: theme.spacing(1),
         backgroundColor: '#0088cc',
         color: '#fff',
-        width: 40,
-        height: 40,
+        width: 30,
+        height: 30,
         '&:hover': { backgroundColor: '#007ab8' },
         boxShadow: theme.shadows[2],
       }}
