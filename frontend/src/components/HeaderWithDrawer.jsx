@@ -88,7 +88,7 @@ export default function HeaderWithDrawer({ window }) {
       onClick={() => { if (!mdUp) setMobileOpen(false); }}
       onKeyDown={() => { if (!mdUp) setMobileOpen(false); }}
     >
-      <Toolbar />
+      {mdUp && <Toolbar />}
 
       {/* Group 1 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
