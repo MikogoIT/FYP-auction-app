@@ -51,7 +51,9 @@ function AppRoutes({ isApiRoute }) {
       {showDrawer
         ? <HeaderWithDrawer window={() => window} />
         : <Header />}
-
+        {/* reserve space for the header + search bar */}
+        <Toolbar />
+        <Toolbar />
         {showDrawer && <BreadcrumbsNav />}
         <Routes>
            <Route path="/" element={<Landing />} />
