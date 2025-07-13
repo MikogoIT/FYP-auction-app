@@ -17,13 +17,54 @@ function StarRating({ rating }) {
 }
 
 export default function ProfileFeedbackPage() {
-  const { userId } = useParams();
+  const {userId} = useParams();
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
+  console.log("Effect runs when userId changes:", userId);
+  async function fetchFeedback(userId) {
+    setLoading(true);      // Good practice: show loading spinner
+    setError("");          // Reset error state
+    try {
+      // Fetch reviews
+      const fbRes = await fetch(`/api/feedback/user/${userId}`);
+      const fbData = await fbRes.json();
+      if (fbRes.ok) {
+        setReviews(fbData);
+        console.log("Fetched reviews:", fbData);
+      } else {
+        throw new Error(fbData.message || "Failed to load reviews");
+      }
+
+      // Fetch user profile
+      const userRes = await fetch(`/api/users/${userId}`);
+      const userData = await userRes.json();
+      if (userRes.ok) {
+        setUser(userData);
+        console.log("Fetched user:", userData);
+      } else {
+        throw new Error(userData.message || "Failed to load user");
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (userId) {
+    fetchFeedback(userId);
+  }
+}, [userId]);
+
+
+    /* Old Code
   if (userId) {
     // Fetch another user's profile and feedback
     fetch(`/api/users/${userId}`)
@@ -58,9 +99,8 @@ export default function ProfileFeedbackPage() {
       setReviews(fbData);
       console.log("Fetched own reviews:", fbData);
     }
-    fetchProfile();
-  }
-}, [userId]);
+    fetchProfile(); */
+
 
   // Filter reviews
   const filteredReviews =
@@ -82,6 +122,10 @@ export default function ProfileFeedbackPage() {
     ? (reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length).toFixed(2)
     : "N/A";
   const numReviews = reviews.length;
+
+
+  if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>;
+  if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
     <div className="dashboardCanvas">
