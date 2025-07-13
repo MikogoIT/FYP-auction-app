@@ -153,7 +153,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'frozen', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
+    { field: 'suspend', headerName: 'Access', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
         return (
           <Box
             width="60%"
@@ -211,26 +211,24 @@ const AdminPage = () => {
       );
     }
   },
+  {
+    field: 'id',
+    type: 'actions',
+    headerName: 'Actions',
+    display: "flex",
+    cellClassName: 'actions',
+    getActions: ({ id }) => {
 
 
-{
-      field: 'id',
-      type: 'actions',
-      headerName: 'Actions',
-      display: "flex",
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-
-
-        return [
-          <GridActionsCellItem
-            icon={<DeleteOutlineOutlinedIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-          />,
-        ];
-      },
+      return [
+        <GridActionsCellItem
+          icon={<DeleteOutlineOutlinedIcon />}
+          label="Delete"
+          onClick={handleDeleteClick(id)}
+        />,
+      ];
     },
+  },
 
 /*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
