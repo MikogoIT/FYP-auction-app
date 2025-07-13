@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 
 import TelegramFollowButton from "../components/TelegramFollowButton";
-import ListingSearchBar from "../components/ListingSearchBar";
 
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -39,10 +38,6 @@ export default function ListingPage() {
       <div className="dashboardContent">
         <div id="wideTitle" className="profileTitle">
           Browse Listings by Category
-        </div>
-
-        <div className="filterContainer">
-          <ListingSearchBar />
         </div>
 
         <div
