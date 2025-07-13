@@ -36,6 +36,7 @@ import Notif from "./pages/Notif";
 import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
+import BreadcrumbsNav from './components/BreadcrumbsNav';
 
 
 
@@ -51,7 +52,7 @@ function AppRoutes({ isApiRoute }) {
         ? <HeaderWithDrawer window={() => window} />
         : <Header />}
 
-
+        {showDrawer && <BreadcrumbsNav />}
         <Routes>
            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
