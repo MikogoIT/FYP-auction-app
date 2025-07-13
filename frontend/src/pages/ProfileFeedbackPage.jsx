@@ -23,29 +23,34 @@ export default function ProfileFeedbackPage() {
   const [sort, setSort] = useState("Newest");
 
   useEffect(() => {
-    // Fetch user info (optional, if you want avatar/username)
-    fetch(`/api/users/${userId}`)
-      .then(res => res.json())
-      .then(setUser);
+    if (userId) {
+      // Fetch another user's profile and feedback
+      fetch(`/api/users/${userId}`)
+        .then(res => res.json())
+        .then(setUser);
 
-    // Fetch feedback for this user
-    fetch(`/api/feedback/user/${userId}`)
-      .then(res => res.json())
-      .then(setReviews);
+      fetch(`/api/feedback/user/${userId}`)
+        .then(res => res.json())
+        .then(setReviews);
+    } else {
+      // Fetch your own profile, photo, and feedback
+      async function fetchProfile() {
+        const [pRes, phRes] = await Promise.all([
+          fetch("/api/profile", { credentials: "include" }),
+          fetch("/api/displayPhoto", { credentials: "include" })
+        ]);
+        const pData = await pRes.json();
+        const phData = await phRes.json();
+        const merged = { ...pData.user, profile_image_url: phData.profile_image_url };
+        setUser(merged);
 
-    // Fetch Profile
-    async function fetchProfile() {
-    const [pRes, phRes] = await Promise.all([
-      fetch("/api/profile", { credentials: "include" }),
-      fetch("/api/displayPhoto", { credentials: "include" })
-    ]);
-    const pData = await pRes.json();
-    const phData = await phRes.json();
-    const merged = { ...pData.user, profile_image_url: phData.profile_image_url };
-    setUser(merged);
+        // Fetch your own feedback
+        const fbRes = await fetch(`/api/feedback/user/${pData.user.id}`);
+        const fbData = await fbRes.json();
+        setReviews(fbData);
+      }
+      fetchProfile();
     }
-   fetchProfile();
-
   }, [userId]);
 
   // Filter reviews
