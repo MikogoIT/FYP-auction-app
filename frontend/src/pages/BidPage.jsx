@@ -95,7 +95,19 @@ export default function BidPage() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         {/* ← Manual breadcrumbs with custom “parent” because we dont have correct nav */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Breadcrumbs
+          aria-label="breadcrumb"
+          sx={{
+            mb: 2,
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            // target all links and the final Typography:
+            '& .MuiBreadcrumbs-li, & a, & .MuiTypography-root': {
+              fontSize: '16px',
+            }
+          }}
+        >
           <Link
             component={RouterLink}
             to="/dashboard"
@@ -104,18 +116,22 @@ export default function BidPage() {
           >
             Home
           </Link>
+
           <Link
             component={RouterLink}
-            to={`/listings?category=${encodeURIComponent(
-              listing.category_id
-            )}`}
+            to={`/listings?category=${encodeURIComponent(listing.category_id)}`}
             underline="hover"
             color="inherit"
           >
             {listing.category_name}
           </Link>
-          <Typography color="text.primary">Place Bid</Typography>
+
+          {/* last crumb now shows the listing title */}
+          <Typography color="text.primary">
+            {listing.title}
+          </Typography>
         </Breadcrumbs>
+
 
         <div id="wideTitle" className="profileTitle">
           {listing.title}

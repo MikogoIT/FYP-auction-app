@@ -4,18 +4,17 @@ import { Breadcrumbs, Link, Typography, Box } from '@mui/material';
 import { Link as RouterLink, useLocation, matchPath } from 'react-router-dom';
 
 const CRUMB_NAME_MAP = {
-  '/dashboard': 'Home',
-  '/dashboard': 'Dashboard',
-  '/profile': 'Profile',
-  '/sell': 'Sell Item',
-  '/edit/:id': 'Edit Listing',
-  '/bid/:id': 'Place Bid',
-  '/mylistings': 'My Listings',
-  '/ListingPage': 'All Categories',
-  '/listings': 'Search Results',
-  '/Watchlist': 'Liked Listings',
-  '/MyBids': 'My Bids',
-  '/Contact': 'Contact Us',
+  '/dashboard':    'Home',
+  '/profile':      'Profile',
+  '/sell':         'Sell Item',
+  '/edit/:id':     'Edit Listing',
+  '/bid/:id':      'Place Bid',
+  '/mylistings':   'My Listings',
+  '/ListingPage':  'All Categories',
+  '/listings':     'Search Results',
+  '/Watchlist':    'Liked Listings',
+  '/MyBids':       'My Bids',
+  '/Contact':      'Contact Us',
 };
 
 export default function BreadcrumbsNav() {
@@ -28,6 +27,8 @@ export default function BreadcrumbsNav() {
     );
     return { to, label: matchKey ? CRUMB_NAME_MAP[matchKey] : to };
   });
+
+  // Always start with Home
   const allCrumbs = [{ to: '/dashboard', label: 'Home' }, ...crumbs];
 
   return (
@@ -42,10 +43,17 @@ export default function BreadcrumbsNav() {
         py: 1,
       }}
     >
-      <Breadcrumbs>
+      <Breadcrumbs
+        sx={{
+          // make all links and the final Typography 16px
+          '& a, & .MuiTypography-root': {
+            fontSize: '16px',
+          }
+        }}
+      >
         {allCrumbs.map(({ to, label }, idx) => {
-          const last = idx === allCrumbs.length - 1;
-          return last ? (
+          const isLast = idx === allCrumbs.length - 1;
+          return isLast ? (
             <Typography key={to} color="text.primary">
               {label}
             </Typography>
