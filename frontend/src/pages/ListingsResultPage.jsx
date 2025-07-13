@@ -1,5 +1,5 @@
 // src/pages/ListingsResultPage.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
@@ -66,7 +66,7 @@ export default function ListingsResultPage() {
                     data.listings.map(async (item) => {
                         try {
                             const imgRes = await fetch(`/api/listingimg?listingId=${item.id}`);
-                            const { imageUrl } = imgRes.json();
+                            const { imageUrl } = await imgRes.json();
                             return { ...item, image_url: imageUrl };
                         } catch {
                             return { ...item, image_url: null };

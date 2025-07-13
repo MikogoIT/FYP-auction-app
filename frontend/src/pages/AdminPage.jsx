@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { DataGrid, } from "@mui/x-data-grid";
+import { GridRowModes,
+  DataGrid,
+  GridActionsCellItem,
+  GridRowEditStopReasons,
+  Toolbar,
+  ToolbarButton } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
 // import { useTheme } from "@mui/material/styles";
 // import { tokens } from "../styles/theme";
@@ -12,8 +17,10 @@ import Header from "../components/Header";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { red } from "@mui/material/colors";
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 const AdminPage = () => {
+  const [rows, setRows] = React.useState([]);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -124,6 +131,12 @@ const AdminPage = () => {
     }
   };
 
+  const handleDeleteClick = (id) => () => {
+    deleteUser(id);
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
+
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
 
@@ -131,17 +144,16 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
-  // set themes
-  // const theme = useTheme();
-  // const colors = tokens(theme.palette.mode);
-
+  const getId = (value, row) => {
+    return '${row.id}';
+  };
 
   const column = [
-    { field: 'id', headerName: 'ID' }, 
+    // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email' }, 
+    { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'frozen', display: "flex", renderCell: ({ row: { is_frozen } }) => {
+    { field: 'suspend', headerName: 'Access', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
         return (
           <Box
             width="60%"
@@ -166,7 +178,7 @@ const AdminPage = () => {
         );
       }
     },
-    {field: "Access", headerName: "Role", display: "flex", renderCell: ({ row: {is_admin} }) => {
+    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
         width="100%"
@@ -199,7 +211,26 @@ const AdminPage = () => {
       );
     }
   },
-  
+  {
+    field: 'id',
+    type: 'actions',
+    headerName: 'Actions',
+    display: "flex",
+    cellClassName: 'actions',
+    getActions: ({ id }) => {
+
+
+      return [
+        <GridActionsCellItem
+          icon={<DeleteOutlineOutlinedIcon />}
+          label="Delete"
+          onClick={handleDeleteClick(id)}
+        />,
+      ];
+    },
+  },
+
+/*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
     const onClick = (e) => {
       const currentRow = params.row;
@@ -212,6 +243,7 @@ const AdminPage = () => {
       </Stack>
     );
   }}
+*/
 ]
 
 
