@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
