@@ -88,7 +88,6 @@ export default function ProfileFeedbackPage() {
       <div className="dashboardContent">
 
         {/* Profile & Ratings Header */}
-        <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
         <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
           {/* Avatar */}
           <Avatar
