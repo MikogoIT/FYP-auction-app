@@ -136,7 +136,7 @@ export default function BidPage() {
                   color: 'grey.800',
                 }}
               >
-                Starting bid:&nbsp;<strong>${listing.min_bid.toFixed(2)}</strong>
+                Starting bid:&nbsp;<strong>${listing.min_bid}</strong>
               </Typography>
 
               <Typography

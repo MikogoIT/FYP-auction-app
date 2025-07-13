@@ -30,7 +30,7 @@ export default function TelegramFollowButton({ category }) {
         fontSize: 16,               // 16px
         fontWeight: 500,
         lineHeight: 1,
-        py: 1.5,                          // vertical padding
+        py: 1,                          // vertical padding
         px: 3,                          // horizontal padding
         "&:hover": {
           backgroundColor: "#007ab8",   // slightly darker on hover
