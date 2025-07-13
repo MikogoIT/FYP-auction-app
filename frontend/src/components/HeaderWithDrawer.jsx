@@ -1,5 +1,5 @@
 // src/components/HeaderWithDrawer.jsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -44,7 +44,10 @@ export default function HeaderWithDrawer({ window }) {
     // fetch photo
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
-        if (!res.ok) return setIsLoggedIn(false);
+        if (!res.ok) {
+          setIsLoggedIn(false);
+          return;
+        }
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
@@ -93,26 +96,55 @@ export default function HeaderWithDrawer({ window }) {
       onKeyDown={() => { if (!mdUp) setMobileOpen(false); }}
     >
       <Toolbar />
+
+      {/* Group 1: Home + All Categories */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
-        {[
-          { label: 'Home', path: '/dashboard' },
-          { label: 'All Categories', path: '/ListingPage' },
-          { label: 'Liked Listings', path: '/Watchlist' },
-          { label: 'My Listings', path: '/mylistings' },
-        ].map(item => (
-          <ListItem key={item.path} disablePadding>
-            <OutlineListItemButton
-              selected={pathname === item.path}
-              onClick={() => navigate(item.path)}
-            >
-              <ListItemIcon />
-              <ListItemText primary={item.label} />
-            </OutlineListItemButton>
-          </ListItem>
-        ))}
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/dashboard'}
+            onClick={() => navigate('/dashboard')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="Home" />
+          </OutlineListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/ListingPage'}
+            onClick={() => navigate('/ListingPage')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="All Categories" />
+          </OutlineListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
 
-        <Divider sx={{ my: 1 }} />
+      {/* Group 2: Liked Listings + My Listings */}
+      <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/Watchlist'}
+            onClick={() => navigate('/Watchlist')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="Liked Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/mylistings'}
+            onClick={() => navigate('/mylistings')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="My Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
 
+      {/* Group 3: My Bids */}
+      <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/MyBids'}
@@ -122,9 +154,11 @@ export default function HeaderWithDrawer({ window }) {
             <ListItemText primary="My Bids" />
           </OutlineListItemButton>
         </ListItem>
+      </List>
+      <Divider />
 
-        <Divider sx={{ my: 1 }} />
-
+      {/* Group 4: Talk to us! */}
+      <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/Contact'}
@@ -210,11 +244,12 @@ export default function HeaderWithDrawer({ window }) {
         color="transparent"
         elevation={0}
         sx={{
-          zIndex: theme.zIndex.drawer + 1,              // above the drawer
-          top: theme.mixins.toolbar.minHeight,          // sit below the main header
-          left: { md: `${drawerWidth}px` },             // shift right on desktop
+          zIndex: theme.zIndex.drawer + 1,
+          top: theme.mixins.toolbar.minHeight,
+          left: { md: `${drawerWidth}px` },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           bgcolor: 'white',
+          boxShadow: 'none',
         }}
       >
         <Toolbar sx={{ minHeight: theme.mixins.toolbar.minHeight }}>
@@ -259,7 +294,7 @@ export default function HeaderWithDrawer({ window }) {
         )}
       </Box>
 
-      {/* push page content below both AppBars */}
+      {/* push content down */}
       <Toolbar />
       <Toolbar />
     </Box>

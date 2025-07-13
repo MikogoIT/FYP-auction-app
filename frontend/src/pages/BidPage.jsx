@@ -102,7 +102,7 @@ export default function BidPage() {
                 src={listing.image_url}
                 alt={listing.title}
                 style={{
-                  maxHeight: 200,
+                  width: "100%",
                   objectFit: "contain",
                   borderRadius: 24,
                 }}
