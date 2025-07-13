@@ -213,13 +213,13 @@ const AdminPage = () => {
  { field: "Actions", headerName: "Actions", display: "flex", 
   cellClassName: "Actions",
   getActions: ({ id }) => {
-      return [
+      return (
           <GridActionsCellItem 
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
-          />,
-      ];
+          />
+      );
     },
   },
 /*
