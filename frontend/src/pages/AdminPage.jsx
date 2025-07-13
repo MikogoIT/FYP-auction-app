@@ -145,7 +145,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'frozen', display: "flex", renderCell: ({ row: { is_frozen } }) => {
+    { field: 'suspend', headerName: 'frozen', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
         return (
           <Box
             width="60%"
@@ -170,7 +170,7 @@ const AdminPage = () => {
         );
       }
     },
-    {field: "Access", headerName: "Role", display: "flex", renderCell: ({ row: {is_admin} }) => {
+    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
         width="100%"
