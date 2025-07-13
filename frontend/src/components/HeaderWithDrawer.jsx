@@ -41,20 +41,15 @@ export default function HeaderWithDrawer({ window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    // fetch photo
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
-        if (!res.ok) {
-          setIsLoggedIn(false);
-          return;
-        }
+        if (!res.ok) { setIsLoggedIn(false); return; }
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
       })
       .catch(() => setIsLoggedIn(false));
 
-    // fetch admin flag
     fetch('/api/profile', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setIsAdmin(!!data.user?.is_admin))
@@ -62,9 +57,9 @@ export default function HeaderWithDrawer({ window }) {
   }, [pathname]);
 
   const handleDrawerToggle = () => setMobileOpen(o => !o);
-  const handleLogoClick = () => navigate(isLoggedIn ? '/dashboard' : '/');
-  const goToAdminPage = () => navigate('/admin');
-  const handleLogout = async () => {
+  const handleLogoClick   = () => navigate(isLoggedIn ? '/dashboard' : '/');
+  const goToAdminPage     = () => navigate('/admin');
+  const handleLogout      = async () => {
     await fetch('/api/logout', { method: 'POST', credentials: 'include' });
     setIsAdmin(false);
     setIsLoggedIn(false);
@@ -72,10 +67,8 @@ export default function HeaderWithDrawer({ window }) {
     navigate('/');
   };
 
-  // global search
-  const handleSearch = query => {
+  const handleSearch = query =>
     navigate(`/listings?q=${encodeURIComponent(query.trim())}`);
-  };
 
   const OutlineListItemButton = styled(ListItemButton)(() => ({
     borderRadius: '24px',
@@ -97,7 +90,7 @@ export default function HeaderWithDrawer({ window }) {
     >
       <Toolbar />
 
-      {/* Group 1: Home + All Categories */}
+      {/* Group 1 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
@@ -120,7 +113,7 @@ export default function HeaderWithDrawer({ window }) {
       </List>
       <Divider />
 
-      {/* Group 2: Liked Listings + My Listings */}
+      {/* Group 2 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
@@ -143,7 +136,7 @@ export default function HeaderWithDrawer({ window }) {
       </List>
       <Divider />
 
-      {/* Group 3: My Bids */}
+      {/* Group 3 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
@@ -157,16 +150,14 @@ export default function HeaderWithDrawer({ window }) {
       </List>
       <Divider />
 
-      {/* Group 4: Talk to us! */}
+      {/* Group 4 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/Contact'}
             onClick={() => navigate('/Contact')}
           >
-            <ListItemIcon>
-              <ContactSupportIcon />
-            </ListItemIcon>
+            <ListItemIcon><ContactSupportIcon /></ListItemIcon>
             <ListItemText primary="Talk to us!" />
           </OutlineListItemButton>
         </ListItem>
@@ -281,12 +272,14 @@ export default function HeaderWithDrawer({ window }) {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{ keepMounted: true }}
-            sx={{
-              '& .MuiDrawer-paper': {
+            PaperProps={{
+              sx: {
                 boxSizing: 'border-box',
                 width: drawerWidth,
                 borderRight: 'none',
-              },
+                // push down below both AppBar + search bar on mobile
+                mt: theme.mixins.toolbar.minHeight * 2,
+              }
             }}
           >
             {drawer}
@@ -294,7 +287,7 @@ export default function HeaderWithDrawer({ window }) {
         )}
       </Box>
 
-      {/* push content down */}
+      {/* push content below both bars */}
       <Toolbar />
       <Toolbar />
     </Box>
