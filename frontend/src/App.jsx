@@ -18,6 +18,7 @@ import EditListing from "./pages/EditListing";
 import BidPage from "./pages/BidPage";
 import MyListings from "./pages/MyListings";
 import ListingPage from "./pages/ListingPage";
+import ListingsResultPage from "./pages/ListingsResultPage";
 import AdminPage from "./pages/AdminPage";
 import CreateCategoryPage from "./pages/CreateCategoryPage";
 import ListingCategoryPage from "./pages/listingCategoryPage";
@@ -25,7 +26,7 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import MyBids from "./pages/MyBids";
 import ContactPage from "./pages/ContactPage";
 import WatchedListings from "./pages/WatchedListings";
-import Feedback from "./pages/FeedbackPage";
+import FeedbackForm from "./components/FeedbackForm";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
@@ -66,10 +67,11 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
             <Route path="/ListingPage" element={<ListingPage />} />
+            <Route path="/listings" element={<ListingsResultPage />} />
             <Route path="/MyBids" element={<MyBids />} />
             <Route path="/Contact" element={<ContactPage />} />
             <Route path="/Watchlist" element={<WatchedListings />} />
-            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/feedback" element={<FeedbackForm />} />
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />

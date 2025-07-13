@@ -5,33 +5,23 @@ function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-const FEEDBACK_TYPES = [
-  { value: "buyer_to_seller", label: "Buyer to Seller" },
-  { value: "seller_to_buyer", label: "Seller to Buyer" }
-];
+/*const FEEDBACK_TYPES = [
+  { value: "Buyer", label: "Buyer" }, // Buyer Author Role
+  { value: "Seller", label: "Seller" } // Seller Author Role
+];*/
 
 const MAX_WORDS = 100;
 
 export default function UserFeedback() {
-  const [users, setUsers] = useState([]);
-  const [buyerId, setBuyerId] = useState("");
-  const [sellerId, setSellerId] = useState("");
-  const [feedbackType, setFeedbackType] = useState(FEEDBACK_TYPES[0].value);
+  const [sellerInput, setSellerInput] = useState(""); // Use for text input
   const [userRating, setUserRating] = useState(5);
   const [userComments, setUserComments] = useState("");
+  const [authorRole] = useState("buyer"); // defaults to buyer
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const wordCount = countWords(userComments);
-
-  // Fetch users on mount
-  useEffect(() => {
-    fetch("/api/users/all")
-      .then(res => res.json())
-      .then(data => setUsers(data))
-      .catch(() => setUsers([]));
-  }, []);
 
   // Enforce 100-word limit
   const handleCommentChange = (e) => {
@@ -41,41 +31,28 @@ export default function UserFeedback() {
     }
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    setMsg("");
-    if (!userComments.trim()) {
-      setMsg("❌ Feedback cannot be empty.");
-      return;
-    }
-    if (!buyerId || !sellerId) {
-      setMsg("❌ Please select both buyer and seller.");
-      return;
-    }
-    if (buyerId === sellerId) {
-      setMsg("❌ Buyer and seller cannot be the same user.");
-      return;
-    }
     setLoading(true);
     try {
-      // Replace with your actual POST endpoint and payload
-      const res = await fetch("/api/user-feedback", {
+      const res = await fetch("/api/feedback/user-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          buyer_id: buyerId,
-          seller_id: sellerId,
-          type: feedbackType,
-          user_ratings: userRating,
-          user_comments: userComments,
-        }),
+        auction_id,        // from props or state
+        recipient_id,      // seller_id or buyer_id
+        author_role,       // "buyer" or "seller"
+        user_ratings,
+        user_comments,
+      }),
       });
       const data = await res.json();
       if (res.ok) {
         setMsg("✅ Thank you for your feedback!");
         setSubmitted(true);
         setUserComments("");
+        setSellerInput(""); // Optionally clear sellerInput after submit
       } else {
         setMsg("❌ " + (data.message || "Failed to submit feedback."));
       }
@@ -114,50 +91,12 @@ export default function UserFeedback() {
       </button>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>User Feedback</h2>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="buyer">Buyer:</label>
-          <select
-            id="buyer"
-            value={buyerId}
-            onChange={e => setBuyerId(e.target.value)}
-            required
-            disabled={submitted || loading}
-          >
-            <option value="">Select Buyer</option>
-            {users.map(u => (
-              <option key={u.id} value={u.id}>{u.username}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="seller">Seller:</label>
-          <select
-            id="seller"
-            value={sellerId}
-            onChange={e => setSellerId(e.target.value)}
-            required
-            disabled={submitted || loading}
-          >
-            <option value="">Select Seller</option>
-            {users.map(u => (
-              <option key={u.id} value={u.id}>{u.username}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="feedbackType">Feedback Type:</label>
-          <select
-            id="feedbackType"
-            value={feedbackType}
-            onChange={e => setFeedbackType(e.target.value)}
-            required
-            disabled={submitted || loading}
-          >
-            {FEEDBACK_TYPES.map(t => (
-              <option key={t.value} value={t.value}>{t.label}</option>
-            ))}
-          </select>
-        </div>
+        <input type="hidden" name="auction_id" value={auctionId} />
+        <input type="hidden" name="recipient_id" value={sellerId} />
+
+        {/* Show seller info here if you want */}
+        {/* <div>{sellerUsername}</div> */}
+
         <div style={{ marginBottom: 16 }}>
           <label htmlFor="userRating">Rating:</label>
           <select

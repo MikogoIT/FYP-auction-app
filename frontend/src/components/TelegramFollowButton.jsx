@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
 import TelegramIcon from "@mui/icons-material/Telegram";
 
 // Utility function to construct channel name
@@ -12,18 +11,24 @@ const getChannelUrl = (category) => {
 export default function TelegramFollowButton({ category }) {
     const channelUrl = getChannelUrl(category);
 
-    const handleFollow = () => {
+    const handleFollow = (e) => {
+        e.stopPropagation();
         window.open(channelUrl, "_blank");
     };
 
     return (
-        <Button
-            variant="contained"
-            color="primary"
-            onClick={handleFollow}
-            startIcon={<TelegramIcon />}
+        <md-filled-button
+        onClick={handleFollow}
+        style={{
+            display: "flex", 
+            alignItems: "center", 
+            gap: "0.5rem",
+            "--md-sys-color-primary": "#0088cc",
+            "--md-sys-color-on-primary": "#ffffff"
+        }}
         >
-            Follow on Telegram
-        </Button>
+            <TelegramIcon style={{ fontSize: "1.3rem", lineHeight: "1" }} />
+            {`Follow ${category} on Telegram`}
+        </md-filled-button>
     );
 }
