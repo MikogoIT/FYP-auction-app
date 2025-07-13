@@ -22,7 +22,7 @@ export default function ProfileFeedbackPage() {
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
-  const [usernames, setUsernames] = useState({}); // Map of userId -> username
+  //const [usernames, setUsernames] = useState({}); // Map of userId -> username
 
   useEffect(() => {
     console.log("Effect runs when userId changes:", userId);
@@ -44,9 +44,6 @@ export default function ProfileFeedbackPage() {
 
         // Get unique author IDs
         //const authorIds = [...new Set(fbData.map(r => r.author_id))];
-
-
-        
       } catch (err) {
         console.error("Failed to load Reviews:", err);
         console.error("Failed to load Profile:", err);
@@ -56,43 +53,6 @@ export default function ProfileFeedbackPage() {
       fetchFeedback(userId);
     }
   }, [userId]);
-
-  /* Old Code
-  if (userId) {
-    // Fetch another user's profile and feedback
-    fetch(`/api/users/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        setUser(data);
-        console.log("Fetched user:", data);
-      });
-
-    fetch(`/api/feedback/user/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        setReviews(data);
-        console.log("Fetched reviews:", data);
-      });
-  } else {
-    // Fetch your own profile, photo, and feedback
-    async function fetchProfile() {
-      const [pRes, phRes] = await Promise.all([
-        fetch("/api/profile", { credentials: "include" }),
-        fetch("/api/displayPhoto", { credentials: "include" })
-      ]);
-      const pData = await pRes.json();
-      const phData = await phRes.json();
-      const merged = { ...pData.user, profile_image_url: phData.profile_image_url };
-      setUser(merged);
-      console.log("Merged user:", merged);
-
-      // Fetch your own feedback
-      const fbRes = await fetch(`/api/feedback/user/${pData.user.id}`);
-      const fbData = await fbRes.json();
-      setReviews(fbData);
-      console.log("Fetched own reviews:", fbData);
-    }
-    fetchProfile(); */
 
   // Filter reviews
   const filteredReviews =
@@ -128,10 +88,8 @@ export default function ProfileFeedbackPage() {
           <div
             id="middleTitle"
             className="profileTitle"
-            style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}
+            style={{ fontSize: 20, fontWeight: 300, marginBottom: 12 }}
           >
-            Hello,
-            <br />
             {user?.username}
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -150,8 +108,8 @@ export default function ProfileFeedbackPage() {
             />
             {/* Ratings */}
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>
-                <StarRating rating={Math.round(ratingScore)} /> {ratingScore}/5
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#f5a623" }}>
+                <StarRating rating={Math.round(ratingScore)} />
               </div>
               <div style={{ color: "#888" }}>{numReviews} Reviews</div>
             </div>
