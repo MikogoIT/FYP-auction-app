@@ -7,6 +7,10 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import {
+  Toolbar,
+} from '@mui/material';
+
 // pages
 import Landing from "./pages/landing";
 import Login from "./pages/Login";

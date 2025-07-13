@@ -1,5 +1,5 @@
 // src/components/HeaderWithDrawer.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
