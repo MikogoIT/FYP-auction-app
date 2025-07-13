@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
+import { useTheme } from "@mui/material/styles";
 
 // Material-Web buttons
 import "@material/web/button/filled-button.js";
@@ -12,6 +13,11 @@ import "@material/web/button/filled-tonal-button.js";
 
 export default function MyListings() {
   const navigate = useNavigate();
+
+  const theme = useTheme();
+
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,8 +112,12 @@ export default function MyListings() {
                   <div className="listingAction">
                       <md-filled-button
                         onClick={() => handleEdit(item.id)}
-                        style={{ width: "100%" }}
-                      >
+                        style={{ 
+                          width: "100%" ,
+                          "--md-sys-color-primary": yellow,
+                          "--md-sys-color-on-primary": contrastText,
+                          }}
+                        >
                         Edit
                       </md-filled-button>
                     </div>
