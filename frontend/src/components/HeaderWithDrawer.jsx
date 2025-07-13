@@ -95,7 +95,7 @@ export default function HeaderWithDrawer({ window }) {
       <Toolbar />
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         {[
-          { label: 'Recent Listings', path: '/dashboard' },
+          { label: 'Home', path: '/dashboard' },
           { label: 'All Categories', path: '/ListingPage' },
           { label: 'Liked Listings', path: '/Watchlist' },
           { label: 'My Listings', path: '/mylistings' },
@@ -215,7 +215,6 @@ export default function HeaderWithDrawer({ window }) {
           left: { md: `${drawerWidth}px` },             // shift right on desktop
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           bgcolor: 'white',
-          borderBottom: '1px solid',
         }}
       >
         <Toolbar sx={{ minHeight: theme.mixins.toolbar.minHeight }}>

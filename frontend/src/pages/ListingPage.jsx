@@ -10,14 +10,34 @@ import {
   CardActions
 } from '@mui/material';
 
-import TelegramFollowButton from "../components/TelegramFollowButton";
+import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
+import CheckroomIcon from '@mui/icons-material/Checkroom';
+import DevicesIcon from '@mui/icons-material/Devices';
+import WeekendIcon from '@mui/icons-material/Weekend';
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import CategoryIcon from '@mui/icons-material/Category';
 
+import TelegramFollowButton from "../components/TelegramFollowButton";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
+// helper to pick an icon based on the category name
+function getCategoryIcon(name) {
+  const key = name.toLowerCase();
+  if (key.includes('bike'))       return <DirectionsBikeIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  if (key.includes('cloth'))      return <CheckroomIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  if (key.includes('electron'))   return <DevicesIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  if (key.includes('furniture'))  return <WeekendIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  if (key.includes('mobile') || key.includes('gadget')) 
+                                   return <PhoneIphoneIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  if (key.includes('shoe'))       return <ShoppingBagIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+  // fallback
+  return <CategoryIcon sx={{ fontSize: 48, color: 'text.secondary' }} />;
+}
+
 export default function ListingPage() {
   const navigate = useNavigate();
-
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -59,7 +79,6 @@ export default function ListingPage() {
                   navigate(`/listings?category=${encodeURIComponent(cat.id)}`)
                 }
               >
-                {/* Optional Image Placeholder */}
                 <CardMedia
                   component="div"
                   sx={{
@@ -68,11 +87,9 @@ export default function ListingPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#aaa",
-                    fontSize: "1.5rem",
                   }}
                 >
-                  {cat.name}
+                  {getCategoryIcon(cat.name)}
                 </CardMedia>
                 <CardContent>
                   <Typography variant="h6" component="div">

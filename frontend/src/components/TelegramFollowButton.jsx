@@ -1,6 +1,6 @@
 // src/components/TelegramFollowButton.jsx
+import Button from "@mui/material/Button";
 import TelegramIcon from "@mui/icons-material/Telegram";
-import "@material/web/button/filled-button.js";
 
 const getChannelUrl = (category) => {
   const baseName = category.toLowerCase().replace(/\s+/g, "_");
@@ -10,36 +10,33 @@ const getChannelUrl = (category) => {
 
 export default function TelegramFollowButton({ category }) {
   const channelUrl = getChannelUrl(category);
-
   const handleFollow = (e) => {
     e.stopPropagation();
     window.open(channelUrl, "_blank");
   };
 
   return (
-    <md-filled-button
+    <Button
       onClick={handleFollow}
-      style={{
-        display: "inline-flex",          // inline-flex so it sizes to content
-        alignItems: "center",            // vertical center
-        justifyContent: "center",
-        gap: "0.5rem",
-        padding: "0.6rem 1.2rem",         // tweak for a nice pill
-        borderRadius: "999px",           // full pill shape
-        backgroundColor: "#0088cc",      // override MD3 primary
-        color: "#ffffff",                // override MD3 on-primary
-        fontSize: "1rem",                // 16px text
+      startIcon={
+        <TelegramIcon sx={{ fontSize: "1.2rem", verticalAlign: "middle" }} />
+      }
+      variant="contained"
+      sx={{
+        borderRadius: "999px",          // pill
+        backgroundColor: "#0088cc",     // telegram blue
+        color: "#fff",                  // text
+        textTransform: "none",          // no uppercase
+        fontSize: "1rem",               // 16px
         lineHeight: 1,
-        textTransform: "none",           // keep your casing
+        py: 1,                          // vertical padding
+        px: 3,                          // horizontal padding
+        "&:hover": {
+          backgroundColor: "#007ab8",   // slightly darker on hover
+        },
       }}
     >
-      <TelegramIcon 
-        style={{ 
-          fontSize: "1.2rem",            // 19px icon to align with text 
-          verticalAlign: "middle" 
-        }} 
-      />
-      <span style={{ lineHeight: 1 }}>Follow {category} on Telegram</span>
-    </md-filled-button>
+      Follow {category} on Telegram
+    </Button>
   );
 }
