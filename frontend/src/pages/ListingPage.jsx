@@ -49,13 +49,14 @@ export default function ListingPage() {
 
       <div className="dashboardContent">
         {/* reverted to original div */}
-        <div className="profileTitle">Browse Listings by Category</div>
+        <div id="wideTitle" className="profileTitle">Browse Listings by Category</div>
 
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: '1.5rem',
+            width: '100%'
           }}
         >
           {categories.map(cat => (
@@ -90,7 +91,7 @@ export default function ListingPage() {
                   {getCategoryIcon(cat.name)}
                 </CardMedia>
 
-                <CardContent sx={{ flexGrow: 0, pb: 6 }}>
+                <CardContent sx={{ flexGrow: 0, pb: 7 }}>
                   <Typography
                     variant="h6"
                     sx={{

@@ -476,3 +476,15 @@ background-color: #e0e0e0;
   text-align: left;
   max-width: 1000px;
 }
+
+.listingDeets
+{
+  width: 100%;
+  max-width: 500px;
+}
+
+.bidDeets
+{
+  width: 100%;
+  max-width: 500px;
+}

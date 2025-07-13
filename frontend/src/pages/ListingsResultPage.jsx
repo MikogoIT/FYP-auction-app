@@ -138,13 +138,13 @@ export default function ListingsResultPage() {
         <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                 {selectedCategoryName && (
-                    <h3>
-                        Showing results for category <em>{selectedCategoryName}</em>
+                    <div>
+                        Showing results for category: <em>{selectedCategoryName}</em>
                         {searchTerm ? ` matching "${searchTerm}"`: ""}
-                    </h3>
+                    </div>
                 )}
                 {!selectedCategoryName && searchTerm && (
-                    <h3>Showing results matching "{searchTerm}"</h3>
+                    <div>Showing results matching: "{searchTerm}"</div>
                 )}
             </div>
 
