@@ -38,3 +38,12 @@ export async function toggleUserFrozenStatus(userId) {
   `;
   return result;
 }
+
+// Use for Feedback Retrieval
+export async function retrieveUserById(userId){
+  return await sql`
+    SELECT id, username, profile_image_url 
+    FROM users
+    WHERE id = ${userId}
+  `;
+}

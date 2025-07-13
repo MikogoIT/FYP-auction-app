@@ -1,5 +1,5 @@
 // controllers/userController.js
-import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus } from "../models/userModel.js";
+import { getUserById, updateUserById, getAllUsers, toggleUserFrozenStatus , retrieveUserById } from "../models/userModel.js";
 import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
@@ -296,5 +296,20 @@ export async function adminUpdateUserController(req, res) {
   } catch (err) {
     console.error("Admin update user error:", err);
     res.status(500).json({ message: "Failed to update user" });
+  }
+}
+
+export async function getUserById(req, res) {
+  try {
+    const userId = req.params.id;
+    const users = await retrieveUserById(userId);
+    const user = users[0]; // Assuming your DB returns an array
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 }
