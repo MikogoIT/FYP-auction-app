@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
+import { useTheme } from "@mui/material/styles";
 
 // Material-Web buttons
 import "@material/web/button/filled-button.js";
@@ -12,6 +13,8 @@ import "@material/web/button/filled-tonal-button.js";
 
 export default function MyListings() {
   const navigate = useNavigate();
+
+  const theme = useTheme();
 
   const yellow = theme.palette.warning.light;
   const contrastText = theme.palette.getContrastText(yellow);
