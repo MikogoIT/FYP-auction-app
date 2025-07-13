@@ -299,11 +299,11 @@ export async function adminUpdateUserController(req, res) {
   }
 }
 
-export async function getUserById(req, res) {
+export async function getUserForFeedback(req, res) {
   try {
-    const userId = req.params.id;
+    const userId = req.params.id; // or req.body.userId, depending on your route
     const users = await retrieveUserById(userId);
-    const user = users[0]; // Assuming your DB returns an array
+    const user = users[0]; // Get the first (and only) user, if found
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

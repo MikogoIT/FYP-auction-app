@@ -16,7 +16,7 @@ router.get("/displayPhoto",  requireLogin, userController.getDP);
 router.put("/displayPhoto", requireLogin, userController.uplDP);
 
 router.put("/admin/update/:id", requireLogin, userController.adminUpdateUserController);
-router.put("/users/:id" ,requireLogin, userController.retrieveUserById);
+router.get("/users/:id", requireLogin, userController.getUserForFeedback);
 
 
 export default router;
