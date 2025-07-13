@@ -34,20 +34,17 @@ export default function HeaderWithDrawer({ window }) {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  // Auth & profile state
+  // auth / profile state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    // fetch profile image
+    // fetch photo
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
-        if (!res.ok) {
-          setIsLoggedIn(false);
-          return;
-        }
+        if (!res.ok) return setIsLoggedIn(false);
         const { profile_image_url } = await res.json();
         setPhotoUrl(profile_image_url || null);
         setIsLoggedIn(true);
@@ -61,7 +58,7 @@ export default function HeaderWithDrawer({ window }) {
       .catch(() => setIsAdmin(false));
   }, [pathname]);
 
-  const handleDrawerToggle = () => setMobileOpen(prev => !prev);
+  const handleDrawerToggle = () => setMobileOpen(o => !o);
   const handleLogoClick = () => navigate(isLoggedIn ? '/dashboard' : '/');
   const goToAdminPage = () => navigate('/admin');
   const handleLogout = async () => {
@@ -72,12 +69,11 @@ export default function HeaderWithDrawer({ window }) {
     navigate('/');
   };
 
-  // Global search handler
+  // global search
   const handleSearch = query => {
     navigate(`/listings?search=${encodeURIComponent(query)}`);
   };
 
-  // Styled button for drawer items
   const OutlineListItemButton = styled(ListItemButton)(() => ({
     borderRadius: '24px',
     '&.Mui-selected': {
@@ -89,7 +85,6 @@ export default function HeaderWithDrawer({ window }) {
     },
   }));
 
-  // Drawer contents
   const drawer = (
     <Box
       sx={{ width: drawerWidth }}
@@ -99,53 +94,25 @@ export default function HeaderWithDrawer({ window }) {
     >
       <Toolbar />
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
-        {/* Recent Listings */}
-        <ListItem disablePadding>
-          <OutlineListItemButton
-            selected={pathname === '/dashboard'}
-            onClick={() => navigate('/dashboard')}
-          >
-            <ListItemIcon />
-            <ListItemText primary="Recent Listings" />
-          </OutlineListItemButton>
-        </ListItem>
+        {[
+          { label: 'Recent Listings', path: '/dashboard' },
+          { label: 'All Categories', path: '/ListingPage' },
+          { label: 'Liked Listings', path: '/Watchlist' },
+          { label: 'My Listings', path: '/mylistings' },
+        ].map(item => (
+          <ListItem key={item.path} disablePadding>
+            <OutlineListItemButton
+              selected={pathname === item.path}
+              onClick={() => navigate(item.path)}
+            >
+              <ListItemIcon />
+              <ListItemText primary={item.label} />
+            </OutlineListItemButton>
+          </ListItem>
+        ))}
 
-        {/* All Categories */}
-        <ListItem disablePadding>
-          <OutlineListItemButton
-            selected={pathname === '/ListingPage'}
-            onClick={() => navigate('/ListingPage')}
-          >
-            <ListItemIcon />
-            <ListItemText primary="All Categories" />
-          </OutlineListItemButton>
-        </ListItem>
+        <Divider sx={{ my: 1 }} />
 
-        {/* Liked Listings */}
-        <ListItem disablePadding>
-          <OutlineListItemButton
-            selected={pathname === '/Watchlist'}
-            onClick={() => navigate('/Watchlist')}
-          >
-            <ListItemIcon />
-            <ListItemText primary="Liked Listings" />
-          </OutlineListItemButton>
-        </ListItem>
-
-        {/* My Listings */}
-        <ListItem disablePadding>
-          <OutlineListItemButton
-            selected={pathname === '/mylistings'}
-            onClick={() => navigate('/mylistings')}
-          >
-            <ListItemIcon />
-            <ListItemText primary="My Listings" />
-          </OutlineListItemButton>
-        </ListItem>
-
-        <Divider />
-
-        {/* My Bids */}
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/MyBids'}
@@ -156,9 +123,8 @@ export default function HeaderWithDrawer({ window }) {
           </OutlineListItemButton>
         </ListItem>
 
-        <Divider />
+        <Divider sx={{ my: 1 }} />
 
-        {/* Talk to us! */}
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/Contact'}
@@ -176,7 +142,7 @@ export default function HeaderWithDrawer({ window }) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Main AppBar */}
+      {/* Main header */}
       <AppBar
         position="fixed"
         elevation={0}
@@ -189,7 +155,6 @@ export default function HeaderWithDrawer({ window }) {
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { md: 'none' }, color: '#212121' }}
@@ -214,22 +179,16 @@ export default function HeaderWithDrawer({ window }) {
                 icon={<AdminPanelSettingsIcon />}
                 onClick={goToAdminPage}
                 clickable
-                sx={{
-                  mr: 1,
-                  bgcolor: 'warning.main',
-                  '&:hover': { bgcolor: 'warning.dark' },
-                }}
+                sx={{ mr: 1, bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
               />
             )}
-
             <Chip
               label={isLoggedIn ? 'Profile' : 'Log in'}
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
               clickable
-              avatar={<Avatar src={photoUrl || undefined}><PersonIcon /></Avatar>}
+              avatar={<Avatar src={photoUrl}><PersonIcon /></Avatar>}
               sx={{ mr: 1 }}
             />
-
             {!isLoggedIn && (
               <Chip
                 label="Register"
@@ -238,7 +197,6 @@ export default function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1 }}
               />
             )}
-
             {isLoggedIn && !hideLogoutRoutes.includes(pathname) && (
               <Chip label="Log out" onClick={handleLogout} clickable />
             )}
@@ -246,13 +204,16 @@ export default function HeaderWithDrawer({ window }) {
         </Toolbar>
       </AppBar>
 
-      {/* Search AppBar */}
+      {/* Search bar */}
       <AppBar
         position="fixed"
         color="transparent"
         elevation={1}
         sx={{
-          top: theme.mixins.toolbar.minHeight,
+          zIndex: theme.zIndex.drawer + 1,              // above the drawer
+          top: theme.mixins.toolbar.minHeight,          // sit below the main header
+          left: { md: `${drawerWidth}px` },             // shift right on desktop
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
           bgcolor: 'white',
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -265,7 +226,7 @@ export default function HeaderWithDrawer({ window }) {
         </Toolbar>
       </AppBar>
 
-      {/* Side Drawer */}
+      {/* Drawer */}
       <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
         {mdUp ? (
           <Drawer
@@ -300,7 +261,7 @@ export default function HeaderWithDrawer({ window }) {
         )}
       </Box>
 
-      {/* Offset for the two fixed AppBars */}
+      {/* push page content below both AppBars */}
       <Toolbar />
       <Toolbar />
     </Box>
