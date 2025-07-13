@@ -204,7 +204,7 @@ const AdminPage = () => {
         <Button 
         variant="contained" 
         sx={{ backgroundColor: red[500], color: "ffffff" }}
-        onClick={(e) => deleteUser(e, getId)}
+        onClick={() => deleteUser(getId)}
         >
           Delete
         </Button>
