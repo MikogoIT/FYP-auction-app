@@ -17,7 +17,7 @@ import Header from "../components/Header";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { red } from "@mui/material/colors";
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -147,7 +147,7 @@ const AdminPage = () => {
   };
 
   const column = [
-    { field: 'id', headerName: 'ID' , sortable: false }, 
+    // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
@@ -210,12 +210,12 @@ const AdminPage = () => {
     }
   },
 
- { field: "Actions", type: "actions", headerName: "Actions", display: "flex", 
+ { field: "actions", type: "actions", headerName: "Actions", display: "flex", 
   cellClassName: "actions",
   getActions: ({ id }) => {
       return (
           <GridActionsCellItem 
-            icon={<DeleteIcon />}
+            icon={<DeleteOutlineOutlinedIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
           />
