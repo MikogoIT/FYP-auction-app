@@ -83,9 +83,8 @@ export default function ProfileFeedbackPage() {
         <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
           {/* Avatar */}
           <img
-            src={user.profile_image_url || undefined}
+            src={user?.profile_image_url || "https://api.dicebear.com/7.x/personas/svg?seed=User"}
             sx={{ width: 120, height: 120 }}
-            // src={user?.profile_image_url || "https://api.dicebear.com/7.x/personas/svg?seed=User"}
             alt="User Avatar"
             style={{
               width: 80,
