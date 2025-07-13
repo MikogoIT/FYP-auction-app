@@ -62,8 +62,7 @@ export default function ListingSearchBar({ onSearch }) {
               edge="end"
               sx={{ p: theme.spacing(1) }}
             >
-              {/* force the icon to 16px too */}
-              <SearchIcon sx={{ fontSize: '16px' }} />
+              <SearchIcon  />
             </IconButton>
           </InputAdornment>
         }

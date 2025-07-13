@@ -93,7 +93,7 @@ export default function BidPage() {
             {listing.title}
         </div>
 
-        <div className="2boxes">
+        <div className="twoboxes">
         {/* Listing Details */}
           <div className="listingDeets">
             
@@ -102,10 +102,9 @@ export default function BidPage() {
                 src={listing.image_url}
                 alt={listing.title}
                 style={{
-                  width: "100%",
                   maxHeight: 200,
-                  objectFit: "cover",
-                  borderRadius: 4,
+                  objectFit: "contain",
+                  borderRadius: 24,
                 }}
               />
             ) : (
@@ -117,17 +116,44 @@ export default function BidPage() {
               </Avatar>
             )}
             <div className="listingWords">
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1,  fontSize: 16,}}>
                 Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
               </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
+              <Typography variant="body1" sx={{ mb: 1 , fontSize: 16, }}>
                 {listing.description}
               </Typography>
-              <Typography variant="subtitle2">
-                Starting bid: <strong>${listing.min_bid}</strong>
+              <Typography
+                variant="subtitle2"
+                component="span"
+                sx={{
+                  fontSize: 16,
+                  display: 'inline-block',
+                  px: 1.5,
+                  py: 0.5,
+                  border: '1px solid',
+                  borderColor: 'grey.800',
+                  borderRadius: '999px',
+                  color: 'grey.800',
+                }}
+              >
+                Starting bid:&nbsp;<strong>${listing.min_bid.toFixed(2)}</strong>
               </Typography>
-              <Typography variant="subtitle2">
-                Current bid: <strong>${minPrice.toFixed(2)}</strong>
+
+              <Typography
+                variant="subtitle2"
+                component="span"
+                sx={{
+                  fontSize: 16,
+                  display: 'inline-block',
+                  px: 1.5,
+                  py: 0.5,
+                  border: '1px solid',
+                  borderColor: 'success.main',
+                  borderRadius: '999px',
+                  color: 'success.main',
+                }}
+              >
+                Current bid:&nbsp;<strong>${minPrice.toFixed(2)}</strong>
               </Typography>
             </div>
 
