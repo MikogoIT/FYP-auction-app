@@ -210,8 +210,8 @@ const AdminPage = () => {
     }
   },
 
- { field: "Actions", headerName: "Actions", display: "flex", 
-  cellClassName: "Actions",
+ { field: "Actions", type: "actions", headerName: "Actions", display: "flex", 
+  cellClassName: "actions",
   getActions: ({ id }) => {
       return (
           <GridActionsCellItem 
