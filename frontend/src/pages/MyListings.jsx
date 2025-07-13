@@ -70,7 +70,7 @@ export default function MyListings() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
-        <div className="profileTitle">My Listings</div>
+        <div id="wideTitle" className="profileTitle">My Listings</div>
 
         {loading ? (
           <p className="centerText">Loading…</p>

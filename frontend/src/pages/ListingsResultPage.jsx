@@ -9,7 +9,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
 import { Box, Pagination } from "@mui/material";
 
-import ListingSearchBar from "../components/ListingSearchBar";
 import TelegramFollowButton from "../components/TelegramFollowButton";
 
 const ITEMS_PER_PAGE = 6;
@@ -139,13 +138,13 @@ export default function ListingsResultPage() {
         <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                 {selectedCategoryName && (
-                    <h3>
+                    <div>
                         Showing results for category <em>{selectedCategoryName}</em>
                         {searchTerm ? ` matching "${searchTerm}"`: ""}
-                    </h3>
+                    </div>
                 )}
                 {!selectedCategoryName && searchTerm && (
-                    <h3>Showing results matching "{searchTerm}"</h3>
+                    <div>Showing results matching "{searchTerm}"</div>
                 )}
             </div>
 
@@ -153,10 +152,6 @@ export default function ListingsResultPage() {
                 <TelegramFollowButton category={selectedCategoryName} />
             )}
 
-        </div>
-
-        <div className="filterContainer">
-            <ListingSearchBar initialSearch={searchTerm} />
         </div>
 
         {loading ? (
@@ -188,7 +183,7 @@ export default function ListingsResultPage() {
                   )}
 
                   <div className="listingDetails">
-                    <h3 className="listingTitle">{item.title}</h3>
+                    <div className="listingTitle">{item.title}</div>
                     <p className="listingDesc">{item.description}</p>
                     <p className="listingMinBid">
                       <strong>Min Bid:</strong> ${item.min_bid}
