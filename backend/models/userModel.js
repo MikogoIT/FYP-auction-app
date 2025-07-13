@@ -39,7 +39,7 @@ export async function toggleUserFrozenStatus(userId) {
   return result;
 }
 
-// Use for Feedback Retrieval
+// User Feedback Function for UserId
 export async function retrieveUserById(userId){
   return await sql`
     SELECT id, username, profile_image_url 

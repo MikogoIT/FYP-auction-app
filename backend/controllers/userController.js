@@ -299,6 +299,7 @@ export async function adminUpdateUserController(req, res) {
   }
 }
 
+// Get User's Relevant information (Feedback usage)
 export async function getUserForFeedback(req, res) {
   try {
     const userId = req.params.id; // or req.body.userId, depending on your route

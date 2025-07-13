@@ -17,43 +17,47 @@ function StarRating({ rating }) {
 }
 
 export default function ProfileFeedbackPage() {
-  const {userId} = useParams();
+  const { userId } = useParams();
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
+  const [usernames, setUsernames] = useState({}); // Map of userId -> username
 
-useEffect(() => {
-  console.log("Effect runs when userId changes:", userId);
-  async function fetchFeedback(userId) {
-    try {
-      // Fetch reviews
-      const fbRes = await fetch(`/api/feedback/user/${userId}`);
-      const fbData = await fbRes.json();
-      if (!fbRes.ok) throw new Error(fbData.message);
-      setReviews(fbData);
-      console.log("Fetched reviews:", fbData);
+  useEffect(() => {
+    console.log("Effect runs when userId changes:", userId);
+    async function fetchFeedback(userId) {
+      try {
+        // Fetch User Profile
+        const userRes = await fetch(`/api/users/${userId}`);
+        const userData = await userRes.json();
+        if (!userRes.ok) throw new Error(userData.message);
+        setUser(userData);
+        console.log("Fetched user:", userData);
 
-      // Fetch user profile
-      const userRes = await fetch(`/api/users/${userId}`);
-      const userData = await userRes.json();
-      if (!userRes.ok) throw new Error(userData.message);
-      setUser(userData);
-      console.log("Fetched user:", userData);
-      
-    } catch (err) {
-      console.error("Failed to load Reviews:", err);
-      console.error("Failed to load Profile:", err);
+        // Fetch reviews
+        const fbRes = await fetch(`/api/feedback/user/${userId}`);
+        const fbData = await fbRes.json();
+        if (!fbRes.ok) throw new Error(fbData.message);
+        setReviews(fbData);
+        console.log("Fetched reviews:", fbData);
+
+        // Get unique author IDs
+        //const authorIds = [...new Set(fbData.map(r => r.author_id))];
+
+
+        
+      } catch (err) {
+        console.error("Failed to load Reviews:", err);
+        console.error("Failed to load Profile:", err);
+      }
     }
+    if (userId) {
+      fetchFeedback(userId);
+    }
+  }, [userId]);
 
-  }
-  if (userId) {
-    fetchFeedback(userId);
-  }
-}, [userId]);
-
-
-    /* Old Code
+  /* Old Code
   if (userId) {
     // Fetch another user's profile and feedback
     fetch(`/api/users/${userId}`)
@@ -90,7 +94,6 @@ useEffect(() => {
     }
     fetchProfile(); */
 
-
   // Filter reviews
   const filteredReviews =
     filter === "All"
@@ -99,8 +102,10 @@ useEffect(() => {
 
   // Sort reviews
   const sortedReviews = [...filteredReviews].sort((a, b) => {
-    if (sort === "Newest") return new Date(b.created_at) - new Date(a.created_at);
-    if (sort === "Oldest") return new Date(a.created_at) - new Date(b.created_at);
+    if (sort === "Newest")
+      return new Date(b.created_at) - new Date(a.created_at);
+    if (sort === "Oldest")
+      return new Date(a.created_at) - new Date(b.created_at);
     if (sort === "Highest Rating") return b.user_ratings - a.user_ratings;
     if (sort === "Lowest Rating") return a.user_ratings - b.user_ratings;
     return 0;
@@ -108,7 +113,9 @@ useEffect(() => {
 
   // Calculate average rating
   const ratingScore = reviews.length
-    ? (reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length).toFixed(2)
+    ? (
+        reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length
+      ).toFixed(2)
     : "N/A";
   const numReviews = reviews.length;
 
@@ -116,33 +123,50 @@ useEffect(() => {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
-
-        {/* Profile & Ratings Header */}
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
-          {/* Avatar */}
-          <Avatar
-            src={user?.profile_image_url || undefined}
-            sx={{ width: 120, height: 120 }}
-            alt="User Avatar"
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: "50%",
-              marginRight: 24,
-              border: "2px solid #eee",
-            }}
-          />
-          {/* Ratings */}
-          <div>
-            <div style={{ fontSize: 28, fontWeight: 700 }}>
-              <StarRating rating={Math.round(ratingScore)} /> {ratingScore}/5
+        {/* Profile Name and Ratings Header */}
+        <div style={{ marginBottom: 16 }}>
+          <div
+            id="middleTitle"
+            className="profileTitle"
+            style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}
+          >
+            Hello,
+            <br />
+            {user?.username}
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {/* Avatar */}
+            <Avatar
+              src={user?.profile_image_url || undefined}
+              sx={{ width: 120, height: 120 }}
+              alt="User Avatar"
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: "50%",
+                marginRight: 24,
+                border: "2px solid #eee",
+              }}
+            />
+            {/* Ratings */}
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>
+                <StarRating rating={Math.round(ratingScore)} /> {ratingScore}/5
+              </div>
+              <div style={{ color: "#888" }}>{numReviews} Reviews</div>
             </div>
-            <div style={{ color: "#888" }}>{numReviews} Reviews</div>
           </div>
         </div>
 
         {/* Filters and Sorting */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+          }}
+        >
           {/* Filters */}
           <div>
             <md-filled-button
@@ -176,6 +200,7 @@ useEffect(() => {
                 borderRadius: 6,
                 border: "1px solid #ccc",
                 fontSize: 16,
+                marginLeft: 5,
               }}
             >
               <option>Newest</option>
@@ -204,9 +229,14 @@ useEffect(() => {
                   background: "#fafafa",
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <div>
-                    <strong>{review.author_name || "User"}</strong> <span style={{ color: "#888" }}>({review.author_role})</span>
+                    <strong>{review.author_name || "User"}</strong>{" "}
+                    <span style={{ color: "#888" }}>
+                      ({review.author_role})
+                    </span>
                   </div>
                   <div>
                     <StarRating rating={review.user_ratings} />{" "}
