@@ -217,7 +217,7 @@ const AdminPage = () => {
           <GridActionsCellItem 
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={()=>handleDeleteClick(id)}
+            onClick={handleDeleteClick(id)}
           />
       );
     },
