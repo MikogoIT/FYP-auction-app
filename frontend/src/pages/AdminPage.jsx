@@ -210,18 +210,19 @@ const AdminPage = () => {
     }
   },
 
- { field: "actions", type: "actions", headerName: "Actions", display: "flex", 
-  cellClassName: "actions",
-  getActions: ({ id }) => {
-      return (
-          <GridActionsCellItem 
-            icon={<DeleteOutlineOutlinedIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-          />
+{ field: "id", headerName: "Actions", display: "flex", sortable: false, renderCell: (id) => {
+      return(
+        <Button 
+        variant="contained" 
+        sx={{ backgroundColor: red[500], color: "ffffff" }}
+        onClick={() => handleDeleteClick(id)}
+        >
+          Delete
+        </Button>
       );
-    },
-  },
+    }
+  }
+
 /*
   {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
     const onClick = (e) => {
