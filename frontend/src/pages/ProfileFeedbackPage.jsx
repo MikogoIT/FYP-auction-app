@@ -23,35 +23,43 @@ export default function ProfileFeedbackPage() {
   const [sort, setSort] = useState("Newest");
 
   useEffect(() => {
-    if (userId) {
-      // Fetch another user's profile and feedback
-      fetch(`/api/users/${userId}`)
-        .then(res => res.json())
-        .then(setUser);
+  if (userId) {
+    // Fetch another user's profile and feedback
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setUser(data);
+        console.log("Fetched user:", data);
+      });
 
-      fetch(`/api/feedback/user/${userId}`)
-        .then(res => res.json())
-        .then(setReviews);
-    } else {
-      // Fetch your own profile, photo, and feedback
-      async function fetchProfile() {
-        const [pRes, phRes] = await Promise.all([
-          fetch("/api/profile", { credentials: "include" }),
-          fetch("/api/displayPhoto", { credentials: "include" })
-        ]);
-        const pData = await pRes.json();
-        const phData = await phRes.json();
-        const merged = { ...pData.user, profile_image_url: phData.profile_image_url };
-        setUser(merged);
+    fetch(`/api/feedback/user/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setReviews(data);
+        console.log("Fetched reviews:", data);
+      });
+  } else {
+    // Fetch your own profile, photo, and feedback
+    async function fetchProfile() {
+      const [pRes, phRes] = await Promise.all([
+        fetch("/api/profile", { credentials: "include" }),
+        fetch("/api/displayPhoto", { credentials: "include" })
+      ]);
+      const pData = await pRes.json();
+      const phData = await phRes.json();
+      const merged = { ...pData.user, profile_image_url: phData.profile_image_url };
+      setUser(merged);
+      console.log("Merged user:", merged);
 
-        // Fetch your own feedback
-        const fbRes = await fetch(`/api/feedback/user/${pData.user.id}`);
-        const fbData = await fbRes.json();
-        setReviews(fbData);
-      }
-      fetchProfile();
+      // Fetch your own feedback
+      const fbRes = await fetch(`/api/feedback/user/${pData.user.id}`);
+      const fbData = await fbRes.json();
+      setReviews(fbData);
+      console.log("Fetched own reviews:", fbData);
     }
-  }, [userId]);
+    fetchProfile();
+  }
+}, [userId]);
 
   // Filter reviews
   const filteredReviews =
@@ -80,10 +88,11 @@ export default function ProfileFeedbackPage() {
       <div className="dashboardContent">
 
         {/* Profile & Ratings Header */}
+        <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
         <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
           {/* Avatar */}
-          <img
-            src={user?.profile_image_url || "https://api.dicebear.com/7.x/personas/svg?seed=User"}
+          <Avatar
+            src={user.profile_image_url || undefined}
             sx={{ width: 120, height: 120 }}
             alt="User Avatar"
             style={{
