@@ -16,11 +16,12 @@ function StarRating({ rating }) {
 }
 
 export default function ProfileFeedbackPage() {
-   const { userId } = useParams();
+  const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("All");
+  const [sort, setSort] = useState("Newest");
+
 
   useEffect(() => {
     async function fetchProfileAndFeedback() {
