@@ -7,10 +7,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import {
-  Toolbar,
-} from '@mui/material';
-
 // pages
 import Landing from "./pages/landing";
 import Login from "./pages/Login";
@@ -40,7 +36,6 @@ import Notif from "./pages/Notif";
 import Header from "./components/Header";                     // no-drawer
 import HeaderWithDrawer from "./components/HeaderWithDrawer"; // with drawer
 import Footer from "./components/Footer";
-import BreadcrumbsNav from './components/BreadcrumbsNav';
 
 
 
@@ -55,10 +50,8 @@ function AppRoutes({ isApiRoute }) {
       {showDrawer
         ? <HeaderWithDrawer window={() => window} />
         : <Header />}
-        {/* reserve space for the header + search bar */}
-        <Toolbar />
-        <Toolbar />
-        {showDrawer && <BreadcrumbsNav />}
+
+
         <Routes>
            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
