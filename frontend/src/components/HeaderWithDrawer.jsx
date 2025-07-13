@@ -271,12 +271,6 @@ export default function HeaderWithDrawer({ window }) {
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
-            BackdropProps={{
-              sx: {
-                // push the backdrop down below header  search bar
-                top: 50,
-              }
-            }}
             ModalProps={{ keepMounted: true }}
             PaperProps={{
               sx: {
