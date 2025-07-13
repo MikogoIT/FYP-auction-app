@@ -76,7 +76,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
-            <Route path="/feedbackprofile" element={<ProfileFeedbackPage />} />
+            <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />
