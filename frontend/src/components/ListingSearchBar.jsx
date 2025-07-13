@@ -17,7 +17,17 @@ const Form = styled('form')({
 
 const SearchField = styled(OutlinedInput)(({ theme }) => ({
   flexGrow: 1,
-  borderRadius: theme.shape.borderRadius * 2,       // nicer pill shape
+  borderRadius: 24,       // pill shape
+  // set the font-size on the actual <input>
+  '& .MuiOutlinedInput-input': {
+    fontSize: '16px',
+    padding: theme.spacing(1.5, 2),   // tweak vertical/horizontal padding
+  },
+  // Optional: ensure the placeholder also uses 16px
+  '& .MuiOutlinedInput-input::placeholder': {
+    fontSize: '16px',
+    opacity: 1,
+  },
   '& fieldset': {
     borderColor: theme.palette.divider,
   },
@@ -45,16 +55,16 @@ export default function ListingSearchBar({ onSearch }) {
         placeholder="Search all listings"
         value={query}
         onChange={e => setQuery(e.target.value)}
+        // (you could also use inputProps, but styling above covers it)
         endAdornment={
           <InputAdornment position="end">
             <IconButton
               type="submit"
               edge="end"
-              sx={{
-                padding: theme.spacing(1),
-              }}
+              sx={{ p: theme.spacing(1) }}
             >
-              <SearchIcon />
+              {/* force the icon to 16px too */}
+              <SearchIcon sx={{ fontSize: '16px' }} />
             </IconButton>
           </InputAdornment>
         }
