@@ -131,13 +131,12 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
-  // set themes
-  // const theme = useTheme();
-  // const colors = tokens(theme.palette.mode);
-
+  const getId = (value, row) => {
+    return '${row.id}';
+  };
 
   const column = [
-    { field: 'id', headerName: 'ID' }, 
+    { field: 'id', headerName: 'ID' , sortable: false, }, 
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email' }, 
     { field: 'phone_number', headerName: 'Phone' }, 
@@ -205,7 +204,7 @@ const AdminPage = () => {
         <Button 
         variant="contained" 
         sx={{ backgroundColor: red[500], color: "ffffff" }}
-        onClick={(e) => deleteUser(e, params.row.id)}
+        onClick={(e) => deleteUser(e, getId)}
         >
           Delete
         </Button>
