@@ -12,6 +12,7 @@ import Header from "../components/Header";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { red } from "@mui/material/colors";
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
