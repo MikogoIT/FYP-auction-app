@@ -1,12 +1,14 @@
 // src/pages/BidPage.jsx
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Breadcrumbs,
+  Link,
+} from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
-import { Box, Typography } from "@mui/material";
-
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
-
 import "@material/web/button/filled-button.js";
 
 export default function BidPage() {
@@ -18,14 +20,14 @@ export default function BidPage() {
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
 
-  // Fetch listing details
+  // Fetch listing details (including category_id & category_name)
   useEffect(() => {
     async function fetchListing() {
       try {
         const res = await fetch(`/api/listings/${id}`);
         if (!res.ok) throw new Error("Failed to load listing");
-        const data = await res.json();
-        setListing(data.listing);
+        const { listing } = await res.json();
+        setListing(listing);
       } catch (err) {
         console.error(err);
       }
@@ -39,8 +41,8 @@ export default function BidPage() {
       try {
         const res = await fetch(`/api/auctions/${id}/min-bid`);
         if (!res.ok) throw new Error("Failed to load min bid");
-        const data = await res.json();
-        setMinPrice(data.min_allowed);
+        const { min_allowed } = await res.json();
+        setMinPrice(min_allowed);
       } catch (err) {
         console.error(err);
       }
@@ -90,17 +92,38 @@ export default function BidPage() {
 
   return (
     <div className="dashboardCanvas">
-    <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* ← Manual breadcrumbs with custom “parent” because we dont have correct nav */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <Link
+            component={RouterLink}
+            to="/dashboard"
+            underline="hover"
+            color="inherit"
+          >
+            Home
+          </Link>
+          <Link
+            component={RouterLink}
+            to={`/listings?category=${encodeURIComponent(
+              listing.category_id
+            )}`}
+            underline="hover"
+            color="inherit"
+          >
+            {listing.category_name}
+          </Link>
+          <Typography color="text.primary">Place Bid</Typography>
+        </Breadcrumbs>
+
         <div id="wideTitle" className="profileTitle">
-            {listing.title}
+          {listing.title}
         </div>
 
         <div className="twoboxes">
-        {/* Listing Details */}
+          {/* Listing Details */}
           <div className="listingDeets">
-            
             {listing.image_url ? (
               <img
                 src={listing.image_url}
@@ -119,28 +142,36 @@ export default function BidPage() {
                 <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
               </Avatar>
             )}
+
             <div className="listingWords">
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1,  fontSize: 16,}}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 1, fontSize: 16 }}
+              >
                 Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
               </Typography>
-              <Typography variant="body1" sx={{ mb: 1 , fontSize: 16, }}>
+              <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
                 {listing.description}
               </Typography>
+
               <Typography
                 variant="subtitle2"
                 component="span"
                 sx={{
                   fontSize: 16,
-                  display: 'inline-block',
+                  display: "inline-block",
                   px: 1.5,
                   py: 0.5,
-                  border: '1px solid',
-                  borderColor: 'grey.800',
-                  borderRadius: '999px',
-                  color: 'grey.800',
+                  border: "1px solid",
+                  borderColor: "grey.800",
+                  borderRadius: "999px",
+                  color: "grey.800",
+                  mr: 1,
                 }}
               >
-                Starting bid:&nbsp;<strong>${listing.min_bid}</strong>
+                Starting bid:&nbsp;
+                <strong>${Number(listing.min_bid).toFixed(2)}</strong>
               </Typography>
 
               <Typography
@@ -148,69 +179,69 @@ export default function BidPage() {
                 component="span"
                 sx={{
                   fontSize: 16,
-                  display: 'inline-block',
+                  display: "inline-block",
                   px: 1.5,
                   py: 0.5,
-                  border: '1px solid',
-                  borderColor: 'success.main',
-                  borderRadius: '999px',
-                  color: 'success.main',
+                  border: "1px solid",
+                  borderColor: "success.main",
+                  borderRadius: "999px",
+                  color: "success.main",
                 }}
               >
-                Current bid:&nbsp;<strong>${minPrice.toFixed(2)}</strong>
+                Current bid:&nbsp;
+                <strong>${Number(minPrice).toFixed(2)}</strong>
               </Typography>
             </div>
-
           </div>
 
           {/* Bid Form */}
           <div className="bidDeets">
-          <h2>Place your bid</h2>
-        
-          
+            <h2>Place your bid</h2>
 
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="bidAmount">Bid Amount ($):</label>
-            <input
-              id="bidAmount"
-              type="number"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
-              required
-              min={minPrice}
-              step="0.01"
-              style={{
-                width: "100%",
-                padding: "8px",
-                margin: "8px 0 16px",
-                boxSizing: "border-box",
-              }}
-            />
-            <md-filled-button
-              type="submit"
-              disabled={message.startsWith("✅")}
-              style={{ width: "100%", padding: "10px" }}
-            >
-              Submit Bid
-            </md-filled-button>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="bidAmount">Bid Amount ($):</label>
+              <input
+                id="bidAmount"
+                type="number"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                required
+                min={minPrice}
+                step="0.01"
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  margin: "8px 0 16px",
+                  boxSizing: "border-box",
+                }}
+              />
+              <md-filled-button
+                type="submit"
+                disabled={message.startsWith("✅")}
+                style={{ width: "100%", padding: "10px" }}
+              >
+                Submit Bid
+              </md-filled-button>
+            </form>
 
-          {message && (
-            <Typography
-              variant="body2"
-              align="center"
-              sx={{
-                mt: 2,
-                color: message.startsWith("✅") ? "success.main" : "error.main",
-              }}
-            >
-              {message}
-            </Typography>
-          )}
+            {message && (
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{
+                  mt: 2,
+                  color: message.startsWith("✅")
+                    ? "success.main"
+                    : "error.main",
+                }}
+              >
+                {message}
+              </Typography>
+            )}
           </div>
         </div>
       </div>
-    <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }
