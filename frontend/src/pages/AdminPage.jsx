@@ -215,7 +215,7 @@ const AdminPage = () => {
         <Button 
         variant="contained" 
         sx={{ backgroundColor: red[500], color: "ffffff" }}
-        onClick={handleDeleteClick(id)}
+        onClick={()=>handleDeleteClick(id)}
         >
           Delete
         </Button>
