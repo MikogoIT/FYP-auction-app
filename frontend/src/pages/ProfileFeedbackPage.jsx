@@ -22,7 +22,7 @@ export default function ProfileFeedbackPage() {
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
-  //const [usernames, setUsernames] = useState({}); // Map of userId -> username
+  const [authorInfo, setAuthorInfo] = useState({});
 
   useEffect(() => {
     console.log("Effect runs when userId changes:", userId);
@@ -35,18 +35,26 @@ export default function ProfileFeedbackPage() {
         setUser(userData);
         console.log("Fetched user:", userData);
 
-        // Fetch reviews
+        // Fetch Reviews
         const fbRes = await fetch(`/api/feedback/user/${userId}`);
         const fbData = await fbRes.json();
         if (!fbRes.ok) throw new Error(fbData.message);
         setReviews(fbData);
         console.log("Fetched reviews:", fbData);
 
-        // Get unique author IDs
-        //const authorIds = [...new Set(fbData.map(r => r.author_id))];
+        // Fetch Reviews With Profile Information
+        const authorIds = [...new Set(fbData.map((r) => r.author_id))];
+        const authorInfoEntries = await Promise.all(
+          authorIds.map(async (id) => {
+            const res = await fetch(`/api/users/${id}`);
+            const data = await res.json();
+            return [id, data];
+          }),
+        );
+        setAuthorInfo(Object.fromEntries(authorInfoEntries));
+        console.log("Unique author IDs:", authorIds);
       } catch (err) {
-        console.error("Failed to load Reviews:", err);
-        console.error("Failed to load Profile:", err);
+        console.error("Failed to load Page:", err);
       }
     }
     if (userId) {
@@ -184,36 +192,44 @@ export default function ProfileFeedbackPage() {
               No reviews to display.
             </div>
           ) : (
-            sortedReviews.map((review) => (
-              <div
-                key={review.id}
-                style={{
-                  border: "1px solid #eee",
-                  borderRadius: 8,
-                  padding: 20,
-                  marginBottom: 16,
-                  background: "#fafafa",
-                }}
-              >
+            sortedReviews.map((review) => {
+              const author = authorInfo[review.author_id];
+              return (
                 <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
+                  key={review.id}
+                  style={{
+                    border: "1px solid #eee",
+                    borderRadius: 8,
+                    padding: 20,
+                    marginBottom: 16,
+                    background: "#fafafa",
+                  }}
                 >
-                  <div>
-                    <strong>{review.author_name || "User"}</strong>{" "}
-                    <span style={{ color: "#888" }}>
-                      ({review.author_role})
-                    </span>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Avatar
+                        src={author?.profile_image_url}
+                        alt={author?.username || "User"}
+                        style={{ width: 32, height: 32, marginRight: 8 }}
+                      />
+                      <strong>{author?.username || "User"}</strong>
+                      <span style={{ color: "#888", marginLeft: 6 }}>
+                        ({review.author_role})
+                      </span>
+                    </div>
+                    <div>
+                      <StarRating rating={review.user_ratings} />{" "}
+                      <span style={{ color: "#888", fontSize: 14 }}>
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <StarRating rating={review.user_ratings} />{" "}
-                    <span style={{ color: "#888", fontSize: 14 }}>
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
+                  <div style={{ marginTop: 8 }}>{review.user_comments}</div>
                 </div>
-                <div style={{ marginTop: 8 }}>{review.user_comments}</div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
