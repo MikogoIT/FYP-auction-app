@@ -2,17 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
+import {
+  Avatar,
+  Box,
+  Grid,
+  Card,
+  CardHeader,
+  CardContent,
+  Typography,
+  Rating,
+  CircularProgress,
+} from "@mui/material";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-// Helper for star rating
-function StarRating({ rating, size = 18 }) {
+// Helper for star rating (using MUI's Rating for consistency)
+function StarRating({ rating, size = "medium", readOnly = true }) {
   return (
-    <span style={{ fontSize: size, color: "#f5a623" }}>
-      {"★".repeat(rating)}
-      {"☆".repeat(5 - rating)}
-    </span>
+    <Rating
+      value={rating}
+      max={5}
+      readOnly={readOnly}
+      size={size}
+      precision={1}
+      sx={{ color: "#f5a623" }}
+    />
   );
 }
 
@@ -23,38 +37,41 @@ export default function ProfileFeedbackPage() {
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
   const [authorInfo, setAuthorInfo] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Effect runs when userId changes:", userId);
     async function fetchFeedback(userId) {
+      setLoading(true);
       try {
         // Fetch User Profile
         const userRes = await fetch(`/api/users/${userId}`);
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error(userData.message);
         setUser(userData);
-        console.log("Fetched user:", userData);
 
         // Fetch Reviews
         const fbRes = await fetch(`/api/feedback/user/${userId}`);
         const fbData = await fbRes.json();
         if (!fbRes.ok) throw new Error(fbData.message);
         setReviews(fbData);
-        console.log("Fetched reviews:", fbData);
 
-        // Fetch Reviews With Profile Information
+        // Fetch Author Info
         const authorIds = [...new Set(fbData.map((r) => r.author_id))];
         const authorInfoEntries = await Promise.all(
           authorIds.map(async (id) => {
             const res = await fetch(`/api/users/${id}`);
             const data = await res.json();
             return [id, data];
-          }),
+          })
         );
         setAuthorInfo(Object.fromEntries(authorInfoEntries));
-        console.log("Unique author IDs:", authorIds);
       } catch (err) {
-        console.error("Failed to load Page:", err);
+        // You can show an error UI here if you want
+        setUser(null);
+        setReviews([]);
+        setAuthorInfo({});
+      } finally {
+        setLoading(false);
       }
     }
     if (userId) {
@@ -80,7 +97,8 @@ export default function ProfileFeedbackPage() {
   });
 
   // Calculate average rating
-  const ratingScore = reviews.length
+  const hasReviews = reviews.length > 0;
+  const ratingScore = hasReviews
     ? (
         reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length
       ).toFixed(2)
@@ -88,61 +106,59 @@ export default function ProfileFeedbackPage() {
   const numReviews = reviews.length;
 
   return (
-    <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
-      <div className="dashboardContent">
+    <Box className="dashboardCanvas" sx={{ p: 2, bgcolor: "#f8f8f8", minHeight: "100vh" }}>
+      <Box className="sidebarSpacer" />
+      <Box className="dashboardContent" sx={{ maxWidth: 900, mx: "auto" }}>
         {/* Profile Name and Ratings Header */}
-        <div>
-          <div
+        <Box sx={{ mb: 4 }}>
+          <Typography
             id="middleTitle"
             className="profileTitle"
-            style={{
-              fontSize: 20,
-              fontWeight: 700,
-              marginBottom: 0,
-              lineHeight: 1.1,
-            }}
+            variant="h5"
+            fontWeight={700}
+            sx={{ mb: 0.5 }}
           >
             {user?.username}
-          </div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {/* Avatar */}
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar
               src={user?.profile_image_url || undefined}
-              sx={{ width: 120, height: 120 }}
-              alt="User Avatar"
-              style={{
+              sx={{
                 width: 80,
                 height: 80,
-                borderRadius: "50%",
-                marginRight: 24,
+                mr: 3,
                 border: "2px solid #eee",
+                bgcolor: "#fff",
               }}
+              alt="User Avatar"
             />
-            {/* Ratings */}
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#f5a623" }}>
-                <StarRating rating={Math.round(ratingScore)} />
-                <span style={{ marginLeft: 8, color: "#222" }}>
-                  {Number(ratingScore).toFixed(1)}
-                </span>
-              </div>
-              <div style={{ color: "#888" }}>{numReviews} Reviews</div>
-            </div>
-          </div>
-        </div>
+            <Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <StarRating
+                  rating={hasReviews ? Math.round(ratingScore) : 0}
+                  size="large"
+                />
+                <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
+                  {hasReviews ? Number(ratingScore).toFixed(1) : "N/A"}
+                </Typography>
+              </Box>
+              <Typography color="text.secondary" fontSize={16}>
+                {numReviews} Reviews
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
 
         {/* Filters and Sorting */}
-        <div
-          style={{
+        <Box
+          sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 24,
+            mb: 3,
           }}
         >
-          {/* Filters */}
-          <div>
+          <Box>
             <md-filled-button
               onClick={() => setFilter("All")}
               style={{ marginRight: 8 }}
@@ -163,9 +179,8 @@ export default function ProfileFeedbackPage() {
             >
               From Sellers
             </md-filled-tonal-button>
-          </div>
-          {/* Sorting */}
-          <div>
+          </Box>
+          <Box>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
@@ -182,58 +197,75 @@ export default function ProfileFeedbackPage() {
               <option>Highest Rating</option>
               <option>Lowest Rating</option>
             </select>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* Reviews List */}
-        <div>
-          {sortedReviews.length === 0 ? (
-            <div style={{ color: "#888", padding: 32, textAlign: "center" }}>
-              No reviews to display.
-            </div>
-          ) : (
-            sortedReviews.map((review) => {
-              const author = authorInfo[review.author_id];
-              return (
-                <div
-                  key={review.id}
-                  style={{
-                    border: "1px solid #eee",
-                    borderRadius: 8,
-                    padding: 20,
-                    marginBottom: 16,
-                    background: "#fafafa",
-                  }}
-                >
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <Avatar
-                        src={author?.profile_image_url}
-                        alt={author?.username || "User"}
-                        style={{ width: 32, height: 32, marginRight: 8 }}
+        {loading ? (
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {sortedReviews.length === 0 ? (
+              <Grid item xs={12}>
+                <Box color="#888" p={4} textAlign="center">
+                  No reviews to display.
+                </Box>
+              </Grid>
+            ) : (
+              sortedReviews.map((review) => {
+                const author = authorInfo[review.author_id];
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={review.id}>
+                    <Card variant="outlined" sx={{ bgcolor: "#fafafa" }}>
+                      <CardHeader
+                        avatar={
+                          <Avatar
+                            src={author?.profile_image_url}
+                            alt={author?.username || "User"}
+                          />
+                        }
+                        title={
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {author?.username || "User"}
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ ml: 1 }}
+                            >
+                              ({review.author_role})
+                            </Typography>
+                          </Typography>
+                        }
+                        subheader={
+                          <Box display="flex" alignItems="center">
+                            <StarRating rating={review.user_ratings} size="small" />
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ ml: 1 }}
+                            >
+                              {new Date(review.created_at).toLocaleDateString()}
+                            </Typography>
+                          </Box>
+                        }
                       />
-                      <strong>{author?.username || "User"}</strong>
-                      <span style={{ color: "#888", marginLeft: 6 }}>
-                        ({review.author_role})
-                      </span>
-                    </div>
-                    <div>
-                      <StarRating rating={review.user_ratings} />{" "}
-                      <span style={{ color: "#888", fontSize: 14 }}>
-                        {new Date(review.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 8 }}>{review.user_comments}</div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-      <div className="sidebarSpacer"></div>
-    </div>
+                      <CardContent>
+                        <Typography variant="body2">
+                          {review.user_comments}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })
+            )}
+          </Grid>
+        )}
+      </Box>
+      <Box className="sidebarSpacer" />
+    </Box>
   );
 }
