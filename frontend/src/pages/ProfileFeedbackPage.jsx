@@ -48,25 +48,28 @@ export default function ProfileFeedbackPage() {
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error(userData.message);
         setUser(userData);
+        //console.log("Fetched user:", userData);
 
         // Fetch Reviews
         const fbRes = await fetch(`/api/feedback/user/${userId}`);
         const fbData = await fbRes.json();
         if (!fbRes.ok) throw new Error(fbData.message);
         setReviews(fbData);
+        //console.log("Fetched reviews:", fbData);
 
-        // Fetch Author Info
+        // Fetch Author Review Info
         const authorIds = [...new Set(fbData.map((r) => r.author_id))];
         const authorInfoEntries = await Promise.all(
           authorIds.map(async (id) => {
             const res = await fetch(`/api/users/${id}`);
             const data = await res.json();
             return [id, data];
-          })
+          }),
         );
         setAuthorInfo(Object.fromEntries(authorInfoEntries));
+        //console.log("Unique author IDs:", authorIds);
       } catch (err) {
-        // You can show an error UI here if you want
+        console.error("Failed to load Page:", err);
         setUser(null);
         setReviews([]);
         setAuthorInfo({});
@@ -106,7 +109,10 @@ export default function ProfileFeedbackPage() {
   const numReviews = reviews.length;
 
   return (
-    <Box className="dashboardCanvas" sx={{ p: 2, bgcolor: "#f8f8f8", minHeight: "100vh" }}>
+    <Box
+      className="dashboardCanvas"
+      sx={{ p: 2, bgcolor: "#f8f8f8", minHeight: "100vh" }}
+    >
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent" sx={{ maxWidth: 900, mx: "auto" }}>
         {/* Profile Name and Ratings Header */}
@@ -241,7 +247,10 @@ export default function ProfileFeedbackPage() {
                         }
                         subheader={
                           <Box display="flex" alignItems="center">
-                            <StarRating rating={review.user_ratings} size="small" />
+                            <StarRating
+                              rating={review.user_ratings}
+                              size="small"
+                            />
                             <Typography
                               variant="caption"
                               color="text.secondary"
