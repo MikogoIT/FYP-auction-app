@@ -14,7 +14,17 @@ router.post("/status", requireLogin, telegramController.getTelegramStatus);
 router.get("/listings/unposted", requireBotAuth, telegramController.fetchUnpostedListings);
 router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markListingPosted);
 router.get("/check-account/:telegramUserId", requireBotAuth, telegramController.checkTelegramAccount);
+
+// Bot-specific notification routes
+router.get("/notifications/unsent", requireBotAuth, telegramController.fetchUnsentNotifications);
+router.post("/notifications/mark-sent", requireBotAuth, telegramController.markNotificationAsSent);
+
+// Bot-specific routes (Buyers - Manage Bidding)
 router.post("/bid", requireBotAuth, telegramController.createBidFromTelegram);
-router.get("/bids/user/:user_id", requireBotAuth, telegramController.getBidsByTelegramUser);
+router.post("/bid/withdraw", requireBotAuth, telegramController.withdrawBidFromTelegram);
+router.get("/bids/user/:userId", requireBotAuth, telegramController.getBidsByTelegramUser);
+
+// Bot-specific routes (Sellers - Manage Listing)
+router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
 
 export default router;

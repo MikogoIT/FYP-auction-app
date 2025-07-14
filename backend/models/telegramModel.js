@@ -1,5 +1,6 @@
 // models/telegramModel.js
 import { sql } from "../utils/db.js";
+import { getMyListings } from "../models/listingsModel.js"
 
 export async function linkTelegramToUser(userId, telegramId, telegramUsername) {
     const result = await sql`
@@ -12,7 +13,6 @@ export async function linkTelegramToUser(userId, telegramId, telegramUsername) {
             linked_at = CURRENT_TIMESTAMP
         RETURNING *
     `;
-    console.log(result);
 }
 
 export async function getTelegramLinkStatus(userId) {
@@ -35,12 +35,14 @@ export async function getUnpostedListings() {
         SELECT 
             al.*, 
             lc.name AS category_name,
-            COALESCE(MAX(b.bid_amount), 0) AS highest_bid
+            COALESCE(MAX(b.bid_amount), 0) AS highest_bid,
+            ta.telegram_id AS seller_telegram_id
         FROM auction_listings al
         JOIN listing_categories lc ON al.category_id = lc.id
         LEFT JOIN bids b ON al.id = b.auction_id
+        LEFT JOIN telegram_accounts ta ON al.seller_id = ta.user_id
         WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
-        GROUP BY al.id, lc.name
+        GROUP BY al.id, lc.name, ta.telegram_id
         ORDER BY al.id ASC
     `;
 }
@@ -76,4 +78,35 @@ export async function getBidsByUserId(userId) {
     `;
 
     return result;
+}
+
+export async function getSellerListingsByUserId(userId) {
+    return getMyListings(userId);
+}
+
+export async function getUnsentNotifications() {
+    return await sql`
+        SELECT n.*, ta.telegram_id
+        FROM notifications n
+        JOIN users u ON n.user_id = u.id
+        JOIN telegram_accounts ta ON u.id = ta.user_id
+        WHERE n.sent_to_telegram = FALSE
+        ORDER BY n.created_at ASC
+    `;
+}
+
+export async function markNotificationSent(notificationId) {
+    await sql`
+        UPDATE notifications
+        SET sent_to_telegram = TRUE
+        WHERE id = ${notificationId}
+    `;
+}
+
+export async function deleteUserBid(buyerId, auctionId) {
+    return await sql`
+        DELETE from bids
+        WHERE buyer_id =${buyerId} AND auction_id = ${auctionId}
+        RETURNING *
+    `;
 }

@@ -128,17 +128,81 @@ export async function createBidFromTelegram(req, res) {
 }
 
 export async function getBidsByTelegramUser(req, res) {
-    const userId = req.params.user_id;
+    const userId = req.params.userId;
 
     if (!userId) {
-        return res.status(400).json({ message: "Missing user_id parameter" });
+        return res.status(400).json({ message: "Missing userId parameter" });
     }
 
     try {
         const bids = await telegramModel.getBidsByUserId(userId);
+
+        // If no bids found, can return empty array
         res.json({ bids });
     } catch (err) {
         console.error("Error fetching bids for user: ", err);
         res.status(500).json({ message: "Failed to fetch bids" });
+    }
+}
+
+export async function getSellerListings(req, res) {
+    const userId = req.params.userId;
+
+    if (!userId) {
+        return res.status(400).json({ message: "Missing userId parameter" });
+    }
+
+    try {
+        const listings = await telegramModel.getSellerListingsByUserId(userId);
+
+        // If no listings found, can return empty array
+        return res.json({ listings });
+    } catch (err) {
+        console.error("Error fetching seller listings:", err);
+        return res.status(500).json({ message: "Failed to fetch seller listings" });
+    }
+}
+
+export async function fetchUnsentNotifications(req, res) {
+    try {
+        const notifications = await telegramModel.getUnsentNotifications();
+        res.json(notifications);
+    } catch (err) {
+        console.error("Failed to fetch unsent notifications: ", err);
+        res.status(500).json({ message: "Error fetching notifications" });
+    }
+}
+
+export async function markNotificationAsSent(req, res) {
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ message: "Notification ID required" });
+
+    try {
+        await telegramModel.markNotificationSent(id);
+        res.json({ message: "Notification marked as sent" });
+    } catch (err) {
+        console.error("Failed to mark notification as sent: ", err);
+        res.status(500).json({ message: "Error marking notification as sent" });
+    }
+}
+
+export async function withdrawBidFromTelegram(req, res) {
+    const { user_id, auction_id } = req.body;
+
+    if (!user_id || !auction_id) {
+        return res.status(400).json({ message: "Missing user_id or auction_id" });
+    }
+
+    try {
+        const deleted = await telegramModel.deleteUserBid(user_id, auction_id);
+
+        if (deleted.length === 0) {
+            return res.status(404).json({ message: "No active bid found for withdrawal" });
+        }
+
+        return res.status(200).json({ message: "Bid withdrawn successfully. A 5% fee wil be incurred." })
+    } catch (err) {
+        console.error("Error withdrawing bid: ", err);
+        return res.status(500).json({ message: "Server error while withdrawing bid" });
     }
 }
