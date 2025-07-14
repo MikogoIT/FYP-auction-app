@@ -1,34 +1,43 @@
-import React, { useEffect, useState } from "react";
+// src/components/TelegramFollowButton.jsx
+import Button from "@mui/material/Button";
 import TelegramIcon from "@mui/icons-material/Telegram";
 
-// Utility function to construct channel name
 const getChannelUrl = (category) => {
-    const baseName = category.toLowerCase().replace(/\s+/g, "_");
-    const suffix = "fypauction";
-    return `https://t.me/${baseName}_${suffix}`;
-}
+  const baseName = category.toLowerCase().replace(/\s+/g, "_");
+  const suffix = "fypauction";
+  return `https://t.me/${baseName}_${suffix}`;
+};
 
 export default function TelegramFollowButton({ category }) {
-    const channelUrl = getChannelUrl(category);
+  const channelUrl = getChannelUrl(category);
+  const handleFollow = (e) => {
+    e.stopPropagation();
+    window.open(channelUrl, "_blank");
+  };
 
-    const handleFollow = (e) => {
-        e.stopPropagation();
-        window.open(channelUrl, "_blank");
-    };
-
-    return (
-        <md-filled-button
-        onClick={handleFollow}
-        style={{
-            display: "flex", 
-            alignItems: "center", 
-            gap: "0.5rem",
-            "--md-sys-color-primary": "#0088cc",
-            "--md-sys-color-on-primary": "#ffffff"
-        }}
-        >
-            <TelegramIcon style={{ fontSize: "1.3rem", lineHeight: "1" }} />
-            {`Follow ${category} on Telegram`}
-        </md-filled-button>
-    );
+  return (
+    <Button
+      onClick={handleFollow}
+      startIcon={
+        <TelegramIcon sx={{ fontSize: "1.2rem", verticalAlign: "middle" }} />
+      }
+      variant="contained"
+      sx={{
+        borderRadius: "999px",          // pill
+        backgroundColor: "#0088cc",     // telegram blue
+        color: "#fff",                  // text
+        textTransform: "none",          // no uppercase
+        fontSize: 16,               // 16px
+        fontWeight: 500,
+        lineHeight: 1,
+        py: 1,                          // vertical padding
+        px: 3,                          // horizontal padding
+        "&:hover": {
+          backgroundColor: "#007ab8",   // slightly darker on hover
+        },
+      }}
+    >
+      Follow {category} on Telegram
+    </Button>
+  );
 }

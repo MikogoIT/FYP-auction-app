@@ -8,6 +8,8 @@ import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
 import EditIcon from "@mui/icons-material/Edit";
 import TelegramConnect from "../components/TelegramConnect";
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -115,6 +117,7 @@ export default function Profile() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
+        <BreadcrumbsNav />
         <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>

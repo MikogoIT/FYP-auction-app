@@ -9,8 +9,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
 import { Box, Pagination } from "@mui/material";
 
-import ListingSearchBar from "../components/ListingSearchBar";
 import TelegramFollowButton from "../components/TelegramFollowButton";
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
 
 const ITEMS_PER_PAGE = 6;
 
@@ -136,16 +137,17 @@ export default function ListingsResultPage() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
+        <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                 {selectedCategoryName && (
-                    <h3>
-                        Showing results for category <em>{selectedCategoryName}</em>
+                    <div>
+                        Showing results for category: <em>{selectedCategoryName}</em>
                         {searchTerm ? ` matching "${searchTerm}"`: ""}
-                    </h3>
+                    </div>
                 )}
                 {!selectedCategoryName && searchTerm && (
-                    <h3>Showing results matching "{searchTerm}"</h3>
+                    <div>Showing results matching: "{searchTerm}"</div>
                 )}
             </div>
 
@@ -155,9 +157,7 @@ export default function ListingsResultPage() {
 
         </div>
 
-        <div className="filterContainer">
-            <ListingSearchBar initialSearch={searchTerm} />
-        </div>
+
 
         {loading ? (
           <p className="centerText">Loading listings…</p>

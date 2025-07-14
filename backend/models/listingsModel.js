@@ -47,17 +47,32 @@ export const getActiveListings = async () => {
   `;
 };
 
+
 export const getListingById = async (id) => {
   return await sql`
     SELECT 
-      id, title, description, min_bid, end_date,
-      auction_type, start_price, discount_percentage,
-      category_id, seller_id, image_url, is_active, posted_to_telegram,
-      created_at
-    FROM auction_listings
-    WHERE id = ${id}
+      a.id,
+      a.title,
+      a.description,
+      a.min_bid,
+      a.end_date,
+      a.auction_type,
+      a.start_price,
+      a.discount_percentage,
+      a.category_id,
+      c.name AS category_name,
+      a.seller_id,
+      a.image_url,
+      a.is_active,
+      a.posted_to_telegram,
+      a.created_at
+    FROM auction_listings a
+    LEFT JOIN listing_categories c
+      ON c.id = a.category_id
+    WHERE a.id = ${id}
   `;
 };
+
 
 export const getSellerId = async (id) => {
   return await sql`

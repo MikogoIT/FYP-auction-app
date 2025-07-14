@@ -228,6 +228,7 @@ background-color: #e0e0e0;
   font-size: 16px;
   font-family: 'Roboto';
   display: flex;
+  margin-top: 60px;
 }
 
 .sidebarSpacer
@@ -389,12 +390,11 @@ background-color: #e0e0e0;
   margin-bottom: 20px;
 }
 
-.searchInput {
+/* .searchInput {
   padding: 8px;
   width: 250px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
+  border-radius: 24px;
+} */
 
 .categorySelect {
   padding: 8px;
@@ -475,4 +475,24 @@ background-color: #e0e0e0;
   width: 100%;
   text-align: left;
   max-width: 1000px;
+}
+
+.listingDeets
+{
+  width: 490px;
+}
+
+.bidDeets
+{
+  width: 490px;
+}
+
+.twoboxes
+{
+  width: 100%;
+  display: flex;
+  max-width: 1000px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }

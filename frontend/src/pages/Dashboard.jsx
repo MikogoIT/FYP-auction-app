@@ -62,6 +62,7 @@ export default function Dashboard() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
+        
 
         {/* page title */}
         <div className="profileTitle">Recent Listings</div>
