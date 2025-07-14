@@ -133,6 +133,15 @@ export default function HeaderWithDrawer({ window }) {
             <ListItemText primary="My Listings" />
           </OutlineListItemButton>
         </ListItem>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/createlistings'}
+            onClick={() => navigate('/createlistings')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="Create Listings" />
+          </OutlineListItemButton>
+        </ListItem>
       </List>
       <Divider />
 
