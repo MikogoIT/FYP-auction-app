@@ -19,6 +19,7 @@ export default function BidPage() {
   const [minPrice, setMinPrice] = useState(null);
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
+  const [auctionType, setAuctionType] = useState(null);
 
   // Fetch listing details (including category_id & category_name)
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function BidPage() {
         if (!res.ok) throw new Error("Failed to load listing");
         const { listing } = await res.json();
         setListing(listing);
+        setAuctionType(listing.auction_type);
       } catch (err) {
         console.error(err);
       }
@@ -56,10 +58,27 @@ export default function BidPage() {
     setMessage("");
     const amount = parseFloat(bidAmount);
 
-    if (amount <= minPrice) {
-      setMessage(`❌ Your bid must be higher than $${minPrice.toFixed(2)}`);
+    if (isNaN(amount)) {
+      setMessage("Please enter a valid number");
       return;
     }
+
+    if (auctionType === "ascending") {
+      if (amount <= minPrice) {
+        setMessage(`❌ Your bid must be higher than $${minPrice.toFixed(2)}`);
+        return;
+      }
+    } else if (auctionType === "descending") {
+      if (amount >= minPrice) {
+        setMessage(`❌ Your bid must be lower than $${minPrice.toFixed(2)}`);
+        return;
+      }
+      if (amount < 1) {
+        setMessage("❌ Your bid must be at least $1");
+        return;
+      }
+    }
+
     if (amount > 99999999.99) {
       alert("The bid amount cannot exceed 99,999,999.99");
       return;
@@ -222,7 +241,8 @@ export default function BidPage() {
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
-                min={minPrice}
+                min={auctionType === "ascending" ? minPrice : 1}
+                max={auctionType === "descending" ? minPrice - 0.01 : undefined}
                 step="0.01"
                 style={{
                   width: "100%",
