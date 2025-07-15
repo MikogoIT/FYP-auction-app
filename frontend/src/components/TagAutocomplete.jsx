@@ -109,11 +109,24 @@ export default function TagAutocomplete({
   });
 
   // Always include locked tag
-  const displayedValue = React.useMemo(() => {
-    return lockedTag
-      ? [lockedTag, ...propsValue.filter((v) => v !== lockedTag)]
-      : propsValue;
-  }, [propsValue, lockedTag]);
+  {
+    propsValue.map((option, index) => {
+      const { key, onDelete, ...tagProps } = getTagProps({ index });
+      const isLocked = option === lockedTag;
+
+      return (
+        <StyledTag key={key}>
+          #{option}
+          {!isLocked && (
+            <CloseIcon
+              onClick={onDelete} // ✅ Works now!
+              {...tagProps}
+            />
+          )}
+        </StyledTag>
+      );
+    });
+  }
 
   return (
     <Root>

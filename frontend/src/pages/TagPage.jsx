@@ -47,10 +47,19 @@ const TagSellItem = () => {
 
   // Resetting CategoryName (new)
   useEffect(() => {
-    if (categoryName) {
-      setTags([categoryName]); // removes all other tags
-    }
-  }, [categoryName]);
+  if (categoryName) setTags([categoryName]);
+}, [categoryName]);
+
+// Add new tag (from input/Enter/Comma or autocomplete)
+const handleAddTag = (tag) => {
+  tag = tag.trim().toLowerCase();
+  if (!tags.includes(tag) && tag !== categoryName) setTags([...tags, tag]);
+}
+
+// Remove tag (from chip delete)
+const handleDeleteTag = (tag) => {
+  if (tag !== categoryName) setTags(tags.filter(t => t !== tag));
+  }
 
   /* Old Code const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
