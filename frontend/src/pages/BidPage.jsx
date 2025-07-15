@@ -74,13 +74,15 @@ export default function BidPage() {
         return;
       }
     } else if (auctionType === "descending") {
-      if (typeof currentDescPrice === "number" && amount >= currentDescPrice) {
-        setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
-        return;
-      }
-      if (amount < listing.min_bid) {
-        setMessage(`❌ Your bid must be at least $${listing.min_bid}`);
-        return;
+      if (typeof currentDescPrice === "number") {
+        if (currentDescPrice > listing.min_bid && amount >= currentDescPrice) {
+          setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
+          return;
+        }
+        if (amount < listing.min_bid) {
+          setMessage(`❌ Your bid must be at least $${listing.min_bid}`);
+          return;
+        }
       }
     }
 
