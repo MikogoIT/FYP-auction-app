@@ -75,7 +75,7 @@ export default function BidPage() {
       }
     } else if (auctionType === "descending") {
       if (amount >= minPrice) {
-        setMessage(`❌ Your bid must be lower than $${listing.curent_pirce.toFixed(2)}`);
+        setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
         return;
       }
       if (amount < 1) {
@@ -229,7 +229,7 @@ export default function BidPage() {
                 }}
               >
                 Current bid:&nbsp;
-                <strong>{auctionType === "descending" ? (currentDescPrice !== null ? Number(currentDescPrice).toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? (typeof currentDescPrice === "number" ? currentDescPrice.toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
               </Typography>
             </div>
           </div>
