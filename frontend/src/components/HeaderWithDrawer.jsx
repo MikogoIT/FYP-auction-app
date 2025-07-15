@@ -121,8 +121,7 @@ export default function HeaderWithDrawer({ window }) {
             selected={pathname === '/sell'}
             onClick={() => navigate('/sell')}
           >
-            <ListItemIcon />
-            <AddOutlinedIcon />
+            <ListItemIcon><AddOutlinedIcon /></ListItemIcon>
             <ListItemText primary="Create Listings" />
           </OutlineListItemButton>
         </ListItem>
