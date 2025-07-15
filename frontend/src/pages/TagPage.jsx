@@ -233,46 +233,6 @@ const handleDeleteTag = (tag) => {
           />
         </div>
 
-        {/* Old Code
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            flexWrap: "wrap",
-            marginBottom: "16px",
-          }}
-        >
-          {tags.map((tag, idx) => (
-            <span
-              key={idx}
-              style={{
-                padding: "6px 10px",
-                background: "#e0e0e0",
-                borderRadius: "12px",
-                display: "inline-flex",
-                alignItems: "center",
-              }}
-            >
-              #{tag.name}
-              {!tag.locked && (
-                <button
-                  onClick={() => removeTag(idx)}
-                  style={{
-                    marginLeft: "6px",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
-                >
-                  ✕
-                </button>
-              )}
-            </span>
-          ))}
-        </div>
-        */}
-
         <label>Minimum Bid (SGD) *</label>
         <input
           type="number"

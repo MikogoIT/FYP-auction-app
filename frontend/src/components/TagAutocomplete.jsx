@@ -133,7 +133,7 @@ export default function TagAutocomplete({
       <div {...getRootProps()}>
         <Label {...getInputLabelProps()}>Tags</Label>
         <InputWrapper ref={setAnchorEl}>
-          {displayedValue.map((option, index) => {
+          {propsValue.map((option, index) => {
             const { key, onDelete, ...tagProps } = getTagProps({ index });
             const isLocked = option === lockedTag;
 
