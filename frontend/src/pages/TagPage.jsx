@@ -1,6 +1,6 @@
 // src/pages/TagPage.jsx
 
-import TagAutocomplete from '../components/TagAutocomplete';
+import TagAutocomplete from "../components/TagAutocomplete";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -202,11 +202,18 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
-        {/*<label>Tags</label> */}
+        {/*<label>Tags</label> 
         <TagAutocomplete
           options={tagOptions}
           lockedTag={categoryName}
           onChange={(selectedTags) => setTags(selectedTags)}
+        />*/}
+
+        <TagAutocomplete
+          value={tags}
+          onChange={setTags}
+          options={tagOptions}
+          lockedTag={categoryName}
         />
 
         {/* Old Code

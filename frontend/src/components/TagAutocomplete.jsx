@@ -14,6 +14,8 @@ const Label = styled("label")`
   display: block;
 `;
 const InputWrapper = styled("div")(({ theme }) => ({
+  width: "100%", // Ensure it fills its container
+  maxWidth: 400, // ✅ Prevent it from stretching too far
   border: "1px solid #d9d9d9",
   borderRadius: "4px",
   padding: "1px",
@@ -30,6 +32,7 @@ const InputWrapper = styled("div")(({ theme }) => ({
     outline: 0,
     padding: "4px 6px",
     flexGrow: 1,
+    minWidth: 60, // ✅ Prevents shrinking too small
   },
 }));
 
