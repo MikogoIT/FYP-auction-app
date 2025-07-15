@@ -286,14 +286,14 @@ background-color: #e0e0e0;
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #f1f0f0;
   display: flex;
   flex-direction: column;
 }
 
 .imageStyle {
   width: 100%;
-  height: 200px;
+  height: 100px;
   object-fit: cover;
 }
 
@@ -305,7 +305,7 @@ background-color: #e0e0e0;
   flex-grow: 1;
   border-top: 1px solid #eee;
   height: 100px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 
@@ -497,4 +497,9 @@ background-color: #e0e0e0;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
+}
+
+.noLikeButtonStyle
+{
+  padding: 5px;
 }

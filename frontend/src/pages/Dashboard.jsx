@@ -120,7 +120,7 @@ export default function Dashboard() {
                           {isOwner ? (
                             <md-filled-button
                               onClick={() => navigate(`/edit/${item.id}`)}
-                              className="buttonStyle"
+                              style={{ width: "100%" }}
                             >
                               Edit
                             </md-filled-button>

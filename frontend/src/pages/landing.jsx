@@ -133,7 +133,7 @@ export default function Landing() {
                           variant="square" 
                           sx={{
                             width: "100%",
-                            height: 100,
+                            height: "100px",
                             bgcolor: "#eee",
                         }}> 
                           <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
@@ -148,11 +148,11 @@ export default function Landing() {
                         </p>
                         
                       </div>
-                      <div style={{ marginTop: 16 }}>
+                      <div className="noLikeButtonStyle">
                           {isOwner ? (
                             <md-filled-button
                               onClick={() => navigate(`/edit/${item.id}`)}
-                              className="buttonStyle"
+                              style={{ width: "100%" }}
                             >
                               Edit
                             </md-filled-button>
