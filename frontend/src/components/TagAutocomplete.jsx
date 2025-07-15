@@ -88,12 +88,24 @@ export default function TagAutocomplete({
     multiple: true,
     options,
     getOptionLabel: (option) => option,
-    defaultValue: [], // changed
-    onChange: (_, val) => {
-      const fullTags = lockedTag
-        ? [lockedTag, ...val.filter((t) => t !== lockedTag)]
-        : val;
-      onChange?.(fullTags);
+    onChange: (_, selectedOptions) => {
+      const newTags = [...propsValue];
+
+      selectedOptions.forEach((tag) => {
+        const lower = tag.toLowerCase();
+        const isDuplicate = newTags.some((t) => t.toLowerCase() === lower);
+        const isLocked = lockedTag && lower === lockedTag.toLowerCase();
+
+        if (!isDuplicate && !isLocked) {
+          newTags.push(tag);
+        }
+      });
+
+      const finalTags = lockedTag
+        ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
+        : newTags;
+
+      onChange?.(finalTags);
     },
   });
 
