@@ -34,7 +34,6 @@ const InputWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-
 const Listbox = styled("ul")(() => ({
   position: "absolute",
   margin: 0,
@@ -86,19 +85,20 @@ export default function TagAutocomplete({
     multiple: true,
     options,
     getOptionLabel: (option) => option,
-    value: propsValue,
+    value: propsValue, // controlled tags
+    inputValue, // ✅ add this
+    onInputChange: (_, newInput) => setInputValue(newInput), // ✅ add this
     onChange: (_, selectedOptions) => {
-      // Don't wipe state — merge normally
-      const merged = [...propsValue];
+      const filtered = selectedOptions.filter(
+        (t, i, arr) =>
+          arr.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i,
+      );
 
-      selectedOptions.forEach((tag) => {
-        const lower = tag.toLowerCase();
-        const isDuplicate = merged.some((t) => t.toLowerCase() === lower);
-        const isLocked = lockedTag && lower === lockedTag.toLowerCase();
-        if (!isDuplicate && !isLocked) merged.push(tag);
-      });
+      const result = lockedTag
+        ? [lockedTag, ...filtered.filter((t) => t !== lockedTag)]
+        : filtered;
 
-      onChange?.(merged);
+      onChange?.(result);
     },
   });
 
@@ -114,9 +114,7 @@ export default function TagAutocomplete({
             return (
               <StyledTag key={key}>
                 #{option}
-                {!isLocked && (
-                  <CloseIcon onClick={onDelete} {...tagProps} />
-                )}
+                {!isLocked && <CloseIcon onClick={onDelete} {...tagProps} />}
               </StyledTag>
             );
           })}
@@ -125,26 +123,29 @@ export default function TagAutocomplete({
               onKeyDown: (e) => {
                 if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
                   e.preventDefault();
-                  const normalizeTag = (tag) => tag.trim().toLowerCase();
-                  const newTag = normalizeTag(inputValue);
+                  const newTag = inputValue.trim().toLowerCase();
 
                   const isDuplicate = propsValue.some(
-                    (t) => t.toLowerCase() === newTag
+                    (t) => t.toLowerCase() === newTag,
                   );
-                  const isLocked =
-                    lockedTag && newTag === lockedTag.toLowerCase();
+                  const isLocked = lockedTag?.toLowerCase() === newTag;
 
                   if (!isDuplicate && !isLocked) {
-                    const merged = [...propsValue, newTag];
-                    onChange?.(merged);
-                  }
+                    // Add AND preserve lockedTag order in parent
+                    const updated = lockedTag
+                      ? [
+                          lockedTag,
+                          ...propsValue.filter((t) => t !== lockedTag),
+                          newTag,
+                        ]
+                      : [...propsValue, newTag];
 
-                  setInputValue("");
+                    onChange(updated);
+                  }
+                  setInputValue(""); // ✅ clear input after adding
                 }
               },
             })}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
           />
         </InputWrapper>
       </div>
