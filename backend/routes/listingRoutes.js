@@ -15,6 +15,7 @@ router.delete("/listings/:id", listingsController.deleteListingById);
 router.get("/mylistings", listingsController.getMyListingsHandler);
 router.get("/listingimg", listingsController.getListingImg);
 router.put("/listingimg", listingsController.uplListingImg);
+router.get("/listings/:id/current-desc-price", listingsController.getCurrentDescPriceHandler);
 // router.get("/", requireLogin, listingsController.getAllListings);
 
 export default router;
