@@ -20,23 +20,20 @@ const InputWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   backgroundColor: "#fff",
-  /*
-    "&.focused": {
+  "&.focused": {
     borderColor: "#40a9ff",
     boxShadow: "0 0 0 2px rgb(24 144 255 / 0.2)",
-  },
+  }, // ✅ ADD COMMA HERE
   "& input": {
     border: 0,
     height: 30,
     outline: 0,
     padding: "4px 6px",
     flexGrow: 1,
-    minWidth: 60, // ✅ Prevents shrinking too small
+    minWidth: 60, // Prevent shrinking
   },
-
-
-  */
 }));
+
 
 const Listbox = styled("ul")(() => ({
   position: "absolute",
@@ -128,7 +125,8 @@ export default function TagAutocomplete({
               onKeyDown: (e) => {
                 if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
                   e.preventDefault();
-                  const newTag = inputValue.trim().toLowerCase();
+                  const normalizeTag = (tag) => tag.trim().toLowerCase();
+                  const newTag = normalizeTag(inputValue);
 
                   const isDuplicate = propsValue.some(
                     (t) => t.toLowerCase() === newTag

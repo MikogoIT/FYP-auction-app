@@ -47,7 +47,9 @@ const TagSellItem = () => {
 
   // Resetting CategoryName (new)
   useEffect(() => {
-    if (categoryName) setTags([categoryName]);
+    if (categoryName && !tags.includes(categoryName)) {
+      setTags([categoryName]);
+    }
   }, [categoryName]);
 
   /* Old Code const handleCategoryChange = (e) => {
