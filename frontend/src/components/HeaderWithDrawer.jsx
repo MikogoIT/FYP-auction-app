@@ -117,6 +117,15 @@ export default function HeaderWithDrawer({ window }) {
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
+            selected={pathname === '/sell'}
+            onClick={() => navigate('/sell')}
+          >
+            <ListItemIcon />
+            <ListItemText primary="Create Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <OutlineListItemButton
             selected={pathname === '/Watchlist'}
             onClick={() => navigate('/Watchlist')}
           >
@@ -131,15 +140,6 @@ export default function HeaderWithDrawer({ window }) {
           >
             <ListItemIcon />
             <ListItemText primary="My Listings" />
-          </OutlineListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <OutlineListItemButton
-            selected={pathname === '/sell'}
-            onClick={() => navigate('/sell')}
-          >
-            <ListItemIcon />
-            <ListItemText primary="Create Listings" />
           </OutlineListItemButton>
         </ListItem>
       </List>
