@@ -212,7 +212,7 @@ const AdminPage = () => {
         );
       }
     },
-    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
+    {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
         width="100%"
