@@ -68,7 +68,7 @@ const StyledTag = styled("div")(({ theme }) => ({
 
 export default function TagAutocomplete({
   options = [],
-  value = (propsValue = []),
+  value: propsValue = [], // ✅ CORRECT ✅
   onChange,
   lockedTag = "",
 }) {
@@ -99,10 +99,10 @@ export default function TagAutocomplete({
 
   // Always include locked tag
   const displayedValue = React.useMemo(() => {
-    return lockedTag
-      ? [lockedTag, ...value.filter((v) => v !== lockedTag)]
-      : value;
-  }, [value, lockedTag]);
+  return lockedTag
+    ? [lockedTag, ...propsValue.filter((v) => v !== lockedTag)]
+    : propsValue;
+}, [propsValue, lockedTag]);
 
   return (
     <Root>
@@ -136,8 +136,8 @@ export default function TagAutocomplete({
                 const isLocked =
                   lockedTag && newTag === lockedTag.toLowerCase();
 
-                if (!isDuplicate && !isLocked) {
-                  const newTags = [...value, newTag];
+               if (!isDuplicate && !isLocked) {
+                  const newTags = [...propsValue, newTag];
                   const finalTags = lockedTag
                     ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
                     : newTags;
