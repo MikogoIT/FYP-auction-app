@@ -20,6 +20,7 @@ export default function BidPage() {
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
   const [auctionType, setAuctionType] = useState(null);
+  const [currentDescPrice, setCurrentDescPrice] = useState(null);
 
   // Fetch listing details (including category_id & category_name)
   useEffect(() => {
@@ -30,6 +31,19 @@ export default function BidPage() {
         const { listing } = await res.json();
         setListing(listing);
         setAuctionType(listing.auction_type);
+
+        // If descending auction, fetch current descending price
+        if (listing.auction_type === "descending") {
+          try {
+            const descRes = await fetch(`/api/listings/${id}/current-desc-price`);
+            if (descRes.ok) {
+              const { current_price } = await descRes.json();
+              setCurrentDescPrice(current_price);
+            }
+          } catch (err) {
+            // fallback: do nothing
+          }
+        }
       } catch (err) {
         console.error(err);
       }
@@ -224,7 +238,7 @@ export default function BidPage() {
                 }}
               >
                 Current bid:&nbsp;
-                <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(minPrice).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? (currentDescPrice !== null ? Number(currentDescPrice).toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
               </Typography>
             </div>
           </div>
@@ -242,7 +256,7 @@ export default function BidPage() {
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
                 min={auctionType === "ascending" ? minPrice : 1}
-                max={auctionType === "descending" ? minPrice - 0.01 : undefined}
+                max={auctionType === "descending" ? (currentDescPrice !== null ? currentDescPrice - 0.01 : undefined) : undefined}
                 step="0.01"
                 style={{
                   width: "100%",
