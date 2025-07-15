@@ -73,7 +73,6 @@ export default function TagAutocomplete({
   lockedTag = "",
 }) {
   const [inputValue, setInputValue] = React.useState(""); // ✅ new
-  const inputProps = getInputProps();
   const {
     getRootProps,
     getInputLabelProps,
@@ -108,6 +107,8 @@ export default function TagAutocomplete({
       onChange?.(finalTags);
     },
   });
+
+  const inputProps = getInputProps(); // ✅ new
 
   // Always include locked tag
   const displayedValue = React.useMemo(() => {
