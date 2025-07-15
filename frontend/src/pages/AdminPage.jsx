@@ -153,7 +153,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'Access', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
+    { field: 'suspend', headerName: 'Access', display: "flex", type: "boolean", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
         return (
           <Box
             width="60%"
