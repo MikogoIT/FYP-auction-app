@@ -519,3 +519,8 @@ background-color: #e0e0e0;
     font-size: 40px;
     padding-bottom: 10px;
 }
+
+.carouselWrapper
+{
+  width: 100%;
+}
