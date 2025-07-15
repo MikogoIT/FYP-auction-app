@@ -1,5 +1,3 @@
-// src/components/Header.jsx
-
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Chip, Avatar } from "@mui/material";
@@ -70,41 +68,36 @@ const Header = () => {
             alignItems: "center",
           }}
         >
-          
-
           {/* Admin chip */}
           {isAdmin && (
             <Chip
               label="Admin"
-              icon={
-                <AdminPanelSettingsIcon />
-              }
+              icon={<AdminPanelSettingsIcon />}
               onClick={goToAdminPage}
               clickable
               sx={{
                 marginRight: "15px",
                 bgcolor: "warning.main",
-                // and on hover you might want a darker shade:
-                "&:hover": {
-                  bgcolor: "warning.dark",
-                },
+                "&:hover": { bgcolor: "warning.dark" },
               }}
             />
           )}
 
-          {/* Profile or Log in */}
-          <Chip
-            label={isLoggedIn ? "Profile" : "Log in"}
-            onClick={() =>
-              navigate(isLoggedIn ? "/profile" : "/login")
-            }
-            clickable
-            avatar={
-              <Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}>
-                <PersonIcon />
-              </Avatar>
-            }
-          />
+          {/* Profile or Log in (hide Profile if admin) */}
+          {isAdmin ? null : (
+            <Chip
+              label={isLoggedIn ? "Profile" : "Log in"}
+              onClick={() =>
+                navigate(isLoggedIn ? "/profile" : "/login")
+              }
+              clickable
+              avatar={
+                <Avatar src={isLoggedIn && photoUrl ? photoUrl : undefined}>
+                  <PersonIcon />
+                </Avatar>
+              }
+            />
+          )}
 
           {/* Register */}
           {!isLoggedIn && (
