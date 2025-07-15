@@ -84,7 +84,7 @@ export default function TagAutocomplete({
   } = useAutocomplete({
     id: "tag-autocomplete",
     multiple: true,
-    freeSolo: true, // 💡 Let users add their own tags
+    freeSolo: true, // 💡 Let users add their own tags!!
     options,
     inputValue,
     onInputChange: (_, newInput) => setInputValue(newInput),
