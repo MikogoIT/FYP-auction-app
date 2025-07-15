@@ -206,3 +206,23 @@ export async function withdrawBidFromTelegram(req, res) {
         return res.status(500).json({ message: "Server error while withdrawing bid" });
     }
 }
+
+export async function searchListings(req, res) {
+    const {
+        category = "",
+        max_price = null,
+        keywords = ""
+    } = req.query;
+
+    try {
+        const listings = await telegramModel.searchListingsWithFilters(
+            category,
+            max_price ? parseFloat(max_price) : null,
+            keywords
+        );
+        res.json({ listings })
+    } catch (err) {
+        console.error("Error searching listings: ", err);
+        res.status(500).json({ message: "Failed to search listings" });
+    }
+}

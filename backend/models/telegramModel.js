@@ -110,3 +110,41 @@ export async function deleteUserBid(buyerId, auctionId) {
         RETURNING *
     `;
 }
+
+// Search based on user's input via GPT-LLM
+export async function searchListingsWithFilters(category, maxPrice, keywordsCsv) {
+    // Convert keywordCsv ("nike, blue") to array
+    const keywords = keywordsCsv
+        ? keywordsCsv.split(",").map(k => k.trim()).filter(k => k)
+        : [];
+
+    // Build dynamic keyword conditions
+    const keywordConditions = keywords.length
+        ? sql`AND (${sql.join(
+            keywords.map(k => sql`(l.title ILIKE ${'%' + k + '%'} OR l.description ILIKE ${'%' + k + '%'})`),
+            sql` OR`
+        )})`
+        : sql``;
+
+    return await sql`
+        SELECT 
+            l.*,
+            lc.name AS category_name,
+            COALESCE(MAX(b.bid_amount), l.min_bid) AS current_bid
+        FROM auction_listings l
+        JOIN listing_categories lc ON lc.id = l.category_id
+        LEFT JOIN bids b ON l.id = b.auction_id
+        WHERE l.is_active = TRUE
+            AND (
+                ${category} = ''
+                OR lc.name ILIKE ${category}
+            )
+            AND (
+                ${maxPrice}::numeric IS NULL
+                OR COALESCE(MAX(b.bid_amount), l.min_bid) <= ${maxPrice}
+            )
+            ${keywordConditions}
+        GROUP BY l.id, lc.name
+        ORDER BY l.end_date ASC
+    `;
+}

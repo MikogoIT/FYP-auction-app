@@ -27,4 +27,7 @@ router.get("/bids/user/:userId", requireBotAuth, telegramController.getBidsByTel
 // Bot-specific routes (Sellers - Manage Listing)
 router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
 
+// Bot-specific listing search
+router.get("/listings/search", requireBotAuth, telegramController.searchListings);
+
 export default router;
