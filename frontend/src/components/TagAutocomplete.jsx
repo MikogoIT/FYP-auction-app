@@ -6,6 +6,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 
+// COMPONENT STYLING
 const Root = styled("div")(({ theme }) => ({ marginBottom: "1rem" }));
 const Label = styled("label")`
   padding: 0 0 4px;
@@ -23,25 +24,25 @@ const InputWrapper = styled("div")(({ theme }) => ({
   "&.focused": {
     borderColor: "#40a9ff",
     boxShadow: "0 0 0 2px rgb(24 144 255 / 0.2)",
-  }, // ✅ ADD COMMA HERE
+  },
   "& input": {
     border: 0,
     height: 30,
     outline: 0,
     padding: "4px 6px",
     flexGrow: 1,
-    minWidth: 60, // Prevent shrinking
+    minWidth: 60,
   },
 }));
 
 const Listbox = styled("ul")(() => ({
-  position: "absolute",
+  width: "inherit",
   margin: 0,
   padding: 0,
   listStyle: "none",
   backgroundColor: "#fff",
-  maxHeight: "250px",
   overflow: "auto",
+  maxHeight: "250px",
   borderRadius: "4px",
   boxShadow: "0 2px 8px rgb(0 0 0 / 0.15)",
   zIndex: 1,
@@ -65,7 +66,7 @@ const StyledTag = styled("div")(() => ({
 
 export default function TagAutocomplete({
   options = [],
-  value: propsValue = [],
+  value = [],
   onChange,
   lockedTag = "",
 }) {
@@ -83,68 +84,67 @@ export default function TagAutocomplete({
   } = useAutocomplete({
     id: "tag-autocomplete",
     multiple: true,
+    freeSolo: true, // 💡 Let users add their own tags
     options,
-    getOptionLabel: (option) => option,
-    value: propsValue, // controlled tags
-    inputValue, // ✅ add this
-    onInputChange: (_, newInput) => setInputValue(newInput), // ✅ add this
+    inputValue,
+    onInputChange: (_, newInput) => setInputValue(newInput),
+    value,
     onChange: (_, selectedOptions) => {
+      // Ensure lockedTag is always first and not duplicated
+      const normalize = (s) => s.toLowerCase();
       const filtered = selectedOptions.filter(
-        (t, i, arr) =>
-          arr.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i,
+        (tag, i, arr) =>
+          arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
+          (!lockedTag || normalize(tag) !== normalize(lockedTag))
       );
-
-      const result = lockedTag
-        ? [lockedTag, ...filtered.filter((t) => t !== lockedTag)]
-        : filtered;
-
-      onChange?.(result);
+      const newList = lockedTag ? [lockedTag, ...filtered] : filtered;
+      onChange?.(newList);
     },
   });
+
+  // Handles Enter/Comma to manually add tags
+  const handleManualAdd = (e) => {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+      e.preventDefault();
+      const newTag = inputValue.trim().toLowerCase();
+
+      const isDuplicate = value.some(
+        (t) => t.toLowerCase() === newTag
+      );
+      const isLocked = lockedTag?.toLowerCase() === newTag;
+
+      if (!isDuplicate && !isLocked) {
+        const newTags = [...value, newTag];
+        onChange?.(newTags);
+      }
+
+      setInputValue("");
+    }
+  };
 
   return (
     <Root>
       <div {...getRootProps()}>
         <Label {...getInputLabelProps()}>Tags</Label>
         <InputWrapper ref={setAnchorEl}>
-          {propsValue.map((option, index) => {
+          {value.map((option, index) => {
             const { key, onDelete, ...tagProps } = getTagProps({ index });
             const isLocked = option === lockedTag;
 
             return (
               <StyledTag key={key}>
                 #{option}
-                {!isLocked && <CloseIcon onClick={onDelete} {...tagProps} />}
+                {!isLocked && (
+                  <CloseIcon onClick={onDelete} {...tagProps} />
+                )}
               </StyledTag>
             );
           })}
+
           <input
             {...getInputProps({
-              onKeyDown: (e) => {
-                if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
-                  e.preventDefault();
-                  const newTag = inputValue.trim().toLowerCase();
-
-                  const isDuplicate = propsValue.some(
-                    (t) => t.toLowerCase() === newTag,
-                  );
-                  const isLocked = lockedTag?.toLowerCase() === newTag;
-
-                  if (!isDuplicate && !isLocked) {
-                    // Add AND preserve lockedTag order in parent
-                    const updated = lockedTag
-                      ? [
-                          lockedTag,
-                          ...propsValue.filter((t) => t !== lockedTag),
-                          newTag,
-                        ]
-                      : [...propsValue, newTag];
-
-                    onChange(updated);
-                  }
-                  setInputValue(""); // ✅ clear input after adding
-                }
-              },
+              placeholder: "Add a tag",
+              onKeyDown: handleManualAdd, // ✅ intercept Enter/Comma
             })}
           />
         </InputWrapper>
