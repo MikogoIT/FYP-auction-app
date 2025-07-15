@@ -74,12 +74,12 @@ export default function BidPage() {
         return;
       }
     } else if (auctionType === "descending") {
-      if (amount >= minPrice) {
+      if (typeof currentDescPrice === "number" && amount >= currentDescPrice) {
         setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
         return;
       }
-      if (amount < 1) {
-        setMessage("❌ Your bid must be at least $1");
+      if (amount < listing.min_bid) {
+        setMessage(`❌ Your bid must be at least $${listing.min_bid}`);
         return;
       }
     }
