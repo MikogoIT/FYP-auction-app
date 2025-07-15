@@ -16,51 +16,109 @@ export async function createBid(req, res) {
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-
+  
   if (!auction_id || !bid_amount) {
     return res.status(400).json({ message: "Missing bid info" });
   }
 
+  // bid_amount must be a number
+  if (typeof bid_amount !== "number" || isNaN(bid_amount)) {
+    return res.status(400).json({ message: "Bid amount must be a number" });
+  }
+
   try {
-    const minBidData = await getAuctionMinBid(auction_id);
-    if (!minBidData) {
+    // Query auction type
+    const auctionInfo = await sql`
+      SELECT auction_type, title FROM auction_listings WHERE id = ${auction_id}
+    `;
+    if (auctionInfo.length === 0) {
       return res.status(404).json({ message: "Auction not found" });
     }
+    const auctionType = auctionInfo[0].auction_type;
+    const auctionTitle = auctionInfo[0].title;
 
-    const minBid = parseFloat(minBidData.highest_bid || minBidData.min_bid);
+    // Query the current highest/lowest bid
+    const minBidData = await getAuctionMinBid(auction_id);
+    let validBid = true;
+    let errorMsg = "";
 
-    if (parseFloat(bid_amount) < parseFloat(minBid)) {
-      return res.status(400).json({ message: `Bid must be at least $${minBid}` });
+    if (auctionType === "ascending") {
+      // Ascending auction: must be higher than the current price
+      const minBid = parseFloat(minBidData.highest_bid || minBidData.min_bid);
+      if (parseFloat(bid_amount) <= minBid) {
+        validBid = false;
+        errorMsg = `Bid must be higher than current price ($${minBid})`;
+      }
+
+    } else if (auctionType === "descending") {
+      // Descending auction: must be lower than the current lowest price and not lower than 1
+      const prevLowest = await sql`
+        SELECT bid_amount FROM bids WHERE auction_id = ${auction_id} ORDER BY bid_amount ASC, created_at ASC LIMIT 1
+      `;
+      const lowestBid = prevLowest.length > 0 ? parseFloat(prevLowest[0].bid_amount) : null;
+      if (lowestBid !== null && parseFloat(bid_amount) >= lowestBid) {
+        validBid = false;
+        errorMsg = `Bid must be lower than current lowest price ($${lowestBid})`;
+      }
+      if (parseFloat(bid_amount) < 1) {
+        validBid = false;
+        errorMsg = "Bid must be at least $1";
+      }
+    }
+
+    if (!validBid) {
+      return res.status(400).json({ message: errorMsg });
     }
 
     if (parseFloat(bid_amount) > 99999999.99) {
       return res.status(400).json({ message: "Bid amount too high, must be less than 100 million" });
     }
 
-    const prevHighest = await sql`
-      SELECT buyer_id FROM bids
-      WHERE auction_id = ${auction_id}
-      ORDER BY bid_amount DESC, created_at ASC
-      LIMIT 1
-    `;
-
-    const result = await insertBid(userId, auction_id, bid_amount);
-
-    if (prevHighest.length > 0 && prevHighest[0].buyer_id !== userId) {
-      const auctionInfo = await sql`
-        SELECT title FROM auction_listings WHERE id = ${auction_id}
+    if (auctionType === "ascending") {
+      const prevHighest = await sql`
+        SELECT buyer_id FROM bids
+        WHERE auction_id = ${auction_id}
+        ORDER BY bid_amount DESC, created_at ASC
+        LIMIT 1
       `;
-      const auctionTitle = auctionInfo.length > 0 ? auctionInfo[0].title : `#${auction_id}`;
 
-      await insertNotification(
-        prevHighest[0].buyer_id,
-        auction_id,
-        `Your bid for auction "${auctionTitle}" has been outbid.`
-      );
+      const result = await insertBid(userId, auction_id, bid_amount);
+      if (prevHighest.length > 0 && prevHighest[0].buyer_id !== userId) {
+        await insertNotification(
+          prevHighest[0].buyer_id,
+          auction_id,
+          `Your bid for auction "${auctionTitle}" has been outbid.`
+        );
+      }
+      
+      res.status(201).json({ bid: result[0] });
+
+    } else if (auctionType === "descending") {
+      // Descending auction: Notification when the lowest price is exceeded
+      const prevLowest = await sql`
+        SELECT buyer_id, bid_amount FROM bids
+        WHERE auction_id = ${auction_id}
+        ORDER BY bid_amount ASC, created_at ASC
+        LIMIT 1
+      `;
+      
+      const result = await insertBid(userId, auction_id, bid_amount);
+      if (prevLowest.length > 0 && parseFloat(bid_amount) < parseFloat(prevLowest[0].bid_amount) && prevLowest[0].buyer_id !== userId) {
+        await insertNotification(
+          prevLowest[0].buyer_id,
+          auction_id,
+          `Your bid for auction "${auctionTitle}" has been beaten by a lower bid.`
+        );
+      }
+
+      res.status(201).json({ bid: result[0] });
+
+    } else {
+      // Other types of auctions, insert directly
+      const result = await insertBid(userId, auction_id, bid_amount);
+      res.status(201).json({ bid: result[0] });
     }
 
-    res.status(201).json({ bid: result[0] });
   } catch (err) {
     console.error("Bid error:", err);
     res.status(500).json({ message: "Failed to submit bid" });
