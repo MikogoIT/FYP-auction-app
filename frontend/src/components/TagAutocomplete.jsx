@@ -37,7 +37,6 @@ const InputWrapper = styled("div")(({ theme }) => ({
 
 const Listbox = styled("ul")(() => ({
   width: "inherit",
-  minWidth: 0,
   margin: 0,
   padding: 0,
   position: "absolute",
@@ -50,13 +49,13 @@ const Listbox = styled("ul")(() => ({
   zIndex: 1,
 }));
 
-const StyledTag = styled("div")(({ theme }) => ({
+const StyledTag = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   height: "24px",
   margin: "2px",
   padding: "0 4px 0 10px",
-  border: `1px solid #e8e8e8`,
+  border: "1px solid #e8e8e8",
   borderRadius: "2px",
   backgroundColor: "#fafafa",
   "& svg": {
@@ -68,11 +67,12 @@ const StyledTag = styled("div")(({ theme }) => ({
 
 export default function TagAutocomplete({
   options = [],
-  value: propsValue = [], // ✅ new
+  value: propsValue = [],
   onChange,
   lockedTag = "",
 }) {
-  const [inputValue, setInputValue] = React.useState(""); // ✅ new
+  const [inputValue, setInputValue] = React.useState("");
+
   const {
     getRootProps,
     getInputLabelProps,
@@ -86,47 +86,14 @@ export default function TagAutocomplete({
     id: "tag-autocomplete",
     multiple: true,
     options,
+    value: propsValue,
     getOptionLabel: (option) => option,
     onChange: (_, selectedOptions) => {
-      const newTags = [...propsValue];
-
-      selectedOptions.forEach((tag) => {
-        const lower = tag.toLowerCase();
-        const isDuplicate = newTags.some((t) => t.toLowerCase() === lower);
-        const isLocked = lockedTag && lower === lockedTag.toLowerCase();
-
-        if (!isDuplicate && !isLocked) {
-          newTags.push(tag);
-        }
-      });
-
-      const finalTags = lockedTag
-        ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
-        : newTags;
-
-      onChange?.(finalTags);
+      // NOTE: Do NOT try to deduplicate or inject lockedTag here
+      // Just send raw updated list, parent handles logic
+      onChange?.(selectedOptions);
     },
   });
-
-  // Always include locked tag
-  {
-    propsValue.map((option, index) => {
-      const { key, onDelete, ...tagProps } = getTagProps({ index });
-      const isLocked = option === lockedTag;
-
-      return (
-        <StyledTag key={key}>
-          #{option}
-          {!isLocked && (
-            <CloseIcon
-              onClick={onDelete} // ✅ Works now!
-              {...tagProps}
-            />
-          )}
-        </StyledTag>
-      );
-    });
-  }
 
   return (
     <Root>
@@ -141,35 +108,25 @@ export default function TagAutocomplete({
               <StyledTag key={key}>
                 #{option}
                 {!isLocked && (
-                  <CloseIcon
-                    onClick={onDelete} // ✅ THIS FIXES THE DELETE
-                    {...tagProps}
-                  />
+                  <CloseIcon onClick={onDelete} {...tagProps} />
                 )}
               </StyledTag>
             );
           })}
-          {/* Old Code <input {...getInputProps()} /> */}
-          {/* Custom input: allows typing and pressing Enter to add new tags */}
           <input
             {...getInputProps({
               onKeyDown: (e) => {
                 if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
                   e.preventDefault();
-                  const newTag = inputValue.trim().toLowerCase();
 
+                  const newTag = inputValue.trim().toLowerCase();
                   const isDuplicate = propsValue.some(
-                    (t) => t.toLowerCase() === newTag,
+                    (t) => t.toLowerCase() === newTag
                   );
                   const isLocked = lockedTag?.toLowerCase() === newTag;
 
                   if (!isDuplicate && !isLocked) {
-                    const newTags = [...propsValue, newTag];
-                    const finalTags = lockedTag
-                      ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
-                      : newTags;
-
-                    onChange?.(finalTags);
+                    onChange?.([...propsValue, newTag]);
                   }
 
                   setInputValue("");
@@ -181,7 +138,7 @@ export default function TagAutocomplete({
           />
         </InputWrapper>
       </div>
-      {groupedOptions.length > 0 ? (
+      {groupedOptions.length > 0 && (
         <Listbox {...getListboxProps()}>
           {groupedOptions.map((option, index) => (
             <li {...getOptionProps({ option, index })} key={index}>
@@ -190,7 +147,7 @@ export default function TagAutocomplete({
             </li>
           ))}
         </Listbox>
-      ) : null}
+      )}
     </Root>
   );
 }
