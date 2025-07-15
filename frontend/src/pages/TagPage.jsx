@@ -208,13 +208,14 @@ const TagSellItem = () => {
           lockedTag={categoryName}
           onChange={(selectedTags) => setTags(selectedTags)}
         />*/}
-
-        <TagAutocomplete
-          value={tags}
-          onChange={setTags}
-          options={tagOptions}
-          lockedTag={categoryName}
-        />
+        <div style={{ width: "100%", maxWidth: 400 }}>
+          <TagAutocomplete
+            value={tags}
+            onChange={setTags}
+            options={tagOptions}
+            lockedTag={categoryName}
+          />
+        </div>
 
         {/* Old Code
         <div

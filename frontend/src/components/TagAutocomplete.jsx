@@ -68,8 +68,9 @@ const StyledTag = styled("div")(({ theme }) => ({
 
 export default function TagAutocomplete({
   options = [],
-  lockedTag = "",
+  value = (propsValue = []),
   onChange,
+  lockedTag = "",
 }) {
   const [inputValue, setInputValue] = React.useState(""); // new
   const {
@@ -80,7 +81,7 @@ export default function TagAutocomplete({
     getListboxProps,
     getOptionProps,
     groupedOptions,
-    value,
+    value: selectedValues, // ✅ fix here
     setAnchorEl,
   } = useAutocomplete({
     id: "tag-autocomplete",
@@ -129,7 +130,7 @@ export default function TagAutocomplete({
                 e.preventDefault();
                 const newTag = inputValue.trim().toLowerCase();
 
-                const isDuplicate = value
+                const isDuplicate = propsValue
                   .map((v) => v.toLowerCase())
                   .includes(newTag);
                 const isLocked =
