@@ -17,6 +17,7 @@ const TagSellItem = () => {
   */
 
   // New Code
+  const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
