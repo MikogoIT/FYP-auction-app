@@ -246,7 +246,7 @@ export default function BidPage() {
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
-                min={auctionType === "ascending" ? minPrice : 1}
+                min={auctionType === "ascending" ? minPrice : (listing && typeof listing.min_bid === "number" ? listing.min_bid : 1)}
                 max={auctionType === "descending" ? (currentDescPrice !== null ? currentDescPrice - 0.01 : undefined) : undefined}
                 step="0.01"
                 style={{
