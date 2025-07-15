@@ -100,7 +100,7 @@ const AdminPage = () => {
 
   const toggleFreeze = async (userId) => {
     try {
-      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+      const res = await fetch(`/api/admin/freeze/${userId}`, {
         method: "PUT",
         credentials: "include", 
       });
@@ -121,7 +121,7 @@ const AdminPage = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/users/admin/delete/${userId}`, {
+      const res = await fetch(`/api/admin/delete/${userId}`, {
         method: "DELETE",
         credentials: "include", 
       });
@@ -153,8 +153,8 @@ const AdminPage = () => {
   const column = [
     // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', sortable: false }, 
-    { field: 'phone_number', headerName: 'Phone' }, 
+    { field: 'email', headerName: 'Email', width: 200 }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false }, 
     { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
       const rowId = params.id
@@ -212,7 +212,7 @@ const AdminPage = () => {
         );
       }
     },
-    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
+    {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
         width="100%"
