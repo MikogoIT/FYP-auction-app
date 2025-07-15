@@ -1,4 +1,5 @@
 import '@material/web/button/filled-button.js';
+import '@material/web/button/filled-tonal-button.js';
 import { IMG_BASE_URL } from "../global-vars.jsx";
 import { useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -99,78 +100,74 @@ export default function Landing() {
       </div>
 
       <div className="carouselWrapper">
-          <h1 className="feedbackHeading">Recent Listings</h1>
-          {loadingListings ? (
-            <Typography align="center">Loading listings…</Typography>
-          ) : recentListings.length === 0 ? (
-            <Typography align="center">No recent listings available.</Typography>
-          ) : (
-            <Swiper
-              modules={[Navigation, Pagination]}
-              navigation
-              pagination={{ clickable: true }}
-              spaceBetween={20}
-              breakpoints={{
-                320: { slidesPerView: 1 },
-                600: { slidesPerView: 2 },
-                1200: { slidesPerView: 3 },
-              }}
-              className="dashboard-swiper"
-            >
-              {recentListings.map(item => {
-                const isOwner = item.seller_id === +localStorage.getItem('userId');
-                return (
-                  <SwiperSlide key={item.id}>
-                    <div className="cardStyle">
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          className="imageStyle"
-                        />
-                      ) : (
-                        <Avatar 
-                          variant="square" 
-                          sx={{
-                            width: "100%",
-                            height: "200px",
-                            bgcolor: "#eee",
-                        }}> 
-                          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-                        </Avatar>
-                      )}
-                      <div className="detailsStyle">
-                        <h3 className='listingTitle'>
-                          {item.title}
-                        </h3>
-                        <p className='listingDesc'>
-                          {item.description}
-                        </p>
-                        
+        <h1 className="feedbackHeading">Recent Listings</h1>
+        {loadingListings ? (
+          <Typography align="center">Loading listings…</Typography>
+        ) : recentListings.length === 0 ? (
+          <Typography align="center">No recent listings available.</Typography>
+        ) : (
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              1200: { slidesPerView: 3 },
+            }}
+            className="dashboard-swiper"
+          >
+            {recentListings.map(item => {
+              const isOwner = item.seller_id === +localStorage.getItem('userId');
+              return (
+                <SwiperSlide key={item.id}>
+                  <div className="cardStyle">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="imageStyle"
+                      />
+                    ) : (
+                      <Avatar 
+                        variant="square" 
+                        className="imageStyle"
+                      > 
+                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                      </Avatar>
+                    )}
+                    <div className="detailsStyle">
+                      <div className='listingTitle'>
+                        {item.title}
                       </div>
-                      <div className="noLikeButtonStyle">
-                          {isOwner ? (
-                            <md-filled-button
-                              onClick={() => navigate(`/edit/${item.id}`)}
-                              style={{ width: "100%" }}
-                            >
-                              Edit
-                            </md-filled-button>
-                          ) : (
-                            <md-filled-button
-                              onClick={() => navigate(`/login`)}
-                              style={{ width: "100%" }}
-                            >
-                              Login to bid
-                            </md-filled-button>
-                          )}
-                        </div>
+                      <p className='listingDesc'>
+                        {item.description}
+                      </p>
                     </div>
-                  </SwiperSlide>
-                );
-              })}
-            </Swiper>
-          )}
+                    <div className="noLikeButtonStyle">
+                      {isOwner ? (
+                        <md-filled-button
+                          onClick={() => navigate(`/edit/${item.id}`)}
+                          style={{ width: "100%" }}
+                        >
+                          Edit
+                        </md-filled-button>
+                      ) : (
+                        <md-filled-tonal-button
+                          onClick={() => navigate(`/login`)}
+                          style={{ width: "100%" }}
+                        >
+                          Login to bid
+                        </md-filled-tonal-button>
+                      )}
+                    </div>
+                  </div>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        )}
       </div>
 
       <div className="squiggleDiv1">

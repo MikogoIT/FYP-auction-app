@@ -1,29 +1,58 @@
-// src/pages/Dashboard.jsx
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
 import ImageIcon from "@mui/icons-material/Image";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useTheme } from "@mui/material/styles";
+import { Box, Pagination } from "@mui/material";
 
-// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
+// Web components
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination as SwiperPagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
+
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [likedMap, setLikedMap] = useState({});
+  const [page, setPage] = useState(1);
+  
+  const ITEMS_PER_PAGE = 6;
 
-  // fetch recent listings + their images
   useEffect(() => {
+    // fetch watchlist to populate liked icons
+    (async () => {
+      try {
+        const res = await fetch("/api/watchlist/");
+        const data = await res.json();
+        if (res.ok) {
+          const map = {};
+          data.forEach(item => {
+            map[item.auction_id] = true;
+          });
+          setLikedMap(map);
+        }
+      } catch (err) {
+        console.error("Could not load watchlist: ", err);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    // fetch recent listings + their images
     (async () => {
       try {
         const res = await fetch("/api/listings/recent");
@@ -36,7 +65,6 @@ export default function Dashboard() {
               const imgRes = await fetch(
                 `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
               );
-              if (!imgRes.ok) throw new Error();
               const { imageUrl } = await imgRes.json();
               return { ...item, image_url: imageUrl };
             } catch {
@@ -54,28 +82,41 @@ export default function Dashboard() {
     })();
   }, []);
 
-  const currentUserId = +localStorage.getItem("userId");
-  const handleBid = (id) => navigate(`/bid/${id}`);
+  const currentUserId = Number(localStorage.getItem("userId"));
+  const handleToggleLike = async (id) => {
+    const isLiked = !!likedMap[id];
+    const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auction_id: id }),
+      });
+      if (!res.ok) throw new Error();
+      setLikedMap(m => ({ ...m, [id]: !isLiked }));
+    } catch (err) {
+      console.error("Error toggling watchlist: ", err);
+    }
+  };
+
+  const handleBidClick = (id) => navigate(`/bid/${id}`);
   const handleEdit = (id) => navigate(`/edit/${id}`);
 
   return (
     <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        
-
-        {/* page title */}
         <div className="profileTitle">Recent Listings</div>
 
-        {/* content */}
         {loading ? (
-          <p style={{ textAlign: "center" }}>Loading listings…</p>
+          <p className="centerText">Loading listings…</p>
         ) : recentListings.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No recent listings available.</p>
+          <p className="centerText">No recent listings available.</p>
         ) : (
           <>
             <Swiper
-              modules={[Navigation, Pagination]}
+              modules={[Navigation, SwiperPagination]}
               navigation
               pagination={{ clickable: true }}
               spaceBetween={20}
@@ -86,68 +127,85 @@ export default function Dashboard() {
               }}
               className="dashboard-swiper"
             >
-              {recentListings.map((item) => {
+              {recentListings.map(item => {
                 const isOwner = item.seller_id === currentUserId;
                 return (
                   <SwiperSlide key={item.id}>
-                    <div className="cardStyle">
+                    <div className="listingCard">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
                           alt={item.title}
-                          className="imageStyle"
+                          className="listingImage"
                         />
                       ) : (
-                        <Avatar 
-                          variant="square" 
-                          sx={{
-                            width: "100%",
-                            height: 100,
-                            bgcolor: "#eee",
-                        }}> 
-                          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                        <Avatar variant="square" className="listingImage">
+                          <ImageIcon />
                         </Avatar>
                       )}
-                      <div className="detailsStyle">
-                        <h3 style={{ margin: 0, marginBottom: 8 }}>
-                          {item.title}
-                        </h3>
-                        <p style={{ margin: "4px 0", color: "#555" }}>
-                          {item.description}
+
+                      <div className="listingDetails">
+                        <div className="listingTitle">{item.title}</div>
+                        <p className="listingDesc">{item.description}</p>
+                        <p className="listingMinBid">
+                          <strong>Min Bid:</strong> ${item.min_bid}
+                        </p>
+                        <p className="listingEndDate">
+                          <strong>Ends:</strong>{' '}
+                          {new Date(item.end_date).toLocaleString('en-SG')}
+                        </p>
+                        <p>
+                          <strong>Current Bid:</strong>{' '}
+                          {item.current_bid != null
+                            ? `$${item.current_bid}`
+                            : 'No bids yet'}
                         </p>
                       </div>
-                      <div style={{ marginTop: 16 }}>
-                          {isOwner ? (
-                            <md-filled-button
-                              onClick={() => navigate(`/edit/${item.id}`)}
-                              style={{ width: "100%" }}
-                            >
-                              Edit
-                            </md-filled-button>
+
+                      <div className="listingAction">
+                        <IconButton onClick={() => handleToggleLike(item.id)}>
+                          {likedMap[item.id] ? (
+                            <FavoriteIcon color="error" />
                           ) : (
-                            <md-filled-button
-                              onClick={() => handleBid(item.id)}
-                              style={{ width: "100%" }}
-                            >
-                              Bid
-                            </md-filled-button>
+                            <FavoriteBorderIcon />
                           )}
-                        </div>
+                        </IconButton>
+
+                        {isOwner ? (
+                          <md-filled-button
+                            onClick={() => handleEdit(item.id)}
+                            style={{
+                              flexGrow: 1,
+                              "--md-sys-color-primary": yellow,
+                              "--md-sys-color-on-primary": contrastText,
+                            }}
+                          >
+                            Edit
+                          </md-filled-button>
+                        ) : (
+                          <md-filled-button
+                            onClick={() => handleBidClick(item.id)}
+                            style={{ flexGrow: 1 }}
+                          >
+                            Bid
+                          </md-filled-button>
+                        )}
+                      </div>
                     </div>
                   </SwiperSlide>
                 );
               })}
             </Swiper>
 
-            <div style={{ textAlign: "center", marginTop: 30 }}>
-              <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
+            <Box mt={4} display="flex" justifyContent="center">
+              <md-filled-tonal-button onClick={() => navigate('/ListingPage')}>
                 View all categories
               </md-filled-tonal-button>
-            </div>
+            </Box>
           </>
         )}
       </div>
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }
