@@ -138,7 +138,7 @@ export default function ListingsResultPage() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         <BreadcrumbsNav />
-        <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="titleWithTele">
             <div>
                 {selectedCategoryName && (
                     <div>

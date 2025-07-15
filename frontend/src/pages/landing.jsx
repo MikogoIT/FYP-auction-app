@@ -131,10 +131,13 @@ export default function Landing() {
                       />
                     ) : (
                       <Avatar 
-                        variant="square" 
-                        className="imageStyle"
-                      > 
-                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            bgcolor: "#eee",
+                          }}> 
+                        <ImageIcon />
                       </Avatar>
                     )}
                     <div className="detailsStyle">

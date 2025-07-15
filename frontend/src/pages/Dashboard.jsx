@@ -139,7 +139,14 @@ export default function Dashboard() {
                           className="listingImage"
                         />
                       ) : (
-                        <Avatar variant="square" className="listingImage">
+                        <Avatar 
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            bgcolor: "#eee",
+                          }}> 
+
                           <ImageIcon />
                         </Avatar>
                       )}

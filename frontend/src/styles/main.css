@@ -505,3 +505,17 @@ background-color: #e0e0e0;
 {
   padding: 5px;
 }
+
+.titleWithTele
+{
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    font-family: "Roboto";
+    font-weight: 900;
+    font-size: 40px;
+    padding-bottom: 10px;
+}
