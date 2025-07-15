@@ -31,9 +31,7 @@ export default function Landing() {
   const [recentListings, setRecentListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
 
-  const handleGetStarted = () => {
-    navigate('/register');
-  };
+  const handleGetStarted = () => navigate('/register');
 
   useEffect(() => {
     // fetch feedback
@@ -50,7 +48,7 @@ export default function Landing() {
         const { listings } = await res.json();
 
         const enriched = await Promise.all(
-          listings.map(async (item) => {
+          listings.map(async item => {
             try {
               const imgRes = await fetch(
                 `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
@@ -90,6 +88,7 @@ export default function Landing() {
             </md-filled-button>
           </div>
         </div>
+
         <div className="block" id="landingBlock2">
           <img
             className="landing_tele"
@@ -99,10 +98,8 @@ export default function Landing() {
         </div>
       </div>
 
-      <Box sx={{ mt: 4, width: '100%' }}>
-          <Typography variant="h5" align="center" gutterBottom>
-            Recent Listings
-          </Typography>
+      <div className="carouselWrapper">
+          <h1 className="feedbackHeading">Recent Listings</h1>
           {loadingListings ? (
             <Typography align="center">Loading listings…</Typography>
           ) : recentListings.length === 0 ? (
@@ -118,47 +115,63 @@ export default function Landing() {
                 600: { slidesPerView: 2 },
                 1200: { slidesPerView: 3 },
               }}
-              className="landing-swiper"
+              className="dashboard-swiper"
             >
-              {recentListings.map((item) => (
-                <SwiperSlide key={item.id}>
-                  <Card sx={{ borderRadius: 2 }}>
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.title}
-                        style={{ width: '100%', height: 200, objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <Avatar
-                        variant="square"
-                        sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
-                      >
-                        <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
-                      </Avatar>
-                    )}
-                    <CardContent>
-                      <Typography variant="subtitle1" noWrap>
-                        {item.title}
-                      </Typography>
-                      <Typography variant="body2" noWrap>
-                        {item.description}
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <md-filled-button
-                          onClick={() => navigate(`/bid/${item.id}`)}
-                          style={{ width: '100%' }}
+              {recentListings.map(item => {
+                const isOwner = item.seller_id === +localStorage.getItem('userId');
+                return (
+                  <SwiperSlide key={item.id}>
+                    <div className="cardStyle">
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.title}
+                          className="imageStyle"
+                        />
+                      ) : (
+                        <Avatar
+                          variant="square"
+                          className="imageStyle"
                         >
-                          Bid
-                        </md-filled-button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </SwiperSlide>
-              ))}
+                          <ImageIcon />
+                        </Avatar>
+                      )}
+                      <div className="detailsStyle">
+                        <h3 style={{ margin: 0, marginBottom: 8 }}>
+                          {item.title}
+                        </h3>
+                        <p style={{ margin: '4px 0', color: '#555' }}>
+                          {item.description}
+                        </p>
+                        <div style={{ marginTop: 16 }}>
+                          {isOwner ? (
+                            <md-filled-button
+                              onClick={() => navigate(`/edit/${item.id}`)}
+                              className="buttonStyle"
+                            >
+                              Edit
+                            </md-filled-button>
+                          ) : (
+                            <md-filled-button
+                              onClick={() => navigate(`/bid/${item.id}`)}
+                              className="buttonStyle"
+                            >
+                              Bid
+                            </md-filled-button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                );
+              })}
             </Swiper>
           )}
-        </Box>
+      </div>
+
+      <div className="squiggleDiv1">
+        <Squiggle />
+      </div>
 
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
@@ -171,9 +184,7 @@ export default function Landing() {
       <Box className="gridCanvas">
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
         <div className="viewAll">
-          <Link to="/feedbacklist">
-            View all
-          </Link>
+          <Link to="/feedbacklist">View all</Link>
         </div>
         <Box className="gridContainer">
           {feedback.map(fb => (
