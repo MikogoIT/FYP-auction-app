@@ -38,7 +38,7 @@ const InputWrapper = styled("div")(({ theme }) => ({
 
 const Listbox = styled("ul")(() => ({
   width: "inherit",
-  minWidth: 0, 
+  minWidth: 0,
   margin: 0,
   padding: 0,
   position: "absolute",
@@ -88,29 +88,12 @@ export default function TagAutocomplete({
     multiple: true,
     options,
     getOptionLabel: (option) => option,
-    defaultValue: lockedTag ? [lockedTag] : [],
-    onChange: (_, selectedOptions) => {
-      const newTags = [...propsValue];
-
-      selectedOptions.forEach((selected) => {
-        const tagLower = selected.toLowerCase();
-
-        const isDuplicate = newTags.some(
-          (tag) => tag.toLowerCase() === tagLower,
-        );
-
-        const isLocked = lockedTag && tagLower === lockedTag.toLowerCase();
-
-        if (!isDuplicate && !isLocked) {
-          newTags.push(selected);
-        }
-      });
-
-      const finalTags = lockedTag
-        ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
-        : newTags;
-
-      onChange?.(finalTags);
+    defaultValue: [], // changed
+    onChange: (_, val) => {
+      const fullTags = lockedTag
+        ? [lockedTag, ...val.filter((t) => t !== lockedTag)]
+        : val;
+      onChange?.(fullTags);
     },
   });
 
@@ -127,12 +110,18 @@ export default function TagAutocomplete({
         <Label {...getInputLabelProps()}>Tags</Label>
         <InputWrapper ref={setAnchorEl}>
           {displayedValue.map((option, index) => {
-            const tagProps = getTagProps({ index });
+            const { key, onDelete, ...tagProps } = getTagProps({ index });
             const isLocked = option === lockedTag;
+
             return (
-              <StyledTag key={index}>
+              <StyledTag key={key}>
                 #{option}
-                {!isLocked && <CloseIcon {...tagProps} />}
+                {!isLocked && (
+                  <CloseIcon
+                    onClick={onDelete} // ✅ THIS FIXES THE DELETE
+                    {...tagProps}
+                  />
+                )}
               </StyledTag>
             );
           })}

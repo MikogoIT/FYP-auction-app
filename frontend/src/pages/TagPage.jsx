@@ -45,6 +45,13 @@ const TagSellItem = () => {
     */
   }, []);
 
+  // Resetting CategoryName (new)
+  useEffect(() => {
+    if (categoryName) {
+      setTags([categoryName]); // removes all other tags
+    }
+  }, [categoryName]);
+
   /* Old Code const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find(
