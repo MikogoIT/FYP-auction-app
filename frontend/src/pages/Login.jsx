@@ -26,6 +26,7 @@ export default function Login() {
     setLoading(true);
     setErrorMsg("");
     try {
+      // 1) perform login
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,9 +35,24 @@ export default function Login() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
+
+      // store token / userId
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
-      navigate("/dashboard");
+
+      // 2) fetch profile to see if admin (reusing header logic)
+      const profileRes = await fetch("/api/profile", {
+        credentials: "include",
+      });
+      const profileData = await profileRes.json();
+      const isAdmin = !!profileData.user?.is_admin;
+
+      // 3) redirect based on role
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
@@ -78,7 +94,8 @@ export default function Login() {
 
           {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
-          <input type="submit" style={{ display: 'none' }} />
+          {/* hidden native submit so md-filled-button can be type="submit" */}
+          <input type="submit" style={{ display: "none" }} />
 
           <Box sx={{ position: "relative", mt: 1 }}>
             <md-filled-button
