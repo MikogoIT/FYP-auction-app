@@ -101,6 +101,7 @@ const TagSellItem = () => {
         body: JSON.stringify({
           title,
           description,
+          tags,
           min_bid: parseFloat(minBid),
           end_date: endDate,
           category_id: categoryId,
@@ -146,6 +147,7 @@ const TagSellItem = () => {
       <h2 style={{ textAlign: "center" }}>Sell an Item</h2>
 
       <form onSubmit={handleSubmit}>
+        {/* Category */}
         <label>Category *</label>
         <select
           value={categoryId}
@@ -161,6 +163,7 @@ const TagSellItem = () => {
           ))}
         </select>
 
+        {/* Title */}    
         <label>Title *</label>
         <input
           type="text"
@@ -170,6 +173,7 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
+        {/* Description */}
         <label>Description</label>
         <textarea
           value={description}
@@ -178,6 +182,7 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
+        {/* Tag */}
         <div style={{ width: "100%", maxWidth: 400 }}>
           <TagAutocomplete
             options={tagOptions}
@@ -187,6 +192,7 @@ const TagSellItem = () => {
           />
         </div>
 
+        {/* Minimum Bid */}   
         <label>Minimum Bid (SGD) *</label>
         <input
           type="number"
@@ -197,6 +203,7 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
+        {/* Bid End Date & Time */}
         <label>End Date & Time *</label>
         <input
           type="datetime-local"
@@ -206,6 +213,7 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
+        {/* Submit Button */}
         <button
           type="submit"
           style={{

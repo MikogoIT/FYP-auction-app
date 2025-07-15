@@ -5,6 +5,7 @@ export const createListing = async (
   sellerId,
   title,
   description,
+  tags,
   min_bid,
   end_date,
   category_id,
@@ -14,11 +15,11 @@ export const createListing = async (
 ) => {
   return await sql`
     INSERT INTO auction_listings (
-      seller_id, title, description, min_bid, end_date, category_id,
+      seller_id, title, description, auction_listing_tags, min_bid, end_date, category_id,
       auction_type, start_price, discount_percentage
     )
     VALUES (
-      ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
+      ${sellerId}, ${title}, ${description}, ${tags}, ${min_bid}, ${end_date}, ${category_id},
       ${auction_type}, ${start_price}, ${discount_percentage}
     )
     RETURNING *
