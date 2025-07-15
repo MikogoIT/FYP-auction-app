@@ -100,7 +100,7 @@ const AdminPage = () => {
 
   const toggleFreeze = async (userId) => {
     try {
-      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+      const res = await fetch(`/api/admin/freeze/${userId}`, {
         method: "PUT",
         credentials: "include", 
       });
@@ -121,7 +121,7 @@ const AdminPage = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/users/admin/delete/${userId}`, {
+      const res = await fetch(`/api/admin/delete/${userId}`, {
         method: "DELETE",
         credentials: "include", 
       });
