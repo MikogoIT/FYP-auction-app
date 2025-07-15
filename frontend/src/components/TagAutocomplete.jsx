@@ -37,7 +37,8 @@ const InputWrapper = styled("div")(({ theme }) => ({
 }));
 
 const Listbox = styled("ul")(() => ({
-  width: "100%",
+  width: "inherit",
+  minWidth: 0, 
   margin: 0,
   padding: 0,
   position: "absolute",
@@ -81,28 +82,44 @@ export default function TagAutocomplete({
     getListboxProps,
     getOptionProps,
     groupedOptions,
-    value: selectedValues, // ✅ fix here
     setAnchorEl,
   } = useAutocomplete({
     id: "tag-autocomplete",
     multiple: true,
     options,
     getOptionLabel: (option) => option,
-    onChange: (_, val) => {
-      const fullTags = lockedTag
-        ? [lockedTag, ...val.filter((t) => t !== lockedTag)]
-        : val;
-      onChange?.(fullTags);
-    },
     defaultValue: lockedTag ? [lockedTag] : [],
+    onChange: (_, selectedOptions) => {
+      const newTags = [...propsValue];
+
+      selectedOptions.forEach((selected) => {
+        const tagLower = selected.toLowerCase();
+
+        const isDuplicate = newTags.some(
+          (tag) => tag.toLowerCase() === tagLower,
+        );
+
+        const isLocked = lockedTag && tagLower === lockedTag.toLowerCase();
+
+        if (!isDuplicate && !isLocked) {
+          newTags.push(selected);
+        }
+      });
+
+      const finalTags = lockedTag
+        ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
+        : newTags;
+
+      onChange?.(finalTags);
+    },
   });
 
   // Always include locked tag
   const displayedValue = React.useMemo(() => {
-  return lockedTag
-    ? [lockedTag, ...propsValue.filter((v) => v !== lockedTag)]
-    : propsValue;
-}, [propsValue, lockedTag]);
+    return lockedTag
+      ? [lockedTag, ...propsValue.filter((v) => v !== lockedTag)]
+      : propsValue;
+  }, [propsValue, lockedTag]);
 
   return (
     <Root>
@@ -136,7 +153,7 @@ export default function TagAutocomplete({
                 const isLocked =
                   lockedTag && newTag === lockedTag.toLowerCase();
 
-               if (!isDuplicate && !isLocked) {
+                if (!isDuplicate && !isLocked) {
                   const newTags = [...propsValue, newTag];
                   const finalTags = lockedTag
                     ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
