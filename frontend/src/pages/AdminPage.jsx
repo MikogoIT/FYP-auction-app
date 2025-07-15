@@ -153,8 +153,8 @@ const AdminPage = () => {
   const column = [
     // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', sortable: false }, 
-    { field: 'phone_number', headerName: 'Phone' }, 
+    { field: 'email', headerName: 'Email', width: 200 }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false }, 
     { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
       const rowId = params.id
