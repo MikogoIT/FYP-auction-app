@@ -141,7 +141,7 @@ export default function Dashboard() {
 
             <div style={{ textAlign: "center", marginTop: 30 }}>
               <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>
-                View all listings
+                View all categories
               </md-filled-tonal-button>
             </div>
           </>

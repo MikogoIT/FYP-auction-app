@@ -5,7 +5,7 @@ import { Link as RouterLink, useLocation, matchPath } from 'react-router-dom';
 
 const CRUMB_NAME_MAP = {
   '/dashboard':    'Home',
-  '/profile':      'Profile',
+  '/profile':      'My Account',
   '/sell':         'Sell Item',
   '/edit/:id':     'Edit Listing',
   '/bid/:id':      'Place Bid',
@@ -14,7 +14,7 @@ const CRUMB_NAME_MAP = {
   '/listings':     'Search Results',
   '/Watchlist':    'Liked Listings',
   '/MyBids':       'My Bids',
-  '/Contact':      'Contact Us',
+  '/Contact':      'Contact',
 };
 
 export default function BreadcrumbsNav() {
