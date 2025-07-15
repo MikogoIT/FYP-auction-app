@@ -215,9 +215,9 @@ const TagSellItem = () => {
         />*/}
         <div style={{ width: "100%", maxWidth: 400 }}>
           <TagAutocomplete
+            options={tagOptions}
             value={tags}
             onChange={setTags}
-            options={tagOptions}
             lockedTag={categoryName}
           />
         </div>

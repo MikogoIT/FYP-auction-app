@@ -6,22 +6,22 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 
-// Reuse top-level wrapper styles
 const Root = styled("div")(({ theme }) => ({ marginBottom: "1rem" }));
 const Label = styled("label")`
   padding: 0 0 4px;
   display: block;
 `;
 const InputWrapper = styled("div")(({ theme }) => ({
-  width: "100%", // Ensure it fills its container
-  maxWidth: 400, // ✅ Prevent it from stretching too far
+  width: "100%",
+  maxWidth: 400,
   border: "1px solid #d9d9d9",
   borderRadius: "4px",
   padding: "1px",
   display: "flex",
   flexWrap: "wrap",
   backgroundColor: "#fff",
-  "&.focused": {
+  /*
+    "&.focused": {
     borderColor: "#40a9ff",
     boxShadow: "0 0 0 2px rgb(24 144 255 / 0.2)",
   },
@@ -33,17 +33,19 @@ const InputWrapper = styled("div")(({ theme }) => ({
     flexGrow: 1,
     minWidth: 60, // ✅ Prevents shrinking too small
   },
+
+
+  */
 }));
 
 const Listbox = styled("ul")(() => ({
-  width: "inherit",
+  position: "absolute",
   margin: 0,
   padding: 0,
-  position: "absolute",
   listStyle: "none",
   backgroundColor: "#fff",
-  overflow: "auto",
   maxHeight: "250px",
+  overflow: "auto",
   borderRadius: "4px",
   boxShadow: "0 2px 8px rgb(0 0 0 / 0.15)",
   zIndex: 1,
@@ -52,10 +54,10 @@ const Listbox = styled("ul")(() => ({
 const StyledTag = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
-  height: "24px",
+  height: 24,
   margin: "2px",
   padding: "0 4px 0 10px",
-  border: "1px solid #e8e8e8",
+  border: `1px solid #e8e8e8`,
   borderRadius: "2px",
   backgroundColor: "#fafafa",
   "& svg": {
@@ -86,12 +88,20 @@ export default function TagAutocomplete({
     id: "tag-autocomplete",
     multiple: true,
     options,
-    value: propsValue,
     getOptionLabel: (option) => option,
+    value: propsValue,
     onChange: (_, selectedOptions) => {
-      // NOTE: Do NOT try to deduplicate or inject lockedTag here
-      // Just send raw updated list, parent handles logic
-      onChange?.(selectedOptions);
+      // Don't wipe state — merge normally
+      const merged = [...propsValue];
+
+      selectedOptions.forEach((tag) => {
+        const lower = tag.toLowerCase();
+        const isDuplicate = merged.some((t) => t.toLowerCase() === lower);
+        const isLocked = lockedTag && lower === lockedTag.toLowerCase();
+        if (!isDuplicate && !isLocked) merged.push(tag);
+      });
+
+      onChange?.(merged);
     },
   });
 
@@ -118,15 +128,17 @@ export default function TagAutocomplete({
               onKeyDown: (e) => {
                 if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
                   e.preventDefault();
-
                   const newTag = inputValue.trim().toLowerCase();
+
                   const isDuplicate = propsValue.some(
                     (t) => t.toLowerCase() === newTag
                   );
-                  const isLocked = lockedTag?.toLowerCase() === newTag;
+                  const isLocked =
+                    lockedTag && newTag === lockedTag.toLowerCase();
 
                   if (!isDuplicate && !isLocked) {
-                    onChange?.([...propsValue, newTag]);
+                    const merged = [...propsValue, newTag];
+                    onChange?.(merged);
                   }
 
                   setInputValue("");
@@ -138,6 +150,7 @@ export default function TagAutocomplete({
           />
         </InputWrapper>
       </div>
+
       {groupedOptions.length > 0 && (
         <Listbox {...getListboxProps()}>
           {groupedOptions.map((option, index) => (
