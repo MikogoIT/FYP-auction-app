@@ -94,7 +94,7 @@ export async function createBid(req, res) {
       res.status(201).json({ bid: result[0] });
 
     } else if (auctionType === "descending") {
-      // Descending auction: Notification when the lowest price is exceeded
+      // Descending auction
       const prevLowest = await sql`
         SELECT buyer_id, bid_amount FROM bids
         WHERE auction_id = ${auction_id}
@@ -103,11 +103,28 @@ export async function createBid(req, res) {
       `;
       
       const result = await insertBid(userId, auction_id, bid_amount);
-      if (prevLowest.length > 0 && parseFloat(bid_amount) < parseFloat(prevLowest[0].bid_amount) && prevLowest[0].buyer_id !== userId) {
+
+      // Auction ends immediately
+      await sql`
+        UPDATE auction_listings SET is_active = false WHERE id = ${auction_id}
+      `;
+
+      // Notify buyer of winning item
+      await insertNotification(
+        userId,
+        auction_id,
+        `🏆 You have won the item "${auctionTitle}" in the descending auction. Please pay as soon as possible.`
+      );
+
+      // Notify the seller that a buyer has completed the transaction
+      const sellerInfo = await sql`
+        SELECT seller_id FROM auction_listings WHERE id = ${auction_id}
+      `;
+      if (sellerInfo.length > 0) {
         await insertNotification(
-          prevLowest[0].buyer_id,
+          sellerInfo[0].seller_id,
           auction_id,
-          `Your bid for auction "${auctionTitle}" has been beaten by a lower bid.`
+          `Your item "${auctionTitle}" has been sold in the descending auction. Please contact the buyer.`
         );
       }
 
