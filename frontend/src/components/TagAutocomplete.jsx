@@ -108,8 +108,6 @@ export default function TagAutocomplete({
     },
   });
 
-  const inputProps = getInputProps(); // ✅ new
-
   // Always include locked tag
   const displayedValue = React.useMemo(() => {
     return lockedTag
@@ -141,35 +139,32 @@ export default function TagAutocomplete({
           {/* Old Code <input {...getInputProps()} /> */}
           {/* Custom input: allows typing and pressing Enter to add new tags */}
           <input
-            {...inputProps}
+            {...getInputProps({
+              onKeyDown: (e) => {
+                if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+                  e.preventDefault();
+                  const newTag = inputValue.trim().toLowerCase();
+
+                  const isDuplicate = propsValue.some(
+                    (t) => t.toLowerCase() === newTag,
+                  );
+                  const isLocked = lockedTag?.toLowerCase() === newTag;
+
+                  if (!isDuplicate && !isLocked) {
+                    const newTags = [...propsValue, newTag];
+                    const finalTags = lockedTag
+                      ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
+                      : newTags;
+
+                    onChange?.(finalTags);
+                  }
+
+                  setInputValue("");
+                }
+              },
+            })}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              // First, preserve MUI's behavior
-              inputProps.onKeyDown?.(e);
-
-              if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
-                e.preventDefault();
-                const newTag = inputValue.trim().toLowerCase();
-
-                const isDuplicate = propsValue
-                  .map((v) => v.toLowerCase())
-                  .includes(newTag);
-                const isLocked =
-                  lockedTag && newTag === lockedTag.toLowerCase();
-
-                if (!isDuplicate && !isLocked) {
-                  const newTags = [...propsValue, newTag];
-                  const finalTags = lockedTag
-                    ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
-                    : newTags;
-
-                  onChange?.(finalTags);
-                }
-
-                setInputValue("");
-              }
-            }}
           />
         </InputWrapper>
       </div>
