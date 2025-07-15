@@ -202,7 +202,7 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
-        <label>Tags</label>
+        {/*<label>Tags</label> */}
         <TagAutocomplete
           options={tagOptions}
           lockedTag={categoryName}
