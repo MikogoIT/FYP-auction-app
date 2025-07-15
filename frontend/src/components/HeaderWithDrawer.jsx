@@ -24,6 +24,7 @@ import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 import ListingSearchBar from './ListingSearchBar';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
@@ -121,6 +122,7 @@ export default function HeaderWithDrawer({ window }) {
             onClick={() => navigate('/sell')}
           >
             <ListItemIcon />
+            <AddOutlinedIcon />
             <ListItemText primary="Create Listings" />
           </OutlineListItemButton>
         </ListItem>
