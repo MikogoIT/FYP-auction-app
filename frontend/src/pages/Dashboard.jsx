@@ -102,7 +102,7 @@ export default function Dashboard() {
                           variant="square" 
                           sx={{
                             width: "100%",
-                            height: 200,
+                            height: 100,
                             bgcolor: "#eee",
                         }}> 
                           <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
@@ -115,11 +115,12 @@ export default function Dashboard() {
                         <p style={{ margin: "4px 0", color: "#555" }}>
                           {item.description}
                         </p>
-                        <div style={{ marginTop: 16 }}>
+                      </div>
+                      <div style={{ marginTop: 16 }}>
                           {isOwner ? (
                             <md-filled-button
-                              onClick={() => handleEdit(item.id)}
-                              style={{ width: "100%" }}
+                              onClick={() => navigate(`/edit/${item.id}`)}
+                              className="buttonStyle"
                             >
                               Edit
                             </md-filled-button>
@@ -132,7 +133,6 @@ export default function Dashboard() {
                             </md-filled-button>
                           )}
                         </div>
-                      </div>
                     </div>
                   </SwiperSlide>
                 );

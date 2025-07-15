@@ -304,6 +304,8 @@ background-color: #e0e0e0;
   flex-direction: column;
   flex-grow: 1;
   border-top: 1px solid #eee;
+  height: 100px;
+  overflow: scroll;
 }
 
 

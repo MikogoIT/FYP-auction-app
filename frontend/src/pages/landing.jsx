@@ -129,11 +129,14 @@ export default function Landing() {
                           className="imageStyle"
                         />
                       ) : (
-                        <Avatar
-                          variant="square"
-                          className="imageStyle"
-                        >
-                          <ImageIcon />
+                        <Avatar 
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 100,
+                            bgcolor: "#eee",
+                        }}> 
+                          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                         </Avatar>
                       )}
                       <div className="detailsStyle">
@@ -143,7 +146,9 @@ export default function Landing() {
                         <p style={{ margin: '4px 0', color: '#555' }}>
                           {item.description}
                         </p>
-                        <div style={{ marginTop: 16 }}>
+                        
+                      </div>
+                      <div style={{ marginTop: 16 }}>
                           {isOwner ? (
                             <md-filled-button
                               onClick={() => navigate(`/edit/${item.id}`)}
@@ -153,14 +158,13 @@ export default function Landing() {
                             </md-filled-button>
                           ) : (
                             <md-filled-button
-                              onClick={() => navigate(`/bid/${item.id}`)}
-                              className="buttonStyle"
+                              onClick={() => handleBid(item.id)}
+                              style={{ width: "100%" }}
                             >
                               Bid
                             </md-filled-button>
                           )}
                         </div>
-                      </div>
                     </div>
                   </SwiperSlide>
                 );
