@@ -220,17 +220,6 @@ export async function getAllListings(req, res) {
   }
 }
 
-// GET /listings/:id/current-desc-price
-export async function getCurrentDescPriceHandler(req, res) {
-  try {
-    const current_price = await getCurrentDescendingPrice(req.params.id);
-    res.json({ current_price });
-  } catch (err) {
-    console.error("Fetch current descending price error:", err);
-    res.status(500).json({ message: "Failed to fetch current descending price" });
-  }
-}
-
 // GET /api/listingimg?listingId=<id>
 export async function getListingImg(req, res) {
   const listingId = req.query.listingId;

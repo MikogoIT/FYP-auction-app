@@ -32,17 +32,8 @@ export default function BidPage() {
         setListing(listing);
         setAuctionType(listing.auction_type);
 
-        // If descending auction, fetch current descending price
-        if (listing.auction_type === "descending") {
-          try {
-            const descRes = await fetch(`/api/listings/${id}/current-desc-price`);
-            if (descRes.ok) {
-              const { current_price } = await descRes.json();
-              setCurrentDescPrice(current_price);
-            }
-          } catch (err) {
-            // fallback: do nothing
-          }
+        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
+          setCurrentDescPrice(listing.current_price);
         }
       } catch (err) {
         console.error(err);
