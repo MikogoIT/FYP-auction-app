@@ -101,7 +101,7 @@ export async function createBid(req, res) {
         ORDER BY bid_amount ASC, created_at ASC
         LIMIT 1
       `;
-      
+
       const result = await insertBid(userId, auction_id, bid_amount);
 
       // Auction ends immediately
@@ -116,6 +116,8 @@ export async function createBid(req, res) {
         `🏆 You have won the item "${auctionTitle}" in the descending auction. Please pay as soon as possible.`
       );
 
+      
+
       // Notify the seller that a buyer has completed the transaction
       const sellerInfo = await sql`
         SELECT seller_id FROM auction_listings WHERE id = ${auction_id}
@@ -125,6 +127,18 @@ export async function createBid(req, res) {
           sellerInfo[0].seller_id,
           auction_id,
           `Your item "${auctionTitle}" has been sold in the descending auction. Please contact the buyer.`
+        );
+
+        // Send review notifications to buyers and sellers
+        await insertNotification(
+          userId,
+          auction_id,
+          `Please fill in the review for the seller and click to enter the review page.`
+        );
+        await insertNotification(
+          sellerInfo[0].seller_id,
+          auction_id,
+          `Please fill in the review for the buyer and click to enter the review page.`
         );
       }
 
