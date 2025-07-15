@@ -90,9 +90,16 @@ export default function Landing() {
             </md-filled-button>
           </div>
         </div>
+        <div className="block" id="landingBlock2">
+          <img
+            className="landing_tele"
+            src={`${IMG_BASE_URL}wallpaper.png`}
+            alt="Telegram wireframe"
+          />
+        </div>
+      </div>
 
-        {/* Carousel placed *beneath* landingBlock1, outside of it */}
-        <Box sx={{ mt: 4, width: '100%' }}>
+      <Box sx={{ mt: 4, width: '100%' }}>
           <Typography variant="h5" align="center" gutterBottom>
             Recent Listings
           </Typography>
@@ -152,15 +159,6 @@ export default function Landing() {
             </Swiper>
           )}
         </Box>
-
-        <div className="block" id="landingBlock2">
-          <img
-            className="landing_tele"
-            src={`${IMG_BASE_URL}wallpaper.png`}
-            alt="Telegram wireframe"
-          />
-        </div>
-      </div>
 
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
