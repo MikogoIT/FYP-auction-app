@@ -155,7 +155,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', sortable: false }, 
     { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'access', headerName: 'Access', display: "flex", sortable: false, renderCell: ( params ) => {
+    { field: 'access', headerName: 'Access', display: "flex", width: 100, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
       const rowId = params.id
 
