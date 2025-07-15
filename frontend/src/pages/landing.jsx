@@ -133,17 +133,17 @@ export default function Landing() {
                           variant="square" 
                           sx={{
                             width: "100%",
-                            height: "100px",
+                            height: "200px",
                             bgcolor: "#eee",
                         }}> 
                           <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
                         </Avatar>
                       )}
                       <div className="detailsStyle">
-                        <h3 style={{ margin: 0, marginBottom: 8 }}>
+                        <h3 className='listingTitle'>
                           {item.title}
                         </h3>
-                        <p style={{ margin: '4px 0', color: '#555' }}>
+                        <p className='listingDesc'>
                           {item.description}
                         </p>
                         
@@ -158,10 +158,10 @@ export default function Landing() {
                             </md-filled-button>
                           ) : (
                             <md-filled-button
-                              onClick={() => handleBid(item.id)}
+                              onClick={() => navigate(`/login`)}
                               style={{ width: "100%" }}
                             >
-                              Bid
+                              Login to bid
                             </md-filled-button>
                           )}
                         </div>
