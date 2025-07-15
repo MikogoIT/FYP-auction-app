@@ -89,71 +89,69 @@ export default function Landing() {
               Get Started
             </md-filled-button>
           </div>
-
-          {/* Recent Listings Carousel */}
-          <Box sx={{ mt: 4 }}>
-            <Typography variant="h5" gutterBottom>
-              Recent Listings
-            </Typography>
-
-            {loadingListings ? (
-              <Typography>Loading listings…</Typography>
-            ) : recentListings.length === 0 ? (
-              <Typography>No recent listings available.</Typography>
-            ) : (
-              <Swiper
-                modules={[Navigation, Pagination]}
-                navigation
-                pagination={{ clickable: true }}
-                spaceBetween={20}
-                breakpoints={{
-                  320: { slidesPerView: 1 },
-                  600: { slidesPerView: 2 },
-                  1200: { slidesPerView: 3 },
-                }}
-                className="landing-swiper"
-              >
-                {recentListings.map((item) => (
-                  <SwiperSlide key={item.id}>
-                    <Card sx={{ borderRadius: 2 }}>
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          style={{ width: '100%', height: 200, objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <Avatar
-                          variant="square"
-                          sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
-                        >
-                          <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
-                        </Avatar>
-                      )}
-                      <CardContent>
-                        <Typography variant="subtitle1" noWrap>
-                          {item.title}
-                        </Typography>
-                        <Typography variant="body2" noWrap>
-                          {item.description}
-                        </Typography>
-                        <Box sx={{ mt: 1 }}>
-                          <md-filled-button
-                            onClick={() => navigate(`/bid/${item.id}`)}
-                            style={{ width: '100%' }}
-                          >
-                            Bid
-                          </md-filled-button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )}
-          </Box>
-
         </div>
+
+        {/* Carousel placed *beneath* landingBlock1, outside of it */}
+        <Box sx={{ mt: 4, width: '100%' }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            Recent Listings
+          </Typography>
+          {loadingListings ? (
+            <Typography align="center">Loading listings…</Typography>
+          ) : recentListings.length === 0 ? (
+            <Typography align="center">No recent listings available.</Typography>
+          ) : (
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={20}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                600: { slidesPerView: 2 },
+                1200: { slidesPerView: 3 },
+              }}
+              className="landing-swiper"
+            >
+              {recentListings.map((item) => (
+                <SwiperSlide key={item.id}>
+                  <Card sx={{ borderRadius: 2 }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        style={{ width: '100%', height: 200, objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <Avatar
+                        variant="square"
+                        sx={{ width: '100%', height: 200, bgcolor: '#eee' }}
+                      >
+                        <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
+                      </Avatar>
+                    )}
+                    <CardContent>
+                      <Typography variant="subtitle1" noWrap>
+                        {item.title}
+                      </Typography>
+                      <Typography variant="body2" noWrap>
+                        {item.description}
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <md-filled-button
+                          onClick={() => navigate(`/bid/${item.id}`)}
+                          style={{ width: '100%' }}
+                        >
+                          Bid
+                        </md-filled-button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </Box>
 
         <div className="block" id="landingBlock2">
           <img
