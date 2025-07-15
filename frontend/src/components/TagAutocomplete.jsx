@@ -5,7 +5,6 @@ import useAutocomplete from "@mui/material/useAutocomplete";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
-import { autocompleteClasses } from "@mui/material/Autocomplete";
 
 // Reuse top-level wrapper styles
 const Root = styled("div")(({ theme }) => ({ marginBottom: "1rem" }));
@@ -69,11 +68,12 @@ const StyledTag = styled("div")(({ theme }) => ({
 
 export default function TagAutocomplete({
   options = [],
-  value: propsValue = [], // ✅ CORRECT ✅
+  value: propsValue = [], // ✅ new
   onChange,
   lockedTag = "",
 }) {
-  const [inputValue, setInputValue] = React.useState(""); // new
+  const [inputValue, setInputValue] = React.useState(""); // ✅ new
+  const inputProps = getInputProps();
   const {
     getRootProps,
     getInputLabelProps,
@@ -140,11 +140,14 @@ export default function TagAutocomplete({
           {/* Old Code <input {...getInputProps()} /> */}
           {/* Custom input: allows typing and pressing Enter to add new tags */}
           <input
-            {...getInputProps()}
+            {...inputProps}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && inputValue.trim()) {
+              // First, preserve MUI's behavior
+              inputProps.onKeyDown?.(e);
+
+              if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
                 e.preventDefault();
                 const newTag = inputValue.trim().toLowerCase();
 
