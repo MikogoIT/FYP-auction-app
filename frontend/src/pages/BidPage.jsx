@@ -75,7 +75,7 @@ export default function BidPage() {
       }
     } else if (auctionType === "descending") {
       if (amount >= minPrice) {
-        setMessage(`❌ Your bid must be lower than $${minPrice.toFixed(2)}`);
+        setMessage(`❌ Your bid must be lower than $${listing.curent_pirce.toFixed(2)}`);
         return;
       }
       if (amount < 1) {
@@ -247,7 +247,7 @@ export default function BidPage() {
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
                 min={auctionType === "ascending" ? minPrice : (listing && typeof listing.min_bid === "number" ? listing.min_bid : 1)}
-                max={auctionType === "descending" ? (currentDescPrice !== null ? currentDescPrice - 0.01 : undefined) : undefined}
+                max={auctionType === "descending" ? (currentDescPrice !== null ? currentDescPrice : undefined) : undefined}
                 step="0.01"
                 style={{
                   width: "100%",
