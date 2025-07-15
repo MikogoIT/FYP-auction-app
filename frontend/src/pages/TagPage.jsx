@@ -11,13 +11,7 @@ const TagSellItem = () => {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  /*
-  const [categoryId, setCategoryId] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
-  */
 
-  // New Code
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
@@ -45,33 +39,22 @@ const TagSellItem = () => {
     */
   }, []);
 
-  // Resetting CategoryName (new)
+  // Resetting Tags with Change of New Category
   useEffect(() => {
     if (categoryName && !tags.includes(categoryName)) {
       setTags([categoryName]);
+      console.log("Category changed →", categoryName);
     }
   }, [categoryName]);
 
-  /* Old Code const handleCategoryChange = (e) => {
-    const selectedId = e.target.value;
-    const selectedCategory = categories.find(
-      (cat) => cat.id === parseInt(selectedId),
-    );
+  // Console Log Tag (Debug)
+  useEffect(() => {
+  if (tags.length) {
+    console.log("🔁 Tags Updated →", tags);
+  }
+  }, [tags]);
 
-    setCategoryId(selectedId);
 
-    if (!selectedCategory) return;
-
-    // Replace locked tag with category name
-    setTags((prevTags) => {
-      const unlockedTags = prevTags.filter((tag) => !tag.locked);
-      const newLockedTag = { name: selectedCategory.name, locked: true };
-      return [newLockedTag, ...unlockedTags];
-    });
-  };
-  */
-
-  // New Code
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find((c) => c.id == selectedId);
@@ -177,20 +160,6 @@ const TagSellItem = () => {
             </option>
           ))}
         </select>
-        {/* Old Code
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        >
-          <option value="">-- Select a category --</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-
-        */}
 
         <label>Title *</label>
         <input
@@ -209,12 +178,6 @@ const TagSellItem = () => {
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
-        {/*<label>Tags</label> 
-        <TagAutocomplete
-          options={tagOptions}
-          lockedTag={categoryName}
-          onChange={(selectedTags) => setTags(selectedTags)}
-        />*/}
         <div style={{ width: "100%", maxWidth: 400 }}>
           <TagAutocomplete
             options={tagOptions}
