@@ -206,7 +206,7 @@ export default function BidPage() {
                 }}
               >
                 Starting bid:&nbsp;
-                <strong>${Number(listing.min_bid).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(listing.min_bid).toFixed(2)}</strong>
               </Typography>
 
               <Typography
@@ -224,7 +224,7 @@ export default function BidPage() {
                 }}
               >
                 Current bid:&nbsp;
-                <strong>${Number(minPrice).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(minPrice).toFixed(2)}</strong>
               </Typography>
             </div>
           </div>
