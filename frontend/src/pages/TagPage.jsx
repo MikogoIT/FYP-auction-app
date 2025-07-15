@@ -10,18 +10,40 @@ const TagSellItem = () => {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  /*
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
+  */
+
+  // New Code
+  const [categoryId, setCategoryId] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
+  const [tagOptions, setTagOptions] = useState([
+    "leather",
+    "running",
+    "casual",
+    "formal",
+    "vintage",
+    "limited edition",
+  ]);
 
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data.categories || []))
       .catch((err) => console.error("Failed to load categories:", err));
+
+    /* Not used yet
+    fetch("/api/tags")
+      .then((res) => res.json())
+      .then((data) => setTagOptions(data.tags.map((t) => t.name)))
+      .catch(console.error);
+    */
   }, []);
 
-  const handleCategoryChange = (e) => {
+  /* Old Code const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find(
       (cat) => cat.id === parseInt(selectedId),
@@ -37,6 +59,15 @@ const TagSellItem = () => {
       const newLockedTag = { name: selectedCategory.name, locked: true };
       return [newLockedTag, ...unlockedTags];
     });
+  };
+  */
+
+  // New Code
+  const handleCategoryChange = (e) => {
+    const selectedId = e.target.value;
+    const selectedCategory = categories.find((c) => c.id == selectedId);
+    setCategoryId(selectedId);
+    setCategoryName(selectedCategory?.name || "");
   };
 
   const navigate = useNavigate();
@@ -170,6 +201,13 @@ const TagSellItem = () => {
         />
 
         <label>Tags</label>
+        <TagAutocomplete
+          options={tagOptions}
+          lockedTag={categoryName}
+          onChange={(selectedTags) => setTags(selectedTags)}
+        />
+
+        {/* Old Code
         <div
           style={{
             display: "flex",
@@ -207,6 +245,7 @@ const TagSellItem = () => {
             </span>
           ))}
         </div>
+        */}
 
         <label>Minimum Bid (SGD) *</label>
         <input

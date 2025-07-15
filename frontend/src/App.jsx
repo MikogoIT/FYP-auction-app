@@ -33,6 +33,7 @@ import Notif from "./pages/Notif";
 import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
 {/* Testing Tags*/}
 import TagSellItem from "./pages/TagPage";
+import TagAutocomplete from "./components/TagAutocomplete";
 
 // components
 import Header from "./components/Header";                     // no-drawer
@@ -73,7 +74,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/MyBids" element={<MyBids />} />
             <Route path="/Contact" element={<ContactPage />} />
             <Route path="/Watchlist" element={<WatchedListings />} />
-            <Route path="/feedback" element={<FeedbackForm />} />
+            {/* <Route path="/feedback" element={<FeedbackForm />} /> */}
             <Route path="/feedbacklist" element={<FeedbackList />} />
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
