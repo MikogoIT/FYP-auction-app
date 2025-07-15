@@ -9,7 +9,10 @@ import { autocompleteClasses } from "@mui/material/Autocomplete";
 
 // Reuse top-level wrapper styles
 const Root = styled("div")(({ theme }) => ({ marginBottom: "1rem" }));
-const Label = styled("label")`padding: 0 0 4px; display: block;`;
+const Label = styled("label")`
+  padding: 0 0 4px;
+  display: block;
+`;
 const InputWrapper = styled("div")(({ theme }) => ({
   border: "1px solid #d9d9d9",
   borderRadius: "4px",
@@ -60,7 +63,12 @@ const StyledTag = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function TagAutocomplete({ options = [], lockedTag = "", onChange }) {
+export default function TagAutocomplete({
+  options = [],
+  lockedTag = "",
+  onChange,
+}) {
+  const [inputValue, setInputValue] = React.useState(""); // new
   const {
     getRootProps,
     getInputLabelProps,
@@ -77,7 +85,9 @@ export default function TagAutocomplete({ options = [], lockedTag = "", onChange
     options,
     getOptionLabel: (option) => option,
     onChange: (_, val) => {
-      const fullTags = lockedTag ? [lockedTag, ...val.filter((t) => t !== lockedTag)] : val;
+      const fullTags = lockedTag
+        ? [lockedTag, ...val.filter((t) => t !== lockedTag)]
+        : val;
       onChange?.(fullTags);
     },
     defaultValue: lockedTag ? [lockedTag] : [],
@@ -105,7 +115,36 @@ export default function TagAutocomplete({ options = [], lockedTag = "", onChange
               </StyledTag>
             );
           })}
-          <input {...getInputProps()} />
+          {/* Old Code <input {...getInputProps()} /> */}
+          {/* Custom input: allows typing and pressing Enter to add new tags */}
+          <input
+            {...getInputProps()}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && inputValue.trim()) {
+                e.preventDefault();
+                const newTag = inputValue.trim().toLowerCase();
+
+                const isDuplicate = value
+                  .map((v) => v.toLowerCase())
+                  .includes(newTag);
+                const isLocked =
+                  lockedTag && newTag === lockedTag.toLowerCase();
+
+                if (!isDuplicate && !isLocked) {
+                  const newTags = [...value, newTag];
+                  const finalTags = lockedTag
+                    ? [lockedTag, ...newTags.filter((t) => t !== lockedTag)]
+                    : newTags;
+
+                  onChange?.(finalTags);
+                }
+
+                setInputValue("");
+              }
+            }}
+          />
         </InputWrapper>
       </div>
       {groupedOptions.length > 0 ? (
