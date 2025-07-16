@@ -94,7 +94,7 @@ const TagSellItem = () => {
       return;
     }
 
-    console.log("tags being inserted:", tags);
+    console.log("Tags being inserted:", tags);
 
     try {
       // 1. Create the listing first
