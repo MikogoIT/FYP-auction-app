@@ -138,10 +138,6 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
-
-  const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
-  const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
-
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
@@ -159,7 +155,7 @@ const AdminPage = () => {
       const frozen = params.is_frozen
       const rowId = params.id
 
-      const [alignment, setAlignment] = React.useState(params.is_frozen);
+      const [alignment, setAlignment] = React.useState(frozen ? "yes" : "no");
 
       const handleToggle = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -174,12 +170,12 @@ const AdminPage = () => {
             onChange={handleToggle}
           >
             <ToggleButton
-              value={true}
+              value="yes"
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value={false}
+            value="no"
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
@@ -239,20 +235,6 @@ const AdminPage = () => {
     },
   },
 
-/*
-  {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
-    const onClick = (e) => {
-      const currentRow = params.row;
-      return alert(JSON.stringify(currentRow, null, 4));
-    };
-
-    return(
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" sx={{ backgroundColor: red[500], color: "#ffffff" }}>Delete</Button>
-      </Stack>
-    );
-  }}
-*/
 ]
 
 
