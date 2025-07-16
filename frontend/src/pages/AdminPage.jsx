@@ -172,13 +172,11 @@ const AdminPage = () => {
           >
             <ToggleButton
               value="frozen"
-              selected={frozen}
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
             value="active"
-            selected={!frozen}
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
