@@ -2,23 +2,29 @@
 import { sql } from "../utils/db.js";
 
 export async function insertTagsToAuction(auctionId, tags) {
-  for (const tagName of tags) {
-    // 1. Add tag to tags table (ignore if exists)
+  for (const rawTag of tags) {
+    if (typeof rawTag !== "string") continue;
+
+    const tagName = rawTag.trim().toLowerCase();
+    if (!tagName) continue;
+
+    // Insert tag or ignore if it exists
     await sql`
       INSERT INTO tags (name) VALUES (${tagName})
       ON CONFLICT (name) DO NOTHING;
     `;
 
-    // 2. Get the tag ID
-    const result = await sql`
+    const tagResult = await sql`
       SELECT id FROM tags WHERE name = ${tagName};
     `;
-    if (!result.length) {
-      throw new Error(`Tag ${tagName} could not be found or inserted`);
-    }
-    const tagId = result[0].id;
 
-    // 3. Link auction_id <-> tag_id
+    if (!tagResult.length) {
+      throw new Error(`Tag "${tagName}" could not be found or inserted`);
+    }
+
+    const tagId = tagResult[0].id;
+
+    // Link tag to listing
     await sql`
       INSERT INTO auction_listing_tags (auction_id, tag_id)
       VALUES (${auctionId}, ${tagId})
