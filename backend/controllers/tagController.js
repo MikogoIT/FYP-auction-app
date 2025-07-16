@@ -24,3 +24,15 @@ export async function insertTagsWithListing(req, res) {
     res.status(500).json({ message: "Server error while inserting tags." });
   }
 }
+
+// GET /tag
+export async function getAllTags(req, res) {
+  try {
+    const result = await sql`SELECT name FROM tags ORDER BY name ASC`;
+    const tags = result.map(row => row.name); // return as flat array of strings
+    res.json({ tags });
+  } catch (err) {
+    console.error("Failed to fetch tags:", err);
+    res.status(500).json({ message: "Failed to fetch tags" });
+  }
+}

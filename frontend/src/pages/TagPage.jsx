@@ -16,28 +16,25 @@ const TagSellItem = () => {
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
-  const [tagOptions, setTagOptions] = useState([
-    "leather",
-    "running",
-    "casual",
-    "formal",
-    "vintage",
-    "limited edition",
-  ]);
+  const [tagOptions, setTagOptions] = useState();
+  const tagNames = tags.map((tag) => typeof tag === "string" ? tag : tag.name);
 
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []))
-      .catch((err) => console.error("Failed to load categories:", err));
+useEffect(() => {
+  fetch("/api/categories")
+    .then((res) => res.json())
+    .then((data) => setCategories(data.categories || []))
+    .catch((err) => console.error("Failed to load categories:", err));
 
-    /* Not used yet
-    fetch("/api/tags")
-      .then((res) => res.json())
-      .then((data) => setTagOptions(data.tags.map((t) => t.name)))
-      .catch(console.error);
-    */
-  }, []);
+  fetch("/api/tag")
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data.tags)) {
+        setTagOptions(data.tags); // ✅ Flat string array
+      }
+    })
+    .catch((err) => console.error("Failed to load tag options:", err));
+
+}, []);
 
   // Resetting Tags with Change of New Category
   useEffect(() => {
@@ -54,7 +51,7 @@ const TagSellItem = () => {
   }
   }, [tags]);
 
-
+  // Category Change 
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find((c) => c.id == selectedId);
@@ -101,7 +98,7 @@ const TagSellItem = () => {
         body: JSON.stringify({
           title,
           description,
-          tags,
+          tags: tagNames,
           min_bid: parseFloat(minBid),
           end_date: endDate,
           category_id: categoryId,
@@ -185,7 +182,7 @@ const TagSellItem = () => {
         {/* Tag */}
         <div style={{ width: "100%", maxWidth: 400 }}>
           <TagAutocomplete
-            options={tagOptions}
+            options={tagOptions} // e.g. ["leather", "vintage", "shoes"]
             value={tags}
             onChange={setTags}
             lockedTag={categoryName}
