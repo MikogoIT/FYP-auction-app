@@ -24,10 +24,6 @@ async function notifyAuctionWinners() {
         const content = `🏆 You have won the item "${title}", please pay as soon as possible.`;
         await insertNotification(highestBidder.buyer_id, auctionId, content);
 
-        // Sets auction_listings status to False once Bid Won
-        await sql`
-        UPDATE auction_listings SET is_active = false WHERE id = ${auctionId}
-        `;
 
         // Send review notification to buyers
         await insertNotification(
