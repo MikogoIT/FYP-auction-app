@@ -11,6 +11,8 @@ const TagSellItem = () => {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
 
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
@@ -64,8 +66,11 @@ const TagSellItem = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;   // Prevent further execution if already submitting
+    setSubmitting(true);      // Set to true right away
     setError("");
     setSuccess("");
+    
 
     const token = localStorage.getItem("token");
 
@@ -136,6 +141,8 @@ const TagSellItem = () => {
     } catch (err) {
       console.error("Submit error:", err);
       setError("" + err.message);
+    } finally{
+      setSubmitting(false);  // Allow future submissions if the user stays
     }
   };
 
@@ -242,9 +249,11 @@ const TagSellItem = () => {
             color: "white",
             border: "none",
             borderRadius: "4px",
+            cursor: submitting ? "not-allowed" : "pointer"
           }}
         >
           List Item
+          {submitting ? "Listing..." : "List Item"}
         </button>
 
         {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
