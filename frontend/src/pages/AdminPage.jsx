@@ -173,12 +173,12 @@ const AdminPage = () => {
             onChange={handleToggle}
           >
             <ToggleButton
-              value={true}
+              value={frozen}
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value={false}
+            value={!frozen}
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
