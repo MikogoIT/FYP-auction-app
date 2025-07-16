@@ -138,10 +138,6 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
-
-  const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
-  const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
-
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
@@ -156,59 +152,34 @@ const AdminPage = () => {
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
     { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      const frozen = params.is_frozen
+      let frozen = params.is_frozen
       const rowId = params.id
 
-      const handleToggle = (event, newActiveState) => {
-        if (newActiveState === null)
-        {
-          return;
-        }
-        toggleFreeze(rowId)
-        params.api.updateRows([{id: rowId, frozen: newActiveState}])
+      const [alignment, setAlignment] = React.useState(frozen ? "yes" : "no");
 
+      const handleToggle = (event, newAlignment) => {
+        if (newAlignment !== null) {
+        toggleFreeze(rowId);
+        setAlignment(newAlignment);
+        }
       };
         return (
           <ToggleButtonGroup
-            value={frozen ? "frozen" : "active"}
+            value={alignment}
             exclusive
             onChange={handleToggle}
           >
             <ToggleButton
-              value="frozen"
-              selected={frozen}
+              value="yes"
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value="active"
-            selected={!frozen}
+            value="no"
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
           </ToggleButtonGroup>
-          /*
-          <Box
-            width="60%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              is_frozen
-              ? "#ff0000"
-              : "#008000"
-            }
-            borderRadius="4px"
-            color="#ffffff"
-          >
-            {is_frozen && <AcUnitOutlinedIcon />}
-            {!is_frozen && <ThumbUpOutlinedIcon />}
-            <Typography sx={{ ml: "5px" }}>
-              {is_frozen}
-            </Typography>
-          </Box>
-          */
         );
       }
     },
@@ -264,20 +235,6 @@ const AdminPage = () => {
     },
   },
 
-/*
-  {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
-    const onClick = (e) => {
-      const currentRow = params.row;
-      return alert(JSON.stringify(currentRow, null, 4));
-    };
-
-    return(
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" sx={{ backgroundColor: red[500], color: "#ffffff" }}>Delete</Button>
-      </Stack>
-    );
-  }}
-*/
 ]
 
 
@@ -320,6 +277,7 @@ const AdminPage = () => {
             color: "#000000",
           }}
           width="100%"
+          disableRowSelectionOnClick
           loading={loading}
           showToolbar
         />
