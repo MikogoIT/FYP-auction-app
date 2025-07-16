@@ -33,13 +33,11 @@ export default function Notif() {
     },
     {
       field: "createdAt",
-      headerName: "Received",
-      width: 180,
+      headerName: "Date",
     },
     {
       field: "action",
       headerName: "Action",
-      width: 120,
       sortable: false,
       renderCell: (params) => (
         <IconButton
@@ -96,7 +94,7 @@ export default function Notif() {
           Notifications
         </div>
 
-        <div >
+        <div style={{ width: "100%" }}>
           <DataGrid
             rows={rows}
             columns={columns}
