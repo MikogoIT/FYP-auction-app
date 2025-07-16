@@ -24,6 +24,7 @@ import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 import ListingSearchBar from './ListingSearchBar';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
@@ -115,6 +116,15 @@ export default function HeaderWithDrawer({ window }) {
 
       {/* Group 2 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/sell'}
+            onClick={() => navigate('/sell')}
+          >
+            <ListItemIcon><AddOutlinedIcon /></ListItemIcon>
+            <ListItemText primary="Create Listings" />
+          </OutlineListItemButton>
+        </ListItem>
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/Watchlist'}

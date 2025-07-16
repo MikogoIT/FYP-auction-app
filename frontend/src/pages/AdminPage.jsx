@@ -18,6 +18,8 @@ import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { red } from "@mui/material/colors";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -98,7 +100,7 @@ const AdminPage = () => {
 
   const toggleFreeze = async (userId) => {
     try {
-      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+      const res = await fetch(`/api/admin/freeze/${userId}`, {
         method: "PUT",
         credentials: "include", 
       });
@@ -119,7 +121,7 @@ const AdminPage = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/users/admin/delete/${userId}`, {
+      const res = await fetch(`/api/admin/delete/${userId}`, {
         method: "DELETE",
         credentials: "include", 
       });
@@ -151,10 +153,41 @@ const AdminPage = () => {
   const column = [
     // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', sortable: false }, 
-    { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'Access', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
+    { field: 'email', headerName: 'Email', width: 200 }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false }, 
+    { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
+      const frozen = params.is_frozen
+      const rowId = params.id
+
+      const handleToggle = (event, newActiveState) => {
+        if (newActiveState === null)
+        {
+          return;
+        }
+        toggleFreeze(rowId)
+        params.api.updateRows([{id: rowId, frozen: newActiveState}])
+
+      };
         return (
+          <ToggleButtonGroup
+            value={frozen ? "frozen" : "active"}
+            exclusive
+            onChange={handleToggle}
+          >
+            <ToggleButton
+              value="frozen"
+              selected={frozen}
+            >
+              <AcUnitOutlinedIcon />
+            </ToggleButton>
+            <ToggleButton
+            value="active"
+            selected={!frozen}
+            >
+              <ThumbUpOutlinedIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+          /*
           <Box
             width="60%"
             m="0 auto"
@@ -175,10 +208,11 @@ const AdminPage = () => {
               {is_frozen}
             </Typography>
           </Box>
+          */
         );
       }
     },
-    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
+    {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
         width="100%"

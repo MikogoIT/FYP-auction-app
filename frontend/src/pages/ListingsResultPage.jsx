@@ -138,7 +138,7 @@ export default function ListingsResultPage() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         <BreadcrumbsNav />
-        <div id="wideTitle" className="profileTitle" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="titleWithTele">
             <div>
                 {selectedCategoryName && (
                     <div>
@@ -188,7 +188,7 @@ export default function ListingsResultPage() {
                   )}
 
                   <div className="listingDetails">
-                    <h3 className="listingTitle">{item.title}</h3>
+                    <div className="listingTitle">{item.title}</div>
                     <p className="listingDesc">{item.description}</p>
                     <p className="listingMinBid">
                       <strong>Min Bid:</strong> ${item.min_bid}

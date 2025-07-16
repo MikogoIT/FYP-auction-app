@@ -286,7 +286,7 @@ background-color: #e0e0e0;
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #f1f0f0;
   display: flex;
   flex-direction: column;
 }
@@ -304,6 +304,8 @@ background-color: #e0e0e0;
   flex-direction: column;
   flex-grow: 1;
   border-top: 1px solid #eee;
+  height: 100px;
+  overflow-y: scroll;
 }
 
 
@@ -354,6 +356,8 @@ background-color: #e0e0e0;
 
 .listingTitle {
   margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 
@@ -495,4 +499,28 @@ background-color: #e0e0e0;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
+}
+
+.noLikeButtonStyle
+{
+  padding: 5px;
+}
+
+.titleWithTele
+{
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    font-family: "Roboto";
+    font-weight: 900;
+    font-size: 40px;
+    padding-bottom: 10px;
+}
+
+.carouselWrapper
+{
+  width: 100%;
 }

@@ -1,4 +1,5 @@
 import '@material/web/button/filled-button.js';
+import '@material/web/button/filled-tonal-button.js';
 import { IMG_BASE_URL } from "../global-vars.jsx";
 import { useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -14,21 +15,61 @@ import {
   CardContent,
   Avatar,
   Rating,
+  Typography,
 } from '@mui/material';
+
+// Swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import ImageIcon from '@mui/icons-material/Image';
 
 export default function Landing() {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState([]);
+  const [recentListings, setRecentListings] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
 
-  const handleGetStarted = () => {
-    navigate('/register');
-  };
+  const handleGetStarted = () => navigate('/register');
 
   useEffect(() => {
+    // fetch feedback
     fetch('/api/feedback/recent')
       .then(res => res.json())
       .then(data => setFeedback(data.feedback || []))
       .catch(err => console.error('Failed to load feedback:', err));
+
+    // fetch recent listings + images
+    (async () => {
+      try {
+        const res = await fetch('/api/listings/recent');
+        if (!res.ok) throw new Error('Failed to fetch listings');
+        const { listings } = await res.json();
+
+        const enriched = await Promise.all(
+          listings.map(async item => {
+            try {
+              const imgRes = await fetch(
+                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+              );
+              if (!imgRes.ok) throw new Error();
+              const { imageUrl } = await imgRes.json();
+              return { ...item, image_url: imageUrl };
+            } catch {
+              return { ...item, image_url: null };
+            }
+          })
+        );
+
+        setRecentListings(enriched);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingListings(false);
+      }
+    })();
   }, []);
 
   return (
@@ -58,6 +99,84 @@ export default function Landing() {
         </div>
       </div>
 
+      <div className="carouselWrapper">
+        <h1 className="feedbackHeading">Recent Listings</h1>
+        {loadingListings ? (
+          <Typography align="center">Loading listings…</Typography>
+        ) : recentListings.length === 0 ? (
+          <Typography align="center">No recent listings available.</Typography>
+        ) : (
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              1200: { slidesPerView: 3 },
+            }}
+            className="dashboard-swiper"
+          >
+            {recentListings.map(item => {
+              const isOwner = item.seller_id === +localStorage.getItem('userId');
+              return (
+                <SwiperSlide key={item.id}>
+                  <div className="cardStyle">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="imageStyle"
+                      />
+                    ) : (
+                      <Avatar 
+                          variant="square" 
+                          sx={{
+                            width: "100%",
+                            height: 200,
+                            bgcolor: "#eee",
+                          }}> 
+                        <ImageIcon />
+                      </Avatar>
+                    )}
+                    <div className="detailsStyle">
+                      <div className='listingTitle'>
+                        {item.title}
+                      </div>
+                      <p className='listingDesc'>
+                        {item.description}
+                      </p>
+                    </div>
+                    <div className="noLikeButtonStyle">
+                      {isOwner ? (
+                        <md-filled-button
+                          onClick={() => navigate(`/edit/${item.id}`)}
+                          style={{ width: "100%" }}
+                        >
+                          Edit
+                        </md-filled-button>
+                      ) : (
+                        <md-filled-tonal-button
+                          onClick={() => navigate(`/login`)}
+                          style={{ width: "100%" }}
+                        >
+                          Login to bid
+                        </md-filled-tonal-button>
+                      )}
+                    </div>
+                  </div>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        )}
+      </div>
+
+      <div className="squiggleDiv1">
+        <Squiggle />
+      </div>
+
       <div className="landingMD">
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
@@ -69,48 +188,45 @@ export default function Landing() {
       <Box className="gridCanvas">
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
         <div className="viewAll">
-          <Link to="/feedbacklist" >
-            View all
-          </Link>
+          <Link to="/feedbacklist">View all</Link>
         </div>
         <Box className="gridContainer">
-            {feedback.map(fb => (
-              <Grid item xs={12} sm={6} md={3} key={fb.id}>
-                <Card
-                  elevation={2}
-                  sx={{
-                    borderRadius: '12px',
-                    boxSizing: 'border-box',
-                    width: 300,
-                    height: 200,
-                    p: 2,
-                    mx: 'auto',
-                    '& .MuiCardHeader-root, & .MuiCardContent-root': {
-                      p: '4px',
-                    },
-                  }}
-                >
-                  <CardHeader
-                    avatar={<Avatar src={fb.profile_image_url} />}
-                    title={fb.username}
-                    subheader={new Date(fb.created_at).toLocaleDateString()}
-                  />
-                  <CardContent>
-                    <Rating value={fb.website_ratings} readOnly />
-                    <p className="feedbackComment" >
-                      {fb.website_comments}
-                    </p>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+          {feedback.map(fb => (
+            <Grid item xs={12} sm={6} md={3} key={fb.id}>
+              <Card
+                elevation={2}
+                sx={{
+                  borderRadius: '12px',
+                  boxSizing: 'border-box',
+                  width: 300,
+                  height: 200,
+                  p: 2,
+                  mx: 'auto',
+                  '& .MuiCardHeader-root, & .MuiCardContent-root': {
+                    p: '4px',
+                  },
+                }}
+              >
+                <CardHeader
+                  avatar={<Avatar src={fb.profile_image_url} />}
+                  title={fb.username}
+                  subheader={new Date(fb.created_at).toLocaleDateString()}
+                />
+                <CardContent>
+                  <Rating value={fb.website_ratings} readOnly />
+                  <p className="feedbackComment">
+                    {fb.website_comments}
+                  </p>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
 
-            {feedback.length === 0 && (
-              <Grid item xs={12}>
-                <p className="noFeedback">No feedback available yet.</p>
-              </Grid>
-            )}
-          
+          {feedback.length === 0 && (
+            <Grid item xs={12}>
+              <p className="noFeedback">No feedback available yet.</p>
+            </Grid>
+          )}
         </Box>
       </Box>
     </div>
