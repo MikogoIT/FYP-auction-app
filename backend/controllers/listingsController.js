@@ -40,7 +40,6 @@ export async function postListing(req, res) {
   const {
     title,
     description,
-    tags = [],
     min_bid,
     end_date,
     category_id,
@@ -71,7 +70,6 @@ export async function postListing(req, res) {
       userId,
       title,
       description,
-      tags,
       min_bid,
       end_date,
       category_id,

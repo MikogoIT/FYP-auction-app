@@ -17,6 +17,7 @@ import telegramRoutes from "./routes/telegramRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js"
 import watchlistRoutes from "./routes/watchlistRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+import tagRoutes from "./routes/tagRoutes.js";
 
 import "./ScheduledJob/notifyEndingAuctions.js"
 import "./ScheduledJob/notifyWinners.js"
@@ -98,9 +99,10 @@ app.use("/api/auctions", auctionRoutes);
 app.use("/api/telegram", telegramRoutes);
 
 // feedback router
- app.use("/api/feedback", feedbackRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
-// 
+// tag router
+app.use("/api", tagRoutes);
 
 // // Example API route that queries Neon DB
 // app.get("/api/version", async (req, res) => {
