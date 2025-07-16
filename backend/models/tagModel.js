@@ -32,3 +32,9 @@ export async function insertTagsToAuction(auctionId, tags) {
     `;
   }
 }
+
+export async function getAllTags() {
+  const result = await sql`SELECT name FROM tags ORDER BY name ASC`;
+  return result.map(row => row.name);
+}
+

@@ -17,24 +17,25 @@ const TagSellItem = () => {
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]); // [{ name: "Shoes", locked: true }, { name: "leather", locked: false }]
   const [tagOptions, setTagOptions] = useState();
-  const tagNames = tags.map((tag) => typeof tag === "string" ? tag : tag.name);
+  const tagNames = tags.map((tag) =>
+    typeof tag === "string" ? tag : tag.name,
+  );
 
-useEffect(() => {
-  fetch("/api/categories")
-    .then((res) => res.json())
-    .then((data) => setCategories(data.categories || []))
-    .catch((err) => console.error("Failed to load categories:", err));
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data.categories || []))
+      .catch((err) => console.error("Failed to load categories:", err));
 
-  fetch("/api/tag")
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data.tags)) {
-        setTagOptions(data.tags); // ✅ Flat string array
-      }
-    })
-    .catch((err) => console.error("Failed to load tag options:", err));
-
-}, []);
+    fetch("/api/tag")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.tags)) {
+          setTagOptions(data.tags); // ✅ Flat string array
+        }
+      })
+      .catch((err) => console.error("Failed to load tag options:", err));
+  }, []);
 
   // Resetting Tags with Change of New Category
   useEffect(() => {
@@ -46,12 +47,12 @@ useEffect(() => {
 
   // Console Log Tag (Debug)
   useEffect(() => {
-  if (tags.length) {
-    console.log("🔁 Tags Updated →", tags);
-  }
+    if (tags.length) {
+      console.log("🔁 Tags Updated →", tags);
+    }
   }, [tags]);
 
-  // Category Change 
+  // Category Change
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find((c) => c.id == selectedId);
@@ -88,7 +89,10 @@ useEffect(() => {
       return;
     }
 
+    console.log("tags being inserted:", tags);
+
     try {
+      // 1. Create the listing first
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: {
@@ -98,7 +102,6 @@ useEffect(() => {
         body: JSON.stringify({
           title,
           description,
-          tags: tagNames,
           min_bid: parseFloat(minBid),
           end_date: endDate,
           category_id: categoryId,
@@ -108,11 +111,30 @@ useEffect(() => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create listing");
 
+      // 2. Now insert tags via /api/tag
+      const tagRes = await fetch("/api/tag", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          auction_id: data.listing.id, // ✅ use ID from first request
+          tags: tagNames,
+        }),
+      });
+
+      const tagData = await tagRes.json();
+      if (!tagRes.ok)
+        throw new Error(tagData.message || "Failed to insert tags");
+
+      // 3. Success
       setSuccess("Item listed successfully!");
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
     } catch (err) {
+      console.error("Submit error:", err);
       setError("" + err.message);
     }
   };
@@ -160,7 +182,7 @@ useEffect(() => {
           ))}
         </select>
 
-        {/* Title */}    
+        {/* Title */}
         <label>Title *</label>
         <input
           type="text"
@@ -189,7 +211,7 @@ useEffect(() => {
           />
         </div>
 
-        {/* Minimum Bid */}   
+        {/* Minimum Bid */}
         <label>Minimum Bid (SGD) *</label>
         <input
           type="number"

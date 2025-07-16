@@ -1,5 +1,5 @@
 // controllers/tagController.js
-import { insertTagsToAuction } from "../models/tagModel.js";
+import { insertTagsToAuction , getAllTags as fetchTags } from "../models/tagModel.js";
 
 // POST /tag
 export async function insertTagsWithListing(req, res) {
@@ -26,10 +26,9 @@ export async function insertTagsWithListing(req, res) {
 }
 
 // GET /tag
-export async function getAllTags(req, res) {
+export async function fetchTags(req, res) {
   try {
-    const result = await sql`SELECT name FROM tags ORDER BY name ASC`;
-    const tags = result.map(row => row.name); // return as flat array of strings
+    const tags = await getAllTags(); 
     res.json({ tags });
   } catch (err) {
     console.error("Failed to fetch tags:", err);
