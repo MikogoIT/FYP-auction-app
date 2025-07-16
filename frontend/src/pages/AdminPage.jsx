@@ -159,7 +159,7 @@ const AdminPage = () => {
       const frozen = params.is_frozen
       const rowId = params.id
 
-      const [alignment, setAlignment] = React.useState(frozen);
+      const [alignment, setAlignment] = React.useState(params.is_frozen);
 
       const handleToggle = (event, newAlignment) => {
         if (newAlignment !== null) {
