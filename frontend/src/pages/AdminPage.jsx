@@ -166,7 +166,7 @@ const AdminPage = () => {
       };
         return (
           <ToggleButtonGroup
-            value={frozen ? "frozen" : "active"}
+            value={alignment}
             exclusive
             onChange={handleToggle}
           >
