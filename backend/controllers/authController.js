@@ -16,17 +16,17 @@ export async function loginUser(req, res) {
     const user = await AuthModel.findUserByEmail(email);
 
     if (!user) {
-      return res.status(401).json({ message: "Wrong account or password" });
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
     if (user.is_frozen) {
-      return res.status(403).json({ message: "Account is frozen. Please contact admin." });
+      return res.status(403).json({ message: "Account suspended. Please contact admin." });
     }
 
     const match = await comparePassword(password, user.password_hash);
 
     if (!match) {
-      return res.status(401).json({ message: "Wrong account or password" });
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
     // Set session data
@@ -85,7 +85,7 @@ export async function registerUser(req, res) {
     }
 
     if (await AuthModel.usernameExists(username)) {
-      return res.status(409).json({ message: "Username already exists, please change it" });
+      return res.status(409).json({ message: "Username already registered" });
     }
 
     const passwordHash = hashPassword(password);

@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
+import IconButton from '@mui/material/IconButton';
+import CheckIcon from '@mui/icons-material/Check';
+
+
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -17,7 +21,6 @@ export default function Notif() {
 
   // define your columns based on the notifications table
   const columns = [
-    { field: "id", headerName: "ID", width: 80 },
     {
       field: "message",
       headerName: "Message",
@@ -39,9 +42,13 @@ export default function Notif() {
       width: 120,
       sortable: false,
       renderCell: (params) => (
-        <md-filled-button onClick={() => handleMarkRead(params.row.id)}>
-          Mark read
-        </md-filled-button>
+        <IconButton
+          size="small"
+          color="primary"
+          onClick={() => handleMarkRead(params.row.id)}
+        >
+          <CheckIcon />
+        </IconButton>
       ),
     },
   ];
@@ -57,6 +64,7 @@ export default function Notif() {
       .then(({ notifications }) => {
         // map each notification into a DataGrid row
         const data = notifications.map((n) => ({
+          id: n.id,
           message: n.content,
           createdAt: new Date(n.created_at).toLocaleString(),
         }));
