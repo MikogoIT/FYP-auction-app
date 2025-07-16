@@ -26,7 +26,6 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import MyBids from "./pages/MyBids";
 import ContactPage from "./pages/ContactPage";
 import WatchedListings from "./pages/WatchedListings";
-import FeedbackForm from "./components/FeedbackForm";
 import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
@@ -85,9 +84,6 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/notif" element={<Notif />} />
             <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
             <Route path="/mylistings/MyListingsBids" element={<MyListingsBids />} />
-
-            {/* Testing Tags*/}
-            <Route path="/TagPage" element={<TagSellItem />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />
