@@ -156,7 +156,7 @@ const AdminPage = () => {
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
     { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      let frozen = params.is_frozen
+      const frozen = params.is_frozen
       const rowId = params.id
 
       const [alignment, setAlignment] = React.useState(frozen);
@@ -174,12 +174,12 @@ const AdminPage = () => {
             onChange={handleToggle}
           >
             <ToggleButton
-              value={frozen}
+              value={true}
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value={!frozen}
+            value={false}
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
