@@ -26,9 +26,9 @@ export async function insertTagsWithListing(req, res) {
 }
 
 // GET /tag
-export async function fetchTags(req, res) {
+export async function getAllTags() {
   try {
-    const tags = await getAllTags(); 
+    const tags = await fetchTags(); 
     res.json({ tags });
   } catch (err) {
     console.error("Failed to fetch tags:", err);
