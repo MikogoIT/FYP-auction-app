@@ -277,6 +277,7 @@ const AdminPage = () => {
             color: "#000000",
           }}
           width="100%"
+          disableRowSelectionOnClick
           loading={loading}
           showToolbar
         />
