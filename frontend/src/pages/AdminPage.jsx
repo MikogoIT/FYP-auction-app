@@ -22,6 +22,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const AdminPage = () => {
+  const [alignment, setAlignment] = React.useState(frozen);
   const [rows, setRows] = React.useState([]);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,12 +158,13 @@ const AdminPage = () => {
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
     { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
-      const [alignment, setAlignment] = React.useState(frozen);
       const rowId = params.id
 
       const handleToggle = (event, newAlignment) => {
+        if (newAlignment !== null) {
         toggleFreeze(rowId);
         setAlignment(newAlignment);
+        }
       };
         return (
           <ToggleButtonGroup
