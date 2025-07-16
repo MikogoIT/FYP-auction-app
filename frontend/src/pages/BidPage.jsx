@@ -101,7 +101,6 @@ export default function BidPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       setMessage("✅ Bid submitted!");
-      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
       setMessage(err.message);
     }
@@ -172,8 +171,9 @@ export default function BidPage() {
                 alt={listing.title}
                 style={{
                   width: "100%",
-                  objectFit: "contain",
+                  objectFit: "cover",
                   borderRadius: 24,
+                  maxHeight: "400px"
                 }}
               />
             ) : (

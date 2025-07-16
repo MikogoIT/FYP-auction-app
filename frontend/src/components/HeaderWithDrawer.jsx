@@ -211,7 +211,7 @@ export default function HeaderWithDrawer({ window }) {
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
-              color="inherit"
+              color="grey"
               onClick={() => navigate('/notif')}
               sx={{ mr: 1 }}
             >

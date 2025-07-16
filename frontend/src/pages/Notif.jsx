@@ -57,8 +57,7 @@ export default function Notif() {
       .then(({ notifications }) => {
         // map each notification into a DataGrid row
         const data = notifications.map((n) => ({
-          id: n.id,
-          message: n.message,
+          message: n.content,
           createdAt: new Date(n.created_at).toLocaleString(),
         }));
         setRows(data);
@@ -85,11 +84,11 @@ export default function Notif() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         <BreadcrumbsNav />
-        <div className="profileTitle" style={{ marginBottom: 16 }}>
+        <div id="wideTitle" className="profileTitle">
           Notifications
         </div>
 
-        <div style={{ height: 500, width: "100%" }}>
+        <div >
           <DataGrid
             rows={rows}
             columns={columns}
