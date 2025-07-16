@@ -22,6 +22,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const AdminPage = () => {
+  const [alignment, setAlignment] = React.useState("is_frozen");
   const [rows, setRows] = React.useState([]);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -138,6 +139,9 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
+  const handleToggle = (event, newAlignment) => {
+    setAlignment(newAlignment);
+  };
 
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
@@ -159,18 +163,9 @@ const AdminPage = () => {
       const frozen = params.is_frozen
       const rowId = params.id
 
-      const handleToggle = (event, newActiveState) => {
-        if (newActiveState === null)
-        {
-          return;
-        }
-        toggleFreeze(rowId)
-        params.api.updateRows([{id: rowId, frozen: newActiveState}])
-
-      };
         return (
           <ToggleButtonGroup
-            value={frozen ? "frozen" : "active"}
+            value={alignment}
             exclusive
             onChange={handleToggle}
           >
@@ -187,28 +182,6 @@ const AdminPage = () => {
               <ThumbUpOutlinedIcon />
             </ToggleButton>
           </ToggleButtonGroup>
-          /*
-          <Box
-            width="60%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              is_frozen
-              ? "#ff0000"
-              : "#008000"
-            }
-            borderRadius="4px"
-            color="#ffffff"
-          >
-            {is_frozen && <AcUnitOutlinedIcon />}
-            {!is_frozen && <ThumbUpOutlinedIcon />}
-            <Typography sx={{ ml: "5px" }}>
-              {is_frozen}
-            </Typography>
-          </Box>
-          */
         );
       }
     },
