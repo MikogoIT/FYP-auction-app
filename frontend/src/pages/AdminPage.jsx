@@ -139,9 +139,6 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
-  const handleToggle = (event, newAlignment) => {
-    setAlignment(newAlignment);
-  };
 
   const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
   const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
@@ -163,9 +160,13 @@ const AdminPage = () => {
       const frozen = params.is_frozen
       const rowId = params.id
 
+      const handleToggle = (event, newAlignment) => {
+        toggleFreeze(rowId);
+        setAlignment(newAlignment);
+      };
         return (
           <ToggleButtonGroup
-            value={alignment}
+            value={frozen ? "frozen" : "active"}
             exclusive
             onChange={handleToggle}
           >
