@@ -37,6 +37,10 @@ async function notifyAuctionWinners() {
           `Please fill in the review for the buyer and click to enter the review page.`
         );
 
+        await sql`
+          UPDATE auction_listings SET is_active = false WHERE id = ${auctionId}
+        `;
+
         //console.log(`[notifyAuctionWinners] ✅ Notified winner ${highestBidder.buyer_id} for listing ${auctionId}`);
       } else {
         //console.log("No highest bidder, checking seller notification...");
