@@ -25,6 +25,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 import ListingSearchBar from './ListingSearchBar';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
@@ -208,6 +210,15 @@ export default function HeaderWithDrawer({ window }) {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/notif')}
+              sx={{ mr: 1 }}
+            >
+              <Badge color="error" variant="dot">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
             {isAdmin && (
               <Chip
                 label="Admin"
