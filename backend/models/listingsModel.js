@@ -1,5 +1,4 @@
 // models/listingsModel.js
-
 import { sql } from "../utils/db.js";
 
 export const createListing = async (
