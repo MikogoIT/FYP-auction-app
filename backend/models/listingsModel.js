@@ -19,11 +19,11 @@ export const createListing = async (
     )
     VALUES (
       ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
-      ${auction_type}, ${start_price}, ${discount_percentage}
+      ${auction_type}, ${start_price}, DEFAULT
     )
     RETURNING *
   `;
-};
+}; // Remember to put back ${discount_percentage} putting null in controller breaks as DB table is NOT NULL
 
 export const getActiveListings = async () => {
   return await sql`
