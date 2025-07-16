@@ -40,7 +40,7 @@ export async function submitWebsiteFeedback(req, res) {
     res.status(201).json({ message: 'Feedback submitted' });
   } catch (err) {
     console.error(`Feedback submission error (userId: ${userId}):`, err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to submit feedback.' });
   }
 }
 
@@ -53,7 +53,7 @@ export async function getAllWebsiteFeedback(req, res) {
     res.json(feedbacks);
   } catch (err) {
     console.error('Fetch feedback error:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to fetch Website Feedback.' });
   }
 }
 
@@ -65,7 +65,7 @@ export async function getRecentFeedback(req, res) {
     res.json({ feedback });
   } catch (err) {
     console.error("Fetch recent feedback error:", err);
-    res.status(500).json({ message: "Failed to fetch recent feedback" });
+    res.status(500).json({ message: "Failed to fetch recent feedback." });
   }
 }
 
@@ -74,7 +74,7 @@ export async function postAuctionFeedback(req, res) {
   try {
     const { author_id, recipient_id, auction_id, author_role, user_ratings, user_comments } = req.body;
     if (!author_id || !recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
-      return res.status(400).json({ error: "Missing required fields" });
+      return res.status(400).json({ error: "Missing required fields." });
     }
     if (author_id === recipient_id) {
       return res.status(400).json({ error: "Author and recipient cannot be the same user" });

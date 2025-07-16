@@ -33,8 +33,21 @@ export async function insertTagsToAuction(auctionId, tags) {
   }
 }
 
-export async function getAllTags() {
+export async function getAllTags({ excludeCategoryName } = {}) {
+  if (excludeCategoryName) {
+    const result = await sql`
+      SELECT DISTINCT t.name
+      FROM tags t
+      JOIN auction_listing_tags alt ON t.id = alt.tag_id
+      JOIN auction_listings al ON alt.auction_id = al.id
+      JOIN listing_categories lc ON al.category_id = lc.id
+      WHERE LOWER(lc.name) != ${excludeCategoryName.toLowerCase()}
+      ORDER BY t.name ASC;
+    `;
+    return result.map(row => row.name);
+  }
+
+  // Default: all tags
   const result = await sql`SELECT name FROM tags ORDER BY name ASC`;
   return result.map(row => row.name);
 }
-

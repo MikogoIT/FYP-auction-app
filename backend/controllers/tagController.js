@@ -1,5 +1,5 @@
 // controllers/tagController.js
-import { insertTagsToAuction , getAllTags as fetchTags } from "../models/tagModel.js";
+import { insertTagsToAuction , getAllTags } from "../models/tagModel.js";
 
 // POST /tag
 export async function insertTagsWithListing(req, res) {
@@ -26,12 +26,12 @@ export async function insertTagsWithListing(req, res) {
 }
 
 // GET /tag
-export async function getAllTags() {
+export async function fetchTagsForAutocomplete(req, res) {
   try {
-    const tags = await fetchTags(); 
+    const tags = await getAllTags({ excludeCategoryName: "general" });
     res.json({ tags });
   } catch (err) {
-    console.error("Failed to fetch tags:", err);
+    console.error("Failed to fetch autocomplete tags:", err);
     res.status(500).json({ message: "Failed to fetch tags" });
   }
 }
