@@ -15,6 +15,7 @@ const CRUMB_NAME_MAP = {
   '/Watchlist':    'Liked Listings',
   '/MyBids':       'My Bids',
   '/Contact':      'Contact',
+  '/notif':      'Notifications',
 };
 
 export default function BreadcrumbsNav() {

@@ -37,7 +37,7 @@ export default function Notif() {
     },
     {
       field: "action",
-      headerName: "Action",
+      headerName: "",
       sortable: false,
       renderCell: (params) => (
         <IconButton
