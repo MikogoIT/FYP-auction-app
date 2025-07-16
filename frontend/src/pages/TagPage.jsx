@@ -252,7 +252,6 @@ const TagSellItem = () => {
             cursor: submitting ? "not-allowed" : "pointer"
           }}
         >
-          List Item
           {submitting ? "Listing..." : "List Item"}
         </button>
 
