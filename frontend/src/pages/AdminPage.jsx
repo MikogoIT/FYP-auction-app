@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { GridRowModes,
-  DataGrid,
-  GridActionsCellItem,
-  GridRowEditStopReasons,
-  Toolbar,
-  ToolbarButton } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
-// import { useTheme } from "@mui/material/styles";
-// import { tokens } from "../styles/theme";
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import Button from '@mui/material/Button';
-import Stack from "@mui/material/Stack";
-import { red } from "@mui/material/colors";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -142,9 +132,6 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
-  const getId = (value, row) => {
-    return '${row.id}';
-  };
 
   const column = [
     { field: 'username', headerName: 'Username' },
