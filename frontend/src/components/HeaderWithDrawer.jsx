@@ -299,7 +299,7 @@ export default function HeaderWithDrawer({ window }) {
                 width: drawerWidth,
                 borderRight: 'none',
                 // push down below both AppBar + search bar on mobile
-                mt: "50px",
+                mt: "60px",
               }
             }}
           >
