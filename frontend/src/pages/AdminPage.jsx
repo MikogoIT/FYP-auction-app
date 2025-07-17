@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { GridRowModes,
-  DataGrid,
-  GridActionsCellItem,
-  GridRowEditStopReasons,
-  Toolbar,
-  ToolbarButton } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
-// import { useTheme } from "@mui/material/styles";
-// import { tokens } from "../styles/theme";
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import Button from '@mui/material/Button';
-import Stack from "@mui/material/Stack";
-import { red } from "@mui/material/colors";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -142,20 +132,39 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
-  const getId = (value, row) => {
-    return '${row.id}';
-  };
 
   const column = [
-    // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      let frozen = params.is_frozen
+    { field: 'access', headerName: 'access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
+      return (
+        <Box
+        width="100%"
+        m="0 auto"
+        p="5px"
+        display="flex"
+        justifyContent="center"
+        borderRadius="4px"
+        >
+          {is_frozen && <AcUnitOutlinedIcon />}
+          {!is_frozen && <ThumbUpOutlinedIcon />}
+          <Typography sx={{ ml: "5px" }}>
+            {
+              is_frozen
+                ? "Suspended"
+                : "Active"
+            }
+          </Typography>
+        </Box>
+      );
+      }
+    }, 
+    { field: 'access_toggle', headerName: 'Access Toggle', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
+      const frozen = params.is_frozen
       const rowId = params.id
 
-      const [alignment, setAlignment] = React.useState(frozen ? "yes" : "no");
+      const [alignment, setAlignment] = React.useState(frozen);
 
       const handleToggle = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -170,12 +179,12 @@ const AdminPage = () => {
             onChange={handleToggle}
           >
             <ToggleButton
-              value="yes"
+              value={true}
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value="no"
+            value={false}
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
