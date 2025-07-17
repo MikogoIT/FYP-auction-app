@@ -147,15 +147,37 @@ const AdminPage = () => {
   };
 
   const column = [
-    // { field: 'id', headerName: 'ID' , sortable: false }, 
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    { field: 'access', headerName: 'Access', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      let frozen = params.is_frozen
+    { field: 'access', headerName: 'access' , sortable: false, width: 100, renderCell: ({ row: {is_frozen} }) => {
+      return (
+        <Box
+        width="100%"
+        m="0 auto"
+        p="5px"
+        display="flex"
+        justifyContent="center"
+        borderRadius="4px"
+        >
+          {is_frozen && <AcUnitOutlinedIcon />}
+          {!is_frozen && <ThumbUpOutlinedIcon />}
+          <Typography sx={{ ml: "5px" }}>
+            {
+              is_frozen
+                ? "Frozen"
+                : "Active"
+            }
+          </Typography>
+        </Box>
+      );
+      }
+    }, 
+    { field: 'access_toggle', headerName: 'Access Toggle', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
+      const frozen = params.is_frozen
       const rowId = params.id
 
-      const [alignment, setAlignment] = React.useState(frozen ? "yes" : "no");
+      const [alignment, setAlignment] = React.useState(frozen);
 
       const handleToggle = (event, newAlignment) => {
         if (newAlignment !== null) {
@@ -170,12 +192,12 @@ const AdminPage = () => {
             onChange={handleToggle}
           >
             <ToggleButton
-              value="yes"
+              value={true}
             >
               <AcUnitOutlinedIcon />
             </ToggleButton>
             <ToggleButton
-            value="no"
+            value={false}
             >
               <ThumbUpOutlinedIcon />
             </ToggleButton>
