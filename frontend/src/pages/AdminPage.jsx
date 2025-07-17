@@ -165,7 +165,7 @@ const AdminPage = () => {
           <Typography sx={{ ml: "5px" }}>
             {
               is_frozen
-                ? "Frozen"
+                ? "Suspended"
                 : "Active"
             }
           </Typography>
