@@ -42,14 +42,14 @@ const SellItem = () => {
   useEffect(() => {
     if (categoryName && !tags.includes(categoryName)) {
       setTags([categoryName]);
-      console.log("Category changed →", categoryName);
+      //console.log("Category changed →", categoryName);
     }
   }, [categoryName]);
 
   // Console Log Tag (Debug)
   useEffect(() => {
     if (tags.length) {
-      console.log("🔁 Tags Updated →", tags);
+      //console.log("🔁 Tags Updated →", tags);
     }
   }, [tags]);
 
@@ -92,7 +92,8 @@ const SellItem = () => {
       return;
     }
 
-    console.log("Tags being inserted:", tags);
+    // Debug Log for Tags Submission
+    //console.log("Tags being inserted:", tags);
 
     try {
       // 1. Create the listing first
