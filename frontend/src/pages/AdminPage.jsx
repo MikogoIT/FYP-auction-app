@@ -295,17 +295,4 @@ const AdminPage = () => {
   );
 };
 
-
-/*
-const thStyle = {
-  padding: "12px",
-  textAlign: "left",
-  borderBottom: "1px solid #ccc",
-};
-
-const tdStyle = {
-  padding: "12px",
-  borderBottom: "1px solid #eee",
-};
-*/
 export default AdminPage;
