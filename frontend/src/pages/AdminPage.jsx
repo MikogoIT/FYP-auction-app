@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Switch from "@mui/material/Switch";
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -137,7 +138,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    { field: 'access', headerName: 'access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
+    { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
         width="100%"
@@ -160,7 +161,8 @@ const AdminPage = () => {
       );
       }
     }, 
-    { field: 'access_toggle', headerName: 'Access Toggle', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
+    /*
+    { field: 'access_toggle', headerName: 'Suspended', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
       const rowId = params.id
 
@@ -192,6 +194,7 @@ const AdminPage = () => {
         );
       }
     },
+    */
     {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
