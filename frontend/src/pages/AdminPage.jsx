@@ -129,6 +129,14 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
+  const handleSwitch = (id) => (event) => {
+    const updatedRows = rows.map((row) => 
+      row.id === id ? { ...row, is_frozen: event.target.checked }: row
+    );
+    toggleFreeze(id)
+    setRows(updatedRows);
+  };
+  
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
@@ -161,6 +169,19 @@ const AdminPage = () => {
       );
       }
     }, 
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, type: 'boolean', renderCell: ( params ) => {
+        const frozen = params.is_frozen;
+        const userId = params.id;
+        const current_field = params.field;
+
+        return(
+          <Switch
+          checked={frozen}
+          onChange={handleSwitch(userId)}
+          />
+        );
+      }
+    },
     /*
     { field: 'access_toggle', headerName: 'Suspended', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
       const frozen = params.is_frozen
