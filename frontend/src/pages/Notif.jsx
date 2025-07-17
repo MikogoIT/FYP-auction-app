@@ -77,7 +77,7 @@ export default function Notif() {
 
   // example action to mark a notification as read
   const handleMarkRead = async (notifId) => {
-    await fetch(`/api/notifications/${notifId}/read`, {
+    await fetch(`/api/notifications/read`, {
       method: "POST",
       credentials: "include",
     });

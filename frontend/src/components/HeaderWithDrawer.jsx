@@ -256,7 +256,7 @@ export default function HeaderWithDrawer({ window }) {
         color="transparent"
         elevation={0}
         sx={{
-          zIndex: theme.zIndex.drawer + 1,
+          zIndex: 0,
           top: theme.mixins.toolbar.minHeight,
           left: { md: `${drawerWidth}px` },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
@@ -299,7 +299,7 @@ export default function HeaderWithDrawer({ window }) {
                 width: drawerWidth,
                 borderRight: 'none',
                 // push down below both AppBar + search bar on mobile
-                mt: "110px",
+                mt: "50px",
               }
             }}
           >
