@@ -150,7 +150,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    { field: 'access', headerName: 'access' , sortable: false, width: 100, renderCell: ({ row: {is_frozen} }) => {
+    { field: 'access', headerName: 'access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
         width="100%"
