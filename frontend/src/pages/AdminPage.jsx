@@ -176,7 +176,7 @@ const AdminPage = () => {
 
         return(
           <Switch
-          checked={frozen}
+          checked={true}
           onChange={handleSwitch(userId)}
           />
         );
