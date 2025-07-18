@@ -6,7 +6,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { Box, Pagination } from "@mui/material";
+import { Box, Pagination, Typography, } from "@mui/material";
 
 // Web components
 import "@material/web/button/filled-button.js";
@@ -150,19 +150,65 @@ export default function Dashboard() {
                       <div className="listingDetails">
                         <div className="listingTitle">{item.title}</div>
                         <p className="listingDesc">{item.description}</p>
-                        <p className="listingMinBid">
-                          <strong>Min Bid:</strong> ${item.min_bid}
-                        </p>
-                        <p className="listingEndDate">
-                          <strong>Ends:</strong>{' '}
-                          {new Date(item.end_date).toLocaleString('en-SG')}
-                        </p>
-                        <p>
-                          <strong>Current Bid:</strong>{' '}
-                          {item.current_bid != null
-                            ? `$${item.current_bid}`
-                            : 'No bids yet'}
-                        </p>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1, fontSize: 16 }}
+                        >
+                          Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
+                        </Typography>
+                        
+                        <Typography
+                          variant="subtitle2"
+                          component="span"
+                          sx={{
+                            fontSize: 16,
+                            display: "inline-block",
+                            px: 1.5,
+                            py: 0.5,
+                            border: "1px solid",
+                            borderColor: "grey.800",
+                            borderRadius: "999px",
+                            color: "grey.800",
+                            mr: 1,
+                          }}
+                        >
+                          Starting bid:&nbsp;
+                          <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(listing.min_bid).toFixed(2)}</strong>
+                        </Typography>
+
+                        <Typography
+                          variant="subtitle2"
+                          component="span"
+                          sx={{
+                            fontSize: 16,
+                            display: "inline-block",
+                            px: 1.5,
+                            py: 0.5,
+                            border: "1px solid",
+                            borderColor: "success.main",
+                            borderRadius: "999px",
+                            color: "success.main",
+                          }}
+                        >
+                          Current bid:&nbsp;
+                          <strong>
+                            {auctionType === "descending" ? (
+                              // descending auction: use currentDescPrice if it’s a number
+                              typeof currentDescPrice === "number"
+                                ? `$${currentDescPrice.toFixed(2)}`
+                                : "No bids yet"
+                            ) : (
+                              // ascending auction: check for a real current bid, otherwise “No bids yet”
+                              item.current_bid != null
+                                ? `$${Number(item.current_bid).toFixed(2)}`
+                                : "No bids yet"
+                            )}
+                          </strong>
+                        </Typography>
+
+
+
                       </div>
                     </div>
                     <div className="listingAction">
