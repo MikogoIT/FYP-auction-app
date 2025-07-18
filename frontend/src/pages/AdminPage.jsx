@@ -177,7 +177,6 @@ const AdminPage = () => {
 
         return(
           <Switch
-          {...label}
           checked={state.currentRow}
           onChange={handleSwitch(userId)}
           />
