@@ -256,7 +256,7 @@ export default function HeaderWithDrawer({ window }) {
         color="transparent"
         elevation={0}
         sx={{
-          zIndex: 0,
+          zIndex: 2,
           top: theme.mixins.toolbar.minHeight,
           left: { md: `${drawerWidth}px` },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },

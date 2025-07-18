@@ -164,8 +164,8 @@ export default function Dashboard() {
                             : 'No bids yet'}
                         </p>
                       </div>
-
-                      <div className="listingAction">
+                    </div>
+                    <div className="listingAction">
                         <IconButton onClick={() => handleToggleLike(item.id)}>
                           {likedMap[item.id] ? (
                             <FavoriteIcon color="error" />
@@ -194,7 +194,6 @@ export default function Dashboard() {
                           </md-filled-button>
                         )}
                       </div>
-                    </div>
                   </SwiperSlide>
                 );
               })}
