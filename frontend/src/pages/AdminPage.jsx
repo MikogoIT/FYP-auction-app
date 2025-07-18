@@ -176,7 +176,7 @@ const AdminPage = () => {
         return(
           <Switch
           checked={false}
-          onChange={console.log(`variable: ${params.is_frozen}, data type: ${typeof params.is_frozen}`)}
+          onChange={console.log(`variable: ${userId}, data type: ${typeof userId}`)}
           />
           
         );
