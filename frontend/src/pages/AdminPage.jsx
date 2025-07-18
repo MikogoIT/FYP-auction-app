@@ -170,14 +170,13 @@ const AdminPage = () => {
       }
     }, 
     { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, type: 'boolean', renderCell: ( params ) => {
-        const frozen = params.is_frozen;
         const userId = params.id;
 
 
         return(
           <Switch
           checked={frozen}
-          onChange={console.log(`variable: ${frozen}, data type: ${typeof frozen}`)}
+          onChange={console.log(`variable: ${params.is_frozen}, data type: ${typeof params.is_frozen}`)}
           />
           
         );
