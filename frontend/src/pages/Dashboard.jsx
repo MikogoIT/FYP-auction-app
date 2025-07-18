@@ -120,11 +120,7 @@ export default function Dashboard() {
               navigation
               pagination={{ clickable: true }}
               spaceBetween={20}
-              breakpoints={{
-                320: { slidesPerView: 1 },
-                600: { slidesPerView: 2 },
-                1200: { slidesPerView: 3 },
-              }}
+              slidesPerView="auto"
               className="dashboard-swiper"
             >
               {recentListings.map(item => {
