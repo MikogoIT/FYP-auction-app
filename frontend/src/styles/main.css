@@ -284,16 +284,6 @@ background-color: #e0e0e0;
   object-fit: cover;
 }
 
-.detailsStyle {
-  background-color: #f1f0f0;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  border-top: 1px solid #eee;
-  overflow-y: scroll;
-}
-
 
 .centerText {
   text-align: center;
@@ -323,8 +313,6 @@ background-color: #e0e0e0;
   padding: 8px;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
   margin: 4px 0;
   font-size: 16px;
 }
@@ -336,13 +324,13 @@ background-color: #e0e0e0;
 
 .listingDesc
 {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 100px;
 }
 
 #listingDescBig
 {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 140px;
 }
 
@@ -517,7 +505,7 @@ background-color: #e0e0e0;
   width: 100%;
 }
 
-.listingCardSmall
+#listingCardSmall
 {
   height: 400px;
 }

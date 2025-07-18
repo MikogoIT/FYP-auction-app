@@ -136,7 +136,7 @@ export default function Landing() {
                         <ImageIcon />
                       </Avatar>
                     )}
-                    <div className="detailsStyle">
+                    <div className="listingDetails">
                       <div className='listingTitle'>
                         {item.title}
                       </div>
