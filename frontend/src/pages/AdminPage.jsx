@@ -172,12 +172,11 @@ const AdminPage = () => {
     { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, type: 'boolean', renderCell: ( params ) => {
         const frozen = params.is_frozen;
         const userId = params.id;
-        const props = frozen ? { defaultChecked: true } : { checked: frozen };
 
 
         return(
           <Switch
-          {...props}
+          defaultChecked={frozen === true ? true : false}
           onChange={handleSwitch(userId)}
           />
         );
