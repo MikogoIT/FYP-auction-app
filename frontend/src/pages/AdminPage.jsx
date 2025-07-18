@@ -183,40 +183,6 @@ const AdminPage = () => {
         );
       }
     },
-    /*
-    { field: 'access_toggle', headerName: 'Suspended', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      const frozen = params.is_frozen
-      const rowId = params.id
-
-      const [alignment, setAlignment] = React.useState(frozen);
-
-      const handleToggle = (event, newAlignment) => {
-        if (newAlignment !== null) {
-        toggleFreeze(rowId);
-        setAlignment(newAlignment);
-        }
-      };
-        return (
-          <ToggleButtonGroup
-            value={alignment}
-            exclusive
-            onChange={handleToggle}
-          >
-            <ToggleButton
-              value={true}
-            >
-              <AcUnitOutlinedIcon />
-            </ToggleButton>
-            <ToggleButton
-            value={false}
-            >
-              <ThumbUpOutlinedIcon />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        );
-      }
-    },
-    */
     {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
       return (
         <Box
