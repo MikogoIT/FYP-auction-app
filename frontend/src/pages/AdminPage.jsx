@@ -171,7 +171,7 @@ const AdminPage = () => {
       }
     }, 
     */
-    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, type: 'boolean', renderCell: ( params ) => {
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ( params ) => {
         const userId = params.id;
         const suspended = params.is_frozen;
 
