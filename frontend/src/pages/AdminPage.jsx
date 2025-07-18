@@ -146,7 +146,6 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    /*
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
@@ -170,16 +169,15 @@ const AdminPage = () => {
       );
       }
     }, 
-    */
-    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen} }) => {
-        // const userId = params.id;
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen} }, {row: {id}}) => {
+        const userId = id;
         const suspended = is_frozen
 
 
         return(
           <Switch
-          checked={false}
-          onChange={console.log(`variable: ${suspended}, data type: ${typeof suspended}`)}
+          checked={suspended}
+          onChange={handleSwitch(userId)}
           />
           
         );
