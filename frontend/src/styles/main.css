@@ -291,7 +291,6 @@ background-color: #e0e0e0;
   flex-direction: column;
   flex-grow: 1;
   border-top: 1px solid #eee;
-  height: 100px;
   overflow-y: scroll;
 }
 
@@ -339,6 +338,12 @@ background-color: #e0e0e0;
 {
   overflow-y: scroll;
   max-height: 100px;
+}
+
+#listingDescBig
+{
+  overflow-y: scroll;
+  max-height: 140px;
 }
 
 .listingTitle {
@@ -510,4 +515,9 @@ background-color: #e0e0e0;
 .carouselWrapper
 {
   width: 100%;
+}
+
+.listingCardSmall
+{
+  height: 400px;
 }
