@@ -126,8 +126,8 @@ export default function Dashboard() {
               {recentListings.map(item => {
                 const isOwner = item.seller_id === currentUserId;
                 return (
-                  <SwiperSlide key={item.id}>
-                    <div className="listingCard">
+                  <SwiperSlide key={item.id} className="listingCard">
+                    <div >
                       {item.image_url ? (
                         <img
                           src={item.image_url}
