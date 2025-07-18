@@ -169,24 +169,19 @@ background-color: #e0e0e0;
   .theBlocks
   {
     flex-direction: column;
-    width: 80%;
+    width: 100%;
   }
 
   #landingBlock1
   {
-    align-self: center;
-    width: inherit;
-    text-align: center;
-    padding-left: 0;
-    padding-right: 0;
     flex: 1;
-    padding-top: 85px;
   }
 
   #landingBlock2
   {
     align-self: center;
-    width: inherit;
+    width: 100%;
+    max-height: 255px;
   }
 }
 
