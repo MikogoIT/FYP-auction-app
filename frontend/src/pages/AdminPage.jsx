@@ -176,8 +176,7 @@ const AdminPage = () => {
 
         return(
           <Switch
-          {...(frozen && defaultChecked)}
-          checked={frozen}
+          {...(frozen ? { defaultChecked } : {})}
           onChange={handleSwitch(userId)}
           />
         );
