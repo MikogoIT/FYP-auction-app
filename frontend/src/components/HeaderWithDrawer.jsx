@@ -24,6 +24,9 @@ import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 import ListingSearchBar from './ListingSearchBar';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
@@ -117,6 +120,15 @@ export default function HeaderWithDrawer({ window }) {
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
         <ListItem disablePadding>
           <OutlineListItemButton
+            selected={pathname === '/sell'}
+            onClick={() => navigate('/sell')}
+          >
+            <ListItemIcon><AddOutlinedIcon /></ListItemIcon>
+            <ListItemText primary="Create Listings" />
+          </OutlineListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <OutlineListItemButton
             selected={pathname === '/Watchlist'}
             onClick={() => navigate('/Watchlist')}
           >
@@ -198,6 +210,15 @@ export default function HeaderWithDrawer({ window }) {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="grey"
+              onClick={() => navigate('/notif')}
+              sx={{ mr: 1 }}
+            >
+              <Badge color="error" variant="dot">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
             {isAdmin && (
               <Chip
                 label="Admin"
@@ -235,7 +256,7 @@ export default function HeaderWithDrawer({ window }) {
         color="transparent"
         elevation={0}
         sx={{
-          zIndex: theme.zIndex.drawer + 1,
+          zIndex: 0,
           top: theme.mixins.toolbar.minHeight,
           left: { md: `${drawerWidth}px` },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
@@ -278,7 +299,7 @@ export default function HeaderWithDrawer({ window }) {
                 width: drawerWidth,
                 borderRight: 'none',
                 // push down below both AppBar + search bar on mobile
-                mt: "110px",
+                mt: "60px",
               }
             }}
           >

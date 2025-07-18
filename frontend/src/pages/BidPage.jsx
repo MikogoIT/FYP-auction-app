@@ -19,6 +19,8 @@ export default function BidPage() {
   const [minPrice, setMinPrice] = useState(null);
   const [bidAmount, setBidAmount] = useState("");
   const [message, setMessage] = useState("");
+  const [auctionType, setAuctionType] = useState(null);
+  const [currentDescPrice, setCurrentDescPrice] = useState(null);
 
   // Fetch listing details (including category_id & category_name)
   useEffect(() => {
@@ -28,6 +30,11 @@ export default function BidPage() {
         if (!res.ok) throw new Error("Failed to load listing");
         const { listing } = await res.json();
         setListing(listing);
+        setAuctionType(listing.auction_type);
+
+        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
+          setCurrentDescPrice(listing.current_price);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -56,10 +63,29 @@ export default function BidPage() {
     setMessage("");
     const amount = parseFloat(bidAmount);
 
-    if (amount <= minPrice) {
-      setMessage(`❌ Your bid must be higher than $${minPrice.toFixed(2)}`);
+    if (isNaN(amount)) {
+      setMessage("Please enter a valid number");
       return;
     }
+
+    if (auctionType === "ascending") {
+      if (amount <= minPrice) {
+        setMessage(`❌ Your bid must be higher than $${minPrice.toFixed(2)}`);
+        return;
+      }
+    } else if (auctionType === "descending") {
+      if (typeof currentDescPrice === "number") {
+        if (currentDescPrice > listing.min_bid && amount > currentDescPrice) {
+          setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
+          return;
+        }
+        if (amount < listing.min_bid) {
+          setMessage(`❌ Your bid must be at least $${listing.min_bid}`);
+          return;
+        }
+      }
+    }
+
     if (amount > 99999999.99) {
       alert("The bid amount cannot exceed 99,999,999.99");
       return;
@@ -75,7 +101,6 @@ export default function BidPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       setMessage("✅ Bid submitted!");
-      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
       setMessage(err.message);
     }
@@ -146,8 +171,9 @@ export default function BidPage() {
                 alt={listing.title}
                 style={{
                   width: "100%",
-                  objectFit: "contain",
+                  objectFit: "cover",
                   borderRadius: 24,
+                  maxHeight: "400px"
                 }}
               />
             ) : (
@@ -187,7 +213,7 @@ export default function BidPage() {
                 }}
               >
                 Starting bid:&nbsp;
-                <strong>${Number(listing.min_bid).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(listing.min_bid).toFixed(2)}</strong>
               </Typography>
 
               <Typography
@@ -205,7 +231,7 @@ export default function BidPage() {
                 }}
               >
                 Current bid:&nbsp;
-                <strong>${Number(minPrice).toFixed(2)}</strong>
+                <strong>{auctionType === "descending" ? (typeof currentDescPrice === "number" ? currentDescPrice.toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
               </Typography>
             </div>
           </div>
@@ -222,7 +248,8 @@ export default function BidPage() {
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
-                min={minPrice}
+                min={auctionType === "ascending" ? minPrice : (listing && typeof listing.min_bid === "number" ? listing.min_bid : 1)}
+                max={auctionType === "descending" ? (currentDescPrice !== null ? currentDescPrice : undefined) : undefined}
                 step="0.01"
                 style={{
                   width: "100%",
