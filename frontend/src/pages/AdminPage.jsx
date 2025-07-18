@@ -177,7 +177,7 @@ const AdminPage = () => {
         return(
           <Switch
           checked={frozen}
-          onChange={console.log("variable: ${frozen}, data type: ${typeof frozen}")}
+          onChange={console.log(`variable: ${frozen}, data type: ${typeof frozen}`)}
           />
           
         );
