@@ -169,6 +169,7 @@ const AdminPage = () => {
       );
       }
     }, 
+    // working switch
     { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen}, row: {id} }) => {
         const userId = id;
         const suspended = is_frozen
