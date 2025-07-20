@@ -132,7 +132,7 @@ export default function ListingsResultPage() {
     const selectedCategoryName =
         selectedCategory &&
         categories.find((cat) => String(cat.id) === String(selectedCategory))?.name;
-
+// 
     return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
