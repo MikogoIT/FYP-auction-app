@@ -63,6 +63,8 @@ variables:
 build-app:
   stage: build
   image: node:23.11.0-alpine3.21
+  tags:
+    - runz
 
   before_script:
     # ensure the cache path exists
@@ -89,6 +91,8 @@ build-app:
 docker-push:
   stage: deploy 1
   image: google/cloud-sdk:slim
+  tags:
+    - runz
   services:
     - docker:dind
   id_tokens:
@@ -139,6 +143,8 @@ docker-push:
 #----------------------------------------------------------------
 terraform:
   stage: deploy 3
+  tags:
+    - runz
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
@@ -161,6 +167,8 @@ terraform:
 upload-assets:
   stage: deploy 2
   image: google/cloud-sdk:slim
+  tags:
+    - runz
   id_tokens:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
