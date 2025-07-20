@@ -112,7 +112,7 @@ export default function Dashboard() {
         {loading ? (
           <p className="centerText">Loading listings…</p>
         ) : recentListings.length === 0 ? (
-          <p className="centerText">No recent listings available.</p>
+          <p className="centerText">No recent listings available!</p>
         ) : (
           <>
             <Swiper
