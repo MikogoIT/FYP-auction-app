@@ -2,7 +2,9 @@ import {
   addToWatchlist,
   getWatchlistByBuyer,
   removeFromWatchlist,
-  isAlreadyInWatchlist
+  isAlreadyInWatchlist,
+  getRecommendedItems,
+  getUserInterestedCategories
 } from "../models/watchlistModel.js";
 
 // add to watch list
@@ -57,5 +59,38 @@ export async function handleRemoveFromWatchlist(req, res) {
     res.json({ message: "Removed from watchlist" });
   } catch (err) {
     res.status(500).json({ message: "Error removing from watchlist", error: err });
+  }
+}
+
+// get recommended items based on user's watchlist categories
+export async function handleGetRecommendedItems(req, res) {
+  const userId = req.session.userId;
+  const limit = parseInt(req.query.limit) || 10;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const recommendedItems = await getRecommendedItems(userId, limit);
+    res.json(recommendedItems);
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving recommended items", error: err });
+  }
+}
+
+// get user's interested categories based on watchlist
+export async function handleGetUserInterestedCategories(req, res) {
+  const userId = req.session.userId;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const categories = await getUserInterestedCategories(userId);
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving interested categories", error: err });
   }
 }
