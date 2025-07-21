@@ -60,8 +60,10 @@ export const getListingById = async (id) => {
       a.start_price,
       a.discount_percentage,
       a.category_id,
-      c.name AS category_name,
+      c.name             AS category_name,
       a.seller_id,
+      u.username         AS seller_username,
+      u.profile_image_url AS seller_avatar,
       a.image_url,
       a.is_active,
       a.posted_to_telegram,
@@ -69,7 +71,9 @@ export const getListingById = async (id) => {
     FROM auction_listings a
     LEFT JOIN listing_categories c
       ON c.id = a.category_id
-    WHERE a.id = ${id}
+    JOIN users u
+      ON u.id = a.seller_id
+    WHERE a.id = ${id};
   `;
 };
 
