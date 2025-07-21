@@ -28,7 +28,7 @@ export default function Notif() {
     },
     {
       field: "createdAt",
-      headerName: "When",
+      headerName: "Date",
       width: 160,
       renderCell: (params) =>
         formatDistanceToNow(new Date(params.value), { addSuffix: true }),

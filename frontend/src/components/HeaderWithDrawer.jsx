@@ -100,6 +100,21 @@ export default function HeaderWithDrawer({ window }) {
     navigate('/');
   };
 
+    // mark all as read then go to notif page
+  const handleNotifClick = async () => {
+    try {
+      await fetch('/api/notifications/read', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark as read', err);
+    } finally {
+      navigate('/notif');
+    }
+  };
+
   const handleSearch = query =>
     navigate(`/listings?q=${encodeURIComponent(query.trim())}`);
 
@@ -242,7 +257,7 @@ export default function HeaderWithDrawer({ window }) {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               color="grey"
-              onClick={() => navigate('/notif')}
+              onClick={handleNotifClick}
               sx={{ mr: 1 }}
             >
               <Badge
