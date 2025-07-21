@@ -238,27 +238,6 @@ const AdminPage = () => {
         {/* page title */}
         <div className="profileTitle">Admin Dashboard</div>
         <Box
-          m="40px 0 0 0"
-          sx={{
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .name-column--cell": {
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-            },
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "none",
-              color: "#000000"
-            },
-            "& .MuiCheckbox-root": {
-            },
-          }}
-      >
-        <Box
           sx={{
             display: 'flex',
             flexDirection: 'row',
@@ -280,6 +259,27 @@ const AdminPage = () => {
           >
             Category Management</Button>
         </Box>
+        <Box
+          m="40px 0 0 0"
+          sx={{
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .name-column--cell": {
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              color: "#000000"
+            },
+            "& .MuiCheckbox-root": {
+            },
+          }}
+      >
         <DataGrid 
           rows={users}
           columns={column}
