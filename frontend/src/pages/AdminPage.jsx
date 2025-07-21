@@ -277,6 +277,18 @@ const AdminPage = () => {
             },
           }}
       >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            p: 1,
+            m: 1,
+            borderRadius: 1,
+          }}
+        >
+          <Button variant="contained" color="#6750a4">User Management</Button>
+          <Button variant="contained" color="#e9def8">Category Management</Button>
+        </Box>
         <DataGrid 
           rows={users}
           columns={column}
