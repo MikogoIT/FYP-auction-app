@@ -28,6 +28,9 @@ variables:
   # telegram bot code
   GCS_TELE_BUCKET_NAME: auctioneer-tele-bot
 
+  # notifications bot code
+  GCS_NOTIF_BUCKET_NAME: auctioneer-notif-bot
+
 # #----------------------------------------------------------------
 # # 0. scan code
 # #----------------------------------------------------------------
@@ -145,6 +148,8 @@ terraform:
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
+    GCS_TELE_BUCKET_NAME: "${GCS_TELE_BUCKET_NAME}"
+    GCS_NOTIF_BUCKET_NAME: "${GCS_NOTIF_BUCKET_NAME}"
   script:
     - terraform init
     - terraform apply -auto-approve
