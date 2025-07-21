@@ -11,6 +11,8 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Switch from "@mui/material/Switch";
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -240,8 +242,12 @@ const AdminPage = () => {
 
 
   return (
-    <Box m="20px">
-      <Header title="ADMIN" subtitle="Admin User Management" />
+    <div className="dashboardCanvas">
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+
+        {/* page title */}
+        <div className="profileTitle">Admin Dashboard</div>
         <Box
           m="40px 0 0 0"
           sx={{
@@ -283,7 +289,9 @@ const AdminPage = () => {
           showToolbar
         />
       </Box>
-    </Box>
+      </div>
+      <div className="sidebarSpacer"></div>
+    </div>
   );
 };
 
