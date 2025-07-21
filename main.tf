@@ -168,6 +168,13 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         name  = "TELEGRAM_FUNCTION_URL"
         value = google_cloudfunctions2_function.telegram.url
       }
+
+      env {
+        name  = "GET_NOTIF_FN_URL"
+        value = google_cloudfunctions2_function.notif.url
+      }
+
+
       resources {
         limits = {
           cpu    = "1"

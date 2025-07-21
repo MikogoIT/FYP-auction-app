@@ -29,6 +29,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [likedMap, setLikedMap] = useState({});
   const [page, setPage] = useState(1);
+  const [auctionType, setAuctionType] = useState(null);
+  const [currentDescPrice, setCurrentDescPrice] = useState(null);
   
   const ITEMS_PER_PAGE = 6;
 
@@ -74,6 +76,10 @@ export default function Dashboard() {
         );
 
         setRecentListings(enriched);
+        setAuctionType(listing.auction_type);
+        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
+          setCurrentDescPrice(listing.current_price);
+        }
       } catch (err) {
         console.error(err);
       } finally {
