@@ -236,32 +236,31 @@ const AdminPage = () => {
       <div className="dashboardContent">
 
         {/* page title */}
-        <div className="profileTitle">Admin Dashboard</div>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            p: 1,
-            m: 1,
-            borderRadius: 1,
-            justifyContent: "left"
-          }}
-        >
-          <Button variant="contained" sx={{
-            color: "white",
-            backgroundColor: "#6750a4",
-            mr: 5
-          }}
+        <div className="profileTitle">Admin Dashboard
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              p: 1,
+              m: 1,
+              borderRadius: 1,
+            }}
           >
-            User Management</Button>
-          <Button variant="contained" sx={{
-            color: "white",
-            backgroundColor: "#6750a4",
-            ml: 5
-          }}
-          >
-            Category Management</Button>
-        </Box>
+            <Button variant="contained" sx={{
+              color: "white",
+              backgroundColor: "#6750a4",
+            }}
+            >
+              User Management</Button>
+            <Button variant="contained" sx={{
+              color: "white",
+              backgroundColor: "#6750a4",
+            }}
+            >
+              Category Management</Button>
+          </Box>
+
+        </div>
         <Box
           m="40px 0 0 0"
           sx={{
