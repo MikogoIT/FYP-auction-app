@@ -1,21 +1,22 @@
+// index.js
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const { neon } = require('@neondatabase/serverless');
 
 const sql = neon(process.env.DATABASE_URL);
-
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
-app.use(cookieParser());
 
-// GET / → return unread count
-app.get('/', async (req, res) => {
-  // adjust this to match how you store userId in cookies
-  const userId = req.cookies.userId;
+// parse JSON bodies
+app.use(express.json());
+
+/**
+ * Expects a POST { userId }
+ * Returns { unread: <number> }
+ */
+app.post('/', async (req, res) => {
+  const { userId } = req.body;
   if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
@@ -25,12 +26,11 @@ app.get('/', async (req, res) => {
       WHERE user_id = ${userId}
         AND is_read = FALSE
     `;
-    res.json({ unread: Number(cnt) });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'DB error' });
+    return res.json({ unread: Number(cnt) });
+  } catch (err) {
+    console.error('DB error:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Export the Express app as the function entry point
 module.exports = app;
