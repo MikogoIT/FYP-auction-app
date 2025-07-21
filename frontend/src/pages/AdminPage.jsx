@@ -11,10 +11,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
-<<<<<<< HEAD
 import Stack from "@mui/material/Stack";
-=======
->>>>>>> 7cc67bd (adding admin page title)
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -241,7 +238,6 @@ const AdminPage = () => {
       <div className="dashboardContent">
 
         {/* page title */}
-<<<<<<< HEAD
         <div className="profileTitle">Admin Dashboard
           <Stack direction="row" spacing={2}>
               <Button 
@@ -260,9 +256,6 @@ const AdminPage = () => {
                 Category Management</Button>
           </Stack>
         </div>
-=======
-        <div className="profileTitle">Admin Dashboard</div>
->>>>>>> 7cc67bd (adding admin page title)
         <Box
           m="40px 0 0 0"
           sx={{
