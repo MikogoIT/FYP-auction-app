@@ -42,7 +42,7 @@ import Footer from "./components/Footer";
 
 
 
-const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist", "/admin"];
+const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();
