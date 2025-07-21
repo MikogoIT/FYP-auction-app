@@ -1,25 +1,20 @@
 // src/pages/Notif.jsx
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { DataGrid } from "@mui/x-data-grid";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
-import IconButton from '@mui/material/IconButton';
-import CheckIcon from '@mui/icons-material/Check';
-
-
-// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+
 export default function Notif() {
-  const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // define your columns based on the notifications table
+  // columns: message + relative time
   const columns = [
     {
       field: "message",
@@ -33,21 +28,10 @@ export default function Notif() {
     },
     {
       field: "createdAt",
-      headerName: "Date",
-    },
-    {
-      field: "action",
-      headerName: "",
-      sortable: false,
-      renderCell: (params) => (
-        <IconButton
-          size="small"
-          color="primary"
-          onClick={() => handleMarkRead(params.row.id)}
-        >
-          <CheckIcon />
-        </IconButton>
-      ),
+      headerName: "When",
+      width: 160,
+      renderCell: (params) =>
+        formatDistanceToNow(new Date(params.value), { addSuffix: true }),
     },
   ];
 
@@ -60,30 +44,18 @@ export default function Notif() {
         return res.json();
       })
       .then(({ notifications }) => {
-        // map each notification into a DataGrid row
         const data = notifications.map((n) => ({
           id: n.id,
           message: n.content,
-          createdAt: new Date(n.created_at).toLocaleString(),
+          createdAt: n.created_at, // keep raw timestamp
         }));
         setRows(data);
       })
       .catch((err) => {
         console.error(err);
-        // you could show an error snackbar here
       })
       .finally(() => setLoading(false));
   }, []);
-
-  // example action to mark a notification as read
-  const handleMarkRead = async (notifId) => {
-    await fetch(`/api/notifications/read`, {
-      method: "POST",
-      credentials: "include",
-    });
-    // remove from list
-    setRows((prev) => prev.filter((r) => r.id !== notifId));
-  };
 
   return (
     <div className="dashboardCanvas">

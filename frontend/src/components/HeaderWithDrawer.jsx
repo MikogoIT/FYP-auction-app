@@ -21,12 +21,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ContactSupportIcon from '@mui/icons-material/ContactSupport';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { IMG_BASE_URL } from '../global-vars.jsx';
-import ListingSearchBar from './ListingSearchBar';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { IMG_BASE_URL } from '../global-vars.jsx';
+import ListingSearchBar from './ListingSearchBar';
 
 const drawerWidth = 240;
 const hideLogoutRoutes = ['/login', '/register'];
@@ -37,12 +37,16 @@ export default function HeaderWithDrawer({ window }) {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  // auth / profile state
+  // Auth / profile state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Unread notifications count
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch profile info & photo on route change
   useEffect(() => {
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
@@ -58,6 +62,32 @@ export default function HeaderWithDrawer({ window }) {
       .then(data => setIsAdmin(!!data.user?.is_admin))
       .catch(() => setIsAdmin(false));
   }, [pathname]);
+
+  // Poll backend for unread notifications every 5s
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch('/api/getnotif', {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Network error');
+        const { unread } = await res.json();
+        if (mounted) setUnreadCount(unread);
+      } catch (err) {
+        console.error('Failed to fetch unread count', err);
+      }
+    };
+
+    fetchUnread();
+    const intervalId = setInterval(fetchUnread, 5000);
+
+    return () => {
+      mounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   const handleDrawerToggle = () => setMobileOpen(o => !o);
   const handleLogoClick   = () => navigate(isLoggedIn ? '/dashboard' : '/');
@@ -215,10 +245,15 @@ export default function HeaderWithDrawer({ window }) {
               onClick={() => navigate('/notif')}
               sx={{ mr: 1 }}
             >
-              <Badge color="error" variant="dot">
+              <Badge
+                color="error"
+                badgeContent={unreadCount}
+                showZero={false}
+              >
                 <NotificationsIcon />
               </Badge>
             </IconButton>
+
             {isAdmin && (
               <Chip
                 label="Admin"
@@ -228,6 +263,7 @@ export default function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1, bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
               />
             )}
+
             <Chip
               label={isLoggedIn ? 'Profile' : 'Log in'}
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
@@ -235,6 +271,7 @@ export default function HeaderWithDrawer({ window }) {
               avatar={<Avatar src={photoUrl}><PersonIcon /></Avatar>}
               sx={{ mr: 1 }}
             />
+
             {!isLoggedIn && (
               <Chip
                 label="Register"
@@ -243,6 +280,7 @@ export default function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1 }}
               />
             )}
+
             {isLoggedIn && !hideLogoutRoutes.includes(pathname) && (
               <Chip label="Log out" onClick={handleLogout} clickable />
             )}
@@ -298,7 +336,6 @@ export default function HeaderWithDrawer({ window }) {
                 boxSizing: 'border-box',
                 width: drawerWidth,
                 borderRight: 'none',
-                // push down below both AppBar + search bar on mobile
                 mt: "60px",
               }
             }}
@@ -308,7 +345,7 @@ export default function HeaderWithDrawer({ window }) {
         )}
       </Box>
 
-      {/* push content below both bars */}
+      {/* Push content below both bars */}
       <Toolbar />
       <Toolbar />
     </Box>
