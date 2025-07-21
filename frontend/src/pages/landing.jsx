@@ -173,7 +173,7 @@ export default function Landing() {
         <Squiggle />
       </div>
 
-      <div className="landingMD" style="line-height: 1.6;">
+      <div className="landingMD" style={{ lineHeight: 1.6 }}>
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
       <div className="squiggleDiv1">
