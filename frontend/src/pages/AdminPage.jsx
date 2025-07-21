@@ -194,17 +194,7 @@ const AdminPage = () => {
         p="5px"
         display="flex"
         justifyContent="center"
-        backgroundColor={
-          is_admin 
-            ? "#6750a4"
-            : "#e9def8"
-        }
         borderRadius="4px"
-        color={
-          is_admin
-            ? "#ffffff"
-            : "#000000"
-        }
         >
           {is_admin && <AdminPanelSettingsOutlinedIcon />}
           {!is_admin && <Person4OutlinedIcon />}
