@@ -35,7 +35,9 @@ export default function Notif() {
     },
   ];
 
+
   useEffect(() => {
+    // change to retrieve all notifs instead of just unread only
     fetch("/api/notifications", {
       credentials: "include",
     })
