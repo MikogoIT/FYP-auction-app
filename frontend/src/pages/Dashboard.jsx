@@ -76,9 +76,9 @@ export default function Dashboard() {
         );
 
         setRecentListings(enriched);
-        setAuctionType(listing.auction_type);
-        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
-          setCurrentDescPrice(listing.current_price);
+        setAuctionType(item.auction_type);
+        if (item.auction_type === "descending" && typeof item.current_price === "number") {
+          setCurrentDescPrice(item.current_price);
         }
       } catch (err) {
         console.error(err);
