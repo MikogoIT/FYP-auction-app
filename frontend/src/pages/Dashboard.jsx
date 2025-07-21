@@ -155,7 +155,7 @@ export default function Dashboard() {
                           color="text.secondary"
                           sx={{ mb: 1, fontSize: 16 }}
                         >
-                          Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
+                          Ends: {new Date(item.end_date).toLocaleString("en-SG")}
                         </Typography>
                         
                         <Typography
@@ -174,7 +174,7 @@ export default function Dashboard() {
                           }}
                         >
                           Starting bid:&nbsp;
-                          <strong>{auctionType === "descending" ? Number(listing.start_price).toFixed(2) : Number(listing.min_bid).toFixed(2)}</strong>
+                          <strong>{auctionType === "descending" ? Number(item.start_price).toFixed(2) : Number(item.min_bid).toFixed(2)}</strong>
                         </Typography>
 
                         <Typography
