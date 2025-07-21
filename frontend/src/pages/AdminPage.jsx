@@ -249,6 +249,7 @@ const AdminPage = () => {
             <Button variant="contained" sx={{
               color: "white",
               backgroundColor: "#6750a4",
+              mr: 10
             }}
             >
               User Management</Button>
