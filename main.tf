@@ -298,56 +298,56 @@ resource "google_storage_bucket" "notif_source_bucket" {
   force_destroy               = true
 }
 
-# # 2) Cloud Function itself
-# resource "google_cloudfunctions2_function" "notif" {
-#   name     = "notifFunction"
-#   project  = var.project_id
-#   location = var.region
+# 2) Cloud Function itself
+resource "google_cloudfunctions2_function" "notif" {
+  name     = "notifFunction"
+  project  = var.project_id
+  location = var.region
 
-#   build_config {
-#     runtime     = "nodejs18"         # or your preferred Node version
-#     entry_point = "app"              # your Express `module.exports = app`
-#     source {
-#       storage_source {
-#         bucket = google_storage_bucket.notif_source_bucket.name
-#         object = "notif.zip"
-#       }
-#     }
-#   }
+  build_config {
+    runtime     = "nodejs18"         # or your preferred Node version
+    entry_point = "app"              # your Express `module.exports = app`
+    source {
+      storage_source {
+        bucket = google_storage_bucket.notif_source_bucket.name
+        object = "notif.zip"
+      }
+    }
+  }
 
-#   service_config {
-#     # scale-to-zero when idle
-#     min_instance_count             = 0
-#     # up to 3 concurrent
-#     max_instance_count             = 3
+  service_config {
+    # scale-to-zero when idle
+    min_instance_count             = 0
+    # up to 3 concurrent
+    max_instance_count             = 3
 
-#     timeout_seconds                = 60
+    timeout_seconds                = 60
 
-#     # your DB connection string for Neon
-#     environment_variables = {
-#       DATABASE_URL = var.DATABASE_URL
-#     }
+    # your DB connection string for Neon
+    environment_variables = {
+      DATABASE_URL = var.DATABASE_URL
+    }
 
-#     ingress_settings               = "ALLOW_ALL"
-#     all_traffic_on_latest_revision = true
-#   }
-# }
+    ingress_settings               = "ALLOW_ALL"
+    all_traffic_on_latest_revision = true
+  }
+}
 
-# # 3) Let the CF runtime (GCE default SA) invoke it
-# resource "google_cloudfunctions2_function_iam_member" "notif_invoker_cr" {
-#   project        = var.project_id
-#   location       = var.region
-#   cloud_function = google_cloudfunctions2_function.notif.name
-#   role           = "roles/cloudfunctions.invoker"
-#   member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-# }
+# 3) Let the CF runtime (GCE default SA) invoke it
+resource "google_cloudfunctions2_function_iam_member" "notif_invoker_cr" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.notif.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
 
-# # 4) (Optional) If you want it publicly invocable —
-# #    e.g. by your proxy on App Engine / Cloud Run
-# resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
-#   project        = var.project_id
-#   location       = var.region
-#   cloud_function = google_cloudfunctions2_function.notif.name
-#   role           = "roles/cloudfunctions.invoker"
-#   member         = "allUsers"
-# }
+# 4) (Optional) If you want it publicly invocable —
+#    e.g. by your proxy on App Engine / Cloud Run
+resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.notif.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "allUsers"
+}
