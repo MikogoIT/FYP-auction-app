@@ -237,28 +237,29 @@ const AdminPage = () => {
 
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-            }}
-          >
-            <Button variant="contained" sx={{
-              color: "white",
-              backgroundColor: "#6750a4",
-              mr: 5
-            }}
-            onCLick={() => navigate("/admin")}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+              }}
             >
-              User Management</Button>
-            <Button variant="contained" sx={{
-              color: "white",
-              backgroundColor: "#6750a4",
-              mr: 5
-            }}
-            onCLick={() => navigate("/admin/create-category")}
-            >
-              Category Management</Button>
+              <Button variant="contained" sx={{
+                color: "white",
+                backgroundColor: "#6750a4",
+                mr: 5
+              }}
+              onCLick={() => navigate("/admin")}
+              >
+                User Management</Button>
+              <Button variant="contained" sx={{
+                color: "white",
+                backgroundColor: "#6750a4",
+                mr: 5
+              }}
+              onCLick={() => navigate("/admin/create-category")}
+              >
+                Category Management</Button>
+            </Box>
         </div>
         <Box
           m="40px 0 0 0"
