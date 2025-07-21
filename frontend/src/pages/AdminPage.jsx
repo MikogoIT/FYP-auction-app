@@ -287,7 +287,7 @@ const AdminPage = () => {
           }}
         >
           <Button variant="contained" color="#6750a4">User Management</Button>
-          <Button variant="contained" color="#e9def8">Category Management</Button>
+          <Button variant="outlined" color="#6750a4">Category Management</Button>
         </Box>
         <DataGrid 
           rows={users}
