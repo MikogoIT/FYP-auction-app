@@ -300,12 +300,12 @@ resource "google_storage_bucket" "notif_source_bucket" {
 
 # 2) Cloud Function itself
 resource "google_cloudfunctions2_function" "notif" {
-  name     = "notifFunction"
+  name     = "notif-bot"
   project  = var.project_id
   location = var.region
 
   build_config {
-    runtime     = "nodejs18"         # or your preferred Node version
+    runtime     = "nodejs22"         # or your preferred Node version
     entry_point = "app"              # your Express `module.exports = app`
     source {
       storage_source {
