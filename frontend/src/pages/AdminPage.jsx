@@ -241,26 +241,24 @@ const AdminPage = () => {
             sx={{
               display: 'flex',
               flexDirection: 'row',
-              p: 1,
-              m: 1,
-              borderRadius: 1,
             }}
           >
             <Button variant="contained" sx={{
               color: "white",
               backgroundColor: "#6750a4",
-              mr: 10
+              mr: 5
             }}
+            onCLick={() => navigate("/admin")}
             >
               User Management</Button>
             <Button variant="contained" sx={{
               color: "white",
               backgroundColor: "#6750a4",
+              mr: 5
             }}
+            onCLick={() => navigate("/admin/create-category")}
             >
               Category Management</Button>
-          </Box>
-
         </div>
         <Box
           m="40px 0 0 0"
