@@ -8,8 +8,7 @@ import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
@@ -145,9 +144,9 @@ const AdminPage = () => {
 
 
   const column = [
-    { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', width: 200 }, 
-    { field: 'phone_number', headerName: 'Phone', sortable: false }, 
+    { field: 'username', headerName: 'Username', editable: true },
+    { field: 'email', headerName: 'Email', width: 200, editable: true }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
@@ -259,6 +258,18 @@ const AdminPage = () => {
             },
           }}
       >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            p: 1,
+            m: 1,
+            borderRadius: 1,
+          }}
+        >
+          <Button variant="contained" color="#6750a4">User Management</Button>
+          <Button variant="contained" color="#e9def8">Category Management</Button>
+        </Box>
         <DataGrid 
           rows={users}
           columns={column}
