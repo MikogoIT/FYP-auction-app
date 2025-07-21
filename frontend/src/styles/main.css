@@ -267,6 +267,11 @@ background-color: #e0e0e0;
   line-height: 1.6;
 }
 
+.landingMD p 
+{
+  line-height: 1.6;
+}
+
 .landingMD h1 {
   font-size: 2em;       /* 2 × 16px = 32px */
   margin-bottom: .5em;

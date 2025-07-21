@@ -206,11 +206,20 @@ upload-assets:
     - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
     # - find telegram/ -type f -delete
 
+    # — Notifications bot FaaS code
+    # - echo "Zipping telegram/ folder (flattened)"
+    # - cd notif
+    # - zip -r ../notif.zip .
+    # - cd -
+    # - echo "Uploading notif.zip → gs://$GCS_NOTIF_BUCKET_NAME/notif.zip"
+    # - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/notif.zip
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - images/**
-        - telegram/**
+      # changes:
+      #   - images/**
+      #   - telegram/**
+      #   - notif/**
       when: on_success
     - when: never
 
