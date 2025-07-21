@@ -286,8 +286,18 @@ const AdminPage = () => {
             borderRadius: 1,
           }}
         >
-          <Button variant="contained" color="#6750a4">User Management</Button>
-          <Button variant="outlined" color="#6750a4">Category Management</Button>
+          <Button variant="contained" sx={{
+            color: "#6750a4",
+            backgroundColor: "#6750a4"
+          }}
+          >
+            User Management</Button>
+          <Button variant="outlined" sx={{
+            color: "#6750a4",
+            backgroundColor: "#6750a4"
+          }}
+          >
+            Category Management</Button>
         </Box>
         <DataGrid 
           rows={users}
