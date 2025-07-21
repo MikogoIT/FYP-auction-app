@@ -241,6 +241,7 @@ const AdminPage = () => {
               sx={{
                 display: 'flex',
                 flexDirection: 'row',
+                mt: 2
               }}
             >
               <Button variant="contained" sx={{
