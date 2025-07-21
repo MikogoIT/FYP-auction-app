@@ -176,7 +176,8 @@ export default function Dashboard() {
                             borderColor: "grey.800",
                             borderRadius: "999px",
                             color: "grey.800",
-                            mr: 1,
+                            width: "fit-content",
+                            mb: 1,
                           }}
                         >
                           Starting bid:&nbsp;
@@ -195,6 +196,7 @@ export default function Dashboard() {
                             borderColor: "success.main",
                             borderRadius: "999px",
                             color: "success.main",
+                            width: "fit-content",
                           }}
                         >
                           Current bid:&nbsp;
