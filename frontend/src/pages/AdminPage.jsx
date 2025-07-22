@@ -278,6 +278,7 @@ const AdminPage = () => {
             },
           }}
       >
+        User Management Table
         <DataGrid 
           rows={users}
           columns={column}
