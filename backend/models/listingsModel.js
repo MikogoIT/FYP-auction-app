@@ -19,11 +19,11 @@ export const createListing = async (
     )
     VALUES (
       ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
-      ${auction_type}, ${start_price}, ${discount_percentage}
+      ${auction_type}, ${start_price}, DEFAULT
     )
     RETURNING *
   `;
-};
+}; // Remember to put back ${discount_percentage} putting null in controller breaks as DB table is NOT NULL
 
 export const getActiveListings = async () => {
   return await sql`
@@ -60,8 +60,10 @@ export const getListingById = async (id) => {
       a.start_price,
       a.discount_percentage,
       a.category_id,
-      c.name AS category_name,
+      c.name             AS category_name,
       a.seller_id,
+      u.username         AS seller_username,
+      u.profile_image_url AS seller_avatar,
       a.image_url,
       a.is_active,
       a.posted_to_telegram,
@@ -69,7 +71,9 @@ export const getListingById = async (id) => {
     FROM auction_listings a
     LEFT JOIN listing_categories c
       ON c.id = a.category_id
-    WHERE a.id = ${id}
+    JOIN users u
+      ON u.id = a.seller_id
+    WHERE a.id = ${id};
   `;
 };
 
@@ -153,7 +157,7 @@ export async function getRecentListings(limit = 5) {
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
     GROUP BY l.id, u.username
-    ORDER BY l.end_date ASC
+    ORDER BY l.created_at DESC
     LIMIT ${limit}
   `;
 }

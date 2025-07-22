@@ -1,0 +1,14 @@
+{
+  "name": "notif-fn",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "functions-framework --target=app"
+  },
+  "dependencies": {
+    "@neondatabase/serverless":"^1.0.0",
+    "express": "^5.1.0",
+    "@google-cloud/functions-framework": "^4.0.0",
+    "dotenv": "^17.2.0"
+  }
+}

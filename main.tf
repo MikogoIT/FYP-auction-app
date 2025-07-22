@@ -77,6 +77,11 @@ variable "GCS_TELE_BUCKET_NAME" {
   default     = "auctioneer-tele-bot"
 }
 
+variable "GCS_NOTIF_BUCKET_NAME" {
+  description = "GCS bucket for notifications bot source"
+  type        = string
+  default     = "auctioneer-notif-bot"
+}
 # ---------------------------------------------
 # New: Telegram bot token variable
 # ---------------------------------------------
@@ -163,6 +168,13 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         name  = "TELEGRAM_FUNCTION_URL"
         value = google_cloudfunctions2_function.telegram.url
       }
+
+      env {
+        name  = "GET_NOTIF_FN_URL"
+        value = google_cloudfunctions2_function.notif.url
+      }
+
+
       resources {
         limits = {
           cpu    = "1"
@@ -281,3 +293,68 @@ resource "google_cloudfunctions2_function_iam_member" "invoker" {
 
 
 
+# ---------------------------------------------
+# New: Notification function code bucket & function
+# ---------------------------------------------
+
+# 1) Bucket to hold your notif.zip
+resource "google_storage_bucket" "notif_source_bucket" {
+  name                        = var.GCS_NOTIF_BUCKET_NAME
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+# 2) Cloud Function itself
+resource "google_cloudfunctions2_function" "notif" {
+  name     = "notif-bot"
+  project  = var.project_id
+  location = var.region
+
+  build_config {
+    runtime     = "nodejs22"         # or your preferred Node version
+    entry_point = "app"              # your Express `module.exports = app`
+    source {
+      storage_source {
+        bucket = google_storage_bucket.notif_source_bucket.name
+        object = "notif.zip"
+      }
+    }
+  }
+
+  service_config {
+    # scale-to-zero when idle
+    min_instance_count             = 0
+    # up to 3 concurrent
+    max_instance_count             = 3
+
+    timeout_seconds                = 60
+
+    # your DB connection string for Neon
+    environment_variables = {
+      DATABASE_URL = var.DATABASE_URL
+    }
+
+    ingress_settings               = "ALLOW_ALL"
+    all_traffic_on_latest_revision = true
+  }
+}
+
+# 3) Let the CF runtime (GCE default SA) invoke it
+resource "google_cloudfunctions2_function_iam_member" "notif_invoker_cr" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.notif.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+# 4) (Optional) If you want it publicly invocable —
+#    e.g. by your proxy on App Engine / Cloud Run
+resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.notif.name
+  role           = "roles/cloudfunctions.invoker"
+  member         = "allUsers"
+}

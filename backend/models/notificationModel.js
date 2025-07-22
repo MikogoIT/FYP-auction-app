@@ -50,3 +50,15 @@ export async function hasRecentNotification(userId, auctionId, minutes = 15, con
   const result = await sql.query(query, params);
   return result.length > 0;
 }
+
+/**
+ * Fetch all notifications for a user, newest first.
+ */
+export async function getAllNotifications(userId) {
+  return await sql`
+    SELECT *
+      FROM notifications
+     WHERE user_id = ${userId}
+     ORDER BY created_at DESC;
+  `;
+}

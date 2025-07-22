@@ -31,7 +31,10 @@ import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
 import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
-
+import CategoryAdmin from "./pages/CategoryAdmin";
+{/* Testing Tags*/}
+import TagSellItem from "./pages/TagPage";
+import TagAutocomplete from "./components/TagAutocomplete";
 
 // components
 import Header from "./components/Header";                     // no-drawer
@@ -40,7 +43,7 @@ import Footer from "./components/Footer";
 
 
 
-const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist"];
+const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist", "/admin", "/admin/categoryadmin"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();
@@ -64,6 +67,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/bid/:id" element={<BidPage />} />
             <Route path="/mylistings" element={<MyListings />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/categoryadmin" element={<CategoryAdmin />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
@@ -77,6 +81,8 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
             <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
+            {/* Testing Tags*/}
+            <Route path="/TagPage" element={<TagSellItem />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { GridRowModes,
-  DataGrid,
-  GridActionsCellItem,
-  GridRowEditStopReasons,
-  Toolbar,
-  ToolbarButton } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
-// import { useTheme } from "@mui/material/styles";
-// import { tokens } from "../styles/theme";
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import Button from '@mui/material/Button';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { Link } from "react-router";
+import Button from "@mui/material/Button"
+import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import { red } from "@mui/material/colors";
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -98,7 +94,7 @@ const AdminPage = () => {
 
   const toggleFreeze = async (userId) => {
     try {
-      const res = await fetch(`/api/users/admin/freeze/${userId}`, {
+      const res = await fetch(`/api/admin/freeze/${userId}`, {
         method: "PUT",
         credentials: "include", 
       });
@@ -119,7 +115,7 @@ const AdminPage = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/users/admin/delete/${userId}`, {
+      const res = await fetch(`/api/admin/delete/${userId}`, {
         method: "DELETE",
         credentials: "include", 
       });
@@ -136,49 +132,24 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
-
-  const currentPageUsers = users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
-  const totalPages = Math.ceil(users.length / USERS_PER_PAGE);
-
+  const handleSwitch = (id) => (event) => {
+    const updatedRows = rows.map((row) => 
+      row.id === id ? { ...row, is_frozen: event.target.checked }: row
+    );
+    toggleFreeze(id)
+    setRows(updatedRows);
+  };
+  
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
 
-  const getId = (value, row) => {
-    return '${row.id}';
-  };
 
   const column = [
-    // { field: 'id', headerName: 'ID' , sortable: false }, 
-    { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', sortable: false }, 
-    { field: 'phone_number', headerName: 'Phone' }, 
-    { field: 'suspend', headerName: 'Access', display: "flex", editable: true, sortable: false, renderCell: ({ row: { is_frozen } }) => {
-        return (
-          <Box
-            width="60%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              is_frozen
-              ? "#ff0000"
-              : "#008000"
-            }
-            borderRadius="4px"
-            color="#ffffff"
-          >
-            {is_frozen && <AcUnitOutlinedIcon />}
-            {!is_frozen && <ThumbUpOutlinedIcon />}
-            <Typography sx={{ ml: "5px" }}>
-              {is_frozen}
-            </Typography>
-          </Box>
-        );
-      }
-    },
-    {field: "Access", headerName: "Role", display: "flex", editable: true, sortable: false, renderCell: ({ row: {is_admin} }) => {
+    { field: 'username', headerName: 'Username', editable: true },
+    { field: 'email', headerName: 'Email', width: 200, editable: true }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
+    { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
         width="100%"
@@ -186,17 +157,45 @@ const AdminPage = () => {
         p="5px"
         display="flex"
         justifyContent="center"
-        backgroundColor={
-          is_admin 
-            ? "#6750a4"
-            : "#e9def8"
-        }
         borderRadius="4px"
-        color={
-          is_admin
-            ? "#ffffff"
-            : "#000000"
-        }
+        >
+          {is_frozen && <AcUnitOutlinedIcon />}
+          {!is_frozen && <ThumbUpOutlinedIcon />}
+          <Typography sx={{ ml: "5px" }}>
+            {
+              is_frozen
+                ? "Suspended"
+                : "Active"
+            }
+          </Typography>
+        </Box>
+      );
+      }
+    }, 
+    // working switch
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen}, row: {id} }) => {
+        const userId = id;
+        const suspended = is_frozen
+
+
+        return(
+          <Switch
+          checked={suspended}
+          onChange={handleSwitch(userId)}
+          />
+          
+        );
+      }
+    },
+    {field: "Access", headerName: "Role", display: "flex", width: 115, sortable: false, renderCell: ({ row: {is_admin} }) => {
+      return (
+        <Box
+        width="100%"
+        m="0 auto"
+        p="5px"
+        display="flex"
+        justifyContent="center"
+        borderRadius="4px"
         >
           {is_admin && <AdminPanelSettingsOutlinedIcon />}
           {!is_admin && <Person4OutlinedIcon />}
@@ -222,34 +221,41 @@ const AdminPage = () => {
 
       return [
         <GridActionsCellItem
-          icon={<DeleteOutlineOutlinedIcon />}
-          label="Delete"
+          icon={<ModeEditIcon />}
+          label="Edit"
           onClick={handleDeleteClick(id)}
         />,
       ];
     },
   },
 
-/*
-  {field: "Actions", headerName: "Actions", display: "flex", renderCell: (params) => {
-    const onClick = (e) => {
-      const currentRow = params.row;
-      return alert(JSON.stringify(currentRow, null, 4));
-    };
-
-    return(
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" sx={{ backgroundColor: red[500], color: "#ffffff" }}>Delete</Button>
-      </Stack>
-    );
-  }}
-*/
 ]
 
 
   return (
-    <Box m="20px">
-      <Header title="ADMIN" subtitle="Admin User Management" />
+    <div className="dashboardCanvas">
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+
+        {/* page title */}
+        <div className="profileTitle">Admin Dashboard
+          <Stack direction="row" spacing={2}>
+              <Button 
+              variant="contained"
+              component={Link}
+              to="/admin"
+              color="primary"
+              >
+                User Management</Button>
+              <Button
+              variant="outlined"
+              component={Link}
+              to="/admin/categoryadmin"
+              color="primary"
+              >
+                Category Management</Button>
+          </Stack>
+        </div>
         <Box
           m="40px 0 0 0"
           sx={{
@@ -286,25 +292,15 @@ const AdminPage = () => {
             color: "#000000",
           }}
           width="100%"
+          disableRowSelectionOnClick
           loading={loading}
           showToolbar
         />
       </Box>
-    </Box>
+      </div>
+      <div className="sidebarSpacer"></div>
+    </div>
   );
 };
 
-
-/*
-const thStyle = {
-  padding: "12px",
-  textAlign: "left",
-  borderBottom: "1px solid #ccc",
-};
-
-const tdStyle = {
-  padding: "12px",
-  borderBottom: "1px solid #eee",
-};
-*/
 export default AdminPage;

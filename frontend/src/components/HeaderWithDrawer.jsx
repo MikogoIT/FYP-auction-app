@@ -21,6 +21,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ContactSupportIcon from '@mui/icons-material/ContactSupport';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { IMG_BASE_URL } from '../global-vars.jsx';
 import ListingSearchBar from './ListingSearchBar';
@@ -34,12 +37,16 @@ export default function HeaderWithDrawer({ window }) {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  // auth / profile state
+  // Auth / profile state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Unread notifications count
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch profile info & photo on route change
   useEffect(() => {
     fetch('/api/displayPhoto', { credentials: 'include' })
       .then(async res => {
@@ -56,6 +63,32 @@ export default function HeaderWithDrawer({ window }) {
       .catch(() => setIsAdmin(false));
   }, [pathname]);
 
+  // Poll backend for unread notifications every 5s
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch('/api/getnotif', {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Network error');
+        const { unread } = await res.json();
+        if (mounted) setUnreadCount(unread);
+      } catch (err) {
+        console.error('Failed to fetch unread count', err);
+      }
+    };
+
+    fetchUnread();
+    const intervalId = setInterval(fetchUnread, 5000);
+
+    return () => {
+      mounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const handleDrawerToggle = () => setMobileOpen(o => !o);
   const handleLogoClick   = () => navigate(isLoggedIn ? '/dashboard' : '/');
   const goToAdminPage     = () => navigate('/admin');
@@ -65,6 +98,21 @@ export default function HeaderWithDrawer({ window }) {
     setIsLoggedIn(false);
     setPhotoUrl(null);
     navigate('/');
+  };
+
+    // mark all as read then go to notif page
+  const handleNotifClick = async () => {
+    try {
+      await fetch('/api/notifications/read', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark as read', err);
+    } finally {
+      navigate('/notif');
+    }
   };
 
   const handleSearch = query =>
@@ -115,6 +163,15 @@ export default function HeaderWithDrawer({ window }) {
 
       {/* Group 2 */}
       <List sx={{ '& .MuiListItemText-primary': { fontSize: '16px' } }}>
+        <ListItem disablePadding>
+          <OutlineListItemButton
+            selected={pathname === '/sell'}
+            onClick={() => navigate('/sell')}
+          >
+            <ListItemIcon><AddOutlinedIcon /></ListItemIcon>
+            <ListItemText primary="Create Listings" />
+          </OutlineListItemButton>
+        </ListItem>
         <ListItem disablePadding>
           <OutlineListItemButton
             selected={pathname === '/Watchlist'}
@@ -198,6 +255,20 @@ export default function HeaderWithDrawer({ window }) {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="grey"
+              onClick={handleNotifClick}
+              sx={{ mr: 1 }}
+            >
+              <Badge
+                color="error"
+                badgeContent={unreadCount}
+                showZero={false}
+              >
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+
             {isAdmin && (
               <Chip
                 label="Admin"
@@ -207,6 +278,7 @@ export default function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1, bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
               />
             )}
+
             <Chip
               label={isLoggedIn ? 'Profile' : 'Log in'}
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
@@ -214,6 +286,7 @@ export default function HeaderWithDrawer({ window }) {
               avatar={<Avatar src={photoUrl}><PersonIcon /></Avatar>}
               sx={{ mr: 1 }}
             />
+
             {!isLoggedIn && (
               <Chip
                 label="Register"
@@ -222,6 +295,7 @@ export default function HeaderWithDrawer({ window }) {
                 sx={{ mr: 1 }}
               />
             )}
+
             {isLoggedIn && !hideLogoutRoutes.includes(pathname) && (
               <Chip label="Log out" onClick={handleLogout} clickable />
             )}
@@ -235,7 +309,7 @@ export default function HeaderWithDrawer({ window }) {
         color="transparent"
         elevation={0}
         sx={{
-          zIndex: theme.zIndex.drawer + 1,
+          zIndex: 2,
           top: theme.mixins.toolbar.minHeight,
           left: { md: `${drawerWidth}px` },
           width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
@@ -277,8 +351,7 @@ export default function HeaderWithDrawer({ window }) {
                 boxSizing: 'border-box',
                 width: drawerWidth,
                 borderRight: 'none',
-                // push down below both AppBar + search bar on mobile
-                mt: "110px",
+                mt: "60px",
               }
             }}
           >
@@ -287,7 +360,7 @@ export default function HeaderWithDrawer({ window }) {
         )}
       </Box>
 
-      {/* push content below both bars */}
+      {/* Push content below both bars */}
       <Toolbar />
       <Toolbar />
     </Box>

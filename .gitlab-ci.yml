@@ -28,6 +28,9 @@ variables:
   # telegram bot code
   GCS_TELE_BUCKET_NAME: auctioneer-tele-bot
 
+  # notifications bot code
+  GCS_NOTIF_BUCKET_NAME: auctioneer-notif-bot
+
 # #----------------------------------------------------------------
 # # 0. scan code
 # #----------------------------------------------------------------
@@ -62,8 +65,8 @@ variables:
 #----------------------------------------------------------------
 build-app:
   stage: build
+  # tags: ["runz"]
   image: node:23.11.0-alpine3.21
-
   before_script:
     # ensure the cache path exists
     - mkdir -p frontend/node_modules
@@ -88,6 +91,7 @@ build-app:
 #----------------------------------------------------------------
 docker-push:
   stage: deploy 1
+  # tags: ["runz"]
   image: google/cloud-sdk:slim
   services:
     - docker:dind
@@ -139,12 +143,15 @@ docker-push:
 #----------------------------------------------------------------
 terraform:
   stage: deploy 3
+  # tags: ["runz"]
   image:
     name: hashicorp/terraform:latest
     entrypoint: ["/bin/sh","-c"]
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
+    GCS_TELE_BUCKET_NAME: "${GCS_TELE_BUCKET_NAME}"
+    GCS_NOTIF_BUCKET_NAME: "${GCS_NOTIF_BUCKET_NAME}"
   script:
     - terraform init
     - terraform apply -auto-approve
@@ -160,6 +167,7 @@ terraform:
 #----------------------------------------------------------------
 upload-assets:
   stage: deploy 2
+  # tags: ["runz"]
   image: google/cloud-sdk:slim
   id_tokens:
     GITLAB_OIDC_TOKEN:
@@ -206,11 +214,20 @@ upload-assets:
     - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
     # - find telegram/ -type f -delete
 
+    # — Notifications bot FaaS code
+    - echo "Zipping telegram/ folder (flattened)"
+    - cd notif
+    - zip -r ../notif.zip .
+    - cd -
+    - echo "Uploading notif.zip → gs://$GCS_NOTIF_BUCKET_NAME/notif.zip"
+    - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/notif.zip
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - images/**
-        - telegram/**
+      # changes:
+      #   - images/**
+      #   - telegram/**
+      #   - notif/**
       when: on_success
     - when: never
 

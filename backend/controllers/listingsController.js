@@ -102,6 +102,16 @@ export async function getListing(req, res) {
     if (result.length === 0) return res.status(404).json({ message: "Listing not found" });
 
     const listing = result[0];
+
+    const now = new Date();
+    const endDate = new Date(listing.end_date);
+    if (listing.is_active && now > endDate) {
+      await sql`
+        UPDATE auction_listings SET is_active = false WHERE id = ${listing.id}
+      `;
+      listing.is_active = false;
+    }
+    
     if (listing.auction_type === "descending") {
       listing.current_price = await getCurrentDescendingPrice(req.params.id);
     }
