@@ -1,3 +1,10 @@
 // utils/db.js
-import { neon } from "@neondatabase/serverless";
-export const sql = neon(process.env.DATABASE_URL);
+import { createClient } from '@supabase/postgres-js';
+
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) throw new Error('Missing SUPABASE_DB_URL');
+
+export const sql = createClient(dbUrl, {
+//   ssl: { rejectUnauthorized: false }
+});
+
