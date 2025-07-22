@@ -157,7 +157,7 @@ export async function getRecentListings(limit = 5) {
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
     GROUP BY l.id, u.username
-    ORDER BY l.end_date ASC
+    ORDER BY l.created_at DESC
     LIMIT ${limit}
   `;
 }
