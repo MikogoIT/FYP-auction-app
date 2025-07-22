@@ -31,6 +31,7 @@ import FeedbackList from "./pages/FeedbackList";
 import UserFeedback from "./pages/UserFeedbackPage";
 import Notif from "./pages/Notif";
 import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
+import CategoryAdmin from "./pages/CategoryAdmin";
 {/* Testing Tags*/}
 import TagSellItem from "./pages/TagPage";
 import TagAutocomplete from "./components/TagAutocomplete";
@@ -42,7 +43,7 @@ import Footer from "./components/Footer";
 
 
 
-const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist", "/admin"];
+const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist", "/admin", "/admin/categoryadmin"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();
@@ -66,6 +67,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/bid/:id" element={<BidPage />} />
             <Route path="/mylistings" element={<MyListings />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/categoryadmin" element={<CategoryAdmin />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
