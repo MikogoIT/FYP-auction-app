@@ -36,11 +36,14 @@ export async function getUnpostedListings() {
             al.*, 
             lc.name AS category_name,
             COALESCE(MAX(b.bid_amount), 0) AS highest_bid,
-            ta.telegram_id AS seller_telegram_id
+            ta.telegram_id AS seller_telegram_id,
+            COALESCE(string_agg(t.name, ', ' ORDER BY t.name), '') AS tags
         FROM auction_listings al
         JOIN listing_categories lc ON al.category_id = lc.id
         LEFT JOIN bids b ON al.id = b.auction_id
         LEFT JOIN telegram_accounts ta ON al.seller_id = ta.user_id
+        LEFT JOIN auction_listing_tags alt ON al.id = alt.auction_id
+        LEFT JOIN tags t ON alt.tag_id = t.id
         WHERE al.posted_to_telegram = FALSE AND al.is_active = TRUE
         GROUP BY al.id, lc.name, ta.telegram_id
         ORDER BY al.id ASC
@@ -146,5 +149,41 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
             ${keywordConditions}
         GROUP BY l.id, lc.name
         ORDER BY l.end_date ASC
+    `;
+}
+
+// Save or update telegram message info for a listing
+export async function saveTelegramMessage(auctionId, messageId, channelId) {
+    const result = await sql`
+        INSERT INTO telegram_messages (auction_id, message_id, channel_id)
+        VALUES (${auctionId}, ${messageId}, ${channelId})
+        ON CONFLICT (auction_id)
+        DO UPDATE SET
+        message_id = EXCLUDED.message_id,
+        channel_id = EXCLUDED.channel_id,
+        last_updated = NOW()
+        RETURNING *
+    `;
+
+    return result[0];
+}
+
+// Get telegram message info by auction id
+export async function getTelegramMessageByAuctionId(auctionId) {
+    const result = await sql`
+        SELECT * FROM telegram_messages WHERE auction_id = ${auctionId}
+    `;
+
+    return result[0];
+}
+
+// Get listings with telegram messages info (for the bot to fetch)
+export async function getListingsWithTelegramMessages() {
+    return await sql`
+        SELECT al.*, tm.message_id, tm.channel_id
+        FROM auction_listings al
+        JOIN telegram_messages tm ON al.id = tm.auction_id
+        WHERE al.is_active = TRUE
+        ORDER BY al.end_date ASC
     `;
 }

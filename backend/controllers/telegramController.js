@@ -226,3 +226,29 @@ export async function searchListings(req, res) {
         res.status(500).json({ message: "Failed to search listings" });
     }
 }
+
+export async function fetchListingsWithTelegramMessages(req, res) {
+    try {
+        const listings = await telegramModel.getListingsWithTelegramMessages();
+        res.json(listings);
+    } catch (err) {
+        console.error("Failed to fetch listings with telegram messages: ", err);
+        res.status(500).json({ message: "Failed to fetch listings" });
+    }
+}
+
+export async function saveTelegramMessageData(req, res) {
+    const { auctionId, messageId, channelId } = req.body;
+
+    if (!auctionId || !messageId || !channelId) {
+        return res.status(400).json({ message: "Missing required data" });
+    }
+
+    try {
+        const saved = await telegramModel.saveTelegramMessage(auctionId, messageId, channelId);
+        res.json({ message: "Telegram message info saved", data: saved });
+    } catch (err) {
+        console.error("Failed to save telegram message info: ", err);
+        res.status(500).json({ message: "Failed to save telegram message info" });
+    }
+}
