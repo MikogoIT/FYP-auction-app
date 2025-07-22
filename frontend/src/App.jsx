@@ -33,9 +33,6 @@ import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
 import CategoryAdmin from "./pages/CategoryAdmin";
 import MyListingsBids from "./pages/MyListingsBids";
 
-{/* Testing Tags*/}
-import TagSellItem from "./pages/TagPage";
-import TagAutocomplete from "./components/TagAutocomplete";
 
 // components
 import Header from "./components/Header";                     // no-drawer
