@@ -11,7 +11,7 @@
       "express": "^5.1.0",
       "path": "^0.12.7",
       "@neondatabase/serverless":"^1.0.0",
-      "@supabase/postgrest-js":"~1.21.1",
+      "postgres":"~3.4.7",
       "multer": "^2.0.1",
       "@google-cloud/storage": "^7.16.0",
       "express-session": "^1.17.3",

@@ -1,11 +1,12 @@
 // utils/db.js
-import { createClient } from '@supabase/postgrest-js';
+import postgres from 'postgres';
 
-const dbUrl = process.env.DATABASE_URL;
-if (!dbUrl) throw new Error('Missing SUPABASE_DB_URL');
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('Missing DATABASE_URL');
+}
 
-
-export const sql = createClient(dbUrl, {
-//   ssl: { rejectUnauthorized: false }
+// initialize Postgres.js; you can add ssl options if you need them
+export const sql = postgres(connectionString, {
+//   ssl: { rejectUnauthorized: false },
 });
-
