@@ -257,31 +257,6 @@ const AdminPage = () => {
           </Stack>
         </div>
         <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            p: 1,
-            m: 1,
-            borderRadius: 1,
-            justifyContent: "left"
-          }}
-        >
-          <Button variant="contained" sx={{
-            color: "white",
-            backgroundColor: "#6750a4",
-            mr: 5
-          }}
-          >
-            User Management</Button>
-          <Button variant="contained" sx={{
-            color: "white",
-            backgroundColor: "#6750a4",
-            ml: 5
-          }}
-          >
-            Category Management</Button>
-        </Box>
-        <Box
           m="40px 0 0 0"
           sx={{
             "& .MuiDataGrid-cell": {
