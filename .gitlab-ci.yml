@@ -102,7 +102,7 @@ docker-push:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - apt-get update && apt-get install -y jq
+    - apt-get update && apt-get install -y jq docker.io      # ← install docker client and jq
     # Exchange OIDC → short-lived GCP token
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
@@ -173,7 +173,7 @@ upload-assets:
     GITLAB_OIDC_TOKEN:
       aud: "https://gitlab.com"
   before_script:
-    - apt-get update && apt-get install -y jq zip
+    - apt-get update && apt-get install -y jq zip docker.io
     - |
       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
         -H "Content-Type: application/json; charset=utf-8" \
@@ -224,10 +224,10 @@ upload-assets:
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      # changes:
-      #   - images/**
-      #   - telegram/**
-      #   - notif/**
+      changes:
+        - images/**
+        - telegram/**
+        - notif/**
       when: on_success
     - when: never
 
