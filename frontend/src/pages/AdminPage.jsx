@@ -7,10 +7,13 @@ import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { Link } from "react-router";
+import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
+import Stack from "@mui/material/Stack";
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -143,9 +146,9 @@ const AdminPage = () => {
 
 
   const column = [
-    { field: 'username', headerName: 'Username' },
-    { field: 'email', headerName: 'Email', width: 200 }, 
-    { field: 'phone_number', headerName: 'Phone', sortable: false }, 
+    { field: 'username', headerName: 'Username', editable: true },
+    { field: 'email', headerName: 'Email', width: 200, editable: true }, 
+    { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
@@ -169,6 +172,7 @@ const AdminPage = () => {
       );
       }
     }, 
+    // working switch
     { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen}, row: {id} }) => {
         const userId = id;
         const suspended = is_frozen
@@ -191,17 +195,7 @@ const AdminPage = () => {
         p="5px"
         display="flex"
         justifyContent="center"
-        backgroundColor={
-          is_admin 
-            ? "#6750a4"
-            : "#e9def8"
-        }
         borderRadius="4px"
-        color={
-          is_admin
-            ? "#ffffff"
-            : "#000000"
-        }
         >
           {is_admin && <AdminPanelSettingsOutlinedIcon />}
           {!is_admin && <Person4OutlinedIcon />}
@@ -227,8 +221,8 @@ const AdminPage = () => {
 
       return [
         <GridActionsCellItem
-          icon={<DeleteOutlineOutlinedIcon />}
-          label="Delete"
+          icon={<ModeEditIcon />}
+          label="Edit"
           onClick={handleDeleteClick(id)}
         />,
       ];
@@ -239,8 +233,29 @@ const AdminPage = () => {
 
 
   return (
-    <Box m="20px">
-      <Header title="ADMIN" subtitle="Admin User Management" />
+    <div className="dashboardCanvas">
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+
+        {/* page title */}
+        <div className="profileTitle">Admin Dashboard
+          <Stack direction="row" spacing={2}>
+              <Button 
+              variant="contained"
+              component={Link}
+              to="/admin"
+              color="primary"
+              >
+                User Management</Button>
+              <Button
+              variant="outlined"
+              component={Link}
+              to="/admin/categoryadmin"
+              color="primary"
+              >
+                Category Management</Button>
+          </Stack>
+        </div>
         <Box
           m="40px 0 0 0"
           sx={{
@@ -282,7 +297,9 @@ const AdminPage = () => {
           showToolbar
         />
       </Box>
-    </Box>
+      </div>
+      <div className="sidebarSpacer"></div>
+    </div>
   );
 };
 
