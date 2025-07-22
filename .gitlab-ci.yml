@@ -65,7 +65,7 @@ variables:
 #----------------------------------------------------------------
 build-app:
   stage: build
-  tags: ["runz"]
+  # tags: ["runz"]
   image: node:23.11.0-alpine3.21
   before_script:
     # ensure the cache path exists
