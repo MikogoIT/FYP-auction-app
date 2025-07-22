@@ -17,7 +17,7 @@ export async function getAuctionMinBid(auctionId) {
   const result = await sql`
     SELECT 
       a.min_bid, 
-      MAX(b.bid_amount) AS highest_bid
+      COALESCE(MAX(b.bid_amount), 0) AS highest_bid
     FROM auction_listings a
     LEFT JOIN bids b ON a.id = b.auction_id
     WHERE a.id = ${auctionId}

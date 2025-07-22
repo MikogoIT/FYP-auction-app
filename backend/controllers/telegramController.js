@@ -261,6 +261,11 @@ export async function addWatchlistItem(req, res) {
     }
 
     try {
+        const alreadyExists = await watchlistModel.isAlreadyInWatchlist(user_id, auction_id);
+        if (alreadyExists) {
+            return res.status(409).json({ message: "Already in Watchlist" }); // 409 Conflict
+        }
+
         await watchlistModel.addToWatchlist(user_id, auction_id);
         res.status(201).json({ message: "Added to Watchlist" });
     } catch (err) {
