@@ -1,5 +1,5 @@
 // utils/db.js
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/postgrest-js';
 
 const dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) throw new Error('Missing SUPABASE_DB_URL');
