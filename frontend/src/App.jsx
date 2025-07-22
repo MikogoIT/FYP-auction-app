@@ -67,7 +67,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/bid/:id" element={<BidPage />} />
             <Route path="/mylistings" element={<MyListings />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/categoryadmin" element={<CategoryAdmin />} />
+            <Route path="/admin/categoryadmin" element={<CategoryAdmin />} />
             <Route path="/admin/create-category" element={<CreateCategoryPage />} />
             <Route path="/admin/search-category" element={<ListingCategoryPage />} />
             <Route path="/admin/category/:id" element={<CategoryDetailPage />} />
