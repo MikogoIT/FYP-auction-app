@@ -2,6 +2,7 @@
 import * as telegramModel from "../models/telegramModel.js";
 import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
+import { getSellerId } from "../models/listingsModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
@@ -108,6 +109,17 @@ export async function createBidFromTelegram(req, res) {
     }
 
     try {
+        // Get seller_id for this auction
+        const result = await getSellerId(auction_id);
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: "Auction not found" });
+        }
+        const sellerId = result[0].seller_id;
+
+        if (sellerId === user_id) {
+            return res.status(403).json({ message: "You cannot bid on your own listing." });
+        }
+
         const minBidData = await getAuctionMinBid(auction_id);
         if (!minBidData) {
             return res.status(404).json({ message: "Auction not found" });
