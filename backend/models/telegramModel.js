@@ -153,15 +153,16 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
 }
 
 // Save or update telegram message info for a listing
-export async function saveTelegramMessage(auctionId, messageId, channelId) {
+export async function saveTelegramMessage(auctionId, messageId, channelId, caption) {
     const result = await sql`
-        INSERT INTO telegram_messages (auction_id, message_id, channel_id)
-        VALUES (${auctionId}, ${messageId}, ${channelId})
+        INSERT INTO telegram_messages (auction_id, message_id, channel_id, caption)
+        VALUES (${auctionId}, ${messageId}, ${channelId}, ${caption})
         ON CONFLICT (auction_id)
         DO UPDATE SET
-        message_id = EXCLUDED.message_id,
-        channel_id = EXCLUDED.channel_id,
-        last_updated = NOW()
+            message_id = EXCLUDED.message_id,
+            channel_id = EXCLUDED.channel_id,
+            caption = EXCLUDED.caption,
+            last_updated = NOW()
         RETURNING *
     `;
 

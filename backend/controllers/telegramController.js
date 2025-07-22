@@ -1,5 +1,6 @@
 // controllers/telegramController.js
 import * as telegramModel from "../models/telegramModel.js";
+import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
@@ -238,17 +239,65 @@ export async function fetchListingsWithTelegramMessages(req, res) {
 }
 
 export async function saveTelegramMessageData(req, res) {
-    const { auctionId, messageId, channelId } = req.body;
+    const { auctionId, messageId, channelId, caption } = req.body;
 
-    if (!auctionId || !messageId || !channelId) {
+    if (!auctionId || !messageId || !channelId || !caption) {
         return res.status(400).json({ message: "Missing required data" });
     }
 
     try {
-        const saved = await telegramModel.saveTelegramMessage(auctionId, messageId, channelId);
+        const saved = await telegramModel.saveTelegramMessage(auctionId, messageId, channelId, caption);
         res.json({ message: "Telegram message info saved", data: saved });
     } catch (err) {
         console.error("Failed to save telegram message info: ", err);
         res.status(500).json({ message: "Failed to save telegram message info" });
+    }
+}
+
+export async function addWatchlistItem(req, res) {
+    const { user_id, auction_id } = req.body;
+    if (!user_id || !auction_id) {
+        return res.status(400).json({ message: "Missing user_id or auction_id" });
+    }
+
+    try {
+        await watchlistModel.addToWatchlist(user_id, auction_id);
+        res.status(201).json({ message: "Added to Watchlist" });
+    } catch (err) {
+        console.error("Add watchlist error: ", err);
+        res.status(500).json({ message: "Failed to add to watchlist" });
+    }
+}
+
+export async function removeWatchlistItem(req, res) {
+    const { user_id, auction_id } = req.body;
+    if (!user_id || !auction_id) {
+        return res.status(400).json({ message: "Missing user_id or auction_id" });
+    }
+
+    try {
+        const deleted = await watchlistModel.removeFromWatchlist(user_id, auction_id);
+        if (deleted.length === 0) {
+            return res.status(404).json({ message: "Item not found in watchlist" });
+        }
+        res.json({ message: "Removed from watchlist" });
+    } catch (err) {
+        console.error("Remove watchlist error: ", err);
+        res.status(500).json({ message: "Failed to remove from watchlist" });
+    }
+}
+
+export async function getUserWatchlist(req, res) {
+    const userId = req.params.userId;
+    if (!userId) {
+        return res.status(400).json({ message: "Missing userId parameter" });
+    }
+    
+    try {
+        const listings = await watchlistModel.getWatchlistByBuyer(userId);
+        res.json({ listings });
+    } catch (err) {
+        console.error("Get watchlist error: ", err);
+        res.status(500).json({ message: "Failed to get watchlist" });
     }
 }

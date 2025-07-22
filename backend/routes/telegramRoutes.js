@@ -26,6 +26,11 @@ router.post("/bid", requireBotAuth, telegramController.createBidFromTelegram);
 router.post("/bid/withdraw", requireBotAuth, telegramController.withdrawBidFromTelegram);
 router.get("/bids/user/:userId", requireBotAuth, telegramController.getBidsByTelegramUser);
 
+// Bot-specific routes (Buyers - Manage Watchlist)
+router.post("/watchlist/add", requireBotAuth, telegramController.addWatchlistItem);
+router.post("/watchlist/remove", requireBotAuth, telegramController.removeWatchlistItem);
+router.get("/watchlist/user/:userId", requireBotAuth, telegramController.getUserWatchlist);
+
 // Bot-specific routes (Sellers - Manage Listing)
 router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
 
