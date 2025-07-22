@@ -111,18 +111,14 @@ export default function Landing() {
             navigation
             pagination={{ clickable: true }}
             spaceBetween={20}
-            breakpoints={{
-              320: { slidesPerView: 1 },
-              600: { slidesPerView: 2 },
-              1200: { slidesPerView: 3 },
-            }}
+            slidesPerView="auto"
             className="dashboard-swiper"
           >
             {recentListings.map(item => {
               const isOwner = item.seller_id === +localStorage.getItem('userId');
               return (
-                <SwiperSlide key={item.id}>
-                  <div className="cardStyle">
+                <SwiperSlide key={item.id} id="listingCardSmall"className="listingCard">
+                  <div>
                     {item.image_url ? (
                       <img
                         src={item.image_url}
@@ -140,31 +136,31 @@ export default function Landing() {
                         <ImageIcon />
                       </Avatar>
                     )}
-                    <div className="detailsStyle">
+                    <div className="listingDetails">
                       <div className='listingTitle'>
                         {item.title}
                       </div>
-                      <p className='listingDesc'>
+                      <p id="listingDescBig" className='listingDesc'>
                         {item.description}
                       </p>
                     </div>
-                    <div className="noLikeButtonStyle">
-                      {isOwner ? (
-                        <md-filled-button
-                          onClick={() => navigate(`/edit/${item.id}`)}
-                          style={{ width: "100%" }}
-                        >
-                          Edit
-                        </md-filled-button>
-                      ) : (
-                        <md-filled-tonal-button
-                          onClick={() => navigate(`/login`)}
-                          style={{ width: "100%" }}
-                        >
-                          Login to bid
-                        </md-filled-tonal-button>
-                      )}
-                    </div>
+                  </div>
+                  <div className="noLikeButtonStyle">
+                    {isOwner ? (
+                      <md-filled-button
+                        onClick={() => navigate(`/edit/${item.id}`)}
+                        style={{ width: "100%" }}
+                      >
+                        Edit
+                      </md-filled-button>
+                    ) : (
+                      <md-filled-tonal-button
+                        onClick={() => navigate(`/login`)}
+                        style={{ width: "100%" }}
+                      >
+                        Login to bid
+                      </md-filled-tonal-button>
+                    )}
                   </div>
                 </SwiperSlide>
               );
@@ -177,7 +173,7 @@ export default function Landing() {
         <Squiggle />
       </div>
 
-      <div className="landingMD">
+      <div className="landingMD" style={{ lineHeight: 1.6 }}>
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
       <div className="squiggleDiv1">

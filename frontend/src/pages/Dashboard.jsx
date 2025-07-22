@@ -6,7 +6,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { Box, Pagination } from "@mui/material";
+import { Box, Pagination, Typography, } from "@mui/material";
 
 // Web components
 import "@material/web/button/filled-button.js";
@@ -29,6 +29,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [likedMap, setLikedMap] = useState({});
   const [page, setPage] = useState(1);
+  const [auctionType, setAuctionType] = useState(null);
+  const [currentDescPrice, setCurrentDescPrice] = useState(null);
   
   const ITEMS_PER_PAGE = 6;
 
@@ -74,6 +76,10 @@ export default function Dashboard() {
         );
 
         setRecentListings(enriched);
+        setAuctionType(item.auction_type);
+        if (item.auction_type === "descending" && typeof item.current_price === "number") {
+          setCurrentDescPrice(item.current_price);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -112,7 +118,7 @@ export default function Dashboard() {
         {loading ? (
           <p className="centerText">Loading listings…</p>
         ) : recentListings.length === 0 ? (
-          <p className="centerText">No recent listings available.</p>
+          <p className="centerText">No recent listings available!</p>
         ) : (
           <>
             <Swiper
@@ -120,18 +126,14 @@ export default function Dashboard() {
               navigation
               pagination={{ clickable: true }}
               spaceBetween={20}
-              breakpoints={{
-                320: { slidesPerView: 1 },
-                600: { slidesPerView: 2 },
-                1200: { slidesPerView: 3 },
-              }}
+              slidesPerView="auto"
               className="dashboard-swiper"
             >
               {recentListings.map(item => {
                 const isOwner = item.seller_id === currentUserId;
                 return (
-                  <SwiperSlide key={item.id}>
-                    <div className="listingCard">
+                  <SwiperSlide key={item.id} className="listingCard">
+                    <div >
                       {item.image_url ? (
                         <img
                           src={item.image_url}
@@ -154,22 +156,70 @@ export default function Dashboard() {
                       <div className="listingDetails">
                         <div className="listingTitle">{item.title}</div>
                         <p className="listingDesc">{item.description}</p>
-                        <p className="listingMinBid">
-                          <strong>Min Bid:</strong> ${item.min_bid}
-                        </p>
-                        <p className="listingEndDate">
-                          <strong>Ends:</strong>{' '}
-                          {new Date(item.end_date).toLocaleString('en-SG')}
-                        </p>
-                        <p>
-                          <strong>Current Bid:</strong>{' '}
-                          {item.current_bid != null
-                            ? `$${item.current_bid}`
-                            : 'No bids yet'}
-                        </p>
-                      </div>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1, fontSize: 16 }}
+                        >
+                          Ends: {new Date(item.end_date).toLocaleString("en-SG")}
+                        </Typography>
+                        
+                        <Typography
+                          variant="subtitle2"
+                          component="span"
+                          sx={{
+                            fontSize: 16,
+                            display: "inline-block",
+                            px: 1.5,
+                            py: 0.5,
+                            border: "1px solid",
+                            borderColor: "grey.800",
+                            borderRadius: "999px",
+                            color: "grey.800",
+                            width: "fit-content",
+                            mb: 1,
+                          }}
+                        >
+                          Starting bid:&nbsp;
+                          <strong>{auctionType === "descending" ? Number(item.start_price).toFixed(2) : Number(item.min_bid).toFixed(2)}</strong>
+                        </Typography>
 
-                      <div className="listingAction">
+                        <Typography
+                          variant="subtitle2"
+                          component="span"
+                          sx={{
+                            fontSize: 16,
+                            display: "inline-block",
+                            px: 1.5,
+                            py: 0.5,
+                            border: "1px solid",
+                            borderColor: "success.main",
+                            borderRadius: "999px",
+                            color: "success.main",
+                            width: "fit-content",
+                          }}
+                        >
+                          Current bid:&nbsp;
+                          <strong>
+                            {auctionType === "descending" ? (
+                              // descending auction: use currentDescPrice if it’s a number
+                              typeof currentDescPrice === "number"
+                                ? `$${currentDescPrice.toFixed(2)}`
+                                : "No bids yet"
+                            ) : (
+                              // ascending auction: check for a real current bid, otherwise “No bids yet”
+                              item.current_bid != null
+                                ? `$${Number(item.current_bid).toFixed(2)}`
+                                : "No bids yet"
+                            )}
+                          </strong>
+                        </Typography>
+
+
+
+                      </div>
+                    </div>
+                    <div className="listingAction">
                         <IconButton onClick={() => handleToggleLike(item.id)}>
                           {likedMap[item.id] ? (
                             <FavoriteIcon color="error" />
@@ -177,7 +227,7 @@ export default function Dashboard() {
                             <FavoriteBorderIcon />
                           )}
                         </IconButton>
-
+{/*  */}
                         {isOwner ? (
                           <md-filled-button
                             onClick={() => handleEdit(item.id)}
@@ -198,7 +248,6 @@ export default function Dashboard() {
                           </md-filled-button>
                         )}
                       </div>
-                    </div>
                   </SwiperSlide>
                 );
               })}

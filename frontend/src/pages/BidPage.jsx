@@ -158,7 +158,7 @@ export default function BidPage() {
         </Breadcrumbs>
 
 
-        <div id="wideTitle" className="profileTitle">
+        <div className="profileTitle">
           {listing.title}
         </div>
 
@@ -197,7 +197,30 @@ export default function BidPage() {
                 {listing.description}
               </Typography>
 
-              <Typography
+             
+            </div>
+          </div>
+
+          {/* Bid Form */}
+          <div className="bidDeets">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "8px",
+              }}
+            >
+              <div style={{ marginRight: "8px" }}>Sold by:</div>
+              <Avatar
+                src={listing.seller_avatar}
+                alt={listing.seller_username}
+                sx={{ width: 32, height: 32, marginRight: "8px" }}
+              />
+              <div>{listing.seller_username}</div>
+            </div>
+
+
+             <Typography
                 variant="subtitle2"
                 component="span"
                 sx={{
@@ -233,11 +256,6 @@ export default function BidPage() {
                 Current bid:&nbsp;
                 <strong>{auctionType === "descending" ? (typeof currentDescPrice === "number" ? currentDescPrice.toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
               </Typography>
-            </div>
-          </div>
-
-          {/* Bid Form */}
-          <div className="bidDeets">
             <h2>Place your bid</h2>
 
             <form onSubmit={handleSubmit}>

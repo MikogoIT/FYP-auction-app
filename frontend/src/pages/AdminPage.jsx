@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Switch from "@mui/material/Switch";
 
 const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
@@ -128,6 +129,14 @@ const AdminPage = () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
+  const handleSwitch = (id) => (event) => {
+    const updatedRows = rows.map((row) => 
+      row.id === id ? { ...row, is_frozen: event.target.checked }: row
+    );
+    toggleFreeze(id)
+    setRows(updatedRows);
+  };
+  
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
@@ -137,7 +146,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username' },
     { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false }, 
-    { field: 'access', headerName: 'access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
+    { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
         width="100%"
@@ -160,35 +169,17 @@ const AdminPage = () => {
       );
       }
     }, 
-    { field: 'access_toggle', headerName: 'Access Toggle', display: "flex", width: 115, sortable: false, renderCell: ( params ) => {
-      const frozen = params.is_frozen
-      const rowId = params.id
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen}, row: {id} }) => {
+        const userId = id;
+        const suspended = is_frozen
 
-      const [alignment, setAlignment] = React.useState(frozen);
 
-      const handleToggle = (event, newAlignment) => {
-        if (newAlignment !== null) {
-        toggleFreeze(rowId);
-        setAlignment(newAlignment);
-        }
-      };
-        return (
-          <ToggleButtonGroup
-            value={alignment}
-            exclusive
-            onChange={handleToggle}
-          >
-            <ToggleButton
-              value={true}
-            >
-              <AcUnitOutlinedIcon />
-            </ToggleButton>
-            <ToggleButton
-            value={false}
-            >
-              <ThumbUpOutlinedIcon />
-            </ToggleButton>
-          </ToggleButtonGroup>
+        return(
+          <Switch
+          checked={suspended}
+          onChange={handleSwitch(userId)}
+          />
+          
         );
       }
     },
@@ -295,17 +286,4 @@ const AdminPage = () => {
   );
 };
 
-
-/*
-const thStyle = {
-  padding: "12px",
-  textAlign: "left",
-  borderBottom: "1px solid #ccc",
-};
-
-const tdStyle = {
-  padding: "12px",
-  borderBottom: "1px solid #eee",
-};
-*/
 export default AdminPage;

@@ -146,6 +146,11 @@ import { GoogleAuth } from 'google-auth-library';
 const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
 
 app.get('/api/tele', async (req, res) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   try {
     // 1️⃣ Get an IdTokenClient scoped to your Function URL
     const auth = new GoogleAuth();
@@ -172,6 +177,42 @@ app.get('/api/tele', async (req, res) => {
 
 //---------------------Test end--------------------//
 
+
+
+
+
+//-------------------TEST notifications api --------//
+
+
+const NOTIF_FN_URL = process.env.GET_NOTIF_FN_URL;
+app.get('/api/getnotif', async (req, res) => {
+  // 1️⃣ Check login
+  const userId = req.session.userId;
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    // 2️⃣ Call your Cloud Function with an ID token
+    const auth = new GoogleAuth();
+    const client = await auth.getIdTokenClient(NOTIF_FN_URL);
+    const response = await client.request({
+      url: NOTIF_FN_URL,
+      method: 'POST',                    // switch to POST if you need to send JSON
+      data: { userId },                  // forward the userId so the function can query DB
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // 3️⃣ Return whatever count/data your function gave you
+    return res.json(response.data);
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
+    return res.status(500).json({ error: 'Unable to fetch notifications' });
+  }
+});
+
+
+//---------------------Test end--------------------//
 
 // Testing Database - UserModel
 // app.get("/api/users", userRoutes);
