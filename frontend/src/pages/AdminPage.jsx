@@ -239,17 +239,13 @@ const AdminPage = () => {
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
           <Stack direction="row" spacing={2}>
-              <Button variant="contained" sx={{
-                color: "white",
-                backgroundColor: "#6750a4",
+              <Button variant="contained" color="secondary.dark" sx={{
                 mr: 5
               }}
               onCLick={() => navigate("/admin")}
               >
                 User Management</Button>
-              <Button variant="contained" sx={{
-                color: "white",
-                backgroundColor: "#6750a4",
+              <Button variant="outlined" color="secondary.dark" sx={{
                 mr: 5
               }}
               onCLick={() => navigate("/admin/create-category")}
