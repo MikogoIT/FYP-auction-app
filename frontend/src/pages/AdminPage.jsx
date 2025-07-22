@@ -250,7 +250,7 @@ const AdminPage = () => {
               <Button
               variant="outlined"
               component={Link}
-              to="/admin/category"
+              to="/admin/categoryadmin"
               color="primary"
               >
                 Category Management</Button>
