@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
+import Stack from "@mui/material/Stack";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -237,13 +238,7 @@ const AdminPage = () => {
 
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                mt: 2
-              }}
-            >
+          <Stack direction="row" spacing={2}>
               <Button variant="contained" sx={{
                 color: "white",
                 backgroundColor: "#6750a4",
@@ -260,7 +255,7 @@ const AdminPage = () => {
               onCLick={() => navigate("/admin/create-category")}
               >
                 Category Management</Button>
-            </Box>
+          </Stack>
         </div>
         <Box
           m="40px 0 0 0"
