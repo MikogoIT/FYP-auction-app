@@ -7,7 +7,8 @@ import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
@@ -220,8 +221,8 @@ const AdminPage = () => {
 
       return [
         <GridActionsCellItem
-          icon={<DeleteOutlineOutlinedIcon />}
-          label="Delete"
+          icon={<ModeEditIcon />}
+          label="Edit"
           onClick={handleDeleteClick(id)}
         />,
       ];
@@ -239,16 +240,18 @@ const AdminPage = () => {
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
           <Stack direction="row" spacing={2}>
-              <Button variant="contained" color="secondary.dark" sx={{
-                mr: 5
-              }}
-              onCLick={() => navigate("/admin")}
+              <Button 
+              variant="contained"
+              component={Link}
+              to="/admin"
+              color="primary"
               >
                 User Management</Button>
-              <Button variant="outlined" color="secondary.dark" sx={{
-                mr: 5
-              }}
-              onCLick={() => navigate("/admin/create-category")}
+              <Button
+              variant="outlined"
+              component={Link}
+              to="/admin/category"
+              color="primary"
               >
                 Category Management</Button>
           </Stack>
