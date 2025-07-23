@@ -3,6 +3,7 @@ import * as telegramModel from "../models/telegramModel.js";
 import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { getSellerId } from "../models/listingsModel.js";
+import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
@@ -316,5 +317,53 @@ export async function getUserWatchlist(req, res) {
     } catch (err) {
         console.error("Get watchlist error: ", err);
         res.status(500).json({ message: "Failed to get watchlist" });
+    }
+}
+
+export async function getComprehensiveRecommendationsByUserId(req, res) {
+    const userId = req.params.userId;
+    const limit = parseInt(req.query.limit) || 5;
+
+    if (!userId) {
+        return res.status(400).json({ message: "Missing userId" });
+    }
+
+    try {
+        const categoryLimit = Math.ceil(limit * 0.6);
+        const tagLimit = Math.ceil(limit * 0.4);
+
+        const [categoryRecommendations, tagRecommendations] = await Promise.all([
+            watchlistModel.getRecommendedItems(userId, categoryLimit),
+            getTagBasedRecommendations(userId, tagLimit),
+        ]);
+
+        const seenIds = new Set();
+        const combinedRecommendations = [];
+
+        for (const item of categoryRecommendations) {
+            if (!seenIds.has(item.id)) {
+                seenIds.add(item.id);
+                combinedRecommendations.push({ ...item, recommendation_type: "category" });
+            }
+        }
+
+        for (const item of tagRecommendations) {
+            if (!seenIds.has(item.id)) {
+                seenIds.add(item.id);
+                combinedRecommendations.push({ ...item, recommendation_type: "tag" });
+            }
+        }
+
+        const final = combinedRecommendations.slice(0, limit);
+
+        res.json({
+            recommendations: final,
+            total: final.length,
+            category_count: final.filter(r => r.recommendation_type === "category").length,
+            tag_count: final.filter(r => r.recommendation_type === "tag").length,
+        });
+    } catch (err) {
+        console.error("Error getting recommendations by User ID: ", err);
+        res.status(500).json({ message: "Internal server error" });
     }
 }

@@ -31,6 +31,8 @@ router.post("/watchlist/add", requireBotAuth, telegramController.addWatchlistIte
 router.post("/watchlist/remove", requireBotAuth, telegramController.removeWatchlistItem);
 router.get("/watchlist/user/:userId", requireBotAuth, telegramController.getUserWatchlist);
 
+router.get("/recommendations/comprehensive/:userId", requireBotAuth, telegramController.getComprehensiveRecommendationsByUserId);
+
 // Bot-specific routes (Sellers - Manage Listing)
 router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
 
