@@ -56,9 +56,16 @@ export async function hasRecentNotification(userId, auctionId, minutes = 15, con
  */
 export async function getAllNotifications(userId) {
   return await sql`
-    SELECT *
-      FROM notifications
-     WHERE user_id = ${userId}
-     ORDER BY created_at DESC;
+    SELECT
+      n.id,
+      n.auction_id,
+      n.message,
+      n.created_at,
+      a.seller_id
+    FROM notifications AS n
+    LEFT JOIN auction_listings AS a
+      ON a.id = n.auction_id
+    WHERE n.user_id = ${userId}
+    ORDER BY n.created_at DESC;
   `;
 }

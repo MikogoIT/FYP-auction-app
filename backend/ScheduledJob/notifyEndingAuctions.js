@@ -31,7 +31,7 @@ async function notifyEndingAuctions() {
       const endDateSG = new Date(end_date);
       const formattedTime = endDateSG.toLocaleString("en-SG");
 
-      const content = `⏰ Auction "${title}" is ending at ${formattedTime}`;
+      const content = `[auction ending] ⏰ Auction "${title}" is ending at ${formattedTime}`;
 
       await insertNotification(user_id, auction_id, content);
     }
