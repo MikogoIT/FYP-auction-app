@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import ListingCard from "../components/ListingCard";
-import { Box } from "@mui/material";
 
 // Web components
 import "@material/web/button/filled-button.js";
