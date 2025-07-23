@@ -84,7 +84,7 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/feedbackuser" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
             <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
-            <Route path="/MyListingsBids" element={<MyListingsBids />} />
+            <Route path="/mylistings/MyListingsBids" element={<MyListingsBids />} />
 
             {/* Testing Tags*/}
             <Route path="/TagPage" element={<TagSellItem />} />
