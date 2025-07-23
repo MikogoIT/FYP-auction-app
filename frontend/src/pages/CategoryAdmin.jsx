@@ -28,7 +28,7 @@ export default function CategoryAdmin() {
         <div className="profileTitle">Admin Dashboard
           <Stack direction="row" spacing={2}>
               <Button 
-              variant="contained"
+              variant="outlined"
               component={Link}
               to="/admin"
               sx={{
@@ -39,7 +39,7 @@ export default function CategoryAdmin() {
               >
                 User Management</Button>
               <Button
-              variant="outlined"
+              variant="contained"
               component={Link}
               to="/admin/categoryadmin"
               color="primary"
