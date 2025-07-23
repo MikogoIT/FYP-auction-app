@@ -77,7 +77,7 @@ const AdminPage = () => {
         setUsers(data.users);
         setPage(page);
       } else {
-        alert(data.message || "Failed to fetch users");
+        console.log(data.message || "Failed to fetch users");
       }
     } catch (err) {
       console.error("Fetch/search users failed:", err);
@@ -94,6 +94,33 @@ const AdminPage = () => {
       handleSearch();
     }
   };
+  
+  const handleEditUser = async (newRow, oldRow) => {
+    if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
+      return newRow;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/update/${userId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newRow),
+      });
+      if (res.ok) {
+        const updatedRowFromDB = await res.json();
+        console.log("Status updated");
+        return updatedRowFromDB;
+      } else {
+        console.error("Error: " + data.message);
+        return oldRow;
+      }
+    } catch (err) {
+      console.error("Request failed");
+    }
+  };
 
   const toggleFreeze = async (userId) => {
     try {
@@ -103,13 +130,13 @@ const AdminPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Status updated");
+        console.log("Status updated");
         fetchUsers();
       } else {
-        alert("Error: " + data.message);
+        console.log("Error: " + data.message);
       }
     } catch (err) {
-      alert("Request failed");
+      console.log("Request failed");
     }
   };
 
@@ -124,7 +151,7 @@ const AdminPage = () => {
       });
       const data = await res.json();
       if (res.ok) fetchUsers();
-      else alert(data.message || "Failed to delete user");
+      else console.log(data.message || "Failed to delete user");
     } catch (err) {
       console.error("Delete user failed:", err);
     }
@@ -150,7 +177,7 @@ const AdminPage = () => {
 
   const column = [
     { field: 'username', headerName: 'Username', editable: true },
-    { field: 'email', headerName: 'Email', width: 200, editable: true }, 
+    { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
     { field: 'address', headerName: 'Address', width: 200, editable: true }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
@@ -266,6 +293,7 @@ const AdminPage = () => {
           rows={users}
           editMode="row"
           columns={column}
+          processRowUpdate={handleEditUser}
           initialState={{
             pagination: {
               paginationModel: {
