@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
-import Button from "@mui/material/Button";
 import { DataGrid } from "@mui/x-data-grid";
+import Button from "@mui/material/Button";
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 export default function MyListingsBids() {
   const navigate = useNavigate();
@@ -14,69 +14,66 @@ export default function MyListingsBids() {
   useEffect(() => {
     (async () => {
       try {
-        console.log("⏳ Fetching bids on my listings…");
         const res = await fetch("/api/bids/MyListingsBids", {
           credentials: "include",
         });
-        console.log("👉 Fetch response status:", res.status);
-        const data = await res.json();
-        console.log("📦 API returned:", data);
-        if (!res.ok) throw new Error(data.message || "Unknown error");
-        setBids(data.bids);
+        if (!res.ok) throw new Error(`Fetch error: ${res.status}`);
+        const { bids: data } = await res.json();
+        setBids(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("❌ Failed to fetch bids on listings:", err);
+        console.error("Failed to fetch bids on listings:", err);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
+  // Convert your API fields into exactly what DataGrid expects:
+  const rows = bids.map((b) => ({
+    id: b.bid_id,                                // DataGrid’s required unique id
+    buyer_id: b.buyer_id,
+    bid_amount: parseFloat(b.bid_amount),        // make it a number
+    created_at: b.bid_created_at
+      ? new Date(b.bid_created_at)
+      : null,                                     // make it a Date
+    listing_id: b.listing_id,
+    listing_name: b.listing_name,
+    end_date: b.listing_end_date
+      ? new Date(b.listing_end_date)
+      : null,                                     // make it a Date
+  }));
+
   const columns = [
-    { field: "bid_id", headerName: "Bid ID", width: 100 },
-    { field: "buyer_id", headerName: "Buyer ID", width: 100 },
+    { field: "id",           headerName: "Bid ID",      width: 100 },
+    { field: "buyer_id",     headerName: "Buyer ID",    width: 100 },
     {
       field: "bid_amount",
-      headerName: "Amount",
+      headerName: "Amount ($)",
+      type: "number",
       width: 120,
       valueFormatter: ({ value }) =>
-        value != null ? `$${Number(value).toFixed(2)}` : "",
+        value != null ? value.toLocaleString(undefined, { style: "currency", currency: "USD" }) : "",
     },
     {
       field: "created_at",
       headerName: "Bid Date",
+      type: "dateTime",
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : "",
     },
-    { field: "listing_id", headerName: "Listing ID", width: 100 },
+    { field: "listing_id",   headerName: "Listing ID",  width: 100 },
     {
       field: "listing_name",
       headerName: "Listing Name",
-      width: 200,
       flex: 1,
+      minWidth: 150,
     },
     {
       field: "end_date",
       headerName: "Ends",
+      type: "dateTime",
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : "",
     },
   ];
-
-  // Remap each API object so DataGrid sees the fields it expects:
-  const rows = bids.map((b) => ({
-    id: b.bid_id,                    // required by DataGrid
-    bid_id: b.bid_id,
-    buyer_id: b.buyer_id,
-    bid_amount: parseFloat(b.bid_amount),
-    created_at: b.bid_created_at,    // <- from API
-    listing_id: b.listing_id,
-    listing_name: b.listing_name,
-    end_date: b.listing_end_date,    // <- from API
-  }));
-
-  console.log("➡️ Rows for DataGrid:", rows);
 
   return (
     <div className="dashboardCanvas">
@@ -84,51 +81,38 @@ export default function MyListingsBids() {
       <div className="dashboardContent">
         <BreadcrumbsNav />
 
+        {/* Toggle Buttons */}
         <div
           className="toggleButtons"
-          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
+          style={{ display: "flex", gap: 8, marginBottom: 16 }}
         >
           <Button
             variant="outlined"
             onClick={() => navigate("/myListings")}
-            sx={{
-              borderRadius: "999px",
-              borderColor: "grey.400",
-              textTransform: "none",
-              color: "grey.500",
-              "&:hover": { borderColor: "grey.600" },
-            }}
+            sx={{ borderRadius: "999px", textTransform: "none" }}
           >
             My Listings
           </Button>
           <Button
             variant="outlined"
             onClick={() => navigate("/myListingsBids")}
-            sx={{
-              borderRadius: "999px",
-              borderColor: "primary.main",
-              color: "primary.main",
-              textTransform: "none",
-              "&:hover": { borderColor: "primary.dark" },
-            }}
+            sx={{ borderRadius: "999px", textTransform: "none" }}
           >
             Bids On My Listings
           </Button>
         </div>
 
-        <div id="wideTitle" className="profileTitle">
-          Bids on My Listings
-        </div>
+        <h1 className="profileTitle">Bids on My Listings</h1>
 
         <div style={{ width: "100%" }}>
           <DataGrid
+            autoHeight
+            loading={loading}
             rows={rows}
             columns={columns}
-            loading={loading}
             pageSize={5}
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
-            autoHeight
           />
         </div>
       </div>

@@ -32,9 +32,9 @@ export default function WatchedListings() {
                 `/api/listingimg?listingId=${encodeURIComponent(item.auction_id)}`
               );
               const { imageUrl } = await imgRes.json();
-              return { ...item, image_url: imageUrl };
+              return { ...item, image_url: imageUrl, id: item.auction_id };
             } catch {
-              return { ...item, image_url: null };
+              return { ...item, image_url: null,       id: item.auction_id };
             }
           })
         );
