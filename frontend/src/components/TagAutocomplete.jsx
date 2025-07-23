@@ -103,6 +103,26 @@ export default function TagAutocomplete({
     },
   });
 
+   // Handles Enter/Comma to manually add tags
+  const handleManualAdd = (e) => {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+      e.preventDefault();
+      const newTag = inputValue.trim().toLowerCase();
+
+      const isDuplicate = value.some(
+        (t) => t.toLowerCase() === newTag
+      );
+      const isLocked = lockedTag?.toLowerCase() === newTag;
+
+      if (!isDuplicate && !isLocked) {
+        const newTags = [...value, newTag];
+        onChange?.(newTags);
+      }
+
+      setInputValue("");
+    }
+  };
+
   // Handles Enter/Comma to manually add tags
   /*const handleManualAdd = (e) => {
     const k = e.key?.toLowerCase(); // Lowercase for onKey
@@ -128,7 +148,7 @@ export default function TagAutocomplete({
   };
   */
 
-  // Saud New Code
+  /* Saud New Code
     // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
     if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
@@ -155,6 +175,7 @@ export default function TagAutocomplete({
       setInputValue("");
     }
   };
+  */
 
   // Handles Blur Add on Mobile to manually add tags
   const handleBlurAdd = () => {
