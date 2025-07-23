@@ -18,23 +18,13 @@ export default function MyListingsBids() {
         const res = await fetch("/api/bids/MyListingsBids", {
           credentials: "include",
         });
-        console.log("👉 Fetch response status:", res.status, res);
+        console.log("👉 Fetch response status:", res.status);
         const data = await res.json();
         console.log("📦 API returned:", data);
-
-        if (!res.ok) {
-          console.error("❌ API error message:", data.message);
-          throw new Error(data.message || "Unknown error");
-        }
-
-        if (!Array.isArray(data.bids)) {
-          console.warn("⚠️ Unexpected `bids` type:", typeof data.bids, data.bids);
-        }
-
+        if (!res.ok) throw new Error(data.message || "Unknown error");
         setBids(data.bids);
-        console.log("✅ Bids state set:", data.bids);
       } catch (err) {
-        console.error("Failed to fetch bids on listings:", err);
+        console.error("❌ Failed to fetch bids on listings:", err);
       } finally {
         setLoading(false);
       }
@@ -48,19 +38,15 @@ export default function MyListingsBids() {
       field: "bid_amount",
       headerName: "Amount",
       width: 120,
-      valueFormatter: (params) => {
-        const v = params?.value;
-        return v != null ? `$${Number(v).toFixed(2)}` : "";
-      },
+      valueFormatter: ({ value }) =>
+        value != null ? `$${Number(value).toFixed(2)}` : "",
     },
     {
       field: "created_at",
       headerName: "Bid Date",
       width: 180,
-      valueFormatter: (params) => {
-        const v = params?.value;
-        return v ? new Date(v).toLocaleString() : "";
-      },
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : "",
     },
     { field: "listing_id", headerName: "Listing ID", width: 100 },
     {
@@ -73,18 +59,24 @@ export default function MyListingsBids() {
       field: "end_date",
       headerName: "Ends",
       width: 180,
-      valueFormatter: (params) => {
-        const v = params?.value;
-        return v ? new Date(v).toLocaleString() : "";
-      },
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : "",
     },
   ];
 
-  const rows = bids.map((b) => {
-    const row = { id: b.bid_id, ...b };
-    console.log("➡️ row prepared for DataGrid:", row);
-    return row;
-  });
+  // Remap each API object so DataGrid sees the fields it expects:
+  const rows = bids.map((b) => ({
+    id: b.bid_id,                    // required by DataGrid
+    bid_id: b.bid_id,
+    buyer_id: b.buyer_id,
+    bid_amount: parseFloat(b.bid_amount),
+    created_at: b.bid_created_at,    // <- from API
+    listing_id: b.listing_id,
+    listing_name: b.listing_name,
+    end_date: b.listing_end_date,    // <- from API
+  }));
+
+  console.log("➡️ Rows for DataGrid:", rows);
 
   return (
     <div className="dashboardCanvas">
@@ -92,15 +84,9 @@ export default function MyListingsBids() {
       <div className="dashboardContent">
         <BreadcrumbsNav />
 
-        {/* Toggle Buttons */}
         <div
           className="toggleButtons"
-          style={{
-            display: "flex",
-            gap: 8,
-            marginBottom: 16,
-            width: "100%",
-          }}
+          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
         >
           <Button
             variant="outlined"
@@ -130,12 +116,10 @@ export default function MyListingsBids() {
           </Button>
         </div>
 
-        {/* Page title */}
         <div id="wideTitle" className="profileTitle">
           Bids on My Listings
         </div>
 
-        {/* Data Grid */}
         <div style={{ width: "100%" }}>
           <DataGrid
             rows={rows}
