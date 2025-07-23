@@ -22,6 +22,10 @@ export default function MyListings() {
   const [page, setPage] = useState(1);
   const perPage = 12;
 
+  const yellow = theme.palette.warning.light;
+  const contrastText = theme.palette.getContrastText(yellow);
+
+
   // fetch my listings + their images
   useEffect(() => {
     (async () => {

@@ -1,3 +1,5 @@
+// src/pages/Dashboard.jsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
@@ -6,7 +8,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useTheme } from "@mui/material/styles";
-import { Box, Pagination, Typography, } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 // Web components
 import "@material/web/button/filled-button.js";
@@ -28,33 +30,29 @@ export default function Dashboard() {
   const [recentListings, setRecentListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedMap, setLikedMap] = useState({});
-  const [page, setPage] = useState(1);
-  const [auctionType, setAuctionType] = useState(null);
-  const [currentDescPrice, setCurrentDescPrice] = useState(null);
-  
   const ITEMS_PER_PAGE = 6;
 
+  // fetch watchlist to populate liked icons
   useEffect(() => {
-    // fetch watchlist to populate liked icons
     (async () => {
       try {
         const res = await fetch("/api/watchlist/");
         const data = await res.json();
         if (res.ok) {
           const map = {};
-          data.forEach(item => {
+          data.forEach((item) => {
             map[item.auction_id] = true;
           });
           setLikedMap(map);
         }
       } catch (err) {
-        console.error("Could not load watchlist: ", err);
+        console.error("Could not load watchlist:", err);
       }
     })();
   }, []);
 
+  // fetch recent listings + their images
   useEffect(() => {
-    // fetch recent listings + their images
     (async () => {
       try {
         const res = await fetch("/api/listings/recent");
@@ -76,10 +74,6 @@ export default function Dashboard() {
         );
 
         setRecentListings(enriched);
-        setAuctionType(item.auction_type);
-        if (item.auction_type === "descending" && typeof item.current_price === "number") {
-          setCurrentDescPrice(item.current_price);
-        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -89,6 +83,7 @@ export default function Dashboard() {
   }, []);
 
   const currentUserId = Number(localStorage.getItem("userId"));
+
   const handleToggleLike = async (id) => {
     const isLiked = !!likedMap[id];
     const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
@@ -100,9 +95,9 @@ export default function Dashboard() {
         body: JSON.stringify({ auction_id: id }),
       });
       if (!res.ok) throw new Error();
-      setLikedMap(m => ({ ...m, [id]: !isLiked }));
+      setLikedMap((m) => ({ ...m, [id]: !isLiked }));
     } catch (err) {
-      console.error("Error toggling watchlist: ", err);
+      console.error("Error toggling watchlist:", err);
     }
   };
 
@@ -129,134 +124,122 @@ export default function Dashboard() {
               slidesPerView="auto"
               className="dashboard-swiper"
             >
-              {recentListings.map(item => {
+              {recentListings.map((item) => {
                 const isOwner = item.seller_id === currentUserId;
                 return (
                   <SwiperSlide key={item.id} className="listingCard">
-                    <div >
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          className="listingImage"
-                        />
-                      ) : (
-                        <Avatar 
-                          variant="square" 
-                          sx={{
-                            width: "100%",
-                            height: 200,
-                            bgcolor: "#eee",
-                          }}> 
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="listingImage"
+                      />
+                    ) : (
+                      <Avatar
+                        variant="square"
+                        sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+                      >
+                        <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+                      </Avatar>
+                    )}
 
-                          <ImageIcon />
-                        </Avatar>
-                      )}
+                    <div className="listingDetails">
+                      <div className="listingTitle">{item.title}</div>
+                      <p className="listingDesc">{item.description}</p>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 1, fontSize: 16 }}
+                      >
+                        Ends: {new Date(item.end_date).toLocaleString("en-SG")}
+                      </Typography>
 
-                      <div className="listingDetails">
-                        <div className="listingTitle">{item.title}</div>
-                        <p className="listingDesc">{item.description}</p>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 1, fontSize: 16 }}
-                        >
-                          Ends: {new Date(item.end_date).toLocaleString("en-SG")}
-                        </Typography>
-                        
-                        <Typography
-                          variant="subtitle2"
-                          component="span"
-                          sx={{
-                            fontSize: 16,
-                            display: "inline-block",
-                            px: 1.5,
-                            py: 0.5,
-                            border: "1px solid",
-                            borderColor: "grey.800",
-                            borderRadius: "999px",
-                            color: "grey.800",
-                            width: "fit-content",
-                            mb: 1,
-                          }}
-                        >
-                          Starting bid:&nbsp;
-                          <strong>{auctionType === "descending" ? Number(item.start_price).toFixed(2) : Number(item.min_bid).toFixed(2)}</strong>
-                        </Typography>
+                      <Typography
+                        variant="subtitle2"
+                        component="span"
+                        sx={{
+                          fontSize: 16,
+                          display: "inline-block",
+                          px: 1.5,
+                          py: 0.5,
+                          border: "1px solid",
+                          borderColor: "grey.800",
+                          borderRadius: "999px",
+                          color: "grey.800",
+                          mb: 1,
+                        }}
+                      >
+                        Starting bid:&nbsp;
+                        <strong>
+                          {item.auction_type === "descending"
+                            ? Number(item.start_price).toFixed(2)
+                            : Number(item.min_bid).toFixed(2)}
+                        </strong>
+                      </Typography>
 
-                        <Typography
-                          variant="subtitle2"
-                          component="span"
-                          sx={{
-                            fontSize: 16,
-                            display: "inline-block",
-                            px: 1.5,
-                            py: 0.5,
-                            border: "1px solid",
-                            borderColor: "success.main",
-                            borderRadius: "999px",
-                            color: "success.main",
-                            width: "fit-content",
-                          }}
-                        >
-                          Current bid:&nbsp;
-                          <strong>
-                            {auctionType === "descending" ? (
-                              // descending auction: use currentDescPrice if it’s a number
-                              typeof currentDescPrice === "number"
-                                ? `$${currentDescPrice.toFixed(2)}`
-                                : "No bids yet"
-                            ) : (
-                              // ascending auction: check for a real current bid, otherwise “No bids yet”
-                              item.current_bid != null
-                                ? `$${Number(item.current_bid).toFixed(2)}`
-                                : "No bids yet"
-                            )}
-                          </strong>
-                        </Typography>
-
-
-
-                      </div>
+                      <Typography
+                        variant="subtitle2"
+                        component="span"
+                        sx={{
+                          fontSize: 16,
+                          display: "inline-block",
+                          px: 1.5,
+                          py: 0.5,
+                          border: "1px solid",
+                          borderColor: "success.main",
+                          borderRadius: "999px",
+                          color: "success.main",
+                        }}
+                      >
+                        Current bid:&nbsp;
+                        <strong>
+                          {item.auction_type === "descending"
+                            ? item.current_price != null
+                              ? `$${Number(item.current_price).toFixed(2)}`
+                              : "No bids yet"
+                            : item.current_bid != null
+                            ? `$${Number(item.current_bid).toFixed(2)}`
+                            : "No bids yet"}
+                        </strong>
+                      </Typography>
                     </div>
+
                     <div className="listingAction">
-                        <IconButton onClick={() => handleToggleLike(item.id)}>
-                          {likedMap[item.id] ? (
-                            <FavoriteIcon color="error" />
-                          ) : (
-                            <FavoriteBorderIcon />
-                          )}
-                        </IconButton>
-{/*  */}
-                        {isOwner ? (
-                          <md-filled-button
-                            onClick={() => handleEdit(item.id)}
-                            style={{
-                              flexGrow: 1,
-                              "--md-sys-color-primary": yellow,
-                              "--md-sys-color-on-primary": contrastText,
-                            }}
-                          >
-                            Edit
-                          </md-filled-button>
+                      <IconButton onClick={() => handleToggleLike(item.id)}>
+                        {likedMap[item.id] ? (
+                          <FavoriteIcon color="error" />
                         ) : (
-                          <md-filled-button
-                            onClick={() => handleBidClick(item.id)}
-                            style={{ flexGrow: 1 }}
-                          >
-                            Bid
-                          </md-filled-button>
+                          <FavoriteBorderIcon />
                         )}
-                      </div>
+                      </IconButton>
+
+                      {isOwner ? (
+                        <md-filled-button
+                          onClick={() => handleEdit(item.id)}
+                          style={{
+                            flexGrow: 1,
+                            "--md-sys-color-primary": yellow,
+                            "--md-sys-color-on-primary": contrastText,
+                          }}
+                        >
+                          Edit
+                        </md-filled-button>
+                      ) : (
+                        <md-filled-button
+                          onClick={() => handleBidClick(item.id)}
+                          style={{ flexGrow: 1 }}
+                        >
+                          Bid
+                        </md-filled-button>
+                      )}
+                    </div>
                   </SwiperSlide>
                 );
               })}
             </Swiper>
 
             <Box mt={4} display="flex" justifyContent="center">
-              <md-filled-tonal-button onClick={() => navigate('/ListingPage')}>
-                View all categories
-              </md-filled-tonal-button>
+              <md-filled-tonal-button onClick={() => navigate("/ListingPage")}>View all categories</md-filled-tonal-button>
             </Box>
           </>
         )}
