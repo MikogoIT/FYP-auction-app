@@ -21,7 +21,7 @@ async function notifyAuctionWinners() {
         );
         if (alreadyNotified) continue;
 
-        const content = `🏆 You have won the item "${title}", please pay as soon as possible.`;
+        const content = `[bid won] 🏆 You have won the item "${title}", please pay as soon as possible.`;
         await insertNotification(highestBidder.buyer_id, auctionId, content);
 
 
@@ -29,13 +29,13 @@ async function notifyAuctionWinners() {
         await insertNotification(
           highestBidder.buyer_id,
           auctionId,
-          `Please fill in the review for the seller and click to enter the review page.`
+          `[review] Please fill in the review for the seller and click to enter the review page.`
         );
         // Send review notification to seller
         await insertNotification(
           seller_id,
           auctionId,
-          `Please fill in the review for the buyer and click to enter the review page.`
+          `[review] Please fill in the review for the buyer and click to enter the review page.`
         );
 
         await sql`
@@ -48,7 +48,7 @@ async function notifyAuctionWinners() {
         const alreadyNotified = await hasRecentNotification(seller_id, auctionId, 60 * 24 * 7);
         //console.log("alreadyNotified for seller:", alreadyNotified);
         if (!alreadyNotified) {
-          const content = `No one bid on your item "${title}". Please consider relisting it.`;
+          const content = `No one bid on your item "${title}" `;
           await insertNotification(seller_id, auctionId, content);
         }
 
@@ -69,9 +69,9 @@ async function notifyAuctionWinners() {
 }
 
 
-setInterval(() => {
-  notifyAuctionWinners();
-}, 60 * 1000);
+// setInterval(() => {
+//   notifyAuctionWinners();
+// }, 60 * 1000);
 
 notifyAuctionWinners();
 

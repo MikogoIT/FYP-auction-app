@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "notif-fn",
   "version": "1.0.0",
   "main": "index.js",
@@ -6,7 +7,7 @@
     "start": "functions-framework --target=app"
   },
   "dependencies": {
-    "@neondatabase/serverless":"^1.0.0",
+    "postgres":"~3.4.7",
     "express": "^5.1.0",
     "@google-cloud/functions-framework": "^4.0.0",
     "dotenv": "^17.2.0"

@@ -7,7 +7,8 @@ import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+// import ModeEditIcon from '@mui/icons-material/ModeEdit';
+// import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
@@ -25,6 +26,9 @@ const AdminPage = () => {
   const USERS_PER_PAGE = 10;
 
   const navigate = useNavigate(); 
+
+  // update user's name, phone number, and address
+
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -74,7 +78,7 @@ const AdminPage = () => {
         setUsers(data.users);
         setPage(page);
       } else {
-        alert(data.message || "Failed to fetch users");
+        console.log(data.message || "Failed to fetch users");
       }
     } catch (err) {
       console.error("Fetch/search users failed:", err);
@@ -91,6 +95,33 @@ const AdminPage = () => {
       handleSearch();
     }
   };
+  
+  const handleEditUser = async (newRow, oldRow) => {
+    if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
+      return newRow;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/update/${newRow.id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newRow),
+      });
+      if (res.ok) {
+        const updatedRowFromDB = await res.json();
+        console.log("Status updated");
+        return updatedRowFromDB;
+      } else {
+        console.error("Error: " + data.message);
+        return oldRow;
+      }
+    } catch (err) {
+      console.error("Request failed");
+    }
+  };
 
   const toggleFreeze = async (userId) => {
     try {
@@ -100,13 +131,13 @@ const AdminPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Status updated");
+        console.log("Status updated");
         fetchUsers();
       } else {
-        alert("Error: " + data.message);
+        console.log("Error: " + data.message);
       }
     } catch (err) {
-      alert("Request failed");
+      console.log("Request failed");
     }
   };
 
@@ -121,7 +152,7 @@ const AdminPage = () => {
       });
       const data = await res.json();
       if (res.ok) fetchUsers();
-      else alert(data.message || "Failed to delete user");
+      else console.log(data.message || "Failed to delete user");
     } catch (err) {
       console.error("Delete user failed:", err);
     }
@@ -147,8 +178,9 @@ const AdminPage = () => {
 
   const column = [
     { field: 'username', headerName: 'Username', editable: true },
-    { field: 'email', headerName: 'Email', width: 200, editable: true }, 
+    { field: 'email', headerName: 'Email', width: 200 }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
+    { field: 'address', headerName: 'Address', width: 200, editable: true }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
@@ -210,7 +242,8 @@ const AdminPage = () => {
       );
     }
   },
-  {
+  /*
+ {
     field: 'id',
     type: 'actions',
     headerName: 'Actions',
@@ -221,14 +254,14 @@ const AdminPage = () => {
 
       return [
         <GridActionsCellItem
-          icon={<ModeEditIcon />}
-          label="Edit"
+          icon={<DeleteOutlinedIcon />}
+          label="Delete User"
           onClick={handleDeleteClick(id)}
         />,
       ];
     },
   },
-
+  */
 ]
 
 
@@ -279,7 +312,9 @@ const AdminPage = () => {
       >
         <DataGrid 
           rows={users}
+          editMode="row"
           columns={column}
+          processRowUpdate={handleEditUser}
           initialState={{
             pagination: {
               paginationModel: {

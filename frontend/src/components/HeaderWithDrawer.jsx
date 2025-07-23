@@ -183,7 +183,7 @@ export default function HeaderWithDrawer({ window }) {
         </ListItem>
         <ListItem disablePadding>
           <OutlineListItemButton
-            selected={pathname === '/mylistings'}
+            selected={pathname.startsWith('/mylistings')}
             onClick={() => navigate('/mylistings')}
           >
             <ListItemIcon />
@@ -351,7 +351,7 @@ export default function HeaderWithDrawer({ window }) {
                 boxSizing: 'border-box',
                 width: drawerWidth,
                 borderRight: 'none',
-                mt: "60px",
+                mt: "55px",
               }
             }}
           >

@@ -1,7 +1,7 @@
 // src/pages/Notif.jsx
 
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
@@ -13,8 +13,8 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 export default function Notif() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // columns: message + relative time
   const columns = [
     {
       field: "message",
@@ -35,21 +35,19 @@ export default function Notif() {
     },
   ];
 
-
   useEffect(() => {
-    // change to retrieve all notifs instead of just unread only
-    fetch("/api/notifications/all", {
-      credentials: "include",
-    })
+    fetch("/api/notifications/all", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load");
         return res.json();
       })
       .then(({ notifications }) => {
         const data = notifications.map((n) => ({
-          id: n.id,
-          message: n.content,
-          createdAt: n.created_at, // keep raw timestamp
+          id:         n.id,
+          message:    n.content,
+          createdAt:  n.created_at,
+          auctionId:  n.auction_id,
+          sellerId:   n.seller_id,
         }));
         setRows(data);
       })
@@ -77,6 +75,31 @@ export default function Notif() {
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
             autoHeight
+
+            // Highlight rows that can be clicked
+            getRowClassName={(params) => {
+              const msg = params.row.message || "";
+              return msg.startsWith("[outbid]") || msg.startsWith("[review]")
+                ? "clickable-row"
+                : "";
+            }}
+
+            // Apply pointer cursor only to clickable rows
+            sx={{
+              "& .clickable-row": {
+                cursor: "pointer",
+              },
+            }}
+
+            // Navigate based on message prefix
+            onRowClick={(params) => {
+              const { message, auctionId, sellerId } = params.row;
+              if (message.startsWith("[outbid]") && auctionId) {
+                navigate(`/bid/${auctionId}`);
+              } else if (message.startsWith("[review]") && sellerId) {
+                navigate(`/feedback/${sellerId}`);
+              }
+            }}
           />
         </div>
       </div>

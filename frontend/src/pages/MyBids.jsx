@@ -75,7 +75,6 @@ export default function MyBids() {
     bid_amount: parseFloat(bid.bid_amount),
     status: bid.status,
     created_at: bid.created_at ? new Date(bid.created_at) : null,
-    updated_at: bid.updated_at ? new Date(bid.updated_at) : null,
     end_date: bid.end_date ? new Date(bid.end_date) : null,
   }));
 
@@ -85,7 +84,6 @@ export default function MyBids() {
     { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'status', headerName: 'Status', width: 120 },
     { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
-    { field: 'updated_at', headerName: 'Last Updated', type: 'dateTime', width: 180 },
     { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
     {
       field: 'actions',
@@ -132,6 +130,9 @@ export default function MyBids() {
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
               sx={{
+                "& .MuiDataGrid-columnHeader": { fontSize: "16px" },
+                "& .MuiDataGrid-cell": { fontSize: "16px" },
+                "& .MuiDataGrid-footerContainer": { fontSize: "16px" },
                 '& .actionsColumn': {
                   position: 'sticky',
                   right: 0,
