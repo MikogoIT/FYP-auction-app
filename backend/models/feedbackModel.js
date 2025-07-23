@@ -83,3 +83,50 @@ export async function hasFeedback(author_id, recipient_id, auction_id) {
   `;
   return result.length > 0;
 }
+
+export async function getUserRatings(userId) {
+  return await sql`
+    SELECT
+      user_id,
+      avg_rating,
+      total_reviews,
+    FROM user_ratings
+    WHERE user_id = ${userId}
+  `;
+}
+
+export async function updateUserRatings(userId, avgRating, totalReviews, totalRatingPoints) {
+   return await sql`
+    SELECT
+    recipient_id AS user_id,
+    ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
+    COUNT(*) AS total_reviews,
+    SUM(user_ratings) AS total_rating_points,
+    CURRENT_TIMESTAMP
+    FROM user_feedback
+    GROUP BY recipient_id
+    ON CONFLICT (user_id) DO UPDATE 
+    SET 
+        avg_rating = EXCLUDED.avg_rating,
+        total_reviews = EXCLUDED.total_reviews,
+        total_rating_points = EXCLUDED.total_rating_points,
+        updated_at = CURRENT_TIMESTAMP;
+  `;
+}
+
+/*INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
+SELECT
+    recipient_id AS user_id,
+    ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
+    COUNT(*) AS total_reviews,
+    SUM(user_ratings) AS total_rating_points,
+    CURRENT_TIMESTAMP
+FROM user_feedback
+GROUP BY recipient_id
+ON CONFLICT (user_id) DO UPDATE 
+SET 
+    avg_rating = EXCLUDED.avg_rating,
+    total_reviews = EXCLUDED.total_reviews,
+    total_rating_points = EXCLUDED.total_rating_points,
+    updated_at = CURRENT_TIMESTAMP;
+*/
