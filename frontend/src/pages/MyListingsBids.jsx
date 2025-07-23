@@ -1,7 +1,6 @@
 // src/pages/MyListingsBids.jsx
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import Button from "@mui/material/Button";
 
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
@@ -22,7 +21,7 @@ export default function MyListingsBids() {
         {/* 2 nav Buttons */}
         <div
           className="toggleButtons"
-          style={{ display: "flex", gap: 8, marginBottom: 16 }}
+          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
         >
           <Button
             variant="outlined"
@@ -30,6 +29,7 @@ export default function MyListingsBids() {
             sx={{
               borderRadius: "999px",
               borderColor: "grey.400",
+              textTransform: "none",
               color: "grey.500",
               '&:hover': { borderColor: 'grey.600' },
             }}
@@ -43,6 +43,7 @@ export default function MyListingsBids() {
               borderRadius: "999px",
               borderColor: "primary.main",
               color: "primary.main",
+              textTransform: "none",
               '&:hover': { borderColor: 'primary.dark' },
             }}
           >

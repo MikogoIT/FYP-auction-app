@@ -82,6 +82,13 @@ variable "GCS_NOTIF_BUCKET_NAME" {
   type        = string
   default     = "auctioneer-notif-bot"
 }
+
+# name of the notif bot code in zip
+variable "notif_object" {
+  type = string
+}
+
+
 # ---------------------------------------------
 # New: Telegram bot token variable
 # ---------------------------------------------
@@ -317,7 +324,7 @@ resource "google_cloudfunctions2_function" "notif" {
     source {
       storage_source {
         bucket = google_storage_bucket.notif_source_bucket.name
-        object = "notif.zip"
+        object = var.notif_object
       }
     }
   }

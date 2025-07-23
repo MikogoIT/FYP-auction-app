@@ -150,8 +150,10 @@ terraform:
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
-    GCS_TELE_BUCKET_NAME: "${GCS_TELE_BUCKET_NAME}"
-    GCS_NOTIF_BUCKET_NAME: "${GCS_NOTIF_BUCKET_NAME}"
+    TF_VAR_GCS_TELE_BUCKET_NAME: "${GCS_TELE_BUCKET_NAME}"
+    TF_VAR_GCS_NOTIF_BUCKET_NAME: "${GCS_NOTIF_BUCKET_NAME}"
+    TF_VAR_notif_object: "notif-${CI_COMMIT_SHORT_SHA}.zip"
+
   script:
     - terraform init
     - terraform apply -auto-approve
@@ -219,8 +221,9 @@ upload-assets:
     - cd notif
     - zip -r ../notif.zip .
     - cd -
-    - echo "Uploading notif.zip → gs://$GCS_NOTIF_BUCKET_NAME/notif.zip"
-    - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/notif.zip
+    - export ZIP_NAME="notif-${CI_COMMIT_SHA}.zip"
+    - echo "Uploading notif.zip as $ZIP_NAME → gs://$GCS_NOTIF_BUCKET_NAME/$ZIP_NAME"
+    - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/"$ZIP_NAME"
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
