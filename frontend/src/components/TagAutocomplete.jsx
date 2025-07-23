@@ -110,7 +110,8 @@ export default function TagAutocomplete({
     if (k === "enter" || k === ",") {
       e.preventDefault();
 
-      let newTag = inputValue.trim().replace(/,+$/, "").toLowerCase();
+      // Normalize tag: trim spaces, remove all commas, to lowercase
+      let newTag = inputValue.trim().replace(/,/g, "").toLowerCase();
 
       const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
       const isLocked = lockedTag?.toLowerCase() === newTag;
@@ -126,7 +127,8 @@ export default function TagAutocomplete({
 
   // Handles Blur Add on Mobile to manually add tags
   const handleBlurAdd = () => {
-    let newTag = inputValue.trim().replace(/,+$/, "").toLowerCase();
+    // Normalize tag: trim spaces, remove all commas, to lowercase
+    let newTag = inputValue.trim().replace(/,/g, "").toLowerCase();
 
     const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
     const isLocked = lockedTag?.toLowerCase() === newTag;
