@@ -1,11 +1,11 @@
 // src/components/ListingCard.jsx
+import React from "react";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import ImageIcon from "@mui/icons-material/Image";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
 import "@material/web/button/filled-button.js";
 import { useTheme } from "@mui/material/styles";
 
@@ -23,7 +23,7 @@ export default function ListingCard({
   const isOwner = item.seller_id === currentUserId;
 
   return (
-    <Box className="listingCard">
+    <div className="listingCard">
       {item.image_url ? (
         <img
           src={item.image_url}
@@ -39,10 +39,8 @@ export default function ListingCard({
         </Avatar>
       )}
 
-      <Box className="listingDetails">
-        <Typography className="listingTitle" variant="h6">
-          {item.title}
-        </Typography>
+      <div className="listingDetails">
+        <div className="listingTitle">{item.title}</div>
 
         <Typography
           variant="body2"
@@ -95,7 +93,6 @@ export default function ListingCard({
             borderColor: "success.main",
             borderRadius: "999px",
             color: "success.main",
-            mb: 1,
           }}
         >
           Current bid:&nbsp;
@@ -109,9 +106,9 @@ export default function ListingCard({
               : "No bids yet"}
           </strong>
         </Typography>
-      </Box>
+      </div>
 
-      <Box className="listingAction">
+      <div className="listingAction">
         <IconButton onClick={() => onToggleLike(item.id)} size="large">
           {isLiked ? (
             <FavoriteIcon color="error" />
@@ -120,19 +117,18 @@ export default function ListingCard({
           )}
         </IconButton>
 
+        {/* Combined conditional button for Edit vs Bid */}
         <md-filled-button
-          onClick={() =>
-            isOwner ? onEditClick(item.id) : onBidClick(item.id)
-          }
+          onClick={() => (isOwner ? onEditClick(item.id) : onBidClick(item.id))}
           style={{
             flexGrow: 1,
-            "--md-sys-color-primary": yellow,
-            "--md-sys-color-on-primary": contrastText,
+            "--md-sys-color-primary": isOwner ? yellow : undefined,
+            "--md-sys-color-on-primary": isOwner ? contrastText : undefined,
           }}
         >
           {isOwner ? "Edit" : "Bid"}
         </md-filled-button>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
