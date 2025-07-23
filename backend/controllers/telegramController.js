@@ -2,7 +2,7 @@
 import * as telegramModel from "../models/telegramModel.js";
 import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
-import { getSellerId } from "../models/listingsModel.js";
+import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
@@ -354,13 +354,23 @@ export async function getComprehensiveRecommendationsByUserId(req, res) {
             }
         }
 
-        const final = combinedRecommendations.slice(0, limit);
+        let final = combinedRecommendations.slice(0, limit);
+
+        // Fallback if no recommendations found (user has no watchlist)
+        if (final.length === 0) {
+            const trending = await getTrendingListings(limit);
+            final = trending.map(item => ({
+                ...item,
+                recommendation_type: "trending"
+            }));
+        }
 
         res.json({
             recommendations: final,
             total: final.length,
             category_count: final.filter(r => r.recommendation_type === "category").length,
             tag_count: final.filter(r => r.recommendation_type === "tag").length,
+            trending_count: final.filter(r => r.recommendation_type === "trending").length,
         });
     } catch (err) {
         console.error("Error getting recommendations by User ID: ", err);

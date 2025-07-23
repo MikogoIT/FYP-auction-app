@@ -181,7 +181,7 @@ export async function getTelegramMessageByAuctionId(auctionId) {
 // Get listings with telegram messages info (for the bot to fetch)
 export async function getListingsWithTelegramMessages() {
     return await sql`
-        SELECT al.*, tm.message_id, tm.channel_id
+        SELECT al.*, tm.message_id, tm.channel_id, tm.caption
         FROM auction_listings al
         JOIN telegram_messages tm ON al.id = tm.auction_id
         WHERE al.is_active = TRUE
