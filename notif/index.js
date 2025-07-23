@@ -1,9 +1,18 @@
 // index.js
 require('dotenv').config();
 const express = require('express');
-const { neon } = require('@neondatabase/serverless');
+import postgres from 'postgres';
 
-const sql = neon(process.env.DATABASE_URL);
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('Missing DATABASE_URL');
+}
+
+// initialize Postgres.js; you can add ssl options if you need them
+export const sql = postgres(connectionString, {
+//   ssl: { rejectUnauthorized: false },
+});
+
 const app = express();
 
 // parse JSON bodies

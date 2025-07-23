@@ -53,3 +53,28 @@ export async function deleteUserBid(buyerId, bidId) {
     RETURNING *
   `;
 }
+
+// Get all bids placed on listings of the current user (seller)
+export async function getBidsOnUserListings(sellerId) {
+  return await sql`
+    SELECT
+      b.id             AS bid_id,
+      b.bid_amount,
+      b.created_at     AS bid_created_at,
+      b.updated_at     AS bid_updated_at,
+      b.status,
+      b.buyer_id,
+      a.id             AS listing_id,
+      a.title          AS listing_name,
+      a.start_price,
+      a.min_bid,
+      a.end_date       AS listing_end_date,
+      a.auction_type,
+      a.is_active
+    FROM bids b
+    JOIN auction_listings a
+      ON b.auction_id = a.id
+    WHERE a.seller_id = ${sellerId}
+    ORDER BY b.created_at DESC
+  `;
+}

@@ -5,21 +5,13 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import { useTheme } from "@mui/material/styles";
-
-// Material-Web buttons
-import "@material/web/button/filled-button.js";
-import "@material/web/button/filled-tonal-button.js";
+import Button from "@mui/material/Button";
 
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
-
 export default function MyListings() {
   const navigate = useNavigate();
-
   const theme = useTheme();
-
-  const yellow = theme.palette.warning.light;
-  const contrastText = theme.palette.getContrastText(yellow);
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,9 +22,7 @@ export default function MyListings() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/mylistings", {
-          credentials: "include",
-        });
+        const res = await fetch("/api/mylistings", { credentials: "include" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
 
@@ -61,19 +51,50 @@ export default function MyListings() {
   }, []);
 
   const totalPages = Math.ceil(listings.length / perPage);
-  const currentPageItems = listings.slice(
-    (page - 1) * perPage,
-    page * perPage
-  );
+  const currentPageItems = listings.slice((page - 1) * perPage, page * perPage);
 
   const handleEdit = (id) => navigate(`/edit/${id}`);
 
   return (
     <div className="dashboardCanvas">
-    <div className="sidebarSpacer"></div>
-    <div className="dashboardContent">
-      <BreadcrumbsNav />
-        <div id="wideTitle" className="profileTitle">My Listings</div>
+      <div className="sidebarSpacer" />
+      <div className="dashboardContent">
+        <BreadcrumbsNav />
+
+        {/* 2 nav Buttons */}
+        <div
+          className="toggleButtons"
+          style={{ display: "flex", gap: 8, marginBottom: 16 }}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/myListings")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "primary.main",
+              color: "primary.main",
+              '&:hover': { borderColor: 'primary.dark' },
+            }}
+          >
+            My Listings
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/MyListingsBids")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "grey.400",
+              color: "grey.500",
+              '&:hover': { borderColor: 'grey.600' },
+            }}
+          >
+            Bids On My Listings
+          </Button>
+        </div>
+
+        <div id="wideTitle" className="profileTitle">
+          My Listings
+        </div>
 
         {loading ? (
           <p className="centerText">Loading…</p>
@@ -108,22 +129,25 @@ export default function MyListings() {
                       <strong>Min Bid:</strong> ${item.min_bid}
                     </p>
                     <p className="listingEndDate">
-                      <strong>Ends:</strong>{" "}
-                      {new Date(item.end_date).toLocaleString()}
+                      <strong>Ends:</strong> {new Date(item.end_date).toLocaleString()}
                     </p>
                   </div>
                   <div className="listingAction">
-                      <md-filled-button
-                        onClick={() => handleEdit(item.id)}
-                        style={{ 
-                          width: "100%" ,
-                          "--md-sys-color-primary": yellow,
-                          "--md-sys-color-on-primary": contrastText,
-                          }}
-                        >
-                        Edit
-                      </md-filled-button>
-                    </div>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleEdit(item.id)}
+                      sx={{
+                        width: "100%",
+                        backgroundColor: theme.palette.warning.light,
+                        color: theme.palette.getContrastText(
+                          theme.palette.warning.light
+                        ),
+                        '&:hover': { backgroundColor: theme.palette.warning.dark },
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -131,24 +155,30 @@ export default function MyListings() {
             {totalPages > 1 && (
               <div className="paginationControls">
                 {page > 1 && (
-                  <md-filled-button onClick={() => setPage(page - 1)}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setPage(page - 1)}
+                  >
                     ← Previous
-                  </md-filled-button>
+                  </Button>
                 )}
                 <span className="pageIndicator">
                   Page {page} of {totalPages}
                 </span>
                 {page < totalPages && (
-                  <md-filled-tonal-button onClick={() => setPage(page + 1)}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setPage(page + 1)}
+                  >
                     Next →
-                  </md-filled-tonal-button>
+                  </Button>
                 )}
               </div>
             )}
           </>
         )}
       </div>
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }
