@@ -213,26 +213,7 @@ const AdminPage = () => {
         </Box>
       );
     }
-  },
-  {
-    field: 'id',
-    type: 'actions',
-    headerName: 'Actions',
-    display: "flex",
-    cellClassName: 'actions',
-    getActions: ({ id }) => {
-
-
-      return [
-        <GridActionsCellItem
-          icon={<ModeEditIcon />}
-          label="Edit"
-          onClick={handleDeleteClick(id)}
-        />,
-      ];
-    },
-  },
-
+  }
 ]
 
 
