@@ -39,7 +39,6 @@ export default function ListingCard({
 
       <div className="listingDetails">
         <div className="listingTitle">{item.title}</div>
-        <p className="listingDesc">{item.description}</p>
         <p className="listingMinBid">
           <strong>Min Bid:</strong> ${item.min_bid}
         </p>

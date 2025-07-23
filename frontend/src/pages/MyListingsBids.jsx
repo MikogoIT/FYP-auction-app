@@ -16,7 +16,7 @@ export default function MyListingsBids() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/MyListingsBids", {
+        const res = await fetch("/api/bids/MyListingsBids", {
           credentials: "include",
         });
         const data = await res.json();

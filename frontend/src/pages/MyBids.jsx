@@ -85,7 +85,6 @@ export default function MyBids() {
     { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'status', headerName: 'Status', width: 120 },
     { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
-    { field: 'updated_at', headerName: 'Last Updated', type: 'dateTime', width: 180 },
     { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
     {
       field: 'actions',

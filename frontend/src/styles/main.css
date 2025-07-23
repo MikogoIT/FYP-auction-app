@@ -329,14 +329,8 @@ background-color: #e0e0e0;
 
 .listingDesc
 {
-  overflow-y: auto;
-  max-height: 100px;
-}
-
-#listingDescBig
-{
-  overflow-y: auto;
-  max-height: 140px;
+  overflow-y: hidden;
+  max-height: 50px;
 }
 
 .listingTitle {
