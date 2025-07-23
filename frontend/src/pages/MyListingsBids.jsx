@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
+import Avatar from "@mui/material/Avatar";
 
 export default function MyListingsBids() {
   const navigate = useNavigate();
@@ -35,21 +36,38 @@ export default function MyListingsBids() {
 
   // map API objects into DataGrid rows
 
+  // 1) Map in the image URL
   const rows = bids.map((b) => ({
     id:           b.bid_id,
+    image:        b.listing_image_url,             // ← new
     listing_name: b.listing_name,
     buyer_name:   b.buyer_name ?? "(no name)",
-    bid_amount: parseFloat(b.bid_amount),
+    bid_amount:   parseFloat(b.bid_amount),
     created_at:   b.bid_created_at ? new Date(b.bid_created_at) : null,
     end_date:     b.listing_end_date ? new Date(b.listing_end_date) : null,
   }));
 
+  // 2) Add an Image column with renderCell
   const columns = [
+    {
+      field: "image",
+      headerName: "Image",
+      width: 100,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Avatar
+          src={params.value}
+          variant="square"
+          sx={{ width: 48, height: 48, mr: 1 }}
+        />
+      ),
+    },
     { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
-    { field: "buyer_name", headerName: "Buyer Name",  width: 180, flex: 1 },
-    { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
-    { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
-    { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
+    { field: "buyer_name",   headerName: "Buyer Name", flex: 1, width: 180 },
+    { field: 'bid_amount',   headerName: 'Bid Amount ($)', type: 'number', width: 130 },
+    { field: 'created_at',   headerName: 'Placed On',   type: 'dateTime', width: 180 },
+    { field: 'end_date',     headerName: 'Ends On',     type: 'dateTime', width: 180 },
   ];
 
   return (

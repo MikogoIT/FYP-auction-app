@@ -1,5 +1,4 @@
 // src/components/ListingCard.jsx
-import React from "react";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import ImageIcon from "@mui/icons-material/Image";
