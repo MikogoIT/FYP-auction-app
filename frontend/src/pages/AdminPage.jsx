@@ -7,7 +7,8 @@ import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Header from "../components/Header";
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+// import ModeEditIcon from '@mui/icons-material/ModeEdit';
+// import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
@@ -240,7 +241,27 @@ const AdminPage = () => {
         </Box>
       );
     }
-  }
+  },
+  /*
+ {
+    field: 'id',
+    type: 'actions',
+    headerName: 'Actions',
+    display: "flex",
+    cellClassName: 'actions',
+    getActions: ({ id }) => {
+
+
+      return [
+        <GridActionsCellItem
+          icon={<DeleteOutlinedIcon />}
+          label="Delete User"
+          onClick={handleDeleteClick(id)}
+        />,
+      ];
+    },
+  },
+  */
 ]
 
 
