@@ -72,7 +72,7 @@ export default function MyListings() {
         >
           <Button
             variant="outlined"
-            onClick={() => navigate("/myListings")}
+            onClick={() => navigate("/mylistings")}
             sx={{
               borderRadius: "999px",
               borderColor: "primary.main",

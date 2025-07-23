@@ -45,7 +45,6 @@ export default function MyListingsBids() {
   }));
 
   const columns = [
-    { field: "bid_id",     headerName: "Bid ID",      width: 100 },
     { field: "buyer_name", headerName: "Buyer Name",  width: 180, flex: 1 },
     { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
@@ -71,7 +70,7 @@ export default function MyListingsBids() {
         >
           <Button
             variant="outlined"
-            onClick={() => navigate("/myListings")}
+            onClick={() => navigate("/mylistings")}
             sx={{
               borderRadius: "999px",
               borderColor: "grey.400",
