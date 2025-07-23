@@ -28,31 +28,29 @@ export default function MyListingsBids() {
     })();
   }, []);
 
-  // Convert your API fields into exactly what DataGrid expects:
+  // Map API fields into DataGrid rows, including buyer_name
   const rows = bids.map((b) => ({
-    id: b.bid_id,                                // DataGrid’s required unique id
-    buyer_id: b.buyer_id,
-    bid_amount: parseFloat(b.bid_amount),        // make it a number
-    created_at: b.bid_created_at
-      ? new Date(b.bid_created_at)
-      : null,                                     // make it a Date
-    listing_id: b.listing_id,
+    id:           b.bid_id,                            // unique row id
+    bid_id:       b.bid_id,
+    buyer_name:   b.buyer_name,                        // new field
+    bid_amount:   parseFloat(b.bid_amount),
+    created_at:   b.bid_created_at ? new Date(b.bid_created_at) : null,
     listing_name: b.listing_name,
-    end_date: b.listing_end_date
-      ? new Date(b.listing_end_date)
-      : null,                                     // make it a Date
+    end_date:     b.listing_end_date ? new Date(b.listing_end_date) : null,
   }));
 
   const columns = [
-    { field: "id",           headerName: "Bid ID",      width: 100 },
-    { field: "buyer_id",     headerName: "Buyer ID",    width: 100 },
+    { field: "bid_id",       headerName: "Bid ID",         width: 100 },
+    { field: "buyer_name",   headerName: "Buyer Name",     width: 180, flex: 1 },
     {
       field: "bid_amount",
-      headerName: "Amount ($)",
+      headerName: "Amount",
       type: "number",
       width: 120,
       valueFormatter: ({ value }) =>
-        value != null ? value.toLocaleString(undefined, { style: "currency", currency: "USD" }) : "",
+        value != null
+          ? value.toLocaleString(undefined, { style: "currency", currency: "USD" })
+          : "",
     },
     {
       field: "created_at",
@@ -60,12 +58,11 @@ export default function MyListingsBids() {
       type: "dateTime",
       width: 180,
     },
-    { field: "listing_id",   headerName: "Listing ID",  width: 100 },
     {
       field: "listing_name",
       headerName: "Listing Name",
+      width: 200,
       flex: 1,
-      minWidth: 150,
     },
     {
       field: "end_date",
@@ -89,14 +86,14 @@ export default function MyListingsBids() {
           <Button
             variant="outlined"
             onClick={() => navigate("/myListings")}
-            sx={{ borderRadius: "999px", textTransform: "none" }}
+            sx={{ borderRadius: "999px", textTransform: "none" , fontSize: "16px",}}
           >
             My Listings
           </Button>
           <Button
             variant="outlined"
             onClick={() => navigate("/myListingsBids")}
-            sx={{ borderRadius: "999px", textTransform: "none" }}
+            sx={{ borderRadius: "999px", textTransform: "none", fontSize: "16px", }}
           >
             Bids On My Listings
           </Button>
@@ -113,6 +110,21 @@ export default function MyListingsBids() {
             pageSize={5}
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
+            sx={{
+              fontSize: "16px",
+              // header
+              "& .MuiDataGrid-columnHeader": {
+                fontSize: "16px",
+              },
+              // cells
+              "& .MuiDataGrid-cell": {
+                fontSize: "16px",
+              },
+              // pagination, footer, etc
+              "& .MuiDataGrid-footerContainer": {
+                fontSize: "16px",
+              },
+            }}
           />
         </div>
       </div>
