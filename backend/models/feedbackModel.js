@@ -89,7 +89,7 @@ export async function getUserRatings(userId) {
     SELECT
       user_id,
       avg_rating,
-      total_reviews,
+      total_reviews
     FROM user_ratings
     WHERE user_id = ${userId}
   `;
