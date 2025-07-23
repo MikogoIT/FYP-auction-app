@@ -264,6 +264,7 @@ const AdminPage = () => {
       >
         <DataGrid 
           rows={users}
+          editMode="row"
           columns={column}
           initialState={{
             pagination: {
