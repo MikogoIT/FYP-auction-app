@@ -7,6 +7,10 @@ import ImageIcon from "@mui/icons-material/Image";
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 
+// Material-Web buttons
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
+
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 export default function MyListings() {
@@ -135,21 +139,17 @@ export default function MyListings() {
                     </p>
                   </div>
                   <div className="listingAction">
-                    <Button
-                      variant="contained"
-                      onClick={() => handleEdit(item.id)}
-                      sx={{
-                        width: "100%",
-                        backgroundColor: theme.palette.warning.light,
-                        color: theme.palette.getContrastText(
-                          theme.palette.warning.light
-                        ),
-                        '&:hover': { backgroundColor: theme.palette.warning.dark },
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  </div>
+                      <md-filled-button
+                        onClick={() => handleEdit(item.id)}
+                        style={{ 
+                          width: "100%" ,
+                          "--md-sys-color-primary": yellow,
+                          "--md-sys-color-on-primary": contrastText,
+                          }}
+                        >
+                        Edit
+                      </md-filled-button>
+                    </div>
                 </div>
               ))}
             </div>

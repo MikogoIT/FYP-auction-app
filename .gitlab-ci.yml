@@ -221,7 +221,7 @@ upload-assets:
     - cd notif
     - zip -r ../notif.zip .
     - cd -
-    - export ZIP_NAME="notif-${CI_COMMIT_SHA}.zip"
+    - export ZIP_NAME="notif-${CI_COMMIT_SHORT_SHA}.zip"
     - echo "Uploading notif.zip as $ZIP_NAME → gs://$GCS_NOTIF_BUCKET_NAME/$ZIP_NAME"
     - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/"$ZIP_NAME"
 
