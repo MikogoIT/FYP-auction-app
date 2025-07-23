@@ -75,7 +75,6 @@ export default function MyBids() {
     bid_amount: parseFloat(bid.bid_amount),
     status: bid.status,
     created_at: bid.created_at ? new Date(bid.created_at) : null,
-    updated_at: bid.updated_at ? new Date(bid.updated_at) : null,
     end_date: bid.end_date ? new Date(bid.end_date) : null,
   }));
 

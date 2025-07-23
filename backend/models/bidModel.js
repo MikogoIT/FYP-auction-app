@@ -65,7 +65,7 @@ export async function getBidsOnUserListings(sellerId) {
       b.updated_at     AS bid_updated_at,
       b.status,
       b.buyer_id,
-      u.name           AS buyer_name, 
+      u.username           AS buyer_name, 
       a.id             AS listing_id,
       a.title          AS listing_name,
       a.start_price,

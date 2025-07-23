@@ -34,57 +34,23 @@ export default function MyListingsBids() {
   }, []);
 
   // map API objects into DataGrid rows
-  const rows = bids.map((b, idx) => {
-    console.log(`🔍 bid[${idx}] raw:`, b);
-    const row = {
-      id:           b.bid_id,
-      bid_id:       b.bid_id,
-      buyer_name:   b.buyer_name ?? "(no name)",
-      bid_amount:   b.bid_amount != null ? parseFloat(b.bid_amount) : null,
-      created_at:   b.bid_created_at ? new Date(b.bid_created_at) : null,
-      listing_name: b.listing_name,
-      end_date:     b.listing_end_date ? new Date(b.listing_end_date) : null,
-    };
-    console.log(`➡️ row[${idx}] mapped:`, row);
-    return row;
-  });
+
+  const rows = bids.map((b) => ({
+    id:           b.bid_id,
+    listing_name: b.listing_name,
+    buyer_name:   b.buyer_name ?? "(no name)",
+    bid_amount: parseFloat(b.bid_amount),
+    created_at:   b.bid_created_at ? new Date(b.bid_created_at) : null,
+    end_date:     b.listing_end_date ? new Date(b.listing_end_date) : null,
+  }));
 
   const columns = [
     { field: "bid_id",     headerName: "Bid ID",      width: 100 },
     { field: "buyer_name", headerName: "Buyer Name",  width: 180, flex: 1 },
-    {
-      field: "bid_amount",
-      headerName: "Amount",
-      type: "number",
-      width: 120,
-      valueFormatter: ({ value }) => {
-        console.log("💰 formatting bid_amount value:", value);
-        return value != null
-          ? value.toLocaleString(undefined, {
-              style: "currency",
-              currency: "USD",
-            })
-          : "";
-      },
-    },
-    {
-      field: "created_at",
-      headerName: "Bid Date",
-      type: "dateTime",
-      width: 180,
-    },
-    {
-      field: "listing_name",
-      headerName: "Listing Name",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: "end_date",
-      headerName: "Ends",
-      type: "dateTime",
-      width: 180,
-    },
+    { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
+    { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
+    { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
+    { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
   ];
 
   return (
@@ -132,12 +98,9 @@ export default function MyListingsBids() {
         </div>
 
 
-        <h1
-          className="profileTitle"
-          style={{ fontSize: "16px", marginBottom: 16 }}
-        >
+        <div id="wideTitle" className="profileTitle">
           Bids on My Listings
-        </h1>
+        </div>
 
         {/* Data Grid */}
         <div style={{ width: "100%" }}>
