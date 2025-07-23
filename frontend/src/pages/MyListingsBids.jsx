@@ -45,10 +45,10 @@ export default function MyListingsBids() {
   }));
 
   const columns = [
+    { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
     { field: "buyer_name", headerName: "Buyer Name",  width: 180, flex: 1 },
     { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'created_at', headerName: 'Placed On', type: 'dateTime', width: 180 },
-    { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
     { field: 'end_date', headerName: 'Ends On', type: 'dateTime', width: 180 },
   ];
 

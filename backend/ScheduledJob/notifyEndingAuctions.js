@@ -44,9 +44,9 @@ async function notifyEndingAuctions() {
   }
 }
 
-setInterval(() => {
-  notifyEndingAuctions();
-}, 60 * 1000);
+// setInterval(() => {
+//   notifyEndingAuctions();
+// }, 60 * 1000);
 
 notifyEndingAuctions();
 
