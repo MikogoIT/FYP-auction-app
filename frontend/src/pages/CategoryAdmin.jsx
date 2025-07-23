@@ -22,7 +22,27 @@ export default function CategoryAdmin() {
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* page title */}
-        <div className="profileTitle">Category Management</div>
+        <div className="profileTitle">Admin Dashboard</div>
+        <Stack direction="row" spacing={2}>
+            <Button 
+            variant="contained"
+            component={Link}
+            to="/admin"
+            sx={{
+              borderColor: "grey.400",
+              color: "grey.500",
+              "&:hover": {borderColor: "grey.600"}
+            }}
+            >
+              User Management</Button>
+            <Button
+            variant="outlined"
+            component={Link}
+            to="/admin/categoryadmin"
+            color="primary"
+            >
+              Category Management</Button>
+        </Stack>
         
     
       </div>
