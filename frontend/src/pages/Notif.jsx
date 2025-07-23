@@ -44,7 +44,7 @@ export default function Notif() {
       .then(({ notifications }) => {
         const data = notifications.map((n) => ({
           id:         n.id,
-          message:    n.message,
+          message:    n.content,
           createdAt:  n.created_at,
           auctionId:  n.auction_id,
           sellerId:   n.seller_id,
