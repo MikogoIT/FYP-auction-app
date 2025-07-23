@@ -101,7 +101,7 @@ const AdminPage = () => {
     }
 
     try {
-      const res = await fetch(`/api/admin/update/${userId}`, {
+      const res = await fetch(`/api/admin/update/${newRow.id}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -293,7 +293,7 @@ const AdminPage = () => {
           rows={users}
           editMode="row"
           columns={column}
-          // processRowUpdate={handleEditUser}
+          processRowUpdate={handleEditUser}
           initialState={{
             pagination: {
               paginationModel: {
