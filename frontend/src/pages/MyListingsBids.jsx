@@ -14,12 +14,25 @@ export default function MyListingsBids() {
   useEffect(() => {
     (async () => {
       try {
+        console.log("⏳ Fetching bids on my listings…");
         const res = await fetch("/api/bids/MyListingsBids", {
           credentials: "include",
         });
+        console.log("👉 Fetch response status:", res.status, res);
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
+        console.log("📦 API returned:", data);
+
+        if (!res.ok) {
+          console.error("❌ API error message:", data.message);
+          throw new Error(data.message || "Unknown error");
+        }
+
+        if (!Array.isArray(data.bids)) {
+          console.warn("⚠️ Unexpected `bids` type:", typeof data.bids, data.bids);
+        }
+
         setBids(data.bids);
+        console.log("✅ Bids state set:", data.bids);
       } catch (err) {
         console.error("Failed to fetch bids on listings:", err);
       } finally {
@@ -67,10 +80,11 @@ export default function MyListingsBids() {
     },
   ];
 
-  const rows = bids.map((b) => ({
-    id: b.bid_id,
-    ...b,
-  }));
+  const rows = bids.map((b) => {
+    const row = { id: b.bid_id, ...b };
+    console.log("➡️ row prepared for DataGrid:", row);
+    return row;
+  });
 
   return (
     <div className="dashboardCanvas">
@@ -78,6 +92,7 @@ export default function MyListingsBids() {
       <div className="dashboardContent">
         <BreadcrumbsNav />
 
+        {/* Toggle Buttons */}
         <div
           className="toggleButtons"
           style={{
@@ -115,10 +130,12 @@ export default function MyListingsBids() {
           </Button>
         </div>
 
+        {/* Page title */}
         <div id="wideTitle" className="profileTitle">
           Bids on My Listings
         </div>
 
+        {/* Data Grid */}
         <div style={{ width: "100%" }}>
           <DataGrid
             rows={rows}
