@@ -115,7 +115,7 @@ export default function Dashboard() {
             className="dashboard-swiper"
           >
             {recentListings.map(item => (
-              <SwiperSlide key={item.id}>
+              <SwiperSlide key={item.id} style={{ width: 300}}>
                 <ListingCard
                   item={item}
                   currentUserId={currentUserId}

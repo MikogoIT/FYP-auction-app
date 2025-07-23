@@ -6,8 +6,6 @@ import BreadcrumbsNav from "../components/BreadcrumbsNav";
 import Button from "@mui/material/Button";
 import { DataGrid } from "@mui/x-data-grid";
 
-// Material Web buttons are no longer needed here
-
 export default function MyListingsBids() {
   const navigate = useNavigate();
   const [bids, setBids] = useState([]);
@@ -31,27 +29,34 @@ export default function MyListingsBids() {
   }, []);
 
   const columns = [
-    { field: 'bid_id', headerName: 'Bid ID', width: 100 },
-    { field: 'buyer_id', headerName: 'Buyer ID', width: 100 },
+    { field: "bid_id", headerName: "Bid ID", width: 100 },
+    { field: "buyer_id", headerName: "Buyer ID", width: 100 },
     {
-      field: 'bid_amount',
-      headerName: 'Amount',
+      field: "bid_amount",
+      headerName: "Amount",
       width: 120,
       valueFormatter: ({ value }) => `$${Number(value).toFixed(2)}`,
     },
     {
-      field: 'created_at',
-      headerName: 'Bid Date',
+      field: "created_at",
+      headerName: "Bid Date",
       width: 180,
-      valueGetter: ({ row }) => new Date(row.created_at).toLocaleString(),
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : "",
     },
-    { field: 'listing_id', headerName: 'Listing ID', width: 100 },
-    { field: 'listing_name', headerName: 'Listing Name', width: 200, flex: 1 },
+    { field: "listing_id", headerName: "Listing ID", width: 100 },
     {
-      field: 'end_date',
-      headerName: 'Ends',
+      field: "listing_name",
+      headerName: "Listing Name",
+      width: 200,
+      flex: 1,
+    },
+    {
+      field: "end_date",
+      headerName: "Ends",
       width: 180,
-      valueGetter: ({ row }) => new Date(row.end_date).toLocaleString(),
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleString() : "",
     },
   ];
 
@@ -67,7 +72,12 @@ export default function MyListingsBids() {
         {/* Toggle Buttons */}
         <div
           className="toggleButtons"
-          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
+          style={{
+            display: "flex",
+            gap: 8,
+            marginBottom: 16,
+            width: "100%",
+          }}
         >
           <Button
             variant="outlined"
@@ -77,20 +87,20 @@ export default function MyListingsBids() {
               borderColor: "grey.400",
               textTransform: "none",
               color: "grey.500",
-              '&:hover': { borderColor: 'grey.600' },
+              "&:hover": { borderColor: "grey.600" },
             }}
           >
             My Listings
           </Button>
           <Button
             variant="outlined"
-            onClick={() => navigate("/mylistings/MyListingsBids")}
+            onClick={() => navigate("/myListingsBids")}
             sx={{
               borderRadius: "999px",
               borderColor: "primary.main",
               color: "primary.main",
               textTransform: "none",
-              '&:hover': { borderColor: 'primary.dark' },
+              "&:hover": { borderColor: "primary.dark" },
             }}
           >
             Bids On My Listings
@@ -103,7 +113,7 @@ export default function MyListingsBids() {
         </div>
 
         {/* Data Grid */}
-        <div style={{ height: 500, width: '100%' }}>
+        <div style={{ width: "100%" }}>
           <DataGrid
             rows={rows}
             columns={columns}

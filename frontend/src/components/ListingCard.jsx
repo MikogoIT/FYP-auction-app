@@ -63,6 +63,7 @@ export default function ListingCard({
             borderRadius: "999px",
             color: "grey.800",
             mb: 1,
+            width: "fit-content",
           }}
         >
           Starting bid:&nbsp;
@@ -85,6 +86,7 @@ export default function ListingCard({
             borderColor: "success.main",
             borderRadius: "999px",
             color: "success.main",
+            width: "fit-content",
           }}
         >
           Current bid:&nbsp;
