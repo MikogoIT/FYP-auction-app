@@ -147,7 +147,7 @@ export async function handleGetComprehensiveRecommendations(req, res) {
     // Add fallback to trending if nothing found
     if (finalRecommendations.length === 0) {
       const trending = await getTrendingListings(limit);
-      finalRecommendations = trendingFallback.map(item => ({
+      finalRecommendations = trending.map(item => ({
         ...item,
         recommendation_type: 'trending'
       }));
