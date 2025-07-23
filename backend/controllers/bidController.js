@@ -1,12 +1,6 @@
 // controllers/bidController.js
-import {
-  insertBid,
-  getAuctionMinBid,
-  getUserBidsWithListing,
-  deleteUserBid,
-} from "../models/bidModel.js";
-import { insertNotification } from "../models/notificationModel.js";
-
+import * as bidModel from "../models/bidModel.js";
+import * as notificationModel from "../models/notificationModel.js";
 import { sql } from "../utils/db.js";
 
 export async function createBid(req, res) {
@@ -16,51 +10,53 @@ export async function createBid(req, res) {
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  
   if (!auction_id || !bid_amount) {
     return res.status(400).json({ message: "Missing bid info" });
   }
-
-  // bid_amount must be a number
   if (typeof bid_amount !== "number" || isNaN(bid_amount)) {
     return res.status(400).json({ message: "Bid amount must be a number" });
   }
 
   try {
-    // Query auction type
+    // Get auction metadata
     const auctionInfo = await sql`
-      SELECT auction_type, title FROM auction_listings WHERE id = ${auction_id}
+      SELECT auction_type, title
+      FROM auction_listings
+      WHERE id = ${auction_id}
     `;
     if (auctionInfo.length === 0) {
       return res.status(404).json({ message: "Auction not found" });
     }
-    const auctionType = auctionInfo[0].auction_type;
-    const auctionTitle = auctionInfo[0].title;
+    const { auction_type: auctionType, title: auctionTitle } = auctionInfo[0];
 
-    // Query the current highest/lowest bid
-    const minBidData = await getAuctionMinBid(auction_id);
-    let validBid = true;
-    let errorMsg = "";
+    // Validate against current bids / starting bid
+    const minBidData = await bidModel.getAuctionMinBid(auction_id);
+    let validBid = true, errorMsg = "";
 
     if (auctionType === "ascending") {
-      // Ascending auction: must be higher than the current price
       const minBid = parseFloat(minBidData.highest_bid || minBidData.min_bid);
-      if (parseFloat(bid_amount) <= minBid) {
+      if (bid_amount <= minBid) {
         validBid = false;
         errorMsg = `Bid must be higher than current price ($${minBid})`;
       }
 
     } else if (auctionType === "descending") {
-      // Descending auction: must be lower than the current lowest price and not lower than 1
-      const prevLowest = await sql`
-        SELECT bid_amount FROM bids WHERE auction_id = ${auction_id} ORDER BY bid_amount ASC, created_at ASC LIMIT 1
+      const prev = await sql`
+        SELECT bid_amount
+        FROM bids
+        WHERE auction_id = ${auction_id}
+        ORDER BY bid_amount ASC, created_at ASC
+        LIMIT 1
       `;
-      const lowestBid = prevLowest.length > 0 ? parseFloat(prevLowest[0].bid_amount) : null;
-      if (lowestBid !== null && parseFloat(bid_amount) >= lowestBid) {
+      const lowestBid = prev[0]?.bid_amount != null
+        ? parseFloat(prev[0].bid_amount)
+        : null;
+
+      if (lowestBid !== null && bid_amount >= lowestBid) {
         validBid = false;
         errorMsg = `Bid must be lower than current lowest price ($${lowestBid})`;
       }
-      if (parseFloat(bid_amount) < 1) {
+      if (bid_amount < 1) {
         validBid = false;
         errorMsg = "Bid must be at least $1";
       }
@@ -69,126 +65,138 @@ export async function createBid(req, res) {
     if (!validBid) {
       return res.status(400).json({ message: errorMsg });
     }
-
-    if (parseFloat(bid_amount) > 99999999.99) {
-      return res.status(400).json({ message: "Bid amount too high, must be less than 100 million" });
+    if (bid_amount > 99_999_999.99) {
+      return res
+        .status(400)
+        .json({ message: "Bid amount too high, must be under 100 million" });
     }
 
+    // Place the bid
     if (auctionType === "ascending") {
       const prevHighest = await sql`
-        SELECT buyer_id FROM bids
+        SELECT buyer_id
+        FROM bids
         WHERE auction_id = ${auction_id}
         ORDER BY bid_amount DESC, created_at ASC
         LIMIT 1
       `;
+      const result = await bidModel.insertBid(userId, auction_id, bid_amount);
 
-      const result = await insertBid(userId, auction_id, bid_amount);
-      if (prevHighest.length > 0 && prevHighest[0].buyer_id !== userId) {
-        await insertNotification(
+      // Notify outbid user
+      if (prevHighest[0]?.buyer_id && prevHighest[0].buyer_id !== userId) {
+        await notificationModel.insertNotification(
           prevHighest[0].buyer_id,
           auction_id,
-          `Your bid for auction "${auctionTitle}" has been outbid.`
+          `[outbid] Your bid for "${auctionTitle}" has been outbid.`
         );
       }
-      
-      res.status(201).json({ bid: result[0] });
+      return res.status(201).json({ bid: result[0] });
 
     } else if (auctionType === "descending") {
-      // Descending auction
-      const prevLowest = await sql`
-        SELECT buyer_id, bid_amount FROM bids
-        WHERE auction_id = ${auction_id}
-        ORDER BY bid_amount ASC, created_at ASC
-        LIMIT 1
-      `;
+      const result = await bidModel.insertBid(userId, auction_id, bid_amount);
 
-      const result = await insertBid(userId, auction_id, bid_amount);
-
-      // Auction ends immediately
+      // End auction immediately
       await sql`
-        UPDATE auction_listings SET is_active = false WHERE id = ${auction_id}
+        UPDATE auction_listings
+        SET is_active = false
+        WHERE id = ${auction_id}
       `;
 
-      // Notify buyer of winning item
-      await insertNotification(
+      // Notify buyer and seller
+      await notificationModel.insertNotification(
         userId,
         auction_id,
-        `🏆 You have won the item "${auctionTitle}" in the descending auction. Please pay as soon as possible.`
+        `[bid won] 🏆 You won "${auctionTitle}" in the descending auction.`
       );
 
-      
-
-      // Notify the seller that a buyer has completed the transaction
       const sellerInfo = await sql`
-        SELECT seller_id FROM auction_listings WHERE id = ${auction_id}
+        SELECT seller_id
+        FROM auction_listings
+        WHERE id = ${auction_id}
       `;
-      if (sellerInfo.length > 0) {
-        await insertNotification(
-          sellerInfo[0].seller_id,
+      const sellerId = sellerInfo[0]?.seller_id;
+      if (sellerId) {
+        await notificationModel.insertNotification(
+          sellerId,
           auction_id,
-          `Your item "${auctionTitle}" has been sold in the descending auction. Please contact the buyer.`
+          `Your item "${auctionTitle}" has been sold.`
         );
-
-        // Send review notifications to buyers and sellers
-        await insertNotification(
+        await notificationModel.insertNotification(
           userId,
           auction_id,
-          `Please fill in the review for the seller and click to enter the review page.`
+          `[review] Please review the seller for "${auctionTitle}".`
         );
-        await insertNotification(
-          sellerInfo[0].seller_id,
+        await notificationModel.insertNotification(
+          sellerId,
           auction_id,
-          `Please fill in the review for the buyer and click to enter the review page.`
+          `[review] Please review the buyer for "${auctionTitle}".`
         );
       }
 
-      res.status(201).json({ bid: result[0] });
+      return res.status(201).json({ bid: result[0] });
 
     } else {
-      // Other types of auctions, insert directly
-      const result = await insertBid(userId, auction_id, bid_amount);
-      res.status(201).json({ bid: result[0] });
+      // Fallback for any other auction types
+      const result = await bidModel.insertBid(userId, auction_id, bid_amount);
+      return res.status(201).json({ bid: result[0] });
     }
 
   } catch (err) {
     console.error("Bid error:", err);
-    res.status(500).json({ message: "Failed to submit bid" });
+    return res.status(500).json({ message: "Failed to submit bid" });
   }
 }
 
-
 export async function viewUserBids(req, res) {
   const userId = req.session.userId;
-
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
   try {
-    const bids = await getUserBidsWithListing(userId);
-    res.status(200).json({ bids });
+    const bids = await bidModel.getUserBidsWithListing(userId);
+    return res.status(200).json({ bids });
   } catch (err) {
     console.error("Failed to retrieve user bids:", err);
-    res.status(500).json({ message: "Failed to retrieve bids", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Failed to retrieve bids", error: err.message });
   }
 }
 
 export async function deleteBid(req, res) {
   const userId = req.session.userId;
   const { bid_id } = req.params;
-
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
   try {
-    const result = await deleteUserBid(userId, bid_id);
+    const result = await bidModel.deleteUserBid(userId, bid_id);
     if (result.length === 0) {
-      return res.status(404).json({ message: "Bid not found or not owned by user" });
+      return res
+        .status(404)
+        .json({ message: "Bid not found or not owned by you" });
     }
-    res.status(200).json({ message: "Bid withdrawn successfully", bid: result[0] });
+    return res
+      .status(200)
+      .json({ message: "Bid withdrawn successfully", bid: result[0] });
   } catch (err) {
     console.error("Delete bid error:", err);
-    res.status(500).json({ message: "Failed to delete bid" });
+    return res.status(500).json({ message: "Failed to delete bid" });
+  }
+}
+
+export async function viewBidsOnUserListings(req, res) {
+  const userId = req.session.userId;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const bids = await bidModel.getBidsOnUserListings(userId);
+    return res.status(200).json({ bids });
+  } catch (err) {
+    console.error("Failed to retrieve bids on user listings:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to retrieve bids", error: err.message });
   }
 }
