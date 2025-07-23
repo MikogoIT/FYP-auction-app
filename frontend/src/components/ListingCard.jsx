@@ -47,14 +47,6 @@ export default function ListingCard({
           color="text.secondary"
           sx={{ mb: 1, fontSize: 16 }}
         >
-          {item.description}
-        </Typography>
-
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 1, fontSize: 16 }}
-        >
           Ends: {new Date(item.end_date).toLocaleString("en-SG")}
         </Typography>
 
