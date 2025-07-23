@@ -293,7 +293,7 @@ const AdminPage = () => {
           rows={users}
           editMode="row"
           columns={column}
-          processRowUpdate={handleEditUser}
+          // processRowUpdate={handleEditUser}
           initialState={{
             pagination: {
               paginationModel: {
