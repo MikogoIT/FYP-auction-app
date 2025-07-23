@@ -49,21 +49,21 @@ export default function ProfileFeedbackPage() {
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error(userData.message);
         setUser(userData);
-        console.log("Fetched user:", userData);
+       // console.log("Fetched user:", userData);
 
         // Fetch User Profile Ratings
         const ratingRes = await fetch(`/api/feedback/ratings/${userId}`);
         const ratingData = await ratingRes.json();
         if (!ratingRes.ok) throw new Error(ratingData.message);
         setRatingInfo(ratingData);
-        console.log("Fetched user:", ratingData);
+        //console.log("Fetched user:", ratingData);
 
         // Fetch Reviews
         const fbRes = await fetch(`/api/feedback/user/${userId}`);
         const fbData = await fbRes.json();
         if (!fbRes.ok) throw new Error(fbData.message);
         setReviews(fbData);
-        console.log("Fetched reviews:", fbData);
+        //console.log("Fetched reviews:", fbData);
 
         // Fetch Author Review Info
         const authorIds = [...new Set(fbData.map((r) => r.author_id))];
@@ -75,10 +75,11 @@ export default function ProfileFeedbackPage() {
           }),
         );
         setAuthorInfo(Object.fromEntries(authorInfoEntries));
-        console.log("Unique author IDs:", authorIds);
+        //console.log("Unique author IDs:", authorIds);
       } catch (err) {
         console.error("Failed to load Page:", err);
         setUser(null);
+        setRatingInfo(null);
         setReviews([]);
         setAuthorInfo({});
       } finally {
