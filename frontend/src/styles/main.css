@@ -329,18 +329,12 @@ background-color: #e0e0e0;
 
 .listingDesc
 {
-  overflow-y: auto;
-  max-height: 100px;
-}
-
-#listingDescBig
-{
-  overflow-y: auto;
-  max-height: 140px;
+  overflow-y: hidden;
+  max-height: 50px;
 }
 
 .listingTitle {
-  margin: 0 0 8px 0;
+  margin: 8px 5px;
   font-size: 20px;
   font-weight: 700;
 }
@@ -512,5 +506,5 @@ background-color: #e0e0e0;
 
 #listingCardSmall
 {
-  height: 400px;
+  height: 380px;
 }

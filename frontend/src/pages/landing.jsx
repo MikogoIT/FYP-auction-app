@@ -140,9 +140,6 @@ export default function Landing() {
                       <div className='listingTitle'>
                         {item.title}
                       </div>
-                      <p id="listingDescBig" className='listingDesc'>
-                        {item.description}
-                      </p>
                     </div>
                   </div>
                   <div className="noLikeButtonStyle">
