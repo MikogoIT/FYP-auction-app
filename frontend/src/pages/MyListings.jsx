@@ -63,9 +63,9 @@ export default function MyListings() {
 
         {/* 2 nav Buttons */}
         <div
-          className="toggleButtons"
-          style={{ display: "flex", gap: 8, marginBottom: 16 }}
-        >
+            className="toggleButtons"
+            style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
+          >
           <Button
             variant="outlined"
             onClick={() => navigate("/myListings")}
@@ -73,6 +73,7 @@ export default function MyListings() {
               borderRadius: "999px",
               borderColor: "primary.main",
               color: "primary.main",
+              textTransform: "none",
               '&:hover': { borderColor: 'primary.dark' },
             }}
           >
@@ -85,6 +86,7 @@ export default function MyListings() {
               borderRadius: "999px",
               borderColor: "grey.400",
               color: "grey.500",
+              textTransform: "none",
               '&:hover': { borderColor: 'grey.600' },
             }}
           >
