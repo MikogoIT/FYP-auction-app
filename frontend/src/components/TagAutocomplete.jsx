@@ -96,7 +96,7 @@ export default function TagAutocomplete({
       const filtered = selectedOptions.filter(
         (tag, i, arr) =>
           arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
-          (!lockedTag || normalize(tag) !== normalize(lockedTag))
+          (!lockedTag || normalize(tag) !== normalize(lockedTag)),
       );
       const newList = lockedTag ? [lockedTag, ...filtered] : filtered;
       onChange?.(newList);
@@ -105,22 +105,38 @@ export default function TagAutocomplete({
 
   // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
-      e.preventDefault();
-      const newTag = inputValue.trim().toLowerCase();
+    const k = e.key?.toLowerCase(); // Lowercase for onKey
 
-      const isDuplicate = value.some(
-        (t) => t.toLowerCase() === newTag
-      );
+    if (k === "enter" || k === ",") {
+      e.preventDefault();
+
+      let newTag = inputValue.trim().replace(/,+$/, "").toLowerCase();
+
+      const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
       const isLocked = lockedTag?.toLowerCase() === newTag;
 
-      if (!isDuplicate && !isLocked) {
+      if (newTag && !isDuplicate && !isLocked) {
         const newTags = [...value, newTag];
         onChange?.(newTags);
       }
 
       setInputValue("");
     }
+  };
+
+  // Handles Blur Add on Mobile to manually add tags
+  const handleBlurAdd = () => {
+    let newTag = inputValue.trim().replace(/,+$/, "").toLowerCase();
+
+    const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
+    const isLocked = lockedTag?.toLowerCase() === newTag;
+
+    if (newTag && !isDuplicate && !isLocked) {
+      const newTags = [...value, newTag];
+      onChange?.(newTags);
+    }
+
+    setInputValue("");
   };
 
   return (
@@ -135,9 +151,7 @@ export default function TagAutocomplete({
             return (
               <StyledTag key={key}>
                 #{option}
-                {!isLocked && (
-                  <CloseIcon onClick={onDelete} {...tagProps} />
-                )}
+                {!isLocked && <CloseIcon onClick={onDelete} {...tagProps} />}
               </StyledTag>
             );
           })}
@@ -145,7 +159,8 @@ export default function TagAutocomplete({
           <input
             {...getInputProps({
               placeholder: "Add a tag",
-              onKeyDown: handleManualAdd, // ✅ intercept Enter/Comma
+              onKeyDown: handleManualAdd, // handles Enter/Comma on desktop
+              onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
             })}
           />
         </InputWrapper>
