@@ -24,22 +24,21 @@ export default function ListingCard({
 
   return (
     <div className="listingCard">
-      {item.image_url ? (
-        <img
-          src={item.image_url}
-          alt={item.title}
-          className="listingImage"
-        />
-      ) : (
-        <Avatar
-          variant="square"
-          sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-        >
-          <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-        </Avatar>
-      )}
-
       <div className="listingDetails">
+          {item.image_url ? (
+          <img
+            src={item.image_url}
+            alt={item.title}
+            className="listingImage"
+          />
+        ) : (
+          <Avatar
+            variant="square"
+            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+          >
+            <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+          </Avatar>
+        )}
         <div className="listingTitle">{item.title}</div>
 
         <Typography

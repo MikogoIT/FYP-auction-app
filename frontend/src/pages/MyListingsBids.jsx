@@ -35,14 +35,19 @@ export default function MyListingsBids() {
       field: "bid_amount",
       headerName: "Amount",
       width: 120,
-      valueFormatter: ({ value }) => `$${Number(value).toFixed(2)}`,
+      valueFormatter: (params) => {
+        const v = params?.value;
+        return v != null ? `$${Number(v).toFixed(2)}` : "";
+      },
     },
     {
       field: "created_at",
       headerName: "Bid Date",
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : "",
+      valueFormatter: (params) => {
+        const v = params?.value;
+        return v ? new Date(v).toLocaleString() : "";
+      },
     },
     { field: "listing_id", headerName: "Listing ID", width: 100 },
     {
@@ -55,13 +60,17 @@ export default function MyListingsBids() {
       field: "end_date",
       headerName: "Ends",
       width: 180,
-      valueFormatter: ({ value }) =>
-        value ? new Date(value).toLocaleString() : "",
+      valueFormatter: (params) => {
+        const v = params?.value;
+        return v ? new Date(v).toLocaleString() : "";
+      },
     },
   ];
 
-  // DataGrid expects each row to have a unique 'id' property
-  const rows = bids.map((b) => ({ id: b.bid_id, ...b }));
+  const rows = bids.map((b) => ({
+    id: b.bid_id,
+    ...b,
+  }));
 
   return (
     <div className="dashboardCanvas">
@@ -69,7 +78,6 @@ export default function MyListingsBids() {
       <div className="dashboardContent">
         <BreadcrumbsNav />
 
-        {/* Toggle Buttons */}
         <div
           className="toggleButtons"
           style={{
@@ -107,12 +115,10 @@ export default function MyListingsBids() {
           </Button>
         </div>
 
-        {/* Page title */}
         <div id="wideTitle" className="profileTitle">
           Bids on My Listings
         </div>
 
-        {/* Data Grid */}
         <div style={{ width: "100%" }}>
           <DataGrid
             rows={rows}
