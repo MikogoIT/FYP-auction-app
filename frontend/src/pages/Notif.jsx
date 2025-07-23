@@ -1,6 +1,7 @@
 // src/pages/Notif.jsx
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { DataGrid } from "@mui/x-data-grid";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
@@ -13,6 +14,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 export default function Notif() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // columns: message + relative time
   const columns = [
@@ -47,9 +49,10 @@ export default function Notif() {
       })
       .then(({ notifications }) => {
         const data = notifications.map((n) => ({
-          id: n.id,
-          message: n.content,
-          createdAt: n.created_at, // keep raw timestamp
+          id:        n.id,
+          message:   n.content,
+          createdAt: n.created_at,
+          auctionId: n.auction_id, 
         }));
         setRows(data);
       })
@@ -77,6 +80,13 @@ export default function Notif() {
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
             autoHeight
+            onRowClick={(params) => {
+              const id = params.row.auctionId;
+              if (id) {
+                navigate(`/bid/${id}`);
+              }
+              // else do nothing
+            }}
           />
         </div>
       </div>
