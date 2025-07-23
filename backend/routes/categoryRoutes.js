@@ -15,6 +15,6 @@ router.post("/", createCategory);
 router.get("/", getCategories);
 router.get("/search", searchCategories);
 router.get("/:id", getCategoryById);
-router.put("/:id", updateCategory);
-router.put("/:id/toggleSuspend", toggleCategoryState);
+router.put("/:id", updateCategory); // edit
+router.put("/:id/toggleSuspend", toggleCategoryState); // delete story
 export default router;
