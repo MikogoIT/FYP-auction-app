@@ -59,7 +59,7 @@ export async function getAllNotifications(userId) {
     SELECT
       n.id,
       n.auction_id,
-      n.message,
+      n.content,
       n.created_at,
       a.seller_id
     FROM notifications AS n
