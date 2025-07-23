@@ -123,7 +123,7 @@ export default function TagAutocomplete({
     }
   };
 
-  // Handles Enter/Comma to manually add tags
+  // Handles Enter/Comma to manually add tags (new)
   /*const handleManualAdd = (e) => {
     const k = e.key?.toLowerCase(); // Lowercase for onKey
 
@@ -177,7 +177,7 @@ export default function TagAutocomplete({
   };
   */
 
-  // Handles Blur Add on Mobile to manually add tags
+  // Handles Blur Add on Mobile to manually add tags (new code)
   const handleBlurAdd = () => {
     // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
     let rawInput = inputValue.trim();
