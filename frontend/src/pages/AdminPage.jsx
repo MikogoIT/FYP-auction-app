@@ -26,6 +26,9 @@ const AdminPage = () => {
 
   const navigate = useNavigate(); 
 
+  // update user's name, phone number, and address
+
+
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     setCategoryMsg("");
@@ -149,6 +152,7 @@ const AdminPage = () => {
     { field: 'username', headerName: 'Username', editable: true },
     { field: 'email', headerName: 'Email', width: 200, editable: true }, 
     { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
+    { field: 'address', headerName: 'Address', editable: true }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
