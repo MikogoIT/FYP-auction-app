@@ -79,6 +79,7 @@ export default function MyListings() {
               color: "primary.main",
               textTransform: "none",
               '&:hover': { borderColor: 'primary.dark' },
+              fontSize: "16px",
             }}
           >
             My Listings
@@ -92,6 +93,7 @@ export default function MyListings() {
               color: "grey.500",
               textTransform: "none",
               '&:hover': { borderColor: 'grey.600' },
+              fontSize: "16px",
             }}
           >
             Bids On My Listings

@@ -130,6 +130,9 @@ export default function MyBids() {
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
               sx={{
+                "& .MuiDataGrid-columnHeader": { fontSize: "16px" },
+                "& .MuiDataGrid-cell": { fontSize: "16px" },
+                "& .MuiDataGrid-footerContainer": { fontSize: "16px" },
                 '& .actionsColumn': {
                   position: 'sticky',
                   right: 0,

@@ -69,9 +69,9 @@ async function notifyAuctionWinners() {
 }
 
 
-setInterval(() => {
-  notifyAuctionWinners();
-}, 60 * 1000);
+// setInterval(() => {
+//   notifyAuctionWinners();
+// }, 60 * 1000);
 
 notifyAuctionWinners();
 
