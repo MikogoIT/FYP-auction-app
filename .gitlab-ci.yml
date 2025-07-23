@@ -227,10 +227,6 @@ upload-assets:
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - images/**
-        - telegram/**
-        - notif/**
       when: on_success
     - when: never
 
