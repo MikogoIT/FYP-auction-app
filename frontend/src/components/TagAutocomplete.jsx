@@ -104,7 +104,7 @@ export default function TagAutocomplete({
   });
 
   // Handles Enter/Comma to manually add tags
-  const handleManualAdd = (e) => {
+  /*const handleManualAdd = (e) => {
     const k = e.key?.toLowerCase(); // Lowercase for onKey
 
     if (k === "enter") {
@@ -123,6 +123,35 @@ export default function TagAutocomplete({
         onChange?.(newTags);
       }
 
+      setInputValue("");
+    }
+  };
+  */
+
+  // Saud New Code
+    // Handles Enter/Comma to manually add tags
+  const handleManualAdd = (e) => {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+      e.preventDefault();
+      
+      const rawTags = inputValue
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => tag.length > 0);
+
+      const existingTags = value.map((tag) => tag.toLowerCase());
+      const normalizedLocked = lockedTag?.toLowerCase();
+
+      const newTags = [
+        ...value,
+        ...rawTags.filter(
+          (tag) =>
+            !existingTags.includes(tag) &&
+            tag !== normalizedLocked
+        ),
+      ];
+
+      onChange?.(newTags);
       setInputValue("");
     }
   };
@@ -167,7 +196,7 @@ export default function TagAutocomplete({
           <input
             {...getInputProps({
               placeholder: "Add a tag",
-              onKeyDown: handleManualAdd, // handles Enter/Comma on desktop
+              onKeyDown: handleManualAdd, // handles Enter on desktop
               onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
             })}
           />
