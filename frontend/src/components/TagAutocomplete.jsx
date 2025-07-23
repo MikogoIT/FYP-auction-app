@@ -107,11 +107,13 @@ export default function TagAutocomplete({
   const handleManualAdd = (e) => {
     const k = e.key?.toLowerCase(); // Lowercase for onKey
 
-    if (k === "enter" || k === ",") {
+    if (k === "enter") {
       e.preventDefault();
+      // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
+      let rawInput = inputValue.trim();
+      let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
 
-      // Normalize tag: trim spaces, remove all commas, to lowercase
-      let newTag = inputValue.trim().replace(/,/g, "").toLowerCase();
+      console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
 
       const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
       const isLocked = lockedTag?.toLowerCase() === newTag;
@@ -127,8 +129,11 @@ export default function TagAutocomplete({
 
   // Handles Blur Add on Mobile to manually add tags
   const handleBlurAdd = () => {
-    // Normalize tag: trim spaces, remove all commas, to lowercase
-    let newTag = inputValue.trim().replace(/,/g, "").toLowerCase();
+    // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
+    let rawInput = inputValue.trim();
+    let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
+
+    console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
 
     const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
     const isLocked = lockedTag?.toLowerCase() === newTag;
@@ -139,6 +144,7 @@ export default function TagAutocomplete({
     }
 
     setInputValue("");
+    
   };
 
   return (
