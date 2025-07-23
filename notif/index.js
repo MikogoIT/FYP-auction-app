@@ -1,6 +1,6 @@
 // index.js
-require('dotenv').config();
-const express = require('express');
+import 'dotenv/config';    
+import express from 'express';
 import postgres from 'postgres';
 
 const connectionString = process.env.DATABASE_URL;
@@ -8,25 +8,16 @@ if (!connectionString) {
   throw new Error('Missing DATABASE_URL');
 }
 
-// initialize Postgres.js; you can add ssl options if you need them
 export const sql = postgres(connectionString, {
-//   ssl: { rejectUnauthorized: false },
+  // ssl: { rejectUnauthorized: false }
 });
 
 const app = express();
-
-// parse JSON bodies
 app.use(express.json());
 
-/**
- * Expects a POST { userId }
- * Returns { unread: <number> }
- */
 app.post('/', async (req, res) => {
   const { userId } = req.body;
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
   try {
     const [{ cnt }] = await sql`
@@ -42,4 +33,5 @@ app.post('/', async (req, res) => {
   }
 });
 
-module.exports = { app };
+// ESM export
+export { app };
