@@ -91,72 +91,57 @@ export default function TagAutocomplete({
     onInputChange: (_, newInput) => setInputValue(newInput),
     value,
     onChange: (_, selectedOptions) => {
-      // Ensure lockedTag is always first and not duplicated
       const normalize = (s) => s.toLowerCase();
-      const filtered = selectedOptions.filter(
-        (tag, i, arr) =>
-          arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
-          (!lockedTag || normalize(tag) !== normalize(lockedTag)),
-      );
+      const filtered = selectedOptions
+        .map((tag) => tag.trim())
+        .filter(
+          (tag, i, arr) =>
+            /^[a-z0-9-]+$/i.test(tag) &&
+            arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
+            (!lockedTag || normalize(tag) !== normalize(lockedTag)),
+        );
       const newList = lockedTag ? [lockedTag, ...filtered] : filtered;
       onChange?.(newList);
     },
   });
 
-   // Handles Enter/Comma to manually add tags
+  // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       addTagsFromInput(inputValue);
-
     }
   };
 
   const addTagsFromInput = (rawInput) => {
-    const rawTags= rawInput
-        .split(",") // Splits on comma
-        .map((tag) => tag.trim().toLowerCase())
-        .filter((tag) => tag.length > 0 && /^[a-z0-9-]+$/i.test(tag)); // only allows alphanumerical/hyphens
+    const rawTags = rawInput
+      .split(",") // Splits on comma
+      .map((tag) => tag.trim().toLowerCase())
+      .filter((tag) => tag.length > 0 && /^[a-z0-9-]+$/i.test(tag)); // only allows alphanumerical/hyphens
 
     const existing = value.map((t) => t.toLowerCase());
-    const locked = lockedTag?.toLocaleLowerCase?.();
+    const locked = lockedTag?.toLowerCase?.();
 
     const newTags = rawTags.filter(
-      (tag) => !existing.includes(tag) && tag!== locked
+      (tag) => !existing.includes(tag) && tag !== locked,
     );
 
-    if (newTags.length > 0){
-      const finalTags = lockedTag ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
-      : [...value, ...newTags];
+    if (newTags.length > 0) {
+      const finalTags = lockedTag
+        ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
+        : [...value, ...newTags];
       onChange?.(finalTags);
     }
 
     setInputValue("");
-
-  }
-  
-/*
-  // Handles Blur Add on Mobile to manually add tags (new code)
-  const handleBlurAdd = () => {
-    // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
-    let rawInput = inputValue.trim();
-    let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
-
-    console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
-
-    const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
-    const isLocked = lockedTag?.toLowerCase() === newTag;
-
-    if (newTag && !isDuplicate && !isLocked) {
-      const newTags = [...value, newTag];
-      onChange?.(newTags);
-    }
-
-    setInputValue("");
-    
   };
 
-  */
+  // Handles Blur Add on Mobile to manually add tags (new code)
+  const handleBlurAdd = () => {
+    if (!inputValue.trim()) return;
+
+    addTagsFromInput(inputValue); // Re-use your main handler
+  };
 
   return (
     <Root>
@@ -181,12 +166,13 @@ export default function TagAutocomplete({
               onKeyDown: handleManualAdd, // handles Enter on desktop
               onChange: (e) => {
                 const newInput = e.target.value;
-                if(newInput.includes(",")) {
+                if (newInput.includes(",")) {
                   addTagsFromInput(newInput);
-                }else{
+                } else {
                   setInputValue(newInput);
                 }
-              }
+              },
+              onBlur: handleBlurAdd,
             })}
           />
         </InputWrapper>
