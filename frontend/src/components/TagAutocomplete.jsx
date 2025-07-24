@@ -75,7 +75,7 @@ export default function TagAutocomplete({
   const [inputValue, setInputValue] = React.useState("");
   const [validationMessage, setValidationMessage] = React.useState("");
 
-  console.log("📣 validationMessage:", validationMessage);
+  
 
   // Auto-clear validation message after 3s
   /*React.useEffect(() => {
@@ -130,6 +130,7 @@ export default function TagAutocomplete({
 
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
     if (invalidTags.length > 0) {
+      console.log("❌ Setting validationMessage for invalid:", invalidTags);
       setValidationMessage(`❌ Invalid tag(s): ${invalidTags.join(", ")}`);
       setInputValue("");
       return;
@@ -142,6 +143,7 @@ export default function TagAutocomplete({
       (tag) => existing.includes(tag) || tag === locked,
     );
     if (duplicateTags.length > 0) {
+      console.log("⚠️ Setting validationMessage for duplicate:", duplicateTags);
       setValidationMessage(`⚠️ Duplicate tag(s): ${duplicateTags.join(", ")}`);
       setInputValue("");
       return;
@@ -164,6 +166,8 @@ export default function TagAutocomplete({
 
     addTagsFromInput(inputValue); // Re-use your main handler
   };
+
+  console.log("📣 validationMessage:", validationMessage);
 
   return (
     <Root>
