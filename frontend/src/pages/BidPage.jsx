@@ -100,7 +100,15 @@ export default function BidPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
+
       setMessage("✅ Bid submitted!");
+      // ** Optimistic update: **
+      if (auctionType === "ascending") {
+        setMinPrice(amount);
+      } else if (auctionType === "descending") {
+        setCurrentDescPrice(amount);
+      }
+      setBidAmount("");           // clear the input
     } catch (err) {
       setMessage(err.message);
     }
@@ -252,7 +260,19 @@ export default function BidPage() {
                 }}
               >
                 Current bid:&nbsp;
-                <strong>{auctionType === "descending" ? (typeof currentDescPrice === "number" ? currentDescPrice.toFixed(2) : "-") : Number(minPrice).toFixed(2)}</strong>
+                <strong>
+                  {auctionType === "descending" ? (
+                    // descending: compare against the listing.start_price
+                    typeof currentDescPrice === "number" && currentDescPrice !== listing.start_price
+                      ? currentDescPrice.toFixed(2)
+                      : "No bids yet"
+                  ) : (
+                    // ascending: compare against listing.min_bid
+                    minPrice !== listing.min_bid
+                      ? minPrice.toFixed(2)
+                      : "No bids yet"
+                  )}
+                </strong>
               </Typography>
             <h2>Place your bid</h2>
 
