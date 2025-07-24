@@ -144,7 +144,7 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
         WHERE l.is_active = TRUE
             AND (
                 ${category} = ''
-                OR lc.name ILIKE ${category}
+                OR lc.name ILIKE ${'%' + category + '%'}
             )
             ${keywordConditions}
         GROUP BY l.id, lc.name
