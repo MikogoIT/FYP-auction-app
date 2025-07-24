@@ -102,7 +102,7 @@ export default function TagAutocomplete({
       onChange?.(newList);
     },
   });
-
+/*
    // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
     if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
@@ -122,6 +122,8 @@ export default function TagAutocomplete({
       setInputValue("");
     }
   };
+
+  */
 
   // Handles Enter/Comma to manually add tags (new)
   /*const handleManualAdd = (e) => {
@@ -148,7 +150,7 @@ export default function TagAutocomplete({
   };
   */
 
-  /* Saud New Code
+  // Saud New Code
     // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
     if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
@@ -175,8 +177,8 @@ export default function TagAutocomplete({
       setInputValue("");
     }
   };
-  */
-
+  
+/*
   // Handles Blur Add on Mobile to manually add tags (new code)
   const handleBlurAdd = () => {
     // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
@@ -196,6 +198,8 @@ export default function TagAutocomplete({
     setInputValue("");
     
   };
+
+  */
 
   return (
     <Root>
@@ -218,7 +222,7 @@ export default function TagAutocomplete({
             {...getInputProps({
               placeholder: "Add a tag",
               onKeyDown: handleManualAdd, // handles Enter on desktop
-              onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
+              //onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
             })}
           />
         </InputWrapper>
