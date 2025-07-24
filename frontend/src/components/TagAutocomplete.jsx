@@ -195,9 +195,21 @@ export default function TagAutocomplete({
             })}
           />
           {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
-          {validationMessage && (
-            <FormHelperText error>{validationMessage}</FormHelperText>
-          )}
+          <FormHelperText
+            error
+            sx={{
+              mt: 1,
+              ml: 1,
+              px: 1,
+              py: 0.5,
+              backgroundColor: "#fff4f4",
+              border: "1px solid #f5c2c7",
+              borderRadius: "4px",
+              fontWeight: 500,
+            }}
+          >
+            {validationMessage}
+          </FormHelperText>
         </InputWrapper>
       </div>
 
