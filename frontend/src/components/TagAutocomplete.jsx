@@ -130,7 +130,7 @@ export default function TagAutocomplete({
 
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
     if (invalidTags.length > 0) {
-      setValidationMessage(`Invalid tag(s): ${invalidTags.join(", ")}`);
+      setValidationMessage(`❌ Invalid tag(s): ${invalidTags.join(", ")}`);
       setInputValue("");
       return;
     }
@@ -142,19 +142,20 @@ export default function TagAutocomplete({
       (tag) => existing.includes(tag) || tag === locked,
     );
     if (duplicateTags.length > 0) {
-      setValidationMessage(`Duplicate tag(s): ${duplicateTags.join(", ")}`);
+      setValidationMessage(`⚠️ Duplicate tag(s): ${duplicateTags.join(", ")}`);
       setInputValue("");
       return;
     }
 
-    const newTags = rawTags.filter((tag) => tag.length > 0);
+    const validTags = rawTags.filter((tag) => tag.length > 0);
+
     const finalTags = lockedTag
-      ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
-      : [...value, ...newTags];
+      ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...validTags]
+      : [...value, ...validTags];
 
     onChange?.(finalTags);
     setInputValue("");
-    setValidationMessage("");
+    setValidationMessage(""); // Clear on success
   };
 
   // Handles Blur Add on Mobile to manually add tags (new code)
