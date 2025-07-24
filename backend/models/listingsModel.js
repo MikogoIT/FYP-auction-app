@@ -216,3 +216,18 @@ export async function getCurrentDescendingPrice(listingId) {
   price = Math.max(price, Number(min_bid));
   return Number(price.toFixed(2));
 }
+
+// returns top 5 listings with most bids
+export async function getTrendingListings(limit = 5) {
+  return await sql`
+    SELECT
+      l.*,
+      COUNT(b.id) AS bid_count
+    FROM auction_listings l
+    LEFT JOIN bids b ON l.id = b.auction_id
+    WHERE l.is_active = true
+    GROUP BY l.id
+    ORDER BY bid_count DESC
+    LIMIT ${limit}
+  `;
+}

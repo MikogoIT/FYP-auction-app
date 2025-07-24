@@ -33,7 +33,8 @@ export async function getWatchlistByBuyer(buyerId) {
 export async function removeFromWatchlist(buyerId, auctionId) {
   return sql`
     DELETE FROM watchlist
-    WHERE buyer_id = ${buyerId} AND auction_id = ${auctionId};
+    WHERE buyer_id = ${buyerId} AND auction_id = ${auctionId}
+    RETURNING *;
   `;
 }
 

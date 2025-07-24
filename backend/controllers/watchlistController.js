@@ -7,6 +7,7 @@ import {
   getUserInterestedCategories
 } from "../models/watchlistModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
+import { getTrendingListings } from "../models/listingsModel.js";
 
 // add to watch list
 export async function handleAddToWatchlist(req, res) {
@@ -141,13 +142,23 @@ export async function handleGetComprehensiveRecommendations(req, res) {
     });
 
     // Limit to requested number
-    const finalRecommendations = combinedRecommendations.slice(0, limit);
+    let finalRecommendations = combinedRecommendations.slice(0, limit);
+
+    // Add fallback to trending if nothing found
+    if (finalRecommendations.length === 0) {
+      const trending = await getTrendingListings(limit);
+      finalRecommendations = trending.map(item => ({
+        ...item,
+        recommendation_type: 'trending'
+      }));
+    }
 
     res.json({
       recommendations: finalRecommendations,
       total: finalRecommendations.length,
       category_count: finalRecommendations.filter(r => r.recommendation_type === 'category').length,
-      tag_count: finalRecommendations.filter(r => r.recommendation_type === 'tag').length
+      tag_count: finalRecommendations.filter(r => r.recommendation_type === 'tag').length,
+      trending_count: finalRecommendations.filter(r => r.recommendation_type === "trending").length,
     });
   } catch (err) {
     console.error("Error getting comprehensive recommendations:", err);

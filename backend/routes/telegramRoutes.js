@@ -14,7 +14,29 @@ router.post("/status", requireLogin, telegramController.getTelegramStatus);
 router.get("/listings/unposted", requireBotAuth, telegramController.fetchUnpostedListings);
 router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markListingPosted);
 router.get("/check-account/:telegramUserId", requireBotAuth, telegramController.checkTelegramAccount);
+router.get("/listings/with-messages", requireBotAuth, telegramController.fetchListingsWithTelegramMessages);
+router.post("/listings/save-message", requireBotAuth, telegramController.saveTelegramMessageData);
+
+// Bot-specific notification routes
+router.get("/notifications/unsent", requireBotAuth, telegramController.fetchUnsentNotifications);
+router.post("/notifications/mark-sent", requireBotAuth, telegramController.markNotificationAsSent);
+
+// Bot-specific routes (Buyers - Manage Bidding)
 router.post("/bid", requireBotAuth, telegramController.createBidFromTelegram);
-router.get("/bids/user/:user_id", requireBotAuth, telegramController.getBidsByTelegramUser);
+router.post("/bid/withdraw", requireBotAuth, telegramController.withdrawBidFromTelegram);
+router.get("/bids/user/:userId", requireBotAuth, telegramController.getBidsByTelegramUser);
+
+// Bot-specific routes (Buyers - Manage Watchlist)
+router.post("/watchlist/add", requireBotAuth, telegramController.addWatchlistItem);
+router.post("/watchlist/remove", requireBotAuth, telegramController.removeWatchlistItem);
+router.get("/watchlist/user/:userId", requireBotAuth, telegramController.getUserWatchlist);
+
+router.get("/recommendations/comprehensive/:userId", requireBotAuth, telegramController.getComprehensiveRecommendationsByUserId);
+
+// Bot-specific routes (Sellers - Manage Listing)
+router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
+
+// Bot-specific listing search
+router.get("/listings/search", requireBotAuth, telegramController.searchListings);
 
 export default router;
