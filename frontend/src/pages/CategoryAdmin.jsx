@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Stack from "@mui/material/Stack";
+import { Link } from "react-router";
+import Button from "@mui/material/Button"
 
 
 
@@ -22,9 +25,28 @@ export default function CategoryAdmin() {
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* page title */}
-        <div className="profileTitle">Category Management</div>
-        
-    
+        <div className="profileTitle">Admin Dashboard
+          <Stack direction="row" spacing={2}>
+              <Button 
+              variant="outlined"
+              component={Link}
+              to="/admin"
+              sx={{
+                borderColor: "grey.400",
+                color: "grey.500",
+                "&:hover": {borderColor: "grey.600"}
+              }}
+              >
+                User Management</Button>
+              <Button
+              variant="contained"
+              component={Link}
+              to="/admin/categoryadmin"
+              color="primary"
+              >
+                Category Management</Button>
+          </Stack>
+        </div> 
       </div>
       <div className="sidebarSpacer"></div>
     </div>
