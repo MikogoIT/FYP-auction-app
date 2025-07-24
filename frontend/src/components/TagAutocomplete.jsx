@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import useAutocomplete from "@mui/material/useAutocomplete";
-import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import { FormHelperText } from "@mui/material";
+
 import { styled } from "@mui/material/styles";
 
 // COMPONENT STYLING
@@ -72,6 +73,15 @@ export default function TagAutocomplete({
   lockedTag = "",
 }) {
   const [inputValue, setInputValue] = React.useState("");
+  const [validationMessage, setValidationMessage] = React.useState("");
+
+  // Auto-clear validation message after 3s
+  React.useEffect(() => {
+    if (validationMessage) {
+      const timeout = setTimeout(() => setValidationMessage(""), 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [validationMessage]);
 
   const {
     getRootProps,
@@ -119,6 +129,13 @@ export default function TagAutocomplete({
       .map((tag) => tag.trim().toLowerCase())
       .filter((tag) => tag.length > 0 && /^[a-z0-9-]+$/i.test(tag)); // only allows alphanumerical/hyphens
 
+    const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
+    if (invalidTags.length > 0) {
+      setValidationMessage(`Invalid tag(s): ${invalidTags.join(", ")}`);
+      setInputValue("");
+      return;
+    }
+
     const existing = value.map((t) => t.toLowerCase());
     const locked = lockedTag?.toLowerCase?.();
 
@@ -134,6 +151,8 @@ export default function TagAutocomplete({
     }
 
     setInputValue("");
+    setInputValue("");
+    setValidationMessage(""); // clear on success
   };
 
   // Handles Blur Add on Mobile to manually add tags (new code)
@@ -175,6 +194,10 @@ export default function TagAutocomplete({
               onBlur: handleBlurAdd,
             })}
           />
+          {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
+          {validationMessage && (
+            <FormHelperText error>{validationMessage}</FormHelperText>
+          )}
         </InputWrapper>
       </div>
 
@@ -183,7 +206,6 @@ export default function TagAutocomplete({
           {groupedOptions.map((option, index) => (
             <li {...getOptionProps({ option, index })} key={index}>
               <span>{option}</span>
-              <CheckIcon fontSize="small" />
             </li>
           ))}
         </Listbox>
