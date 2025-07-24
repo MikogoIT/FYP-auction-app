@@ -127,27 +127,27 @@ export default function TagAutocomplete({
 
   // Handles Enter/Comma to manually add tags (new)
   const handleManualAdd = (e) => {
-    console.log("handleManualAdd fired", e.key); // Debug for manualAdd
-    const k = e.key?.toLowerCase(); // Lowercase for onKey
+    console.log("handleManualAdd fired", e.key);
+    const k = e.key?.toLowerCase();
 
     if (k === "enter") {
       e.preventDefault();
-      // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
-      let rawInput = inputValue.trim();
-      let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
 
-      console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
+      const rawInput = inputValue.trim();
+
+      // Sanitize — remove all non-alphanumeric chars
+      const newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
+
+      console.log("Sanitized tag:", newTag); // Verify here
 
       const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
       const isLocked = lockedTag?.toLowerCase() === newTag;
 
       if (newTag && !isDuplicate && !isLocked) {
-        const newTags = [...value, newTag];
-        console.log("Adding tags:", newTags);
-        onChange?.(newTags);
+        onChange?.([...value, newTag]);
       }
 
-      setInputValue("");
+      setInputValue(""); // Clear after add
     }
   };
   
@@ -225,17 +225,12 @@ export default function TagAutocomplete({
           })}
 
           <input
-                {...inputProps}
-                onKeyDown={(e) => {
-                  inputProps.onKeyDown?.(e);     // call MUI's internal keydown first
-                  handleManualAdd(e);           // then your custom keydown handler
-                }}
-             /*   onBlur={(e) => {
-                  inputProps.onBlur?.(e);
-                  handleBlurAdd(e);
-                }}*/
-                placeholder="Add a tag"
-              />
+            {...getInputProps({
+              placeholder: "Add a tag",
+              onKeyDown: handleManualAdd, // handles Enter on desktop
+              //onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
+            })}
+          />
         </InputWrapper>
       </div>
 
