@@ -26,7 +26,7 @@ export async function getMinBidAmount(req, res) {
 }
 
 export async function getAuctionBidDetailsHandler(req, res) {
-  const { id } = res.params;
+  const { id } = req.params;
 
   try {
     const result = await getAuctionBidDetails(id);
