@@ -76,12 +76,12 @@ export default function TagAutocomplete({
   const [validationMessage, setValidationMessage] = React.useState("");
 
   // Auto-clear validation message after 3s
-  React.useEffect(() => {
+  /*React.useEffect(() => {
     if (validationMessage) {
       const timeout = setTimeout(() => setValidationMessage(""), 3000);
       return () => clearTimeout(timeout);
     }
-  }, [validationMessage]);
+  }, [validationMessage]); */
 
   const {
     getRootProps,
@@ -194,7 +194,10 @@ export default function TagAutocomplete({
               onBlur: handleBlurAdd,
             })}
           />
-          {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
+          
+        </InputWrapper>
+      </div>
+        {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
           <FormHelperText
             error
             sx={{
@@ -209,9 +212,7 @@ export default function TagAutocomplete({
             }}
           >
             {validationMessage}
-          </FormHelperText>
-        </InputWrapper>
-      </div>
+      </FormHelperText>
 
       {groupedOptions.length > 0 && (
         <Listbox {...getListboxProps()}>
