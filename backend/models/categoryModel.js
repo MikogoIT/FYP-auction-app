@@ -4,9 +4,17 @@ import { sql } from "../utils/db.js";
 // get all categories
 export async function getAllCategories() {
   return await sql`
-    SELECT id, name, description, "is_suspended" 
-    FROM listing_categories 
-    WHERE "is_suspended" = FALSE
+    SELECT id, name, description, is_suspended
+    FROM listing_categories
+  `;
+}
+
+// get only active categories (is_suspended = false)
+export async function getActiveCategories() {
+  return await sql`
+    SELECT id, name, description, is_suspended
+    FROM listing_categories
+    WHERE is_suspended = FALSE
     ORDER BY name
   `;
 }
