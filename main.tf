@@ -136,11 +136,11 @@ resource "google_artifact_registry_repository" "fyp_docker_repo" {
   description   = "GAR Docker repo for Auctioneer app"
   cleanup_policy_dry_run = false
   cleanup_policies {
-    id         = "delete_untagged_older_than_4d"
+    id         = "delete_untagged_older_than_2d"
     action     = "DELETE"
     condition {
       tag_state  = "UNTAGGED"
-      older_than = "4d"
+      older_than = "2d"
     }
   }
 }
