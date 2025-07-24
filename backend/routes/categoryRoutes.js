@@ -18,5 +18,5 @@ router.get("/admin", getAllCategoriesController); // for admin to manage visibli
 router.get("/search", searchCategories);
 router.get("/:id", getCategoryById);
 router.put("/:id", updateCategory); // edit
-router.put("/:id/toggleSuspend", toggleCategoryState); // delete story
+router.put("/toggleSuspend/:id", toggleCategoryState); // delete story
 export default router;
