@@ -127,6 +127,7 @@ export default function TagAutocomplete({
 
   // Handles Enter/Comma to manually add tags (new)
   const handleManualAdd = (e) => {
+    console.log("handleManualAdd fired", e.key); // Debug for manualAdd
     const k = e.key?.toLowerCase(); // Lowercase for onKey
 
     if (k === "enter") {
@@ -142,6 +143,7 @@ export default function TagAutocomplete({
 
       if (newTag && !isDuplicate && !isLocked) {
         const newTags = [...value, newTag];
+        console.log("Adding tags:", newTags);
         onChange?.(newTags);
       }
 
@@ -223,12 +225,17 @@ export default function TagAutocomplete({
           })}
 
           <input
-            {...getInputProps({
-              placeholder: "Add a tag",
-              onKeyDown: handleManualAdd, // handles Enter on desktop
-              //onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
-            })}
-          />
+                {...inputProps}
+                onKeyDown={(e) => {
+                  inputProps.onKeyDown?.(e);     // call MUI's internal keydown first
+                  handleManualAdd(e);           // then your custom keydown handler
+                }}
+             /*   onBlur={(e) => {
+                  inputProps.onBlur?.(e);
+                  handleBlurAdd(e);
+                }}*/
+                placeholder="Add a tag"
+              />
         </InputWrapper>
       </div>
 
