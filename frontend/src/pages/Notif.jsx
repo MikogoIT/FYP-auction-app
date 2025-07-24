@@ -91,15 +91,27 @@ export default function Notif() {
               },
             }}
 
-            // Navigate based on message prefix
-            onRowClick={(params) => {
-              const { message, auctionId, sellerId } = params.row;
-              if (message.startsWith("[outbid]") && auctionId) {
-                navigate(`/bid/${auctionId}`);
-              } else if (message.startsWith("[review]") && sellerId) {
-                navigate(`/feedback/${sellerId}`);
-              }
-            }}
+           // Navigate based on message prefix
+          onRowClick={(params) => {
+            const { message, auctionId, sellerId } = params.row;
+
+            if (message.startsWith("[outbid]") && auctionId) {
+              // someone has out‑bid you → go to that auction page
+              navigate(`/bid/${auctionId}`);
+
+            } else if (message.startsWith("[auction ending]") && auctionId) {
+              // auction is about to end → also go to the auction page
+              navigate(`/bid/${auctionId}`);
+
+            } else if (message.startsWith("[bid won]") && sellerId) {
+              // you’ve won → go to the seller’s profile/feedback page
+              navigate(`/feedback/${sellerId}`);
+
+            } else if (message.startsWith("[review]") && sellerId) {
+              // review prompt → also go to feedback page
+              navigate(`/feedback/${sellerId}`);
+            }
+          }}
           />
         </div>
       </div>
