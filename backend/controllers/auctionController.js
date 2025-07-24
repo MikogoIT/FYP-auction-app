@@ -1,5 +1,6 @@
 // controllers/auctionController.js
 import { getAuctionMinBid } from "../models/bidModel.js";
+import { getAuctionBidDetails } from "../models/auctionModel.js";
 
 export async function getMinBidAmount(req, res) {
   const { id } = req.params;
@@ -21,5 +22,21 @@ export async function getMinBidAmount(req, res) {
   } catch (err) {
     console.error("Error fetching min bid:", err);
     res.status(500).json({ message: "Server error fetching minimum bid" });
+  }
+}
+
+export async function getAuctionBidDetailsHandler(req, res) {
+  const { id } = res.params;
+
+  try {
+    const result = await getAuctionBidDetails(id);
+    if (!result) {
+      return res.status(404).json({ message: "Auction not found" })
+    }
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error fetching auction bid details: ", err)
+    res.status(500).json({ message: "Server error fetching auction bid details" });
   }
 }

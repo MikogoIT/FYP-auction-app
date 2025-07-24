@@ -4,6 +4,7 @@ import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
+import { getAuctionMetadata, getLowestBid } from "../models/auctionModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
@@ -111,30 +112,63 @@ export async function createBidFromTelegram(req, res) {
 
     try {
         // Get seller_id for this auction
-        const result = await getSellerId(auction_id);
-        if (!result || result.length === 0) {
+        const [sellerRow] = await getSellerId(auction_id);
+        if (!sellerRow) {
             return res.status(404).json({ message: "Auction not found" });
         }
-        const sellerId = result[0].seller_id;
 
+        const sellerId = sellerRow.seller_id;
         if (sellerId === user_id) {
             return res.status(403).json({ message: "You cannot bid on your own listing." });
         }
 
-        const minBidData = await getAuctionMinBid(auction_id);
-        if (!minBidData) {
-            return res.status(404).json({ message: "Auction not found" });
+        // Fetch auction metadata
+        const auctionInfo = await getAuctionMetadata(auction_id);
+
+        if (!auctionInfo) {
+            return res.status(404).json({ message: "Auction not found" })
         }
 
-        const minBid = Math.max(minBidData.min_bid, minBidData.highest_bid || 0);
+        const { auction_type, min_bid, start_price } = auctionInfo;
+        const bidAmount = parseFloat(bid_amount);
+        if (isNaN(bidAmount)) {
+            return res.status(400).json({ message: "Invalid bid amount" })
+        }
 
-        if (parseFloat(bid_amount) < minBid) {
-            return res.status(400).json({ message: `Bid must be at least $${minBid}` });
+        // Bid validation per auction type
+        if (auction_type === "ascending") {
+            const minBidData = await getAuctionMinBid(auction_id);
+            const currentMinBid = Math.max(minBidData.min_bid, minBidData.highest_bid || 0);
+            if (bidAmount <= currentMinBid) {
+                return res.status(400).json({ message: `Bid must be higher than current price ($${currentMinBid})` });
+            }
+        } else if (auction_type === "descending") {
+            const lowestBid = await getLowestBid(auction_id);
+
+            if (lowestBid !== null && bidAmount >= lowestBid) {
+                return res.status(400).json({ message: `Bid must be lower than current lowest price ($${lowestBid})` })
+            }
+
+            if (bidAmount < min_bid) {
+                return res.status(400).json({ message: `Bid must be at least the minimum allowed ($${min_bid})` });
+            }
+
+            if (start_price && bidAmount >= start_price) {
+                return res.status(400).json({ message: `Bid must be lower than starting price ($${start_price})` })
+            }
+        } else {
+            return res.status(400).json({ message: "Unsupported auction type" });
         }
 
         // Insert the bid
-        const bid = await insertBid(user_id, auction_id, bid_amount);
-        return res.status(201).json({ bid: bid[0] });
+        const bid = await insertBid(user_id, auction_id, bidAmount);
+        return res.status(201).json({ 
+            bid: bid[0],
+            auction_type,
+            updated_price: auction_type === "descending"
+                ? (await getLowestBid(auction_id)) ?? start_price
+                : bidAmount,
+        });
     } catch (err) {
         console.error("Bid creation error: ", err);
         return res.status(500).json({ message: "Failed to place bid" });
