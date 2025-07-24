@@ -129,6 +129,10 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
         )})`
         : sql``;
 
+    const havingClause = maxPrice
+        ? sql`HAVING COALESCE(MAX(b.bid_amount), l.min_bid) <= ${maxPrice}`
+        : sql``;
+
     return await sql`
         SELECT 
             l.*,
@@ -142,12 +146,9 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
                 ${category} = ''
                 OR lc.name ILIKE ${category}
             )
-            AND (
-                ${maxPrice}::numeric IS NULL
-                OR COALESCE(MAX(b.bid_amount), l.min_bid) <= ${maxPrice}
-            )
             ${keywordConditions}
         GROUP BY l.id, lc.name
+        ${havingClause}
         ORDER BY l.end_date ASC
     `;
 }
