@@ -126,7 +126,7 @@ export default function TagAutocomplete({
   */
 
   // Handles Enter/Comma to manually add tags (new)
-  /*const handleManualAdd = (e) => {
+  const handleManualAdd = (e) => {
     const k = e.key?.toLowerCase(); // Lowercase for onKey
 
     if (k === "enter") {
@@ -148,7 +148,9 @@ export default function TagAutocomplete({
       setInputValue("");
     }
   };
-  */
+  
+
+  /*
 
   // Saud New Code
     // Handles Enter/Comma to manually add tags
@@ -177,6 +179,8 @@ export default function TagAutocomplete({
       setInputValue("");
     }
   };
+
+  */
   
 /*
   // Handles Blur Add on Mobile to manually add tags (new code)
