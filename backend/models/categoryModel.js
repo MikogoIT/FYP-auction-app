@@ -6,6 +6,7 @@ export async function getAllCategories() {
   return await sql`
     SELECT id, name, description, is_suspended
     FROM listing_categories
+    ORDER BY id
   `;
 }
 

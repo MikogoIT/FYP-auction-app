@@ -242,7 +242,7 @@ const AdminPage = () => {
       );
     }
   },
-  /*
+  /* delete user, kept code just in case
  {
     field: 'id',
     type: 'actions',
