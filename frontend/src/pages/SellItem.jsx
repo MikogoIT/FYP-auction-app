@@ -107,7 +107,7 @@ const SellItem = () => {
           title,
           description,
           min_bid: parseFloat(minBid),
-          end_date: endDate,
+          end_date: new Date(endDate).toISOString(), // convert back to UTC for database
           category_id: categoryId,
         }),
       });
