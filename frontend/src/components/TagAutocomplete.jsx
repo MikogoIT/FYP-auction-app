@@ -75,6 +75,8 @@ export default function TagAutocomplete({
   const [inputValue, setInputValue] = React.useState("");
   const [validationMessage, setValidationMessage] = React.useState("");
 
+  console.log("📣 validationMessage:", validationMessage);
+
   // Auto-clear validation message after 3s
   /*React.useEffect(() => {
     if (validationMessage) {
@@ -124,10 +126,7 @@ export default function TagAutocomplete({
   };
 
   const addTagsFromInput = (rawInput) => {
-    const rawTags = rawInput
-      .split(",") // Splits on comma
-      .map((tag) => tag.trim().toLowerCase())
-      .filter((tag) => tag.length > 0 && /^[a-z0-9-]+$/i.test(tag)); // only allows alphanumerical/hyphens
+    const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());
 
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
     if (invalidTags.length > 0) {
@@ -139,20 +138,23 @@ export default function TagAutocomplete({
     const existing = value.map((t) => t.toLowerCase());
     const locked = lockedTag?.toLowerCase?.();
 
-    const newTags = rawTags.filter(
-      (tag) => !existing.includes(tag) && tag !== locked,
+    const duplicateTags = rawTags.filter(
+      (tag) => existing.includes(tag) || tag === locked,
     );
-
-    if (newTags.length > 0) {
-      const finalTags = lockedTag
-        ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
-        : [...value, ...newTags];
-      onChange?.(finalTags);
+    if (duplicateTags.length > 0) {
+      setValidationMessage(`Duplicate tag(s): ${duplicateTags.join(", ")}`);
+      setInputValue("");
+      return;
     }
 
+    const newTags = rawTags.filter((tag) => tag.length > 0);
+    const finalTags = lockedTag
+      ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
+      : [...value, ...newTags];
+
+    onChange?.(finalTags);
     setInputValue("");
-    setInputValue("");
-    setValidationMessage(""); // clear on success
+    setValidationMessage("");
   };
 
   // Handles Blur Add on Mobile to manually add tags (new code)
@@ -194,25 +196,12 @@ export default function TagAutocomplete({
               onBlur: handleBlurAdd,
             })}
           />
-          
         </InputWrapper>
       </div>
-        {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
-          <FormHelperText
-            error
-            sx={{
-              mt: 1,
-              ml: 1,
-              px: 1,
-              py: 0.5,
-              backgroundColor: "#fff4f4",
-              border: "1px solid #f5c2c7",
-              borderRadius: "4px",
-              fontWeight: 500,
-            }}
-          >
-            {validationMessage}
-      </FormHelperText>
+      {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
+      <div style={{ background: "#ffeeee", padding: "8px", color: "red" }}>
+        {validationMessage || "debug: no message"}
+      </div>
 
       {groupedOptions.length > 0 && (
         <Listbox {...getListboxProps()}>
