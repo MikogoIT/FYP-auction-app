@@ -73,6 +73,6 @@ async function notifyAuctionWinners() {
 //   notifyAuctionWinners();
 // }, 60 * 1000);
 
-notifyAuctionWinners();
+// notifyAuctionWinners();
 
 export default notifyAuctionWinners;

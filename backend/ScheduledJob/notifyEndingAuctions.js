@@ -48,6 +48,6 @@ async function notifyEndingAuctions() {
 //   notifyEndingAuctions();
 // }, 60 * 1000);
 
-notifyEndingAuctions();
+// notifyEndingAuctions();
 
 export default notifyEndingAuctions;
