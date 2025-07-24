@@ -284,7 +284,11 @@ const AdminPage = () => {
               variant="outlined"
               component={Link}
               to="/admin/categoryadmin"
-              color="primary"
+              sx={{
+                borderColor: "grey.400",
+                color: "grey.500",
+                "&:hover": {borderColor: "grey.600"}
+              }}
               >
                 Category Management</Button>
           </Stack>

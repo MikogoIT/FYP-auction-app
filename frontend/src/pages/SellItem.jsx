@@ -66,7 +66,7 @@ const SellItem = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return; // Prevent further execution if already submitting
-    setSubmitting(true); // Set to true right away
+    setSubmitting(true); // Sets to true right away
     setError("");
     setSuccess("");
 
@@ -92,7 +92,8 @@ const SellItem = () => {
       return;
     }
 
-    console.log("Tags being inserted:", tags);
+    // Debug Log for Tags Submission
+    //console.log("Tags being inserted:", tags);
 
     try {
       // 1. Create the listing first

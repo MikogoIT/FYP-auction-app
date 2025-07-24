@@ -34,6 +34,7 @@ export default function ProfileFeedbackPage() {
   const { userId } = useParams();
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
+  const [ratingInfo, setRatingInfo] = useState(null);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("Newest");
   const [authorInfo, setAuthorInfo] = useState({});
@@ -48,7 +49,14 @@ export default function ProfileFeedbackPage() {
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error(userData.message);
         setUser(userData);
-        //console.log("Fetched user:", userData);
+       // console.log("Fetched user:", userData);
+
+        // Fetch User Profile Ratings
+        const ratingRes = await fetch(`/api/feedback/ratings/${userId}`);
+        const ratingData = await ratingRes.json();
+        if (!ratingRes.ok) throw new Error(ratingData.message);
+        setRatingInfo(ratingData);
+        //console.log("Fetched user:", ratingData);
 
         // Fetch Reviews
         const fbRes = await fetch(`/api/feedback/user/${userId}`);
@@ -71,6 +79,7 @@ export default function ProfileFeedbackPage() {
       } catch (err) {
         console.error("Failed to load Page:", err);
         setUser(null);
+        setRatingInfo(null);
         setReviews([]);
         setAuthorInfo({});
       } finally {
@@ -100,13 +109,8 @@ export default function ProfileFeedbackPage() {
   });
 
   // Calculate average rating
-  const hasReviews = reviews.length > 0;
-  const ratingScore = hasReviews
-    ? (
-        reviews.reduce((sum, r) => sum + r.user_ratings, 0) / reviews.length
-      ).toFixed(2)
-    : "N/A";
-  const numReviews = reviews.length;
+  const ratingScore = ratingInfo?.avg_rating ?? "N/A";
+  const numReviews = ratingInfo?.total_reviews ?? 0;
 
   return (
     <Box
@@ -141,15 +145,21 @@ export default function ProfileFeedbackPage() {
             <Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <StarRating
-                  rating={hasReviews ? Math.round(ratingScore) : 0}
+                  rating={
+                    ratingInfo?.avg_rating
+                      ? Math.round(ratingInfo.avg_rating)
+                      : 0
+                  }
                   size="large"
                 />
                 <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
-                  {hasReviews ? Number(ratingScore).toFixed(1) : "N/A"}
+                  {ratingScore !== "N/A"
+                    ? Number(ratingScore).toFixed(1)
+                    : "N/A"}
                 </Typography>
               </Box>
               <Typography color="text.secondary" fontSize={16}>
-                {numReviews} Reviews
+                {numReviews} Review{numReviews !== 1 ? "s" : ""}
               </Typography>
             </Box>
           </Box>

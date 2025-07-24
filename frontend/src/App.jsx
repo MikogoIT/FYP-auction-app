@@ -34,9 +34,7 @@ import ProfileFeedbackPage from "./pages/ProfileFeedbackPage";
 import CategoryAdmin from "./pages/CategoryAdmin";
 import MyListingsBids from "./pages/MyListingsBids";
 
-{/* Testing Tags*/}
-import TagSellItem from "./pages/TagPage";
-import TagAutocomplete from "./components/TagAutocomplete";
+
 
 // components
 import Header from "./components/Header";                     // no-drawer
@@ -85,9 +83,6 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/notif" element={<Notif />} />
             <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
             <Route path="/mylistings/MyListingsBids" element={<MyListingsBids />} />
-
-            {/* Testing Tags*/}
-            <Route path="/TagPage" element={<TagSellItem />} />
 
           {!isApiRoute && (
             <Route path="*" element={<Navigate to="/" replace />} />
