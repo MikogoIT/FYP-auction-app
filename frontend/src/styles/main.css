@@ -315,7 +315,7 @@ background-color: #e0e0e0;
 }
 
 .listingDetails {
-  padding: 8px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   margin: 4px 0;
@@ -334,7 +334,7 @@ background-color: #e0e0e0;
 }
 
 .listingTitle {
-  margin: 8px 5px;
+  margin: 16px;
   font-size: 20px;
   font-weight: 700;
 }
@@ -345,7 +345,7 @@ background-color: #e0e0e0;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0px 5px;
+  padding: 0px 10px;
   height: 55px;
 }
 
