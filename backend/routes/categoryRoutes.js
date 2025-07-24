@@ -1,8 +1,9 @@
 // routes/categoryRoutes.js
 import express from "express";
 import {
+  getAllCategoriesController,
+  getActiveCategoriesController,
   createCategory,
-  getCategories,
   getCategoryById,
   updateCategory,
   toggleCategoryState,
@@ -12,7 +13,8 @@ import {
 const router = express.Router();
 
 router.post("/", createCategory);
-router.get("/", getCategories);
+router.get("/", getActiveCategoriesController); // publicly-viewed active only
+router.get("/admin", getAllCategoriesController); // for admin to manage visiblity
 router.get("/search", searchCategories);
 router.get("/:id", getCategoryById);
 router.put("/:id", updateCategory); // edit

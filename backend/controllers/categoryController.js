@@ -1,6 +1,7 @@
 // controllers/categoryController.js
 import {
   getAllCategories,
+  getActiveCategories,
   insertCategory,
   isAdmin,
   getCategoryByIdModel,
@@ -10,9 +11,20 @@ import {
 } from "../models/categoryModel.js";
 
 // get all categories
-export async function getCategories(_, res) {
+export async function getAllCategoriesController(_, res) {
   try {
     const result = await getAllCategories();
+    res.json({ categories: result });
+  } catch (err) {
+    console.error("Fetch categories error:", err);
+    res.status(500).json({ message: "Failed to fetch categories" });
+  }
+}
+
+// get active categories (is_suspended = false)
+export async function getActiveCategoriesController(_, res) {
+  try {
+    const result = await getActiveCategories();
     res.json({ categories: result });
   } catch (err) {
     console.error("Fetch categories error:", err);
