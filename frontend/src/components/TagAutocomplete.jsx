@@ -102,87 +102,38 @@ export default function TagAutocomplete({
       onChange?.(newList);
     },
   });
-/*
+
    // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      const newTag = inputValue.trim().toLowerCase();
+      addTagsFromInput(inputValue);
 
-      const isDuplicate = value.some(
-        (t) => t.toLowerCase() === newTag
-      );
-      const isLocked = lockedTag?.toLowerCase() === newTag;
-
-      if (!isDuplicate && !isLocked) {
-        const newTags = [...value, newTag];
-        onChange?.(newTags);
-      }
-
-      setInputValue("");
     }
   };
 
-  */
-
-  // Handles Enter/Comma to manually add tags (new)
-  const handleManualAdd = (e) => {
-    console.log("handleManualAdd fired", e.key);
-    const k = e.key?.toLowerCase();
-
-    if (k === "enter") {
-      e.preventDefault();
-
-      const rawInput = inputValue.trim();
-
-      // Sanitize — remove all non-alphanumeric chars
-      const newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
-
-      console.log("Sanitized tag:", newTag); // Verify here
-
-      const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
-      const isLocked = lockedTag?.toLowerCase() === newTag;
-
-      if (newTag && !isDuplicate && !isLocked) {
-        onChange?.([...value, newTag]);
-      }
-
-      setInputValue(""); // Clear after add
-    }
-  };
-  
-
-  /*
-
-  // Saud New Code
-    // Handles Enter/Comma to manually add tags
-  const handleManualAdd = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
-      e.preventDefault();
-      
-      const rawTags = inputValue
-        .split(",")
+  const addTagsFromInput = (rawInput) => {
+    const rawTags= rawInput
+        .split(",") // Splits on comma
         .map((tag) => tag.trim().toLowerCase())
-        .filter((tag) => tag.length > 0);
+        .filter((tag) => tag.length > 0 && /^[a-z0-9-]+$/i.test(tag)); // only allows alphanumerical/hyphens
 
-      const existingTags = value.map((tag) => tag.toLowerCase());
-      const normalizedLocked = lockedTag?.toLowerCase();
+    const existing = value.map((t) => t.toLowerCase());
+    const locked = lockedTag?.toLocaleLowerCase?.();
 
-      const newTags = [
-        ...value,
-        ...rawTags.filter(
-          (tag) =>
-            !existingTags.includes(tag) &&
-            tag !== normalizedLocked
-        ),
-      ];
+    const newTags = rawTags.filter(
+      (tag) => !existing.includes(tag) && tag!== locked
+    );
 
-      onChange?.(newTags);
-      setInputValue("");
+    if (newTags.length > 0){
+      const finalTags = lockedTag ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...newTags]
+      : [...value, ...newTags];
+      onChange?.(finalTags);
     }
-  };
 
-  */
+    setInputValue("");
+
+  }
   
 /*
   // Handles Blur Add on Mobile to manually add tags (new code)
@@ -228,7 +179,14 @@ export default function TagAutocomplete({
             {...getInputProps({
               placeholder: "Add a tag",
               onKeyDown: handleManualAdd, // handles Enter on desktop
-              //onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
+              onChange: (e) => {
+                const newInput = e.target.value;
+                if(newInput.includes(",")) {
+                  addTagsFromInput(newInput);
+                }else{
+                  setInputValue(newInput);
+                }
+              }
             })}
           />
         </InputWrapper>
