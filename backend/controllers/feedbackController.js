@@ -8,6 +8,7 @@ import {
   getFeedbackForUser,
   getFeedbackForAuction,
   hasFeedback,
+  getUserRatings as fetchUserRatings
 } from "../models/feedbackModel.js";
 
 // POST   /feedback
@@ -109,5 +110,25 @@ export async function getAuctionFeedback(req, res) {
     res.json(feedback);
   } catch (err) {
     res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
+
+export async function getUserRatings(req, res) {
+  try {
+    const userId = req.params.userId;
+    const [ratings] = await fetchUserRatings(userId); // Destructure first row
+
+    if (!ratings) {
+      return res.json({
+        user_id: userId,
+        avg_rating: null,
+        total_reviews: 0,
+      });
+    }
+
+    res.json(ratings);
+  } catch (err) {
+    console.error("Get user ratings error:", err);
+    res.status(500).json({ message: "Failed to fetch user ratings." });
   }
 }
