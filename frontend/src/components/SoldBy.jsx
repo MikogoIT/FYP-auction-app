@@ -32,9 +32,9 @@ export default function SoldBy({
             alt={sellerUsername}
             sx={{ width: 32, height: 32, marginRight: '8px' }}
           />
-          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          <div style={{ fontSize: 16 }}>
             {sellerUsername}
-          </Typography>
+          </div>
         </div>
       </div>
 

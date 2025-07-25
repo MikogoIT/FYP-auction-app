@@ -8,6 +8,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import Typography from "@mui/material/Typography";
 import "@material/web/button/filled-button.js";
 import { useTheme } from "@mui/material/styles";
+import SoldBy from '../components/SoldBy';
 
 export default function ListingCard({
   item,
@@ -81,6 +82,13 @@ export default function ListingCard({
       </div>
 
       <div className="listingDetails">
+        <SoldBy
+          sellerId={listing.seller_id}
+          sellerUsername={listing.seller_username}
+          sellerAvatar={listing.seller_avatar}
+          avgRating={avgRating}
+          totalReviews={totalReviews}
+        />
         <Typography
           variant="body2"
           color="text.secondary"

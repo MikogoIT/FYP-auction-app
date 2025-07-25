@@ -10,7 +10,6 @@ import {
   Link,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
-import Rating from "@mui/material/Rating";
 import SoldBy from '../components/SoldBy';
 
 import "@material/web/button/filled-button.js";
