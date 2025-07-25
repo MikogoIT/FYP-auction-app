@@ -146,7 +146,7 @@ export default function Profile() {
 
        <Button
           variant="outlined"
-          onClick={() => navigate("/feedback/${userId}")}
+          onClick={() => navigate(`/feedback/${user.id}`)}
           sx={{
               borderRadius: "999px",
               borderColor: "grey.400",
