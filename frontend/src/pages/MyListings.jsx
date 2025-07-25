@@ -12,13 +12,32 @@ const ITEMS_PER_PAGE = 12;
 export default function MyListings() {
   const navigate = useNavigate();
   const theme = useTheme();
-  const yellow = theme.palette.warning.light;
-  const contrastText = theme.palette.getContrastText(yellow);
 
+  // State
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [likedMap, setLikedMap] = useState({});
 
-  // fetch my listings + their images
+  // 1) Load watchlist so we know which items are “liked”
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/watchlist/", { credentials: "include" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
+
+        const map = {};
+        data.forEach((item) => {
+          map[item.auction_id] = true;
+        });
+        setLikedMap(map);
+      } catch (err) {
+        console.error("Could not load watchlist:", err);
+      }
+    })();
+  }, []);
+
+  // 2) Fetch my listings (including is_active) + their images
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -33,7 +52,6 @@ export default function MyListings() {
               const imgRes = await fetch(
                 `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
               );
-              if (!imgRes.ok) throw new Error();
               const { imageUrl } = await imgRes.json();
               return { ...item, image_url: imageUrl };
             } catch {
@@ -53,19 +71,47 @@ export default function MyListings() {
   }, []);
 
   const currentUserId = Number(localStorage.getItem("userId"));
-  const handleEdit = (id) => navigate(`/edit/${id}`);
+
+  // 3) Only navigate to edit if listing.is_active === true
+  const handleEdit = (listingId) => {
+    const listing = listings.find((l) => l.id === listingId);
+    if (!listing?.is_active) return;        // ← noop if expired
+    navigate(`/edit/${listingId}`);
+  };
+
   const handleBidClick = (id) => navigate(`/bid/${id}`);
-  const handleToggleLike = () => {
-    /* no-op for own listings */
+
+  // 4) Same toggle‑watchlist logic as before
+  const handleToggleLike = async (listingId) => {
+    const isLiked = !!likedMap[listingId];
+    const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ auction_id: listingId }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `${method} ${url} failed`);
+      }
+      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
+    } catch (err) {
+      console.error("Error toggling watchlist:", err);
+    }
   };
 
   return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
+
       <div className="dashboardContent">
         <BreadcrumbsNav />
 
-        {/* Toggle Buttons */}
+        {/* Toggle between My Listings / Bids */}
         <div
           className="toggleButtons"
           style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
@@ -78,7 +124,7 @@ export default function MyListings() {
               borderColor: "primary.main",
               color: "primary.main",
               textTransform: "none",
-              '&:hover': { borderColor: 'primary.dark' },
+              "&:hover": { borderColor: "primary.dark" },
               fontSize: "16px",
             }}
           >
@@ -92,7 +138,7 @@ export default function MyListings() {
               borderColor: "grey.400",
               color: "grey.500",
               textTransform: "none",
-              '&:hover': { borderColor: 'grey.600' },
+              "&:hover": { borderColor: "grey.600" },
               fontSize: "16px",
             }}
           >
@@ -113,13 +159,14 @@ export default function MyListings() {
             listings={listings}
             itemsPerPage={ITEMS_PER_PAGE}
             currentUserId={currentUserId}
-            likedMap={{}}
+            likedMap={likedMap}
             onToggleLike={handleToggleLike}
             onBidClick={handleBidClick}
             onEditClick={handleEdit}
           />
         )}
       </div>
+
       <div className="sidebarSpacer" />
     </div>
   );

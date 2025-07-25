@@ -1,4 +1,5 @@
 // src/components/ListingCard.jsx
+
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import ImageIcon from "@mui/icons-material/Image";
@@ -19,28 +20,65 @@ export default function ListingCard({
   const theme = useTheme();
   const yellow = theme.palette.warning.light;
   const contrastText = theme.palette.getContrastText(yellow);
+  const greyBg = theme.palette.grey[300];
+  const blackText = theme.palette.common.black;
   const isOwner = item.seller_id === currentUserId;
+  const isExpired = !item.is_active;
+
+  // Determine button text, handler, and styling
+  const actionText = isExpired
+    ? "Expired"
+    : isOwner
+    ? "Edit"
+    : "Bid";
+
+  const actionHandler = isExpired
+    ? undefined
+    : () => {
+        if (isOwner) {
+          onEditClick(item.id);
+        } else {
+          onBidClick(item.id);
+        }
+      };
+
+  const actionStyle = {
+    flexGrow: 1,
+    // expired: grey bg + black text + no pointer
+    ...(isExpired
+      ? {
+          "--md-sys-color-primary": greyBg,
+          "--md-sys-color-on-primary": blackText,
+          cursor: "default",
+        }
+      : // owner edit button colors
+      isOwner
+      ? {
+          "--md-sys-color-primary": yellow,
+          "--md-sys-color-on-primary": contrastText,
+        }
+      : {}),
+  };
 
   return (
     <div className="listingCard">
       <div>
         {item.image_url ? (
-            <img
-              src={item.image_url}
-              alt={item.title}
-              className="listingImage"
-            />
-          ) : (
-            <Avatar
-              variant="square"
-              sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-            >
-              <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-            </Avatar>
-          )}
-          <div className="listingTitle">{item.title}</div>
+          <img
+            src={item.image_url}
+            alt={item.title}
+            className="listingImage"
+          />
+        ) : (
+          <Avatar
+            variant="square"
+            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
+          >
+            <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
+          </Avatar>
+        )}
+        <div className="listingTitle">{item.title}</div>
       </div>
-      
 
       <div className="listingDetails">
         <Typography
@@ -104,7 +142,10 @@ export default function ListingCard({
       </div>
 
       <div className="listingAction">
-        <IconButton onClick={() => onToggleLike(item.id)} size="large">
+        <IconButton
+          onClick={() => onToggleLike(item.id)}
+          size="large"
+        >
           {isLiked ? (
             <FavoriteIcon color="error" />
           ) : (
@@ -112,16 +153,12 @@ export default function ListingCard({
           )}
         </IconButton>
 
-        {/* Combined conditional button for Edit vs Bid */}
         <md-filled-button
-          onClick={() => (isOwner ? onEditClick(item.id) : onBidClick(item.id))}
-          style={{
-            flexGrow: 1,
-            "--md-sys-color-primary": isOwner ? yellow : undefined,
-            "--md-sys-color-on-primary": isOwner ? contrastText : undefined,
-          }}
+          onClick={actionHandler}
+          disabled={isExpired}
+          style={actionStyle}
         >
-          {isOwner ? "Edit" : "Bid"}
+          {actionText}
         </md-filled-button>
       </div>
     </div>

@@ -136,11 +136,11 @@ export default function Landing() {
                         <ImageIcon />
                       </Avatar>
                     )}
-                    <div className="listingDetails">
-                      <div className='listingTitle'>
-                        {item.title}
-                      </div>
+                    
+                    <div className='listingTitle'>
+                      {item.title}
                     </div>
+                    
                   </div>
                   <div className="noLikeButtonStyle">
                     {isOwner ? (
