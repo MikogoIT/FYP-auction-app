@@ -302,18 +302,6 @@ const SellItem = () => {
           </>
         )}
 
-        {/* Minimum Bid  
-        <label>Minimum Bid (SGD) *</label>
-        <input
-          type="number"
-          step="0.01"
-          value={minBid}
-          onChange={(e) => setMinBid(e.target.value)}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        />
-        */}
-
         {/* Bid End Date & Time */}
         <label>End Date & Time *</label>
         <input
