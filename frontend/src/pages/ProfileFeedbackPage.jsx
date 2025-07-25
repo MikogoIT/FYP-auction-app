@@ -170,53 +170,78 @@ export default function ProfileFeedbackPage() {
 
         {/* Filters and Sorting */}
         <Box
-          sx={{
+        sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
-          }}
+        }}
         >
-          <Box>
+        <Box>
+            {/* All Reviews */}
+            {filter === "All" ? (
             <md-filled-button
-              onClick={() => setFilter("All")}
-              style={{ marginRight: 8 }}
-              selected={filter === "All" ? "true" : undefined}
+                onClick={() => setFilter("All")}
+                style={{ marginRight: 8 }}
             >
-              All Reviews
+                All Reviews
             </md-filled-button>
+            ) : (
             <md-filled-tonal-button
-              onClick={() => setFilter("Buyers")}
-              style={{ marginRight: 8 }}
-              selected={filter === "Buyers" ? "true" : undefined}
+                onClick={() => setFilter("All")}
+                style={{ marginRight: 8 }}
             >
-              From Buyers
+                All Reviews
             </md-filled-tonal-button>
+            )}
+
+            {/* From Buyers */}
+            {filter === "Buyers" ? (
+            <md-filled-button
+                onClick={() => setFilter("Buyers")}
+                style={{ marginRight: 8 }}
+            >
+                From Buyers
+            </md-filled-button>
+            ) : (
             <md-filled-tonal-button
-              onClick={() => setFilter("Sellers")}
-              selected={filter === "Sellers" ? "true" : undefined}
+                onClick={() => setFilter("Buyers")}
+                style={{ marginRight: 8 }}
             >
-              From Sellers
+                From Buyers
             </md-filled-tonal-button>
-          </Box>
-          <Box>
+            )}
+
+            {/* From Sellers */}
+            {filter === "Sellers" ? (
+            <md-filled-button onClick={() => setFilter("Sellers")}>
+                From Sellers
+            </md-filled-button>
+            ) : (
+            <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
+                From Sellers
+            </md-filled-tonal-button>
+            )}
+        </Box>
+
+        <Box>
             <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              style={{
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            style={{
                 padding: "8px 12px",
                 borderRadius: 6,
                 border: "1px solid #ccc",
                 fontSize: 16,
                 marginLeft: 5,
-              }}
+            }}
             >
-              <option>Newest</option>
-              <option>Oldest</option>
-              <option>Highest Rating</option>
-              <option>Lowest Rating</option>
+            <option>Newest</option>
+            <option>Oldest</option>
+            <option>Highest Rating</option>
+            <option>Lowest Rating</option>
             </select>
-          </Box>
+        </Box>
         </Box>
 
         {/* Reviews List */}
