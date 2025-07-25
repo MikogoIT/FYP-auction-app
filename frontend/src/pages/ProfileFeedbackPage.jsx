@@ -134,7 +134,7 @@ export default function ProfileFeedbackPage() {
             <Typography color="text.secondary" fontSize={16}>
               {reviewCount} Review{reviewCount !== 1 ? "s" : ""}
             </Typography>
-            <Typography>{user?.email || ""}</Typography>
+            {/* <Typography>{user?.email || ""}</Typography> */}
           </div>
         </div>
 
