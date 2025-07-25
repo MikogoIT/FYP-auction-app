@@ -9,7 +9,9 @@ import {
   Link,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
+import Rating from "@mui/material/Rating";
 import "@material/web/button/filled-button.js";
+
 
 export default function BidPage() {
   const { id } = useParams();
@@ -21,6 +23,8 @@ export default function BidPage() {
   const [message, setMessage] = useState("");
   const [auctionType, setAuctionType] = useState(null);
   const [currentDescPrice, setCurrentDescPrice] = useState(null);
+  const [avgRating, setAvgRating] = useState(0);    // ← holds avg_rating
+  const [totalReviews, setTotalReviews] = useState(0); // ← holds total_reviews
 
   // Fetch listing details (including category_id & category_name)
   useEffect(() => {
@@ -30,6 +34,14 @@ export default function BidPage() {
         if (!res.ok) throw new Error("Failed to load listing");
         const { listing } = await res.json();
         setListing(listing);
+        // once we know the seller, fetch their rating
+        fetch(`/api/feedback/ratings/${listing.seller_id}`)
+          .then((res) => res.json())
+          .then(({ avg_rating, total_reviews }) => {
+            setAvgRating(avg_rating);
+            setTotalReviews(total_reviews);
+          })
+          .catch(console.error);
         setAuctionType(listing.auction_type);
 
         if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
@@ -209,6 +221,22 @@ export default function BidPage() {
                 />
                 <div>{listing.seller_username}</div>
               </div>
+              {/* —— NEW: display avg rating in small stars —— */}
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                <Rating
+                  name="seller-rating"
+                  value={avgRating}
+                  size="small"
+                  readOnly
+                  precision={0.5}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{ ml: 0.5, fontSize: 14, color: "text.secondary" }}
+                >
+                  ({totalReviews})
+                </Typography>
+              </Box>
               <Typography
                 variant="body2"
                 color="text.secondary"
