@@ -10,6 +10,7 @@ import { Box, Typography } from "@mui/material";
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Switch from "@mui/material/Switch";
+import AddCategoryModal from '../components/AddCategoryModal';
 
 
 
@@ -24,6 +25,8 @@ export default function CategoryAdmin() {
   // create category
   // edit category
   // suspend category
+
+ 
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -81,6 +84,10 @@ export default function CategoryAdmin() {
     toggleSuspend(id)
     setRows(updatedRows);
   };
+  
+  const handleAddCategory = () => {
+    fetchCategories();
+  };
  
   // edit categories handler
   const handleEditCategories = async (newRow, oldRow) => {
@@ -109,6 +116,8 @@ export default function CategoryAdmin() {
       console.error("Request failed");
     }
   };
+
+  // create button to add category
 
   useEffect(() => {
     fetchCategories(); // Initial load
@@ -164,7 +173,18 @@ export default function CategoryAdmin() {
       <div className="dashboardContent">
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
-          <Stack direction="row" spacing={2}>
+          <Stack 
+          direction="row" 
+          spacing={2}
+          justifyContent="space-between"
+          alignItems="center"
+          >
+            <Box
+            sx={{
+              display: "flex",
+              gap: 2
+            }}
+            >
               <Button 
               variant="outlined"
               component={Link}
@@ -183,6 +203,8 @@ export default function CategoryAdmin() {
               color="primary"
               >
                 Category Management</Button>
+            </Box>
+              <AddCategoryModal onCategoryAdded={handleAddCategory}/>
           </Stack>
         </div> 
         <Box

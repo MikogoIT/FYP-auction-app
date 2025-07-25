@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import useAutocomplete from "@mui/material/useAutocomplete";
-import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 
@@ -91,110 +90,67 @@ export default function TagAutocomplete({
     onInputChange: (_, newInput) => setInputValue(newInput),
     value,
     onChange: (_, selectedOptions) => {
-      // Ensure lockedTag is always first and not duplicated
       const normalize = (s) => s.toLowerCase();
-      const filtered = selectedOptions.filter(
-        (tag, i, arr) =>
-          arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
-          (!lockedTag || normalize(tag) !== normalize(lockedTag)),
-      );
+      const filtered = selectedOptions
+        .map((tag) => tag.trim())
+        .filter(
+          (tag, i, arr) =>
+            /^[a-z0-9-]+$/i.test(tag) &&
+            arr.findIndex((t) => normalize(t) === normalize(tag)) === i &&
+            (!lockedTag || normalize(tag) !== normalize(lockedTag)),
+        );
       const newList = lockedTag ? [lockedTag, ...filtered] : filtered;
       onChange?.(newList);
     },
   });
 
-   // Handles Enter/Comma to manually add tags
+  // Handles Enter/Comma to manually add tags
   const handleManualAdd = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      const newTag = inputValue.trim().toLowerCase();
-
-      const isDuplicate = value.some(
-        (t) => t.toLowerCase() === newTag
-      );
-      const isLocked = lockedTag?.toLowerCase() === newTag;
-
-      if (!isDuplicate && !isLocked) {
-        const newTags = [...value, newTag];
-        onChange?.(newTags);
-      }
-
-      setInputValue("");
+      addTagsFromInput(inputValue);
     }
   };
 
-  // Handles Enter/Comma to manually add tags (new)
-  /*const handleManualAdd = (e) => {
-    const k = e.key?.toLowerCase(); // Lowercase for onKey
 
-    if (k === "enter") {
-      e.preventDefault();
-      // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
-      let rawInput = inputValue.trim();
-      let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
 
-      console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
+  const addTagsFromInput = (rawInput) => {
+    console.log("📥 rawInput:", rawInput);
+    const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());
 
-      const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
-      const isLocked = lockedTag?.toLowerCase() === newTag;
-
-      if (newTag && !isDuplicate && !isLocked) {
-        const newTags = [...value, newTag];
-        onChange?.(newTags);
-      }
-
+    const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
+    if (invalidTags.length > 0) {
       setInputValue("");
+      return;
     }
-  };
-  */
 
-  /* Saud New Code
-    // Handles Enter/Comma to manually add tags
-  const handleManualAdd = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
-      e.preventDefault();
-      
-      const rawTags = inputValue
-        .split(",")
-        .map((tag) => tag.trim().toLowerCase())
-        .filter((tag) => tag.length > 0);
 
-      const existingTags = value.map((tag) => tag.toLowerCase());
-      const normalizedLocked = lockedTag?.toLowerCase();
+    const existing = value.map((t) => t.toLowerCase());
+    const locked = lockedTag?.toLowerCase?.();
 
-      const newTags = [
-        ...value,
-        ...rawTags.filter(
-          (tag) =>
-            !existingTags.includes(tag) &&
-            tag !== normalizedLocked
-        ),
-      ];
-
-      onChange?.(newTags);
+    const duplicateTags = rawTags.filter(
+      (tag) => existing.includes(tag) || tag === locked,
+    );
+    if (duplicateTags.length > 0) {
       setInputValue("");
+      return;
     }
+
+    const validTags = rawTags.filter((tag) => tag.length > 0);
+
+    const finalTags = lockedTag
+      ? [lockedTag, ...value.filter((t) => t !== lockedTag), ...validTags]
+      : [...value, ...validTags];
+
+    onChange?.(finalTags);
+    setInputValue("");
   };
-  */
 
   // Handles Blur Add on Mobile to manually add tags (new code)
   const handleBlurAdd = () => {
-    // Normalize tag: trim, remove non-alphanumerics, convert to lowercase
-    let rawInput = inputValue.trim();
-    let newTag = rawInput.replace(/[^a-z0-9]/gi, "").toLowerCase();
+    if (!inputValue.trim()) return;
 
-    console.log("Raw:", rawInput, "| Cleaned:", newTag); // ← Debug
-
-    const isDuplicate = value.some((t) => t.toLowerCase() === newTag);
-    const isLocked = lockedTag?.toLowerCase() === newTag;
-
-    if (newTag && !isDuplicate && !isLocked) {
-      const newTags = [...value, newTag];
-      onChange?.(newTags);
-    }
-
-    setInputValue("");
-    
+    addTagsFromInput(inputValue); // Re-use your main handler
   };
 
   return (
@@ -218,7 +174,15 @@ export default function TagAutocomplete({
             {...getInputProps({
               placeholder: "Add a tag",
               onKeyDown: handleManualAdd, // handles Enter on desktop
-              onBlur: handleBlurAdd, // handles "Done" on mobile keyboard
+              onChange: (e) => {
+                const newInput = e.target.value;
+                if (newInput.includes(",")) {
+                  addTagsFromInput(newInput);
+                } else {
+                  setInputValue(newInput);
+                }
+              },
+              onBlur: handleBlurAdd,
             })}
           />
         </InputWrapper>
@@ -229,7 +193,6 @@ export default function TagAutocomplete({
           {groupedOptions.map((option, index) => (
             <li {...getOptionProps({ option, index })} key={index}>
               <span>{option}</span>
-              <CheckIcon fontSize="small" />
             </li>
           ))}
         </Listbox>

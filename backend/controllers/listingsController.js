@@ -43,13 +43,13 @@ export async function postListing(req, res) {
     min_bid,
     end_date,
     category_id,
-    auction_type = "ascending",
+    auction_type,
     start_price,
     discount_percentage 
   } = req.body;
 
-  // basic field validation
-  if (!title || !min_bid || !end_date || !category_id) {
+  // Basic required fields
+  if (!title || !end_date || !category_id) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -58,10 +58,17 @@ export async function postListing(req, res) {
     return res.status(400).json({ message: "Invalid auction_type" });
   }
 
+  if (auction_type === "ascending") {
+    // ascending requires min_bid
+    if (!min_bid) {
+      return res.status(400).json({ message: "Missing min_bid for ascending auction" });
+    }
+  }
+
   // descending auction only requires validation for start_price and discount_percentage
   if (auction_type === "descending") {
-    if (!start_price || !discount_percentage) {
-      return res.status(400).json({ message: "Missing descending auction fields" });
+    if (!start_price || !discount_percentage || discount_percentage < 10) {
+      return res.status(400).json({ message: "Missing or invalid descending auction fields" });
     }
   }
 
@@ -80,9 +87,10 @@ export async function postListing(req, res) {
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
-    res.status(500).json({ message: "Failed to create listing" });
+    // Send detailed error message back for dev purpose (optional)
+    res.status(500).json({ message: "Failed to create listing", error: err.message });
   }
-}
+  }
 
 // GET /listings
 export async function getListings(req, res) {
