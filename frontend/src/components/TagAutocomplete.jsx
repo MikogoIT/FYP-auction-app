@@ -129,12 +129,15 @@ export default function TagAutocomplete({
     }
   };
 
-  console.log("Raw input:", rawInput);
-  console.log("Raw tags:", rawTags);
-  console.log("Existing tags:", existing);
+
+  
+  
 
   const addTagsFromInput = (rawInput) => {
     const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());
+
+    // debug log
+    console.log("Raw input:", rawInput);
 
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
     if (invalidTags.length > 0) {
@@ -143,6 +146,8 @@ export default function TagAutocomplete({
       setInputValue("");
       return;
     }
+
+    console.log("Raw tags:", rawTags);
 
     const existing = value.map((t) => t.toLowerCase());
     const locked = lockedTag?.toLowerCase?.();
@@ -156,6 +161,8 @@ export default function TagAutocomplete({
       setInputValue("");
       return;
     }
+
+    console.log("Existing tags:", existing);
 
     const validTags = rawTags.filter((tag) => tag.length > 0);
 
