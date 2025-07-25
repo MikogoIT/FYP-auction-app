@@ -58,7 +58,7 @@ const SellItem = () => {
 
   // Console Log Auction Type(Debug)
   useEffect(() => {
-  console.log("🛠 Auction Type Selected:", auctionType);
+    console.log("🛠 Auction Type Selected:", auctionType);
 
   if (auctionType === "ascending") {
     console.log("💰 Minimum Bid:", minBid);
@@ -69,6 +69,19 @@ const SellItem = () => {
     console.log("📉 Discount %:", discountPercentage);
   }
   }, [auctionType, minBid, startPrice, discountPercentage]);
+
+  // Clear Inputs on switching Auction Type
+  useEffect(() => {
+    if (auctionType === "descending") {
+      setDiscountPercentage(10); // default 10%
+      setStartPrice(''); // clear start price to be safe
+      setMinBid(''); // clear min bid if needed
+    } else if (auctionType === "ascending") {
+      setMinBid('');
+      setStartPrice(null);
+      setDiscountPercentage(null);
+    }
+  }, [auctionType]);
 
   // Category Change
   const handleCategoryChange = (e) => {
@@ -140,7 +153,7 @@ const SellItem = () => {
             min_bid: parseFloat(minBid),
           }),
           ...(auctionType === "descending" && {
-            start_price: parseFloat(startPrice),
+            start_price: startPrice ? parseFloat(startPrice) : null,
             discount_percentage: parseFloat(discountPercentage),
           }),
         }),

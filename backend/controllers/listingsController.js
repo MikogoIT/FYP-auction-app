@@ -43,7 +43,7 @@ export async function postListing(req, res) {
     min_bid,
     end_date,
     category_id,
-    auction_type = "ascending",
+    auction_type,
     start_price,
     discount_percentage 
   } = req.body;
