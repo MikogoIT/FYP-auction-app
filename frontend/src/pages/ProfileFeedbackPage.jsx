@@ -1,18 +1,21 @@
-// src/pages/ProfileFeedbackPage.jsx
+// src/pages/Template.jsx
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Avatar,
-  Box,
   Grid,
   Card,
   CardHeader,
   CardContent,
-  Typography,
   Rating,
   CircularProgress,
 } from "@mui/material";
+
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+
+
+// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -29,6 +32,7 @@ function StarRating({ rating, size = "medium", readOnly = true }) {
     />
   );
 }
+
 
 export default function ProfileFeedbackPage() {
   const { userId } = useParams();
@@ -113,178 +117,194 @@ export default function ProfileFeedbackPage() {
   const numReviews = ratingInfo?.total_reviews ?? 0;
 
   return (
-    <Box
-      className="dashboardCanvas"
-      sx={{ p: 2, bgcolor: "#f8f8f8", minHeight: "100vh" }}
-    >
-      <Box className="sidebarSpacer" />
-      <Box className="dashboardContent" sx={{ maxWidth: 900, mx: "auto" }}>
-        {/* Profile Name and Ratings Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            id="middleTitle"
-            className="profileTitle"
-            variant="h5"
-            fontWeight={700}
-            sx={{ mb: 0.5 }}
-          >
-            {user?.username}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+    <div className="dashboardCanvas">
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+        <BreadcrumbsNav />
+        {/* page title */}
+        <div className="profileTitle">{user?.username}'s Profile</div>
+        <div
+            style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "16px" /* mb:2 equivalent */,
+            }}
+            >
             <Avatar
-              src={user?.profile_image_url || undefined}
-              sx={{
+                src={user?.profile_image_url || undefined}
+                alt="User Avatar"
+                style={{
                 width: 80,
                 height: 80,
-                mr: 3,
+                marginRight: 24 /* mr:3 */,
                 border: "2px solid #eee",
-                bgcolor: "#fff",
-              }}
-              alt="User Avatar"
+                backgroundColor: "#fff",
+                }}
             />
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+
+            <div>
+                <div style={{ display: "flex", alignItems: "center" }}>
                 <StarRating
-                  rating={
+                    rating={
                     ratingInfo?.avg_rating
-                      ? Math.round(ratingInfo.avg_rating)
-                      : 0
-                  }
-                  size="large"
+                        ? Math.round(ratingInfo.avg_rating)
+                        : 0
+                    }
+                    size="large"
                 />
-                <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
-                  {ratingScore !== "N/A"
+                <div
+                    style={{
+                    marginLeft: 8, /* ml:1 */
+                    color: "#222",
+                    fontWeight: 600,
+                    }}
+                >
+                    {ratingScore !== "N/A"
                     ? Number(ratingScore).toFixed(1)
                     : "N/A"}
-                </Typography>
-              </Box>
-              <Typography color="text.secondary" fontSize={16}>
+                </div>
+                </div>
+
+                <div
+                style={{
+                    color: "#666" /* approximate text.secondary */,
+                    fontSize: 16,
+                }}
+                >
                 {numReviews} Review{numReviews !== 1 ? "s" : ""}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+                </div>
+            </div>
+        </div>
 
         {/* Filters and Sorting */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
-          }}
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "24px" /* mb:3 */,
+            }}
         >
-          <Box>
-            <md-filled-button
-              onClick={() => setFilter("All")}
-              style={{ marginRight: 8 }}
-              selected={filter === "All" ? "true" : undefined}
-            >
-              All Reviews
-            </md-filled-button>
-            <md-filled-tonal-button
-              onClick={() => setFilter("Buyers")}
-              style={{ marginRight: 8 }}
-              selected={filter === "Buyers" ? "true" : undefined}
-            >
-              From Buyers
-            </md-filled-tonal-button>
-            <md-filled-tonal-button
-              onClick={() => setFilter("Sellers")}
-              selected={filter === "Sellers" ? "true" : undefined}
-            >
-              From Sellers
-            </md-filled-tonal-button>
-          </Box>
-          <Box>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              style={{
-                padding: "8px 12px",
-                borderRadius: 6,
-                border: "1px solid #ccc",
-                fontSize: 16,
-                marginLeft: 5,
-              }}
-            >
-              <option>Newest</option>
-              <option>Oldest</option>
-              <option>Highest Rating</option>
-              <option>Lowest Rating</option>
-            </select>
-          </Box>
-        </Box>
+            <div>
+                <md-filled-button
+                onClick={() => setFilter("All")}
+                style={{ marginRight: "8px" }}
+                selected={filter === "All" ? "true" : undefined}
+                >
+                All Reviews
+                </md-filled-button>
+                <md-filled-tonal-button
+                onClick={() => setFilter("Buyers")}
+                style={{ marginRight: "8px" }}
+                selected={filter === "Buyers" ? "true" : undefined}
+                >
+                From Buyers
+                </md-filled-tonal-button>
+                <md-filled-tonal-button
+                onClick={() => setFilter("Sellers")}
+                selected={filter === "Sellers" ? "true" : undefined}
+                >
+                From Sellers
+                </md-filled-tonal-button>
+            </div>
+
+            <div>
+                <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                style={{
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    fontSize: "16px",
+                    marginLeft: "5px",
+                }}
+                >
+                <option>Newest</option>
+                <option>Oldest</option>
+                <option>Highest Rating</option>
+                <option>Lowest Rating</option>
+                </select>
+            </div>
+        </div>
 
         {/* Reviews List */}
         {loading ? (
-          <Box sx={{ textAlign: "center", py: 6 }}>
+        <div style={{ textAlign: "center", padding: "48px 0" }}>
             <CircularProgress />
-          </Box>
+        </div>
         ) : (
-          <Grid container spacing={3}>
+        <Grid container spacing={3}>
             {sortedReviews.length === 0 ? (
-              <Grid item xs={12}>
-                <Box color="#888" p={4} textAlign="center">
-                  No reviews to display.
-                </Box>
-              </Grid>
+            <Grid item xs={12}>
+                <div style={{ color: "#888", padding: "32px", textAlign: "center" }}>
+                No reviews to display.
+                </div>
+            </Grid>
             ) : (
-              sortedReviews.map((review) => {
+            sortedReviews.map((review) => {
                 const author = authorInfo[review.author_id];
                 return (
-                  <Grid item xs={12} sm={6} md={4} key={review.id}>
-                    <Card variant="outlined" sx={{ bgcolor: "#fafafa" }}>
-                      <CardHeader
+                <Grid item xs={12} sm={6} md={4} key={review.id}>
+                    <Card variant="outlined" style={{ backgroundColor: "#fafafa" }}>
+                    <CardHeader
                         avatar={
-                          <Avatar
+                        <Avatar
                             src={author?.profile_image_url}
                             alt={author?.username || "User"}
-                          />
+                        />
                         }
                         title={
-                          <Typography variant="subtitle1" fontWeight={600}>
+                        <div style={{ fontSize: "16px", fontWeight: 600 }}>
                             {author?.username || "User"}
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ ml: 1 }}
+                            <span
+                            style={{
+                                marginLeft: "8px",
+                                fontSize: "14px",
+                                color: "#666",
+                            }}
                             >
-                              ({review.author_role})
-                            </Typography>
-                          </Typography>
+                            ({review.author_role})
+                            </span>
+                        </div>
                         }
                         subheader={
-                          <Box display="flex" alignItems="center">
+                        <div style={{ display: "flex", alignItems: "center" }}>
                             <StarRating
-                              rating={review.user_ratings}
-                              size="small"
+                            rating={review.user_ratings}
+                            size="small"
                             />
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ ml: 1 }}
+                            <div
+                            style={{
+                                marginLeft: "8px",
+                                fontSize: "12px",
+                                color: "#666",
+                            }}
                             >
-                              {new Date(review.created_at).toLocaleDateString()}
-                            </Typography>
-                          </Box>
+                            {new Date(review.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
                         }
-                      />
-                      <CardContent>
-                        <Typography variant="body2">
-                          {review.user_comments}
-                        </Typography>
-                      </CardContent>
+                    />
+                    <CardContent>
+                        <div style={{ fontSize: "14px" }}>
+                        {review.user_comments}
+                        </div>
+                    </CardContent>
                     </Card>
-                  </Grid>
+                </Grid>
                 );
-              })
+            })
             )}
-          </Grid>
+        </Grid>
         )}
-      </Box>
-      <Box className="sidebarSpacer" />
-    </Box>
+
+
+
+        
+    
+      </div>
+      <div className="sidebarSpacer"></div>
+    </div>
   );
 }
