@@ -84,6 +84,10 @@ export default function TagAutocomplete({
       return () => clearTimeout(timeout);
     }
   }, [validationMessage]); */
+  
+  React.useEffect(() => {
+  setValidationMessage("Test message");
+}, []);
 
   const {
     getRootProps,
@@ -124,6 +128,10 @@ export default function TagAutocomplete({
       addTagsFromInput(inputValue);
     }
   };
+
+  console.log("Raw input:", rawInput);
+  console.log("Raw tags:", rawTags);
+  console.log("Existing tags:", existing);
 
   const addTagsFromInput = (rawInput) => {
     const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());

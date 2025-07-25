@@ -12,7 +12,7 @@ const SellItem = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
+  const [auctionType, setAuctionType] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
@@ -108,6 +108,7 @@ const SellItem = () => {
           description,
           min_bid: parseFloat(minBid),
           end_date: endDate,
+          auction_type: auctionType,
           category_id: categoryId,
         }),
       });
@@ -216,6 +217,20 @@ const SellItem = () => {
             lockedTag={categoryName}
           />
         </div>
+
+        {/* Ascending/Descending */}
+
+        <label>Auction Type *</label>
+         <select
+          value={auctionType}
+          onChange={(e) => setAuctionType(e.target.value)}
+          required
+          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+        >
+          <option value="">-- Select Auction Type --</option>
+          <option value="ascending">Ascending</option>
+          <option value="descending">Descending</option>
+        </select>
 
         {/* Minimum Bid */}
         <label>Minimum Bid (SGD) *</label>
