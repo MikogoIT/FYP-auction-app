@@ -127,7 +127,7 @@ export default function ProfileFeedbackPage() {
                 fontSize: '16px',
           }
         }}>
-          <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
             Home
           </MuiLink>
           <Typography color="text.primary">Public Profile</Typography>

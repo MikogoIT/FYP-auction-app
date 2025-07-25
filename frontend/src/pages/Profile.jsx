@@ -131,12 +131,12 @@ export default function Profile() {
             fontSize: '16px',
           }
         }}>
-          <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
             Home
           </MuiLink>
           <Typography color="text.primary">Account Settings</Typography>
         </Breadcrumbs>
-        <div style={{ width: '100%' }}>
+        <div style={{ width: '100%' , padding: '16px'}}>
           <Button
               variant="outlined"
               onClick={() => navigate(`/feedback/${user.id}`)}

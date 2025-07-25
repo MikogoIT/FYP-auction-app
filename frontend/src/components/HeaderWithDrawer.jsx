@@ -280,7 +280,7 @@ export default function HeaderWithDrawer({ window }) {
             )}
 
             <Chip
-              label={isLoggedIn ? 'Profile' : 'Log in'}
+              label={isLoggedIn ? 'Account' : 'Log in'}
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')}
               clickable
               avatar={<Avatar src={photoUrl}><PersonIcon /></Avatar>}
