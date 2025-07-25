@@ -1,5 +1,6 @@
 // src/pages/BidPage.jsx
 import { useEffect, useState } from "react";
+
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -10,6 +11,8 @@ import {
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import Rating from "@mui/material/Rating";
+import SoldBy from '../components/SoldBy';
+
 import "@material/web/button/filled-button.js";
 
 
@@ -206,50 +209,13 @@ export default function BidPage() {
             )}
 
             <div className="listingWords">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
-                <div style={{ marginRight: "8px" }}>Sold by:</div>
-                <div
-                  onClick={() => navigate(`/feedback/${listing.seller_id}`)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    textDecoration: "none",
-                  }}
-                >
-                  <Avatar
-                    src={listing.seller_avatar}
-                    alt={listing.seller_username}
-                    sx={{ width: 32, height: 32, mr: 1 }}
-                  />
-                  <span style={{ fontWeight: 600, color: "#000" }}>
-                    {listing.seller_username}
-                  </span>
-                </div>  
-
-              </div>
-              {/* —— NEW: display avg rating in small stars —— */}
-              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Rating
-                  name="seller-rating"
-                  value={avgRating}
-                  size="small"
-                  readOnly
-                  precision={0.5}
-                />
-                <Typography
-                  variant="body2"
-                  sx={{ ml: 0.5, fontSize: 14, color: "text.secondary" }}
-                >
-                  ({totalReviews})
-                </Typography>
-              </Box>
+              <SoldBy
+                sellerId={listing.seller_id}
+                sellerUsername={listing.seller_username}
+                sellerAvatar={listing.seller_avatar}
+                avgRating={avgRating}
+                totalReviews={totalReviews}
+              />
               <Typography
                 variant="body2"
                 color="text.secondary"
