@@ -13,12 +13,14 @@ const SellItem = () => {
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [auctionType, setAuctionType] = useState("");
+  const [startPrice, setStartPrice] = useState("");
+  const [discountPercentage, setDiscountPercentage] = useState("");
+
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]);
   const [tagOptions, setTagOptions] = useState();
-  const [tagError, setTagError] = useState("");
   const tagNames = tags.map((tag) =>
     typeof tag === "string" ? tag : tag.name,
   );
@@ -43,26 +45,30 @@ const SellItem = () => {
   useEffect(() => {
     if (categoryName && !tags.includes(categoryName)) {
       setTags([categoryName]);
-      console.log("Category changed →", categoryName);
+      //console.log("Category changed →", categoryName);
     }
   }, [categoryName]);
 
   // Console Log Tag (Debug)
   useEffect(() => {
     if (tags.length) {
-      console.log("🔁 Tags Updated →", tags);
+      //console.log("🔁 Tags Updated →", tags);
     }
   }, [tags]);
 
-  // Console Log Tag Error (debug)
-
+  // Console Log Auction Type(Debug)
   useEffect(() => {
-  if (tagError) {
-    console.log("📛 tagError from TagAutocomplete:", tagError);
-    const timeout = setTimeout(() => setTagError(""), 3000);
-    return () => clearTimeout(timeout);
+  console.log("🛠 Auction Type Selected:", auctionType);
+
+  if (auctionType === "ascending") {
+    console.log("💰 Minimum Bid:", minBid);
   }
-  }, [tagError]);
+
+  if (auctionType === "descending") {
+    console.log("🔽 Start Price:", startPrice);
+    console.log("📉 Discount %:", discountPercentage);
+  }
+  }, [auctionType, minBid, startPrice, discountPercentage]);
 
   // Category Change
   const handleCategoryChange = (e) => {
@@ -83,8 +89,23 @@ const SellItem = () => {
 
     const token = localStorage.getItem("token");
 
-    if (!title || !minBid || !endDate) {
+    if (!title || !endDate) {
       setError("Please fill in all required fields");
+      return;
+    }
+
+    if (!categoryId) {
+      setError("Please select a category");
+      return;
+    }
+
+    if (auctionType === "ascending" && !minBid) {
+      setError("Please enter a minimum bid.");
+      return;
+    }
+
+    if (auctionType === "descending" && (!startPrice || !discountPercentage)) {
+      setError("Please enter both start price and discount percentage.");
       return;
     }
 
@@ -95,11 +116,6 @@ const SellItem = () => {
 
     if (new Date(endDate) < new Date()) {
       setError("❌ End date must be in the future.");
-      return;
-    }
-
-    if (!categoryId) {
-      setError("Please select a category");
       return;
     }
 
@@ -117,10 +133,16 @@ const SellItem = () => {
         body: JSON.stringify({
           title,
           description,
-          min_bid: parseFloat(minBid),
           end_date: endDate,
           auction_type: auctionType,
           category_id: categoryId,
+          ...(auctionType === "ascending" && {
+            min_bid: parseFloat(minBid),
+          }),
+          ...(auctionType === "descending" && {
+            start_price: parseFloat(startPrice),
+            discount_percentage: parseFloat(discountPercentage),
+          }),
         }),
       });
 
@@ -222,20 +244,16 @@ const SellItem = () => {
         {/* Tag */}
         <div style={{ width: "100%", maxWidth: 400 }}>
           <TagAutocomplete
-            options={tagOptions} // e.g. ["leather", "vintage", "shoes"]
+            options={tagOptions}
             value={tags}
             onChange={setTags}
-            setValidationMessage={setTagError} // 🔁 pass down
             lockedTag={categoryName}
           />
-          {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
-          {tagError && <div style={{ color: "red" }}>{tagError}</div>}
         </div>
 
-        {/* Ascending/Descending */}
-
+        {/* Ascending/Descending Type  */}
         <label>Auction Type *</label>
-         <select
+        <select
           value={auctionType}
           onChange={(e) => setAuctionType(e.target.value)}
           required
@@ -246,7 +264,45 @@ const SellItem = () => {
           <option value="descending">Descending</option>
         </select>
 
-        {/* Minimum Bid */}
+        {auctionType === "ascending" && (
+          <>
+            <label>Minimum Bid (SGD) *</label>
+            <input
+              type="number"
+              step="0.01"
+              value={minBid}
+              onChange={(e) => setMinBid(e.target.value)}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+          </>
+        )}
+
+        {auctionType === "descending" && (
+          <>
+            <label>Start Price (SGD) *</label>
+            <input
+              type="number"
+              step="0.01"
+              value={startPrice}
+              onChange={(e) => setStartPrice(e.target.value)}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+
+            <label>Discount Percentage (%) *</label>
+            <input
+              type="number"
+              step="0.1"
+              value={discountPercentage}
+              onChange={(e) => setDiscountPercentage(e.target.value)}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+          </>
+        )}
+
+        {/* Minimum Bid  
         <label>Minimum Bid (SGD) *</label>
         <input
           type="number"
@@ -256,6 +312,7 @@ const SellItem = () => {
           required
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
+        */}
 
         {/* Bid End Date & Time */}
         <label>End Date & Time *</label>

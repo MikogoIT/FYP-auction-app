@@ -48,14 +48,21 @@ export async function postListing(req, res) {
     discount_percentage 
   } = req.body;
 
-  // basic field validation
-  if (!title || !min_bid || !end_date || !category_id) {
+  // Basic required fields
+  if (!title || !end_date || !category_id) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   // validate auction_type
   if (!["ascending", "descending"].includes(auction_type)) {
     return res.status(400).json({ message: "Invalid auction_type" });
+  }
+
+  if (auction_type === "ascending") {
+    // ascending requires min_bid
+    if (!min_bid) {
+      return res.status(400).json({ message: "Missing min_bid for ascending auction" });
+    }
   }
 
   // descending auction only requires validation for start_price and discount_percentage

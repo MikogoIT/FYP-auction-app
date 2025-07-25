@@ -3,7 +3,6 @@
 import * as React from "react";
 import useAutocomplete from "@mui/material/useAutocomplete";
 import CloseIcon from "@mui/icons-material/Close";
-import { FormHelperText } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 // COMPONENT STYLING
@@ -70,7 +69,6 @@ export default function TagAutocomplete({
   value = [],
   onChange,
   lockedTag = "",
-  setValidationMessage, // ✅ accept from parent
 }) {
   const [inputValue, setInputValue] = React.useState("");
 
@@ -120,13 +118,8 @@ export default function TagAutocomplete({
     console.log("📥 rawInput:", rawInput);
     const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());
 
-    console.log("🔍 rawTags:", rawTags);
-
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
-    console.log("🚫 invalidTags:", invalidTags);
-
     if (invalidTags.length > 0) {
-      setValidationMessage(`❌ Invalid tag(s): ${invalidTags.join(", ")}`);
       setInputValue("");
       return;
     }
@@ -138,10 +131,7 @@ export default function TagAutocomplete({
     const duplicateTags = rawTags.filter(
       (tag) => existing.includes(tag) || tag === locked,
     );
-    console.log("⚠️ duplicateTags:", duplicateTags);
-    
     if (duplicateTags.length > 0) {
-      setValidationMessage(`⚠️ Duplicate tag(s): ${duplicateTags.join(", ")}`);
       setInputValue("");
       return;
     }
@@ -154,7 +144,6 @@ export default function TagAutocomplete({
 
     onChange?.(finalTags);
     setInputValue("");
-    setValidationMessage(""); // Clear on success
   };
 
   // Handles Blur Add on Mobile to manually add tags (new code)
