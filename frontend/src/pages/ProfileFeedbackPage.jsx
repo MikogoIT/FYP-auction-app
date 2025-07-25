@@ -136,13 +136,12 @@ export default function ProfileFeedbackPage() {
           <div className="profileTitle">{user?.username}'s Profile</div>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar
-              src={user.profile_image_url || undefined}
+              src={user?.profile_image_url || undefined}
               sx={{
                 width: 80,
                 height: 80,
                 mr: 3,
                 border: "2px solid #eee",
-                bgcolor: "#fff",
               }}
               alt="User Avatar"
             />
