@@ -214,12 +214,25 @@ export default function BidPage() {
                 }}
               >
                 <div style={{ marginRight: "8px" }}>Sold by:</div>
-                <Avatar
-                  src={listing.seller_avatar}
-                  alt={listing.seller_username}
-                  sx={{ width: 32, height: 32, marginRight: "8px" }}
-                />
-                <div>{listing.seller_username}</div>
+                <div
+                  onClick={() => navigate(`/feedback/${listing.seller_id}`)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                  }}
+                >
+                  <Avatar
+                    src={listing.seller_avatar}
+                    alt={listing.seller_username}
+                    sx={{ width: 32, height: 32, mr: 1 }}
+                  />
+                  <span style={{ fontWeight: 600, color: "#000" }}>
+                    {listing.seller_username}
+                  </span>
+                </div>  
+
               </div>
               {/* —— NEW: display avg rating in small stars —— */}
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
