@@ -144,15 +144,10 @@ export default function Profile() {
           <Typography color="text.primary">{user?.username}</Typography>
         </Breadcrumbs>
 
-        {/* Toggle between public profile / account settings */}
-        <div
-          className="toggleButtons"
-          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
-        >
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/feedback/${userId}")}
-            sx={{
+       <Button
+          variant="outlined"
+          onClick={() => navigate("/feedback/${userId}")}
+          sx={{
               borderRadius: "999px",
               borderColor: "grey.400",
               color: "grey.500",
@@ -160,24 +155,10 @@ export default function Profile() {
               "&:hover": { borderColor: "grey.600" },
               fontSize: "16px",
             }}
-          >
-            Public Profile
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => navigate("/profile")}
-            sx={{
-              borderRadius: "999px",
-              borderColor: "primary.main",
-              color: "primary.main",
-              textTransform: "none",
-              "&:hover": { borderColor: "primary.dark" },
-              fontSize: "16px",
-            }}
-          >
-            Account Settings
-          </Button>
-        </div>
+        >
+          Public Profile
+        </Button>
+
         <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
