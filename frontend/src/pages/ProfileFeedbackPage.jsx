@@ -8,6 +8,9 @@ import {
   CardContent,
   Rating,
   CircularProgress,
+  Breadcrumbs,
+  Link as MuiLink,
+  Typography,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import PersonIcon from '@mui/icons-material/Person';
@@ -108,7 +111,57 @@ export default function ProfileFeedbackPage() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <MuiLink
+            component={RouterLink}
+            to={`/feedback/${userId}`}
+            underline="hover"
+            color="inherit"
+          >
+            Public Profile
+          </MuiLink>
+          <Typography color="text.primary">{user?.username}</Typography>
+        </Breadcrumbs>
+
+        {/* Toggle between public profile / account settings */}
+        <div
+          className="toggleButtons"
+          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/feedback/${userId}")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "primary.main",
+              color: "primary.main",
+              textTransform: "none",
+              "&:hover": { borderColor: "primary.dark" },
+              fontSize: "16px",
+            }}
+          >
+            Public Profile
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/profile")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "grey.400",
+              color: "grey.500",
+              textTransform: "none",
+              "&:hover": { borderColor: "grey.600" },
+              fontSize: "16px",
+            }}
+          >
+            Account Settings
+          </Button>
+        </div>
+
         <div className="profileTitle">{user?.username}'s Profile</div>
 
         {/* Profile Header */}
@@ -139,7 +192,7 @@ export default function ProfileFeedbackPage() {
           </div>
         </div>
 
-        {/* Filters & Sorting unchanged... */}
+        <div>{user?.email}</div>
         {/* Reviews List */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "48px 0" }}>

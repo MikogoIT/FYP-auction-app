@@ -8,7 +8,11 @@ import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
 import EditIcon from "@mui/icons-material/Edit";
 import TelegramConnect from "../components/TelegramConnect";
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
+import {
+  Breadcrumbs,
+  Link as MuiLink,
+  Typography,
+} from "@mui/material";
 
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -117,7 +121,56 @@ export default function Profile() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <MuiLink
+            component={RouterLink}
+            to={`profile`}
+            underline="hover"
+            color="inherit"
+          >
+            Account Settings
+          </MuiLink>
+          <Typography color="text.primary">{user?.username}</Typography>
+        </Breadcrumbs>
+
+        {/* Toggle between public profile / account settings */}
+        <div
+          className="toggleButtons"
+          style={{ display: "flex", gap: 8, marginBottom: 16, width: "100%" }}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/feedback/${userId}")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "grey.400",
+              color: "grey.500",
+              textTransform: "none",
+              "&:hover": { borderColor: "grey.600" },
+              fontSize: "16px",
+            }}
+          >
+            Public Profile
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/profile")}
+            sx={{
+              borderRadius: "999px",
+              borderColor: "primary.main",
+              color: "primary.main",
+              textTransform: "none",
+              "&:hover": { borderColor: "primary.dark" },
+              fontSize: "16px",
+            }}
+          >
+            Account Settings
+          </Button>
+        </div>
         <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
