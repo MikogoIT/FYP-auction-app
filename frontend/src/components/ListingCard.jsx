@@ -1,14 +1,13 @@
-// src/components/ListingCard.jsx
-
+import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
-import ImageIcon from "@mui/icons-material/Image";
+import ImageIcon from "mui/icons-material/ImageIcon";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Typography from "@mui/material/Typography";
-import "@material/web/button/filled-button.js";
 import { useTheme } from "@mui/material/styles";
 import SoldBy from '../components/SoldBy';
+import "@material/web/button/filled-button.js";
 
 export default function ListingCard({
   item,
@@ -25,6 +24,26 @@ export default function ListingCard({
   const blackText = theme.palette.common.black;
   const isOwner = item.seller_id === currentUserId;
   const isExpired = !item.is_active;
+
+  // State for seller ratings
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+
+  // Fetch seller's average rating and review count
+  useEffect(() => {
+    async function fetchSellerRating() {
+      try {
+        const res = await fetch(`/api/feedback/ratings/${item.seller_id}`);
+        if (!res.ok) throw new Error("Failed to load seller ratings");
+        const data = await res.json();
+        setAvgRating(data.avg_rating || 0);
+        setTotalReviews(data.total_reviews || 0);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (item.seller_id) fetchSellerRating();
+  }, [item.seller_id]);
 
   // Determine button text, handler, and styling
   const actionText = isExpired
@@ -45,15 +64,13 @@ export default function ListingCard({
 
   const actionStyle = {
     flexGrow: 1,
-    // expired: grey bg + black text + no pointer
     ...(isExpired
       ? {
           "--md-sys-color-primary": greyBg,
           "--md-sys-color-on-primary": blackText,
           cursor: "default",
         }
-      : // owner edit button colors
-      isOwner
+      : isOwner
       ? {
           "--md-sys-color-primary": yellow,
           "--md-sys-color-on-primary": contrastText,
@@ -83,9 +100,9 @@ export default function ListingCard({
 
       <div className="listingDetails">
         <SoldBy
-          sellerId={listing.seller_id}
-          sellerUsername={listing.seller_username}
-          sellerAvatar={listing.seller_avatar}
+          sellerId={item.seller_id}
+          sellerUsername={item.seller_username}
+          sellerAvatar={item.seller_avatar}
           avgRating={avgRating}
           totalReviews={totalReviews}
         />
@@ -140,32 +157,21 @@ export default function ListingCard({
           <strong>
             {item.auction_type === "descending"
               ? item.current_price != null
-                ? `$${Number(item.current_price).toFixed(2)}`
+                ? `$\${Number(item.current_price).toFixed(2)}`
                 : "No bids yet"
               : item.current_bid != null
-              ? `$${Number(item.current_bid).toFixed(2)}`
+              ? `$\${Number(item.current_bid).toFixed(2)}`
               : "No bids yet"}
           </strong>
         </Typography>
       </div>
 
       <div className="listingAction">
-        <IconButton
-          onClick={() => onToggleLike(item.id)}
-          size="large"
-        >
-          {isLiked ? (
-            <FavoriteIcon color="error" />
-          ) : (
-            <FavoriteBorderIcon />
-          )}
+        <IconButton onClick={() => onToggleLike(item.id)} size="large">
+          {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
         </IconButton>
 
-        <md-filled-button
-          onClick={actionHandler}
-          disabled={isExpired}
-          style={actionStyle}
-        >
+        <md-filled-button onClick={actionHandler} disabled={isExpired} style={actionStyle}>
           {actionText}
         </md-filled-button>
       </div>
