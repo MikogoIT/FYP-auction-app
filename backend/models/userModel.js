@@ -3,7 +3,7 @@ import { sql } from "../utils/db.js";
 
 export const getUserById = async (userId) => {
   return await sql`
-    SELECT username, email, phone_number, address, is_admin, is_frozen
+    SELECT id, username, email, phone_number, address, is_admin, is_frozen
     FROM users
     WHERE id = ${userId}
   `;

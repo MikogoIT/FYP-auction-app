@@ -71,11 +71,11 @@ app.use(express.static(path.join(__dirname, '../frontend', 'dist')));
 // Enable JSON body parsing in advance
 app.use(express.json());
 
-// Enable CORS
-app.use(cors({
-  origin: ["http://localhost:4433", ""], 
-  credentials: true
-}));
+// // Enable CORS
+// app.use(cors({
+//   origin: ["http://localhost:4433", ""], 
+//   credentials: true
+// }));
 
 // listing router
 app.use("/api", listingRoutes);

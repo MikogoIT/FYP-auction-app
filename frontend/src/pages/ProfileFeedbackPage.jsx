@@ -210,7 +210,7 @@ export default function ProfileFeedbackPage() {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ maxWidth: 1000 }}>
             {sortedReviews.length === 0 ? (
               <Grid item xs={12}>
                 <Box color="#888" p={4} textAlign="center">
