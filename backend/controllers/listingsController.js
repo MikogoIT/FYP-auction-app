@@ -67,8 +67,8 @@ export async function postListing(req, res) {
 
   // descending auction only requires validation for start_price and discount_percentage
   if (auction_type === "descending") {
-    if (!start_price || !discount_percentage) {
-      return res.status(400).json({ message: "Missing descending auction fields" });
+    if (!start_price || !discount_percentage || discount_percentage < 10) {
+      return res.status(400).json({ message: "Missing or invalid descending auction fields" });
     }
   }
 
@@ -87,9 +87,10 @@ export async function postListing(req, res) {
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
-    res.status(500).json({ message: "Failed to create listing" });
+    // Send detailed error message back for dev purpose (optional)
+    res.status(500).json({ message: "Failed to create listing", error: err.message });
   }
-}
+  }
 
 // GET /listings
 export async function getListings(req, res) {

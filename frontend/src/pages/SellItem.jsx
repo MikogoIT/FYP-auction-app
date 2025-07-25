@@ -14,7 +14,7 @@ const SellItem = () => {
   const [submitting, setSubmitting] = useState(false);
   const [auctionType, setAuctionType] = useState("");
   const [startPrice, setStartPrice] = useState("");
-  const [discountPercentage, setDiscountPercentage] = useState("");
+  const [discountPercentage, setDiscountPercentage] = useState("10");
 
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
@@ -60,26 +60,26 @@ const SellItem = () => {
   useEffect(() => {
     console.log("🛠 Auction Type Selected:", auctionType);
 
-  if (auctionType === "ascending") {
-    console.log("💰 Minimum Bid:", minBid);
-  }
+    if (auctionType === "ascending") {
+      console.log("💰 Minimum Bid:", minBid);
+    }
 
-  if (auctionType === "descending") {
-    console.log("🔽 Start Price:", startPrice);
-    console.log("📉 Discount %:", discountPercentage);
-  }
+    if (auctionType === "descending") {
+      console.log("🔽 Start Price:", startPrice);
+      console.log("📉 Discount %:", discountPercentage);
+    }
   }, [auctionType, minBid, startPrice, discountPercentage]);
 
   // Clear Inputs on switching Auction Type
   useEffect(() => {
     if (auctionType === "descending") {
       setDiscountPercentage(10); // default 10%
-      setStartPrice(''); // clear start price to be safe
-      setMinBid(''); // clear min bid if needed
+      setStartPrice(""); // clear start price to be safe
+      setMinBid(""); // clear min bid if needed
     } else if (auctionType === "ascending") {
-      setMinBid('');
+      setMinBid("");
       setStartPrice(null);
-      setDiscountPercentage(null);
+      setDiscountPercentage(10);
     }
   }, [auctionType]);
 
@@ -151,10 +151,16 @@ const SellItem = () => {
           category_id: categoryId,
           ...(auctionType === "ascending" && {
             min_bid: parseFloat(minBid),
+            start_price: null,
+            discount_percentage: 10,
           }),
           ...(auctionType === "descending" && {
+            min_bid: null,
             start_price: startPrice ? parseFloat(startPrice) : null,
-            discount_percentage: parseFloat(discountPercentage),
+            discount_percentage:
+              parseFloat(discountPercentage) >= 10
+                ? parseFloat(discountPercentage)
+                : 10,
           }),
         }),
       });
