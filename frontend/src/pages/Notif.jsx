@@ -108,7 +108,7 @@ export default function Notif() {
               navigate(`/feedback/${sellerId}`);
 
             } else if (message.startsWith("[review]") && sellerId) {
-              // review prompt → also go to feedback page
+              // review prompt →
               navigate(`/feedback/${sellerId}`);
             }
           }}

@@ -164,80 +164,80 @@ export default function ProfileFeedbackPage() {
             </Box>
           </Box>
 
+        
         {/* Filters and Sorting */}
         <Box
-        sx={{
+          sx={{
             display: "flex",
+            flexWrap: "wrap",            // allow the two boxes to wrap as a group
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
-        }}
+          }}
         >
-        <Box>
-            {/* All Reviews */}
+          {/* 1️⃣ Always‑nowrap filters */}
+          <Box sx={{ whiteSpace: "nowrap" }}>
             {filter === "All" ? (
-            <md-filled-button
+              <md-filled-button
                 onClick={() => setFilter("All")}
-                style={{ marginRight: 8 }}
-            >
+                sx={{ mr: 1 }}
+              >
                 All Reviews
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button
+              <md-filled-tonal-button
                 onClick={() => setFilter("All")}
-                style={{ marginRight: 8 }}
-            >
+                sx={{ mr: 1 }}
+              >
                 All Reviews
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
 
-            {/* From Buyers */}
             {filter === "Buyers" ? (
-            <md-filled-button
+              <md-filled-button
                 onClick={() => setFilter("Buyers")}
-                style={{ marginRight: 8 }}
-            >
+                sx={{ mr: 1 }}
+              >
                 From Buyers
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button
+              <md-filled-tonal-button
                 onClick={() => setFilter("Buyers")}
-                style={{ marginRight: 8 }}
-            >
+                sx={{ mr: 1 }}
+              >
                 From Buyers
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
 
-            {/* From Sellers */}
             {filter === "Sellers" ? (
-            <md-filled-button onClick={() => setFilter("Sellers")}>
+              <md-filled-button onClick={() => setFilter("Sellers")}>
                 From Sellers
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
+              <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
                 From Sellers
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
-        </Box>
+          </Box>
 
-        <Box>
+          {/* 2️⃣ The dropdown can wrap below when needed */}
+          <Box sx={{ mt: { xs: 1, sm: 0 } }}>
             <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            style={{
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              style={{
                 padding: "8px 12px",
                 borderRadius: 6,
                 border: "1px solid #ccc",
                 fontSize: 16,
-                marginLeft: 5,
-            }}
+              }}
             >
-            <option>Newest</option>
-            <option>Oldest</option>
-            <option>Highest Rating</option>
-            <option>Lowest Rating</option>
+              <option>Newest</option>
+              <option>Oldest</option>
+              <option>Highest Rating</option>
+              <option>Lowest Rating</option>
             </select>
-        </Box>
+          </Box>
         </Box>
 
         {/* Reviews List */}
