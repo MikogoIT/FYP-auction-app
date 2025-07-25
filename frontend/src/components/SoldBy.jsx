@@ -21,7 +21,7 @@ export default function SoldBy({
 
   return (
     <div style={{ marginBottom: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', margin: '8px 0px' }}>
         <span style={{ marginRight: '8px', fontSize: 16 }}>Sold by:</span>
         <div
           onClick={() => navigate(`/feedback/${sellerId}`)}
