@@ -12,7 +12,10 @@ import {
   Typography,
   Rating,
   CircularProgress,
+  Breadcrumbs,
+  Link as MuiLink,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -116,11 +119,24 @@ export default function ProfileFeedbackPage() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+            width: '100%',
+            // make all links and the final Typography 16px
+            '& a, & .MuiTypography-root': {
+                fontSize: '16px',
+          }
+        }}>
+          <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <Typography color="text.primary">Public Profile</Typography>
+        </Breadcrumbs>
         {/* Profile Name and Ratings Header */}
           <div className="profileTitle">{user?.username}'s Profile</div>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar
-              src={user?.profile_image_url || undefined}
+              src={user.profile_image_url || undefined}
               sx={{
                 width: 80,
                 height: 80,

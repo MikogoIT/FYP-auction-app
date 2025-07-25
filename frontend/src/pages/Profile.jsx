@@ -125,6 +125,7 @@ export default function Profile() {
     <div className="dashboardContent">
         {/* Custom breadcrumbs */}
         <Breadcrumbs aria-label="breadcrumb" sx={{
+          width: '100%',
           // make all links and the final Typography 16px
           '& a, & .MuiTypography-root': {
             fontSize: '16px',
@@ -133,31 +134,25 @@ export default function Profile() {
           <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
             Home
           </MuiLink>
-          <MuiLink
-            component={RouterLink}
-            to={`/profile`}
-            underline="hover"
-            color="inherit"
-          >
-            Account Settings
-          </MuiLink>
-          <Typography color="text.primary">{user?.username}</Typography>
+          <Typography color="text.primary">Account Settings</Typography>
         </Breadcrumbs>
-
-       <Button
-          variant="outlined"
-          onClick={() => navigate(`/feedback/${user.id}`)}
-          sx={{
-              borderRadius: "999px",
-              borderColor: "grey.400",
-              color: "grey.500",
-              textTransform: "none",
-              "&:hover": { borderColor: "grey.600" },
-              fontSize: "16px",
-            }}
-        >
-          Public Profile
-        </Button>
+        <div style={{ width: '100%' }}>
+          <Button
+              variant="outlined"
+              onClick={() => navigate(`/feedback/${user.id}`)}
+              sx={{
+                  borderRadius: "999px",
+                  borderColor: "grey.400",
+                  color: "grey.500",
+                  textTransform: "none",
+                  "&:hover": { borderColor: "grey.600" },
+                  fontSize: "16px",
+                }}
+          >
+              Public Profile
+          </Button>
+        </div>
+       
 
         <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
