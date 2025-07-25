@@ -4,7 +4,6 @@ import * as React from "react";
 import useAutocomplete from "@mui/material/useAutocomplete";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormHelperText } from "@mui/material";
-
 import { styled } from "@mui/material/styles";
 
 // COMPONENT STYLING
@@ -71,26 +70,9 @@ export default function TagAutocomplete({
   value = [],
   onChange,
   lockedTag = "",
+  setValidationMessage, // ✅ accept from parent
 }) {
   const [inputValue, setInputValue] = React.useState("");
-  const [validationMessage, setValidationMessage] = React.useState("");
-
-  
-
-  // Auto-clear validation message after 3s
-  /*React.useEffect(() => {
-    if (validationMessage) {
-      const timeout = setTimeout(() => setValidationMessage(""), 3000);
-      return () => clearTimeout(timeout);
-    }
-  }, [validationMessage]); */
-  
-  React.useEffect(() => {
-  if (validationMessage) {
-    const timeout = setTimeout(() => setValidationMessage(""), 3000);
-    return () => clearTimeout(timeout);
-  }
-}, [validationMessage]);
 
   const {
     getRootProps,
@@ -182,8 +164,6 @@ export default function TagAutocomplete({
     addTagsFromInput(inputValue); // Re-use your main handler
   };
 
-  console.log("📣 validationMessage:", validationMessage);
-
   return (
     <Root>
       <div {...getRootProps()}>
@@ -217,10 +197,6 @@ export default function TagAutocomplete({
             })}
           />
         </InputWrapper>
-      </div>
-      {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
-      <div style={{ background: "#ffeeee", padding: "8px", color: "red" }}>
-        {validationMessage || "debug: no message"}
       </div>
 
       {groupedOptions.length > 0 && (

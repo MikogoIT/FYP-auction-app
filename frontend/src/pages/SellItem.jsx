@@ -18,6 +18,7 @@ const SellItem = () => {
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]);
   const [tagOptions, setTagOptions] = useState();
+  const [tagError, setTagError] = useState("");
   const tagNames = tags.map((tag) =>
     typeof tag === "string" ? tag : tag.name,
   );
@@ -52,6 +53,16 @@ const SellItem = () => {
       console.log("🔁 Tags Updated →", tags);
     }
   }, [tags]);
+
+  // Console Log Tag Error (debug)
+
+  useEffect(() => {
+  if (tagError) {
+    console.log("📛 tagError from TagAutocomplete:", tagError);
+    const timeout = setTimeout(() => setTagError(""), 3000);
+    return () => clearTimeout(timeout);
+  }
+  }, [tagError]);
 
   // Category Change
   const handleCategoryChange = (e) => {
@@ -214,8 +225,11 @@ const SellItem = () => {
             options={tagOptions} // e.g. ["leather", "vintage", "shoes"]
             value={tags}
             onChange={setTags}
+            setValidationMessage={setTagError} // 🔁 pass down
             lockedTag={categoryName}
           />
+          {/* Validation Message for Duplicate Tag or Invalid With Symbols*/}
+          {tagError && <div style={{ color: "red" }}>{tagError}</div>}
         </div>
 
         {/* Ascending/Descending */}
