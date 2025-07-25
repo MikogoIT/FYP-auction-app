@@ -12,7 +12,7 @@ import {
   Link as MuiLink,
   Typography,
 } from "@mui/material";
-import ImageIcon from "@mui/icons-material/Image";
+import { Link as RouterLink } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
