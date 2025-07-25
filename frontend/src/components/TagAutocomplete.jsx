@@ -86,8 +86,11 @@ export default function TagAutocomplete({
   }, [validationMessage]); */
   
   React.useEffect(() => {
-  setValidationMessage("Test message");
-}, []);
+  if (validationMessage) {
+    const timeout = setTimeout(() => setValidationMessage(""), 3000);
+    return () => clearTimeout(timeout);
+  }
+}, [validationMessage]);
 
   const {
     getRootProps,
@@ -130,24 +133,22 @@ export default function TagAutocomplete({
   };
 
 
-  
-  
 
   const addTagsFromInput = (rawInput) => {
+    console.log("📥 rawInput:", rawInput);
     const rawTags = rawInput.split(",").map((tag) => tag.trim().toLowerCase());
 
-    // debug log
-    console.log("Raw input:", rawInput);
+    console.log("🔍 rawTags:", rawTags);
 
     const invalidTags = rawTags.filter((tag) => !/^[a-z0-9-]+$/i.test(tag));
+    console.log("🚫 invalidTags:", invalidTags);
+
     if (invalidTags.length > 0) {
-      console.log("❌ Setting validationMessage for invalid:", invalidTags);
       setValidationMessage(`❌ Invalid tag(s): ${invalidTags.join(", ")}`);
       setInputValue("");
       return;
     }
 
-    console.log("Raw tags:", rawTags);
 
     const existing = value.map((t) => t.toLowerCase());
     const locked = lockedTag?.toLowerCase?.();
@@ -155,14 +156,13 @@ export default function TagAutocomplete({
     const duplicateTags = rawTags.filter(
       (tag) => existing.includes(tag) || tag === locked,
     );
+    console.log("⚠️ duplicateTags:", duplicateTags);
+    
     if (duplicateTags.length > 0) {
-      console.log("⚠️ Setting validationMessage for duplicate:", duplicateTags);
       setValidationMessage(`⚠️ Duplicate tag(s): ${duplicateTags.join(", ")}`);
       setInputValue("");
       return;
     }
-
-    console.log("Existing tags:", existing);
 
     const validTags = rawTags.filter((tag) => tag.length > 0);
 
