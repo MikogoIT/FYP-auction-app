@@ -14,6 +14,7 @@ import {
   Link as MuiLink,
   Typography,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;

@@ -12,6 +12,7 @@ import {
   Link as MuiLink,
   Typography,
 } from "@mui/material";
+import Button from "@mui/material/Button";
 import { Link as RouterLink } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 
