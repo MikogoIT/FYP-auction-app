@@ -148,12 +148,8 @@ export default function ProfileFeedbackPage() {
             <Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <StarRating
-                  rating={
-                    ratingInfo?.avg_rating
-                      ? Math.round(ratingInfo.avg_rating)
-                      : 0
-                  }
-                  size="large"
+                    rating={Math.round(ratingInfo?.avg_rating ?? 0)}
+                    size="large"
                 />
                 <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
                   {ratingScore !== "N/A"
