@@ -147,7 +147,6 @@ const SellItem = () => {
           title,
           description,
           auction_type: auctionType,
-          min_bid: parseFloat(minBid),
           end_date: new Date(endDate).toISOString(), // convert back to UTC for database
           category_id: categoryId,
           ...(auctionType === "ascending" && {
