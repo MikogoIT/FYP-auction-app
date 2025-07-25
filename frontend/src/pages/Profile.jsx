@@ -124,13 +124,18 @@ export default function Profile() {
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
         {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+          // make all links and the final Typography 16px
+          '& a, & .MuiTypography-root': {
+            fontSize: '16px',
+          }
+        }}>
           <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
             Home
           </MuiLink>
           <MuiLink
             component={RouterLink}
-            to={`profile`}
+            to={`/profile`}
             underline="hover"
             color="inherit"
           >

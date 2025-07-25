@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Avatar,
   Grid,
@@ -16,7 +16,6 @@ import Button from "@mui/material/Button";
 import { Link as RouterLink } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
@@ -45,6 +44,7 @@ export default function ProfileFeedbackPage() {
   const [sort, setSort] = useState("Newest");
   const [authorInfo, setAuthorInfo] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchFeedback(userId) {
@@ -113,7 +113,12 @@ export default function ProfileFeedbackPage() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+          // make all links and the final Typography 16px
+          '& a, & .MuiTypography-root': {
+            fontSize: '16px',
+          }
+        }}>
           <MuiLink component={RouterLink} to="/" underline="hover" color="inherit">
             Home
           </MuiLink>
@@ -193,7 +198,7 @@ export default function ProfileFeedbackPage() {
           </div>
         </div>
 
-        <div>{user?.email}</div>
+        <div>{user?.email || undefined}</div>
         {/* Reviews List */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "48px 0" }}>
