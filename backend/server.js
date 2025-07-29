@@ -143,35 +143,35 @@ app.use("/api", userRoutes);
 
 import { GoogleAuth } from 'google-auth-library';
 
-const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
+// const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
 
-app.get('/api/tele', async (req, res) => {
-  const userId = req.session.userId;
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+// app.get('/api/tele', async (req, res) => {
+//   const userId = req.session.userId;
+//   if (!userId) {
+//     return res.status(401).json({ message: 'Unauthorized' });
+//   }
 
-  try {
-    // 1️⃣ Get an IdTokenClient scoped to your Function URL
-    const auth = new GoogleAuth();
-    const client = await auth.getIdTokenClient(FUNCTION_URL);
+//   try {
+//     // 1️⃣ Get an IdTokenClient scoped to your Function URL
+//     const auth = new GoogleAuth();
+//     const client = await auth.getIdTokenClient(FUNCTION_URL);
 
-    // 2️⃣ Call the Function, passing along the user’s payload (if any)
-    const response = await client.request({
-      url: FUNCTION_URL,
-      data: req.body,           // forward request body if you need
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+//     // 2️⃣ Call the Function, passing along the user’s payload (if any)
+//     const response = await client.request({
+//       url: FUNCTION_URL,
+//       data: req.body,           // forward request body if you need
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     });
 
-    // 3️⃣ Return whatever the Function returned
-    res.status(response.status).send(response.data);
-  } catch (err) {
-    console.error('Invoke failed:', err);
-    res.status(500).send('Bot invocation error');
-  }
-});
+//     // 3️⃣ Return whatever the Function returned
+//     res.status(response.status).send(response.data);
+//   } catch (err) {
+//     console.error('Invoke failed:', err);
+//     res.status(500).send('Bot invocation error');
+//   }
+// });
 
 
 
