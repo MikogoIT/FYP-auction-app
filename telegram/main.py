@@ -60,6 +60,3 @@ def main(request):
         port=PORT,
         webhook_url=WEBHOOK_URL,
     )
-
-if __name__ == "__main__":
-    main()
