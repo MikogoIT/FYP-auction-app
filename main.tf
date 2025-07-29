@@ -74,7 +74,7 @@ variable "custom_domain" {
 variable "GCS_TELE_BUCKET_NAME" {
   description = "GCS bucket for Telegram bot source"
   type        = string
-  default     = "auctioneer-tele-bot"
+  default     = "auctioneer-bot"
 }
 
 variable "GCS_NOTIF_BUCKET_NAME" {
@@ -373,24 +373,6 @@ resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
   cloud_function = google_cloudfunctions2_function.notif.name
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
-}
-
-
-resource "google_cloud_run_v2_service" "old_tele_bot" {
-  name     = "auctioneer-bot"
-  location = var.region
-
-  deletion_protection = false
-
-  template {
-    containers {
-      image = "gcr.io/cloudrun/placeholder"
-    }
-  }
-
-  lifecycle {
-    prevent_destroy = false
-  }
 }
 
 
