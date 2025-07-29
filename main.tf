@@ -389,6 +389,8 @@ resource "google_cloud_run_v2_service" "tele_bot" {
   name     = "auctioneer-tele-bot"
   location = var.region
 
+  deletion_protection = false
+
   template {
     containers {
       image = var.bot_image_url
