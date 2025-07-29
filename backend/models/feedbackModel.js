@@ -84,6 +84,7 @@ export async function hasFeedback(author_id, recipient_id, auction_id) {
   return result.length > 0;
 }
 
+// Fetch User Ratings from Rating Table
 export async function getUserRatings(userId) {
   return await sql`
     SELECT
@@ -95,6 +96,17 @@ export async function getUserRatings(userId) {
   `;
 }
 
+// Fetch Auction Winner Row Info
+export async function retrieveWinnerInfo(auction_id){
+    return await sql`
+      SELECT seller_id, buyer_id
+      FROM auction_winner
+      WHERE auction_id = ${auction_id}
+      LIMIT 1;
+    `;
+}
+
+// Function not used yet
 export async function updateUserRatings(userId, avgRating, totalReviews, totalRatingPoints) {
    return await sql`
     SELECT
@@ -114,6 +126,7 @@ export async function updateUserRatings(userId, avgRating, totalReviews, totalRa
   `;
 }
 
+
 /*INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
 SELECT
     recipient_id AS user_id,
@@ -130,3 +143,5 @@ SET
     total_rating_points = EXCLUDED.total_rating_points,
     updated_at = CURRENT_TIMESTAMP;
 */
+
+

@@ -8,7 +8,8 @@ import {
   getFeedbackForUser,
   getFeedbackForAuction,
   hasFeedback,
-  getUserRatings as fetchUserRatings
+  getUserRatings as fetchUserRatings,
+  retrieveWinnerInfo as fetchWinnerInfo
 } from "../models/feedbackModel.js";
 
 // POST   /feedback
@@ -74,28 +75,50 @@ export async function getRecentFeedback(req, res) {
 export async function postAuctionFeedback(req, res) {
   try {
     const author_id = req.session.userId; // Get author_id from session
-    const { recipient_id, auction_id, author_role, user_ratings, user_comments } = req.body;
-    
+    const { auction_id, user_ratings, user_comments } = req.body;
+
     // Check authentication
     if (!author_id) {
       return res.status(401).json({ error: "You must be logged in to submit feedback." });
     }
-    
+
+    // Get winner info for this auction
+    const [winnerInfo] = await retrieveWinnerInfo(auction_id);
+    if (!winnerInfo) {
+      return res.status(404).json({ error: "Auction not found or has no winner." });
+    }
+
+    const buyer_id = fetchWinnerInfo([buyer_id]);
+    const seller_id = fetchWinnerInfo([seller_id]);
+
+    // Determines the recipient and author_role 
+    let recipient_id, author_role;
+    if (author_id === winnerInfo.buyer_id) {
+      recipient_id = winnerInfo.seller_id;
+      author_role = "Buyer";
+    } else if (author_id === winnerInfo.seller_id) {
+      recipient_id = winnerInfo.buyer_id;
+      author_role = "Seller";
+    } else {
+      return res.status(403).json({ error: "You are not part of this auction." });
+    }
+
+    // Prevent duplicate feedback
+    const alreadyReviewed = await hasFeedback(author_id, recipient_id, auction_id);
+    if (alreadyReviewed) {
+      return res.status(409).json({ error: "You have already submitted feedback for this auction and user" });
+    }
     if (!recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
       return res.status(400).json({ error: "Missing required fields." });
     }
     if (author_id === recipient_id) {
       return res.status(400).json({ error: "Author and recipient cannot be the same user" });
     }
-    const alreadyReviewed = await hasFeedback(author_id, recipient_id, auction_id);
-    if (alreadyReviewed) {
-      return res.status(409).json({ error: "You have already submitted feedback for this auction and user" });
-    }
     const feedback = await createFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments });
     res.status(201).json(feedback[0]);
-  } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
-  }
+    } catch (err) {
+      res.status(500).json({ error: "Server error", details: err.message });
+    }
 }
 
 // Get the reviews received by a user

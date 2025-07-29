@@ -1,9 +1,8 @@
 // src/pages/UserFeedbackPage.jsx
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Rating, TextField, Typography } from "@mui/material";
-
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 
@@ -18,8 +17,10 @@ const MAX_WORDS = 100;
 
 export default function UserFeedback(){
     const { auctionId } = useParams(); // ← gets :auctionId from the URL
-
+    // Debug log
     console.log("auctionId :" + parseInt(auctionId));
+
+
  
     const [userRating, setUserRating] = useState(5);
     const [userComments, setUserComments] = useState("");
@@ -46,8 +47,8 @@ export default function UserFeedback(){
           credentials: "include",
           body: JSON.stringify({
             auction_id: auctionId,
-            recipient_id: recipientId,
-            author_role: authorRole,
+            //recipient_id: recipientId,
+            //author_role: authorRole,
             user_ratings: userRating,
             user_comments: userComments,
           }),
