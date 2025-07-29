@@ -14,7 +14,7 @@ export async function insertBid(buyerId, auctionId, bidAmount) {
     RETURNING *;
   `;
 
-  // Set all other bids in the auction to "outbid"
+  // Sets all other bids in the auction to "outbid"
   await sql`
     UPDATE bids
     SET status = 'outbid', updated_at = CURRENT_TIMESTAMP
