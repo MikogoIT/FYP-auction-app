@@ -415,7 +415,7 @@ resource "google_cloud_run_v2_service" "tele_bot" {
       }
 
       env {
-        name  = "PORT"
+        name  = "TELE_PORT"
         value = 8443
       }
 
