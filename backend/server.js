@@ -184,7 +184,9 @@ app.get('/api/tele', async (req, res) => {
 //-------------------TEST notifications api --------//
 
 
+const { GoogleAuth } = require('google-auth-library');
 const NOTIF_FN_URL = process.env.GET_NOTIF_FN_URL;
+
 app.get('/api/getnotif', async (req, res) => {
   // 1️⃣ Check login
   const userId = req.session.userId;
@@ -192,24 +194,39 @@ app.get('/api/getnotif', async (req, res) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  try {
-    // 2️⃣ Call your Cloud Function with an ID token
-    const auth = new GoogleAuth();
-    const client = await auth.getIdTokenClient(NOTIF_FN_URL);
-    const response = await client.request({
-      url: NOTIF_FN_URL,
-      method: 'POST',                    // switch to POST if you need to send JSON
-      data: { userId },                  // forward the userId so the function can query DB
-      headers: { 'Content-Type': 'application/json' },
-    });
+  // 2️⃣ Prepare auth client
+  const auth = new GoogleAuth();
+  const client = await auth.getIdTokenClient(NOTIF_FN_URL);
 
-    // 3️⃣ Return whatever count/data your function gave you
-    return res.json(response.data);
-  } catch (err) {
-    console.error('Error fetching notifications:', err);
-    return res.status(500).json({ error: 'Unable to fetch notifications' });
+  const MAX_RETRIES = 3;
+  let attempt = 0;
+  let lastError;
+
+  // 3️⃣ Retry loop
+  while (attempt < MAX_RETRIES) {
+    try {
+      const response = await client.request({
+        url: NOTIF_FN_URL,
+        method: 'POST',                   
+        data: { userId },                 
+        headers: { 'Content-Type': 'application/json' },
+      });
+      // success! immediately return
+      return res.json(response.data);
+    } catch (err) {
+      attempt++;
+      lastError = err;
+      console.error(`Attempt ${attempt} failed to fetch notifications:`, err);
+      if (attempt >= MAX_RETRIES) {
+        console.error('Max retries reached. Aborting.');
+        return res
+          .status(500)
+          .json({ error: 'Unable to fetch notifications after multiple attempts' });
+      }
+    }
   }
 });
+
 
 
 //---------------------Test end--------------------//

@@ -143,6 +143,14 @@ export default function ListingCard({
       </div>
 
       <div className="listingAction">
+        <md-filled-button
+          onClick={actionHandler}
+          disabled={isExpired}
+          style={actionStyle}
+        >
+          {actionText}
+        </md-filled-button>
+
         <IconButton
           onClick={() => onToggleLike(item.id)}
           size="large"
@@ -153,14 +161,6 @@ export default function ListingCard({
             <FavoriteBorderIcon />
           )}
         </IconButton>
-
-        <md-filled-button
-          onClick={actionHandler}
-          disabled={isExpired}
-          style={actionStyle}
-        >
-          {actionText}
-        </md-filled-button>
       </div>
     </div>
   );
