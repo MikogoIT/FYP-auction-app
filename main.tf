@@ -185,11 +185,6 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
       }
 
       env {
-        name  = "TELEGRAM_FUNCTION_URL"
-        value = google_cloudfunctions2_function.telegram.url
-      }
-
-      env {
         name  = "GET_NOTIF_FN_URL"
         value = google_cloudfunctions2_function.notif.url
       }
