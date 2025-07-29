@@ -376,8 +376,22 @@ resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
 }
 
 
+resource "google_cloud_run_v2_service" "old_tele_bot" {
+  name     = "auctioneer-bot"
+  location = var.region
 
+  deletion_protection = false
 
+  template {
+    containers {
+      image = "gcr.io/cloudrun/placeholder"
+    }
+  }
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}
 
 
 # ---------------------------------------------
