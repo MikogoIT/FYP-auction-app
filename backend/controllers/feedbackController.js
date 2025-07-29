@@ -114,8 +114,18 @@ export async function postAuctionFeedback(req, res) {
     if (author_id === recipient_id) {
       return res.status(400).json({ error: "Author and recipient cannot be the same user" });
     }
-    const feedback = await createFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments });
-    res.status(201).json(feedback[0]);
+
+    // Create feedback
+    const feedback = await createFeedback({
+      author_id,
+      recipient_id,
+      auction_id,
+      author_role,
+      user_ratings,
+      user_comments
+    });
+
+      res.status(201).json(feedback[0]);
     } catch (err) {
       res.status(500).json({ error: "Server error", details: err.message });
     }
