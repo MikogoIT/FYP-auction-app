@@ -155,6 +155,10 @@ export async function getUserFeedback(req, res) {
   }
 }
 
+*/
+
+/*
+
 // Get all reviews for an auction
 export async function getAuctionFeedback(req, res) {
   try {
