@@ -14,7 +14,7 @@ function countWords(text) {
 
 export default function FeedbackForm({
   endpoint = "/api/feedback",
-  onSuccess,
+  //onSuccess,
 }) {
   const [website_comments, setComments] = useState("");
   const [website_ratings, setRatings] = useState(5);
@@ -46,7 +46,7 @@ export default function FeedbackForm({
         setMsg("✅ Thank you for your feedback!");
         setComments("");
         setSubmitted(true);
-        if (onSuccess) onSuccess();
+        //if (onSuccess) onSuccess();
       } else {
         setMsg( (data.message || "Failed to submit feedback."));
       }

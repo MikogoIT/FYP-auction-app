@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Rating, TextField, Typography } from "@mui/material";
+import { Box, Rating, TextField, Typography } from "@mui/material";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 
@@ -61,7 +61,6 @@ export default function UserFeedback(){
           setMsg("✅ Thank you for your feedback!");
           setSubmitted(true);
           setUserComments("");
-          if (onSuccess) onSuccess();
         } else {
           setMsg(
             "❌ " + (data.error || data.message || "Failed to submit feedback."),
