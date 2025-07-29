@@ -143,7 +143,7 @@ export async function postAuctionFeedback(req, res) {
   }
 }
 
-/*
+
 // Get the reviews received by a user
 export async function getUserFeedback(req, res) {
   try {
@@ -155,9 +155,7 @@ export async function getUserFeedback(req, res) {
   }
 }
 
-*/
 
-/*
 
 // Get all reviews for an auction
 export async function getAuctionFeedback(req, res) {
@@ -170,7 +168,7 @@ export async function getAuctionFeedback(req, res) {
   }
 }
 
-*/
+
 
 export async function getUserRatings(req, res) {
   try {

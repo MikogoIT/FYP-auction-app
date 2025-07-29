@@ -76,7 +76,6 @@ export async function submitFeedback({ author_id, recipient_id, auction_id, auth
   `;
 }
 
-/*
 
 export async function getFeedbackForUser(userId) {
   return await sql`
@@ -89,7 +88,7 @@ export async function getFeedbackForAuction(auctionId) {
     SELECT * FROM user_feedback WHERE auction_id = ${auctionId} ORDER BY created_at DESC;
   `;
 }
-*/
+
 
 
 // Checks For Feedback 'Completion' Status
