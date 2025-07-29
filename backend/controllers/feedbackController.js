@@ -6,12 +6,12 @@ import {
   getLatestWebsiteFeedback,
   submitFeedback,
   getFeedbackForUser,
-  getFeedbackForAuction,
   hasFeedback,
   getUserRatings as fetchUserRatings,
   retrieveWinnerInfo as fetchWinnerInfo,
   updateUserRatings
 } from "../models/feedbackModel.js";
+
 
 // POST   /feedback
 export async function submitWebsiteFeedback(req, res) {
@@ -154,20 +154,6 @@ export async function getUserFeedback(req, res) {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 }
-
-
-
-// Get all reviews for an auction
-export async function getAuctionFeedback(req, res) {
-  try {
-    const auctionId = req.params.auctionId;
-    const feedback = await getFeedbackForAuction(auctionId);
-    res.json(feedback);
-  } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
-  }
-}
-
 
 
 export async function getUserRatings(req, res) {

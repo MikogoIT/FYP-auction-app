@@ -76,20 +76,16 @@ export async function submitFeedback({ author_id, recipient_id, auction_id, auth
   `;
 }
 
-
+// Retrieves auction feedback with completed status
 export async function getFeedbackForUser(userId) {
   return await sql`
-    SELECT * FROM user_feedback WHERE recipient_id = ${userId} ORDER BY created_at DESC;
+    SELECT * 
+    FROM user_feedback 
+    WHERE recipient_id = ${userId} 
+      AND status = 'completed'
+    ORDER BY created_at DESC;
   `;
 }
-
-export async function getFeedbackForAuction(auctionId) {
-  return await sql`
-    SELECT * FROM user_feedback WHERE auction_id = ${auctionId} ORDER BY created_at DESC;
-  `;
-}
-
-
 
 // Checks For Feedback 'Completion' Status
 export async function hasFeedback(author_id, recipient_id, auction_id) {
@@ -104,8 +100,6 @@ export async function hasFeedback(author_id, recipient_id, auction_id) {
   `;
   return result.length > 0;
 }
-
-
 
 
 // Fetch User Ratings from Rating Table
@@ -151,24 +145,3 @@ export async function updateUserRatings(recipient_id) {
         updated_at = CURRENT_TIMESTAMP;
   `;
 }
-
-
-
-/*INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
-SELECT
-    recipient_id AS user_id,
-    ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
-    COUNT(*) AS total_reviews,
-    SUM(user_ratings) AS total_rating_points,
-    CURRENT_TIMESTAMP
-FROM user_feedback
-GROUP BY recipient_id
-ON CONFLICT (user_id) DO UPDATE 
-SET 
-    avg_rating = EXCLUDED.avg_rating,
-    total_reviews = EXCLUDED.total_reviews,
-    total_rating_points = EXCLUDED.total_rating_points,
-    updated_at = CURRENT_TIMESTAMP;
-*/
-
-
