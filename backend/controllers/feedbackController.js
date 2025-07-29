@@ -73,8 +73,15 @@ export async function getRecentFeedback(req, res) {
 // Create an auction review
 export async function postAuctionFeedback(req, res) {
   try {
-    const { author_id, recipient_id, auction_id, author_role, user_ratings, user_comments } = req.body;
-    if (!author_id || !recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
+    const author_id = req.session.userId; // Get author_id from session
+    const { recipient_id, auction_id, author_role, user_ratings, user_comments } = req.body;
+    
+    // Check authentication
+    if (!author_id) {
+      return res.status(401).json({ error: "You must be logged in to submit feedback." });
+    }
+    
+    if (!recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
       return res.status(400).json({ error: "Missing required fields." });
     }
     if (author_id === recipient_id) {

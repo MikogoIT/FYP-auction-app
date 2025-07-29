@@ -98,11 +98,18 @@ export default function Profile() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
+      // Only send the fields that backend actually uses
+      const profileData = {
+        username: editableUser.username,
+        phone_number: editableUser.phone_number,
+        address: editableUser.address
+      };
+      
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(editableUser),
+        body: JSON.stringify(profileData),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
