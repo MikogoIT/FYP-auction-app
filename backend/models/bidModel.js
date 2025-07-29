@@ -54,8 +54,6 @@ export async function deleteUserBid(buyerId, bidId) {
   `;
 }
 
-// models/bidModel.js
-
 export async function getBidsOnUserListings(sellerId) {
   return await sql`
     SELECT
@@ -84,5 +82,15 @@ export async function getBidsOnUserListings(sellerId) {
 
     WHERE a.seller_id = ${sellerId}
     ORDER BY b.created_at DESC
+  `;
+}
+
+// Update Pending Status to Outbid on Bids
+export async function statusOutbid(bidId, buyerId) {
+  return await sql`
+    UPDATE bids 
+    SET updated_at = current_timestamp, status = 'outbid'
+    WHERE id = ${bidId} AND buyer_id = ${buyerId}
+    RETURNING *
   `;
 }

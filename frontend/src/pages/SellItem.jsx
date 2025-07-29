@@ -155,7 +155,7 @@ const SellItem = () => {
             discount_percentage: 10,
           }),
           ...(auctionType === "descending" && {
-            min_bid: null,
+            min_bid: parseFloat(minBid),
             start_price: startPrice ? parseFloat(startPrice) : null,
             discount_percentage:
               parseFloat(discountPercentage) >= 10
@@ -305,6 +305,16 @@ const SellItem = () => {
               step="0.01"
               value={startPrice}
               onChange={(e) => setStartPrice(e.target.value)}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+
+            <label>Minimum Bid (SGD) *</label>
+            <input
+              type="number"
+              step="0.01"
+              value={minBid}
+              onChange={(e) => setMinBid(e.target.value)}
               required
               style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
             />

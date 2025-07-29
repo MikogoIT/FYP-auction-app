@@ -89,6 +89,9 @@ export async function createBid(req, res) {
           auction_id,
           `[outbid] Your bid for "${auctionTitle}" has been outbid.`
         );
+
+        // Update Pending Status to Outbid on Bids
+        await bidModel.statusOutbid(prevHighest[0].id, prevHighest[0].buyer_id);
       }
       return res.status(201).json({ bid: result[0] });
 
