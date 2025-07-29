@@ -1,11 +1,10 @@
 // models/bidModel.js
 import { sql } from "../utils/db.js";
 
-// Insert Bid
 export async function insertBid(buyerId, auctionId, bidAmount) {
   return await sql`
-    INSERT INTO bids (buyer_id, auction_id, bid_amount, status,updated_at)
-    VALUES (${buyerId}, ${auctionId}, ${bidAmount}, NOW())
+    INSERT INTO bids (buyer_id, auction_id, bid_amount)
+    VALUES (${buyerId}, ${auctionId}, ${bidAmount})
     ON CONFLICT (buyer_id, auction_id)
     DO UPDATE SET
       bid_amount = EXCLUDED.bid_amount,
@@ -13,18 +12,6 @@ export async function insertBid(buyerId, auctionId, bidAmount) {
       status = 'pending'
     RETURNING *;
   `;
-
-  // Sets all other bids in the auction to "outbid"
-  await sql`
-    UPDATE bids
-    SET status = 'outbid', updated_at = CURRENT_TIMESTAMP
-    WHERE auction_id = ${auctionId}
-      AND buyer_id <> ${buyerId}
-      AND status != 'outbid'
-  `;
-
-  return [bid];
-
 }
 
 export async function getAuctionMinBid(auctionId) {
@@ -99,3 +86,13 @@ export async function getBidsOnUserListings(sellerId) {
   `;
 }
 
+// Mark all other bids as outbid
+export async function markOthersOutbid(auctionId, buyerId) {
+  return await sql`
+    UPDATE bids
+    SET status = 'outbid', updated_at = CURRENT_TIMESTAMP
+    WHERE auction_id = ${auctionId}
+      AND buyer_id <> ${buyerId}
+      AND status != 'outbid';
+  `;
+}
