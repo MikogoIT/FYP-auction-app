@@ -400,7 +400,7 @@ resource "google_cloud_run_v2_service" "old_tele_bot" {
 
 
 resource "google_cloud_run_v2_service" "tele_bot" {
-  name     = "auctioneer-tele-bot"
+  name     = "auctioneer-bot"
   location = var.region
 
   deletion_protection = false
