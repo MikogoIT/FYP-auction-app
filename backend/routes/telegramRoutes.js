@@ -2,7 +2,7 @@
 import express from "express";
 import * as telegramController from "../controllers/telegramController.js";
 import { requireLogin } from "../utils/requireLogin.js";
-import { requireBotAuth, telegramGCPAuth, telegramGCPAuth } from "../utils/auth.js";
+import { requireBotAuth, telegramGCPAuth } from "../utils/auth.js";
 
 const router = express.Router();
 
