@@ -74,13 +74,18 @@ variable "custom_domain" {
 variable "GCS_TELE_BUCKET_NAME" {
   description = "GCS bucket for Telegram bot source"
   type        = string
-  default     = "auctioneer-tele-bot"
+  default     = "auctioneer-bot"
 }
 
 variable "GCS_NOTIF_BUCKET_NAME" {
   description = "GCS bucket for notifications bot source"
   type        = string
   default     = "auctioneer-notif-bot"
+}
+
+variable "bot_image_url" {
+  description = "Container image URL for the Telegram bot"
+  type        = string
 }
 
 
@@ -180,11 +185,6 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
       }
 
       env {
-        name  = "TELEGRAM_FUNCTION_URL"
-        value = google_cloudfunctions2_function.telegram.url
-      }
-
-      env {
         name  = "GET_NOTIF_FN_URL"
         value = google_cloudfunctions2_function.notif.url
       }
@@ -241,71 +241,71 @@ resource "google_storage_bucket_iam_member" "dev_assets_public_read" {
 # ---------------------------------------------
 # New: Telegram bot code bucket & function
 # ---------------------------------------------
-# 1) Create a dedicated bucket for your telegram zip
-resource "google_storage_bucket" "telegram_source_bucket" {
-  name                        = var.GCS_TELE_BUCKET_NAME
-  location                    = var.region
-  uniform_bucket_level_access = true
-  force_destroy               = true
-}
+# # 1) Create a dedicated bucket for your telegram zip
+# resource "google_storage_bucket" "telegram_source_bucket" {
+#   name                        = var.GCS_TELE_BUCKET_NAME
+#   location                    = var.region
+#   uniform_bucket_level_access = true
+#   force_destroy               = true
+# }
 
-# 2) Grant read access to Cloud Functions runtime
-resource "google_cloudfunctions2_function_iam_member" "telegram_invoker_cr" {
-  project        = var.project_id
-  location       = var.region
-  cloud_function = google_cloudfunctions2_function.telegram.name
-  role           = "roles/cloudfunctions.invoker"
-  member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-}
+# # 2) Grant read access to Cloud Functions runtime
+# resource "google_cloudfunctions2_function_iam_member" "telegram_invoker_cr" {
+#   project        = var.project_id
+#   location       = var.region
+#   cloud_function = google_cloudfunctions2_function.telegram.name
+#   role           = "roles/cloudfunctions.invoker"
+#   member         = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+# }
 
 
 
-resource "google_cloudfunctions2_function" "telegram" {
-  name     = "telegramBotGen2"
-  project  = var.project_id
-  location = var.region
+# resource "google_cloudfunctions2_function" "telegram" {
+#   name     = "telegramBotGen2"
+#   project  = var.project_id
+#   location = var.region
 
-  build_config {
-    runtime     = "python313"
-    entry_point = "main"
+#   build_config {
+#     runtime     = "python313"
+#     entry_point = "main"
 
-    source {
-      storage_source {
-        bucket = google_storage_bucket.telegram_source_bucket.name
-        object = "telegram.zip"
-      }
-    }
-  }
+#     source {
+#       storage_source {
+#         bucket = google_storage_bucket.telegram_source_bucket.name
+#         object = "telegram.zip"
+#       }
+#     }
+#   }
 
-  service_config {
-    # Scale from 0 up to 10 instances
-    min_instance_count             = 0
-    max_instance_count             = 3
+#   service_config {
+#     # Scale from 0 up to 10 instances
+#     min_instance_count             = 0
+#     max_instance_count             = 3
 
-    # Function timeout
-    timeout_seconds                = 60
+#     # Function timeout
+#     timeout_seconds                = 60
 
-    # env vars
-    environment_variables          = {
-      TELEGRAM_BOT_TOKEN = var.TELEGRAM_BOT_TOKEN,
-      BOT_SECRET = var.BOT_SECRET,
-      OPENROUTER_API_KEY = var.OPENROUTER_API_KEY
-    }
+#     # env vars
+#     environment_variables          = {
+#       TELEGRAM_BOT_TOKEN = var.TELEGRAM_BOT_TOKEN,
+#       BOT_SECRET = var.BOT_SECRET,
+#       OPENROUTER_API_KEY = var.OPENROUTER_API_KEY
+#     }
 
-    # Allow all traffic (HTTP) and route 100% to latest revision
-    ingress_settings               = "ALLOW_ALL"
-    all_traffic_on_latest_revision = true
-  }
-}
+#     # Allow all traffic (HTTP) and route 100% to latest revision
+#     ingress_settings               = "ALLOW_ALL"
+#     all_traffic_on_latest_revision = true
+#   }
+# }
 
-# then separately grant public invoke permission:
-resource "google_cloudfunctions2_function_iam_member" "invoker" {
-  project        = var.project_id
-  location       = var.region
-  cloud_function = google_cloudfunctions2_function.telegram.name
-  role           = "roles/cloudfunctions.invoker"
-  member         = "allUsers"
-}
+# # then separately grant public invoke permission:
+# resource "google_cloudfunctions2_function_iam_member" "invoker" {
+#   project        = var.project_id
+#   location       = var.region
+#   cloud_function = google_cloudfunctions2_function.telegram.name
+#   role           = "roles/cloudfunctions.invoker"
+#   member         = "allUsers"
+# }
 
 
 
@@ -373,4 +373,62 @@ resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
   cloud_function = google_cloudfunctions2_function.notif.name
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
+}
+
+
+# ---------------------------------------------
+# shift tele bot to cloud run instead of cloud function
+# ---------------------------------------------
+
+
+resource "google_cloud_run_v2_service" "tele_bot" {
+  name     = "auctioneer-bot"
+  location = var.region
+
+  deletion_protection = false
+
+  template {
+    containers {
+      image = var.bot_image_url
+
+      # If your bot listens on a port (e.g. for webhooks), expose it:
+      ports {
+        container_port = 8443
+      }
+
+      # pass in your Telegram token
+      env {
+        name  = "TELEGRAM_BOT_TOKEN"
+        value = var.TELEGRAM_BOT_TOKEN
+      }
+
+      env {
+        name  = "BOT_SECRET"
+        value = var.BOT_SECRET
+      }
+
+      env {
+        name  = "OPENROUTER_API_KEY"
+        value = var.OPENROUTER_API_KEY
+      }
+
+      env {
+        name  = "TELE_PORT"
+        value = 8443
+      }
+
+
+
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    google_project_service.run_api
+  ]
 }

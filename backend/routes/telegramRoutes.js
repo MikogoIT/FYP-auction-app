@@ -2,7 +2,7 @@
 import express from "express";
 import * as telegramController from "../controllers/telegramController.js";
 import { requireLogin } from "../utils/requireLogin.js";
-import { requireBotAuth, telegramGCPAuth } from "../utils/auth.js";
+import { requireBotAuth } from "../utils/auth.js";
 
 const router = express.Router();
 
@@ -11,32 +11,32 @@ router.post("/unlinkTelegram", requireLogin, telegramController.unlinkTelegramAc
 router.post("/status", requireLogin, telegramController.getTelegramStatus);
 
 // Bot-specific routes
-router.get("/listings/unposted", requireBotAuth, telegramGCPAuth, telegramController.fetchUnpostedListings);
-router.post("/mark-posted/:listingId", requireBotAuth, telegramGCPAuth, telegramController.markListingPosted);
-router.get("/check-account/:telegramUserId", requireBotAuth, telegramGCPAuth, telegramController.checkTelegramAccount);
-router.get("/listings/with-messages", requireBotAuth, telegramGCPAuth, telegramController.fetchListingsWithTelegramMessages);
-router.post("/listings/save-message", requireBotAuth, telegramGCPAuth, telegramController.saveTelegramMessageData);
+router.get("/listings/unposted", requireBotAuth, telegramController.fetchUnpostedListings);
+router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markListingPosted);
+router.get("/check-account/:telegramUserId", requireBotAuth, telegramController.checkTelegramAccount);
+router.get("/listings/with-messages", requireBotAuth, telegramController.fetchListingsWithTelegramMessages);
+router.post("/listings/save-message", requireBotAuth, telegramController.saveTelegramMessageData);
 
 // Bot-specific notification routes
-router.get("/notifications/unsent", requireBotAuth, telegramGCPAuth, telegramController.fetchUnsentNotifications);
-router.post("/notifications/mark-sent", requireBotAuth, telegramGCPAuth, telegramController.markNotificationAsSent);
+router.get("/notifications/unsent", requireBotAuth, telegramController.fetchUnsentNotifications);
+router.post("/notifications/mark-sent", requireBotAuth, telegramController.markNotificationAsSent);
 
 // Bot-specific routes (Buyers - Manage Bidding)
-router.post("/bid", requireBotAuth, telegramGCPAuth, telegramController.createBidFromTelegram);
-router.post("/bid/withdraw", requireBotAuth, telegramGCPAuth, telegramController.withdrawBidFromTelegram);
-router.get("/bids/user/:userId", requireBotAuth, telegramGCPAuth, telegramController.getBidsByTelegramUser);
+router.post("/bid", requireBotAuth, telegramController.createBidFromTelegram);
+router.post("/bid/withdraw", requireBotAuth, telegramController.withdrawBidFromTelegram);
+router.get("/bids/user/:userId", requireBotAuth, telegramController.getBidsByTelegramUser);
 
 // Bot-specific routes (Buyers - Manage Watchlist)
-router.post("/watchlist/add", requireBotAuth, telegramGCPAuth, telegramController.addWatchlistItem);
-router.post("/watchlist/remove", requireBotAuth, telegramGCPAuth, telegramController.removeWatchlistItem);
-router.get("/watchlist/user/:userId", requireBotAuth, telegramGCPAuth, telegramController.getUserWatchlist);
+router.post("/watchlist/add", requireBotAuth, telegramController.addWatchlistItem);
+router.post("/watchlist/remove", requireBotAuth, telegramController.removeWatchlistItem);
+router.get("/watchlist/user/:userId", requireBotAuth, telegramController.getUserWatchlist);
 
-router.get("/recommendations/comprehensive/:userId", requireBotAuth, telegramGCPAuth, telegramController.getComprehensiveRecommendationsByUserId);
+router.get("/recommendations/comprehensive/:userId", requireBotAuth, telegramController.getComprehensiveRecommendationsByUserId);
 
 // Bot-specific routes (Sellers - Manage Listing)
-router.get("/listings/user/:userId", requireBotAuth, telegramGCPAuth, telegramController.getSellerListings);
+router.get("/listings/user/:userId", requireBotAuth, telegramController.getSellerListings);
 
 // Bot-specific listing search
-router.get("/listings/search", requireBotAuth, telegramGCPAuth, telegramController.searchListings);
+router.get("/listings/search", requireBotAuth, telegramController.searchListings);
 
 export default router;
