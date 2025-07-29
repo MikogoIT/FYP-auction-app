@@ -184,7 +184,6 @@ app.get('/api/tele', async (req, res) => {
 //-------------------TEST notifications api --------//
 
 
-const { GoogleAuth } = require('google-auth-library');
 const NOTIF_FN_URL = process.env.GET_NOTIF_FN_URL;
 
 app.get('/api/getnotif', async (req, res) => {
