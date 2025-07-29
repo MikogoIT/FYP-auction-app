@@ -424,8 +424,8 @@ resource "google_cloud_run_v2_service" "tele_bot" {
 
       resources {
         limits = {
-          cpu    = "0.5"
-          memory = "256Mi"
+          cpu    = "1"
+          memory = "512Mi"
         }
       }
     }
