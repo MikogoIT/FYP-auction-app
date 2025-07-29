@@ -107,10 +107,11 @@ export default function Notif() {
               // you’ve won → go to the seller’s profile/feedback page
               navigate(`/feedback/${sellerId}`);
 
-            } else if (message.startsWith("[review]") && sellerId) {
-              // review prompt →
-              navigate(`/feedback/${sellerId}`);
+            } else if (message.startsWith("[review]") && auctionId) {
+              // review prompt → sends auctionId to UserFeedbackPage.jsx
+              navigate(`/feedback-user/${auctionId}`);
             }
+
           }}
           />
         </div>

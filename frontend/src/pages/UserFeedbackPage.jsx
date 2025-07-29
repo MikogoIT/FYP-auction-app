@@ -16,13 +16,12 @@ function countWords(text) {
 }
 const MAX_WORDS = 100;
 
-export default function UserFeedback({
-  auctionId,
-  recipientId,
-  authorRole = "Buyer",
-}) {
+export default function UserFeedback(){
+    const { auctionId } = useParams(); // ← gets :auctionId from the URL
 
-  const [userRating, setUserRating] = useState(5);
+    console.log("auctionId :" + parseInt(auctionId));
+ 
+    const [userRating, setUserRating] = useState(5);
     const [userComments, setUserComments] = useState("");
     const [msg, setMsg] = useState("");
     const [loading, setLoading] = useState(false);
