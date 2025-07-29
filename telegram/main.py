@@ -1,6 +1,5 @@
 # File: main.py
 
-import functions_framework
 from logger import logger
 from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT
 from telegram import BotCommand
@@ -11,6 +10,7 @@ from handlers import (
     watchlist_callback_handler, myrecommendations
 )
 from jobs import poll_and_post_listings, poll_notifications
+import asyncio
 
 async def set_commands(application):
     commands = [
@@ -20,8 +20,7 @@ async def set_commands(application):
     
     await application.bot.set_my_commands(commands)
 
-@functions_framework.http
-def main(request):
+async def start_bot():
     if not TELEGRAM_BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
@@ -54,9 +53,12 @@ def main(request):
 
     # logger.info("Bot started with polling listing poster and notifications job.")
     # application.run_polling()
-    logger.info("Bot started with polling listing poster and notifications job.")
-    application.run_webhook(
+    logger.info("Bot started with webhook listing poster and notifications job.")
+    await application.run_webhook(
         listen="0.0.0.0",
         port=PORT,
         webhook_url=WEBHOOK_URL,
     )
+    
+if __name__ == "__main__":
+    asyncio.run(start_bot())

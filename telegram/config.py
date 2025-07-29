@@ -11,5 +11,5 @@ BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://host.docker.internal:4433
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-PORT = int(os.getenv("PORT", 8080))
+PORT = int(os.getenv("PORT", 8443))
 WEBHOOK_URL = os.getenv("TELEGRAM_FUNCTION_URL")  # No default, must be set in prod
