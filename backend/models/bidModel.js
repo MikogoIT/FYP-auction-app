@@ -1,14 +1,15 @@
 // models/bidModel.js
 import { sql } from "../utils/db.js";
 
+// Insert Bid
 export async function insertBid(buyerId, auctionId, bidAmount) {
   return await sql`
-    INSERT INTO bids (buyer_id, auction_id, bid_amount)
-    VALUES (${buyerId}, ${auctionId}, ${bidAmount})
+    INSERT INTO bids (buyer_id, auction_id, bid_amount, updated_at)
+    VALUES (${buyerId}, ${auctionId}, ${bidAmount}, NOW())
     ON CONFLICT (buyer_id, auction_id)
     DO UPDATE SET
       bid_amount = EXCLUDED.bid_amount,
-      updated_at = CURRENT_TIMESTAMP
+      updated_at = NOW()
     RETURNING *;
   `;
 }
@@ -86,11 +87,13 @@ export async function getBidsOnUserListings(sellerId) {
 }
 
 // Update Pending Status to Outbid on Bids
-export async function statusOutbid(bidId, buyerId) {
+export async function statusOutbid(auctionId, buyerId) {
   return await sql`
     UPDATE bids 
     SET updated_at = current_timestamp, status = 'outbid'
-    WHERE id = ${bidId} AND buyer_id = ${buyerId}
-    RETURNING *
+    WHERE auction_id = ${auctionId} 
+      AND buyer_id = ${buyerId}
+      AND status = 'pending'
+    RETURNING *;
   `;
 }
