@@ -76,6 +76,8 @@ export async function submitFeedback({ author_id, recipient_id, auction_id, auth
   `;
 }
 
+/*
+
 export async function getFeedbackForUser(userId) {
   return await sql`
     SELECT * FROM user_feedback WHERE recipient_id = ${userId} ORDER BY created_at DESC;
@@ -88,12 +90,24 @@ export async function getFeedbackForAuction(auctionId) {
   `;
 }
 
+*/
+
+// Checks For Feedback 'Completion' Status
 export async function hasFeedback(author_id, recipient_id, auction_id) {
   const result = await sql`
-    SELECT 1 FROM user_feedback WHERE author_id = ${author_id} AND recipient_id = ${recipient_id} AND auction_id = ${auction_id};
+    SELECT 1 
+    FROM user_feedback 
+    WHERE author_id = ${author_id} 
+      AND recipient_id = ${recipient_id} 
+      AND auction_id = ${auction_id}
+      AND status = 'completed'
+    LIMIT 1;
   `;
   return result.length > 0;
 }
+
+
+
 
 // Fetch User Ratings from Rating Table
 export async function getUserRatings(userId) {
@@ -135,7 +149,7 @@ export async function updateUserRatings(recipient_id) {
         avg_rating = EXCLUDED.avg_rating,
         total_reviews = EXCLUDED.total_reviews,
         total_rating_points = EXCLUDED.total_rating_points,
-        updated_at = EXCLUDED.updated_at;
+        updated_at = CURRENT_TIMESTAMP;
   `;
 }
 

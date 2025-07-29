@@ -75,45 +75,47 @@ export async function getRecentFeedback(req, res) {
 // Create an auction review
 export async function postAuctionFeedback(req, res) {
   try {
-    const author_id = req.session.userId; // Get author_id from session
+    const author_id = req.session.userId;
     const { auction_id, user_ratings, user_comments } = req.body;
 
-    // Check authentication
     if (!author_id) {
       return res.status(401).json({ error: "You must be logged in to submit feedback." });
     }
 
-    // Get winner info for this auction
-    const [winnerInfo] = await retrieveWinnerInfo(auction_id);
+    // Validate rating
+    if (!Number.isInteger(user_ratings) || user_ratings < 1 || user_ratings > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5." });
+    }
+
+    // Get winner info
+    const [winnerInfo] = await fetchWinnerInfo(auction_id);
     if (!winnerInfo) {
       return res.status(404).json({ error: "Auction not found or has no winner." });
     }
 
-    const buyer_id = fetchWinnerInfo([buyer_id]);
-    const seller_id = fetchWinnerInfo([seller_id]);
+    const buyer_id = winnerInfo.buyer_id;
+    const seller_id = winnerInfo.seller_id;
 
-    // Determines the recipient and author_role 
     let recipient_id, author_role;
-    if (author_id === winnerInfo.buyer_id) {
-      recipient_id = winnerInfo.seller_id;
+    if (author_id === buyer_id) {
+      recipient_id = seller_id;
       author_role = "Buyer";
-    } else if (author_id === winnerInfo.seller_id) {
-      recipient_id = winnerInfo.buyer_id;
+    } else if (author_id === seller_id) {
+      recipient_id = buyer_id;
       author_role = "Seller";
     } else {
       return res.status(403).json({ error: "You are not part of this auction." });
     }
 
-    // Prevent duplicate feedback
+    // Prevent self-review
+    if (author_id === recipient_id) {
+      return res.status(400).json({ error: "Author and recipient cannot be the same user." });
+    }
+
+    // Prevent duplicate
     const alreadyReviewed = await hasFeedback(author_id, recipient_id, auction_id);
     if (alreadyReviewed) {
-      return res.status(409).json({ error: "You have already submitted feedback for this auction and user" });
-    }
-    if (!recipient_id || !auction_id || !author_role || !user_ratings || !user_comments) {
-      return res.status(400).json({ error: "Missing required fields." });
-    }
-    if (author_id === recipient_id) {
-      return res.status(400).json({ error: "Author and recipient cannot be the same user" });
+      return res.status(409).json({ error: "You have already submitted feedback for this auction." });
     }
 
     // Create feedback
@@ -126,15 +128,22 @@ export async function postAuctionFeedback(req, res) {
       user_comments
     });
 
-    // Update recipient's rating summary after new feedback
-    await updateUserRatings(recipient_id, user_ratings);
-
-      res.status(201).json(feedback[0]);
-    } catch (err) {
-      res.status(500).json({ error: "Server error", details: err.message });
+    if (!feedback.length) {
+      return res.status(409).json({ error: "Feedback already submitted." });
     }
+
+    // Update summary
+    await updateUserRatings(recipient_id);
+
+    res.status(201).json(feedback[0]);
+
+  } catch (err) {
+    console.error("Post auction feedback error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
 }
 
+/*
 // Get the reviews received by a user
 export async function getUserFeedback(req, res) {
   try {
@@ -156,6 +165,8 @@ export async function getAuctionFeedback(req, res) {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 }
+
+*/
 
 export async function getUserRatings(req, res) {
   try {
