@@ -419,11 +419,6 @@ resource "google_cloud_run_v2_service" "tele_bot" {
         value = 8443
       }
 
-      env {
-        name  = "WEBHOOK_URL"
-        value = google_cloud_run_v2_service.tele_bot.uri
-      }
-
 
       # add any other env vars here…
 
