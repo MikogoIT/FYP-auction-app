@@ -386,7 +386,7 @@ resource "google_cloudfunctions2_function_iam_member" "notif_invoker_public" {
 
 
 resource "google_cloud_run_v2_service" "tele_bot" {
-  name     = "auctioneer-bot"
+  name     = "auctioneer-tele-bot"
   location = var.region
 
   template {
@@ -420,7 +420,6 @@ resource "google_cloud_run_v2_service" "tele_bot" {
       }
 
 
-      # add any other env vars here…
 
       resources {
         limits = {

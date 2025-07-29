@@ -166,7 +166,7 @@ terraform:
   variables:
     TF_TOKEN_app_terraform_io: "${HCP_TF_TKN}"
     TF_VAR_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-app:${CI_COMMIT_SHORT_SHA}"
-    TF_VAR_bot_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-bot:${CI_COMMIT_SHORT_SHA}"
+    TF_VAR_bot_image_url: "${GAR_REGISTRY}/${GCP_PROJECT_ID}/${GAR_REPO_BASE}/auctioneer-tele-bot:${CI_COMMIT_SHORT_SHA}"
     TF_VAR_GCS_TELE_BUCKET_NAME: "${GCS_TELE_BUCKET_NAME}"
     TF_VAR_GCS_NOTIF_BUCKET_NAME: "${GCS_NOTIF_BUCKET_NAME}"
     TF_VAR_notif_object: "notif-${CI_COMMIT_SHORT_SHA}.zip"
