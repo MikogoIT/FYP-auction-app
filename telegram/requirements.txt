@@ -1,2 +1,7 @@
-# telegram/requirements.txt
+aiohttp==3.12.13
+httpx==0.28.1
+openai==1.97.1
+python-dotenv==1.1.1
+python-telegram-bot==22.3
+pytz==2025.2
 functions-framework==3.*

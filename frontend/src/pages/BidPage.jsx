@@ -1,5 +1,6 @@
 // src/pages/BidPage.jsx
 import { useEffect, useState } from "react";
+
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -9,7 +10,10 @@ import {
   Link,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
+import SoldBy from '../components/SoldBy';
+
 import "@material/web/button/filled-button.js";
+
 
 export default function BidPage() {
   const { id } = useParams();
@@ -21,6 +25,8 @@ export default function BidPage() {
   const [message, setMessage] = useState("");
   const [auctionType, setAuctionType] = useState(null);
   const [currentDescPrice, setCurrentDescPrice] = useState(null);
+  const [avgRating, setAvgRating] = useState(0);    // ← holds avg_rating
+  const [totalReviews, setTotalReviews] = useState(0); // ← holds total_reviews
 
   // Fetch listing details (including category_id & category_name)
   useEffect(() => {
@@ -30,6 +36,14 @@ export default function BidPage() {
         if (!res.ok) throw new Error("Failed to load listing");
         const { listing } = await res.json();
         setListing(listing);
+        // once we know the seller, fetch their rating
+        fetch(`/api/feedback/ratings/${listing.seller_id}`)
+          .then((res) => res.json())
+          .then(({ avg_rating, total_reviews }) => {
+            setAvgRating(avg_rating);
+            setTotalReviews(total_reviews);
+          })
+          .catch(console.error);
         setAuctionType(listing.auction_type);
 
         if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
@@ -75,6 +89,8 @@ export default function BidPage() {
       }
     } else if (auctionType === "descending") {
       if (typeof currentDescPrice === "number") {
+        // TODO
+        // check if this desc bid logic is correct
         if (currentDescPrice > listing.min_bid && amount > currentDescPrice) {
           setMessage(`❌ Your bid must be lower than $${currentDescPrice.toFixed(2)}`);
           return;
@@ -194,21 +210,13 @@ export default function BidPage() {
             )}
 
             <div className="listingWords">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
-                <div style={{ marginRight: "8px" }}>Sold by:</div>
-                <Avatar
-                  src={listing.seller_avatar}
-                  alt={listing.seller_username}
-                  sx={{ width: 32, height: 32, marginRight: "8px" }}
-                />
-                <div>{listing.seller_username}</div>
-              </div>
+              <SoldBy
+                sellerId={listing.seller_id}
+                sellerUsername={listing.seller_username}
+                sellerAvatar={listing.seller_avatar}
+                avgRating={avgRating}
+                totalReviews={totalReviews}
+              />
               <Typography
                 variant="body2"
                 color="text.secondary"

@@ -83,6 +83,8 @@ variable "GCS_NOTIF_BUCKET_NAME" {
   default     = "auctioneer-notif-bot"
 }
 
+
+
 # name of the notif bot code in zip
 variable "notif_object" {
   type = string
@@ -100,6 +102,12 @@ variable "TELEGRAM_BOT_TOKEN" {
 
 variable "BOT_SECRET" {
   description = "Telegram bot secret for use by Cloud Function"
+  type        = string
+  sensitive   = true
+}
+
+variable "OPENROUTER_API_KEY" {
+  description = "for telegram bot to use ai"
   type        = string
   sensitive   = true
 }
@@ -259,7 +267,7 @@ resource "google_cloudfunctions2_function" "telegram" {
 
   build_config {
     runtime     = "python313"
-    entry_point = "teleFn"
+    entry_point = "main"
 
     source {
       storage_source {
@@ -280,7 +288,8 @@ resource "google_cloudfunctions2_function" "telegram" {
     # env vars
     environment_variables          = {
       TELEGRAM_BOT_TOKEN = var.TELEGRAM_BOT_TOKEN,
-      BOT_SECRET = var.BOT_SECRET
+      BOT_SECRET = var.BOT_SECRET,
+      OPENROUTER_API_KEY = var.OPENROUTER_API_KEY
     }
 
     # Allow all traffic (HTTP) and route 100% to latest revision

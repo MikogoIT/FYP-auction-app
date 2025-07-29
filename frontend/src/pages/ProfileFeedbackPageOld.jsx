@@ -12,10 +12,7 @@ import {
   Typography,
   Rating,
   CircularProgress,
-  Breadcrumbs,
-  Link as MuiLink,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -116,24 +113,23 @@ export default function ProfileFeedbackPage() {
   const numReviews = ratingInfo?.total_reviews ?? 0;
 
   return (
-    <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
-      <div className="dashboardContent">
-        {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{
-            width: '100%',
-            // make all links and the final Typography 16px
-            '& a, & .MuiTypography-root': {
-                fontSize: '16px',
-          }
-        }}>
-          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
-            Home
-          </MuiLink>
-          <Typography color="text.primary">Public Profile</Typography>
-        </Breadcrumbs>
+    <Box
+      className="dashboardCanvas"
+      sx={{ p: 2, bgcolor: "#f8f8f8", minHeight: "100vh" }}
+    >
+      <Box className="sidebarSpacer" />
+      <Box className="dashboardContent" sx={{ maxWidth: 900, mx: "auto" }}>
         {/* Profile Name and Ratings Header */}
-          <div className="profileTitle">{user?.username}'s Profile</div>
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            id="middleTitle"
+            className="profileTitle"
+            variant="h5"
+            fontWeight={700}
+            sx={{ mb: 0.5 }}
+          >
+            {user?.username}
+          </Typography>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar
               src={user?.profile_image_url || undefined}
@@ -142,14 +138,19 @@ export default function ProfileFeedbackPage() {
                 height: 80,
                 mr: 3,
                 border: "2px solid #eee",
+                bgcolor: "#fff",
               }}
               alt="User Avatar"
             />
             <Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <StarRating
-                    rating={Math.round(ratingInfo?.avg_rating ?? 0)}
-                    size="large"
+                  rating={
+                    ratingInfo?.avg_rating
+                      ? Math.round(ratingInfo.avg_rating)
+                      : 0
+                  }
+                  size="large"
                 />
                 <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
                   {ratingScore !== "N/A"
@@ -160,68 +161,42 @@ export default function ProfileFeedbackPage() {
               <Typography color="text.secondary" fontSize={16}>
                 {numReviews} Review{numReviews !== 1 ? "s" : ""}
               </Typography>
-              <Typography fontSize={16}>{user?.email || ""}</Typography>
             </Box>
           </Box>
+        </Box>
 
-        
         {/* Filters and Sorting */}
         <Box
           sx={{
             display: "flex",
-            flexWrap: "wrap",            // allow the two boxes to wrap as a group
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
           }}
         >
-          {/* 1️⃣ Always‑nowrap filters */}
-          <Box sx={{ whiteSpace: "nowrap" }}>
-            {filter === "All" ? (
-              <md-filled-button
-                onClick={() => setFilter("All")}
-                sx={{ mr: 1 }}
-              >
-                All Reviews
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button
-                onClick={() => setFilter("All")}
-                sx={{ mr: 1 }}
-              >
-                All Reviews
-              </md-filled-tonal-button>
-            )}
-
-            {filter === "Buyers" ? (
-              <md-filled-button
-                onClick={() => setFilter("Buyers")}
-                sx={{ mr: 1 }}
-              >
-                From Buyers
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button
-                onClick={() => setFilter("Buyers")}
-                sx={{ mr: 1 }}
-              >
-                From Buyers
-              </md-filled-tonal-button>
-            )}
-
-            {filter === "Sellers" ? (
-              <md-filled-button onClick={() => setFilter("Sellers")}>
-                From Sellers
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
-                From Sellers
-              </md-filled-tonal-button>
-            )}
+          <Box>
+            <md-filled-button
+              onClick={() => setFilter("All")}
+              style={{ marginRight: 8 }}
+              selected={filter === "All" ? "true" : undefined}
+            >
+              All Reviews
+            </md-filled-button>
+            <md-filled-tonal-button
+              onClick={() => setFilter("Buyers")}
+              style={{ marginRight: 8 }}
+              selected={filter === "Buyers" ? "true" : undefined}
+            >
+              From Buyers
+            </md-filled-tonal-button>
+            <md-filled-tonal-button
+              onClick={() => setFilter("Sellers")}
+              selected={filter === "Sellers" ? "true" : undefined}
+            >
+              From Sellers
+            </md-filled-tonal-button>
           </Box>
-
-          {/* 2️⃣ The dropdown can wrap below when needed */}
-          <Box sx={{ mt: { xs: 1, sm: 0 } }}>
+          <Box>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
@@ -230,6 +205,7 @@ export default function ProfileFeedbackPage() {
                 borderRadius: 6,
                 border: "1px solid #ccc",
                 fontSize: 16,
+                marginLeft: 5,
               }}
             >
               <option>Newest</option>
@@ -246,7 +222,7 @@ export default function ProfileFeedbackPage() {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3} sx={{ maxWidth: 1000 }}>
+          <Grid container spacing={3}>
             {sortedReviews.length === 0 ? (
               <Grid item xs={12}>
                 <Box color="#888" p={4} textAlign="center">
@@ -307,8 +283,8 @@ export default function ProfileFeedbackPage() {
             )}
           </Grid>
         )}
-      </div>
-      <div className="sidebarSpacer"></div>
-    </div>
+      </Box>
+      <Box className="sidebarSpacer" />
+    </Box>
   );
 }

@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import TextField from "@mui/material/TextField";
+import { Link as RouterLink } from "react-router-dom";
 // Material Web button imports
 import '@material/web/button/filled-tonal-button.js';
 import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
 import EditIcon from "@mui/icons-material/Edit";
 import TelegramConnect from "../components/TelegramConnect";
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
+import {
+  Breadcrumbs,
+  Link as MuiLink,
+  Typography,
+} from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -92,11 +98,18 @@ export default function Profile() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
+      // Only send the fields that backend actually uses
+      const profileData = {
+        username: editableUser.username,
+        phone_number: editableUser.phone_number,
+        address: editableUser.address
+      };
+      
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(editableUser),
+        body: JSON.stringify(profileData),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
@@ -117,7 +130,37 @@ export default function Profile() {
     <div className="dashboardCanvas">
     <div className="sidebarSpacer"></div>
     <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+          width: '100%',
+          // make all links and the final Typography 16px
+          '& a, & .MuiTypography-root': {
+            fontSize: '16px',
+          }
+        }}>
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <Typography color="text.primary">Account Settings</Typography>
+        </Breadcrumbs>
+        <div style={{ width: '100%' , padding: '16px'}}>
+          <Button
+              variant="outlined"
+              onClick={() => navigate(`/feedback/${user.id}`)}
+              sx={{
+                  borderRadius: "999px",
+                  borderColor: "grey.400",
+                  color: "grey.500",
+                  textTransform: "none",
+                  "&:hover": { borderColor: "grey.600" },
+                  fontSize: "16px",
+                }}
+          >
+              Public Profile
+          </Button>
+        </div>
+       
+
         <div id="middleTitle" className="profileTitle">Hello,<br></br>{user.username}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
