@@ -1,5 +1,6 @@
 # File: main.py
 
+import functions_framework
 from logger import logger
 from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT
 from telegram import BotCommand
@@ -19,7 +20,8 @@ async def set_commands(application):
     
     await application.bot.set_my_commands(commands)
 
-def main():
+@functions_framework.http
+def main(request):
     if not TELEGRAM_BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
