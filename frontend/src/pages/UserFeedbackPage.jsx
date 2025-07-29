@@ -20,8 +20,6 @@ export default function UserFeedback(){
     // Debug log
     console.log("auctionId :" + parseInt(auctionId));
 
-
- 
     const [userRating, setUserRating] = useState(5);
     const [userComments, setUserComments] = useState("");
     const [msg, setMsg] = useState("");

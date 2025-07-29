@@ -4,12 +4,13 @@ import {
   hasSubmittedFeedback,
   getAllWebsiteFeedback as fetchFeedback,
   getLatestWebsiteFeedback,
-  createFeedback,
+  submitFeedback,
   getFeedbackForUser,
   getFeedbackForAuction,
   hasFeedback,
   getUserRatings as fetchUserRatings,
-  retrieveWinnerInfo as fetchWinnerInfo
+  retrieveWinnerInfo as fetchWinnerInfo,
+  updateUserRatings
 } from "../models/feedbackModel.js";
 
 // POST   /feedback
@@ -116,7 +117,7 @@ export async function postAuctionFeedback(req, res) {
     }
 
     // Create feedback
-    const feedback = await createFeedback({
+    const feedback = await submitFeedback({
       author_id,
       recipient_id,
       auction_id,
@@ -124,6 +125,9 @@ export async function postAuctionFeedback(req, res) {
       user_ratings,
       user_comments
     });
+
+    // Update recipient's rating summary after new feedback
+    await updateUserRatings(recipient_id, user_ratings);
 
       res.status(201).json(feedback[0]);
     } catch (err) {

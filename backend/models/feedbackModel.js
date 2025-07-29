@@ -1,6 +1,7 @@
 // models/feedbackModel.js
 import { sql } from "../utils/db.js";
 
+// Create Website Feedback
 export async function insertWebsiteFeedback(user_id, website_ratings, website_comments) {
   return await sql`
     INSERT INTO website_feedback (user_id, website_ratings, website_comments)
@@ -8,6 +9,7 @@ export async function insertWebsiteFeedback(user_id, website_ratings, website_co
   `;
 }
 
+// Checking for submitted feedback previously
 export async function hasSubmittedFeedback(user_id) {
   const result = await sql`
     SELECT 1 FROM website_feedback WHERE user_id = ${user_id} LIMIT 1
@@ -15,6 +17,7 @@ export async function hasSubmittedFeedback(user_id) {
   return result.length > 0;
 }
 
+// Get All Website Feedback
 export async function getAllWebsiteFeedback(sortOption = "latest") {
   let orderByClause;
 
@@ -40,6 +43,7 @@ export async function getAllWebsiteFeedback(sortOption = "latest") {
   `;
 }
 
+// Get Latest Website Feedback
 export async function getLatestWebsiteFeedback() {
   return await sql`
     SELECT
@@ -56,11 +60,18 @@ export async function getLatestWebsiteFeedback() {
   `;
 }
 
-// User auction feedback
-export async function createFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments }) {
+// Submit User Auction Feedback
+export async function submitFeedback({ author_id, recipient_id, auction_id, author_role, user_ratings, user_comments }) {
   return await sql`
-    INSERT INTO user_feedback (author_id, recipient_id, auction_id, author_role, user_ratings, user_comments)
-    VALUES (${author_id}, ${recipient_id}, ${auction_id}, ${author_role}, ${user_ratings}, ${user_comments})
+    UPDATE user_feedback
+    SET 
+      user_ratings = ${user_ratings},
+      user_comments = ${user_comments},
+      status = 'completed'
+    WHERE author_id = ${author_id}
+      AND recipient_id = ${recipient_id}
+      AND auction_id = ${auction_id}
+      AND author_role = ${author_role}
     RETURNING *;
   `;
 }
@@ -106,25 +117,28 @@ export async function retrieveWinnerInfo(auction_id){
     `;
 }
 
-// Function not used yet
-export async function updateUserRatings(userId, avgRating, totalReviews, totalRatingPoints) {
-   return await sql`
+// Update recipient's rating summary after new feedback
+export async function updateUserRatings(recipient_id) {
+  return await sql`
+    INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
     SELECT
-    recipient_id AS user_id,
-    ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
-    COUNT(*) AS total_reviews,
-    SUM(user_ratings) AS total_rating_points,
-    CURRENT_TIMESTAMP
+      recipient_id AS user_id,
+      ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
+      COUNT(*) AS total_reviews,
+      SUM(user_ratings) AS total_rating_points,
+      CURRENT_TIMESTAMP
     FROM user_feedback
+    WHERE recipient_id = ${recipient_id}
     GROUP BY recipient_id
     ON CONFLICT (user_id) DO UPDATE 
     SET 
         avg_rating = EXCLUDED.avg_rating,
         total_reviews = EXCLUDED.total_reviews,
         total_rating_points = EXCLUDED.total_rating_points,
-        updated_at = CURRENT_TIMESTAMP;
+        updated_at = EXCLUDED.updated_at;
   `;
 }
+
 
 
 /*INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
