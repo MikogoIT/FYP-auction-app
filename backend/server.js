@@ -5,7 +5,7 @@ import { dirname } from "path";
 import { neon } from "@neondatabase/serverless";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import cors from "cors";
+import { GoogleAuth } from 'google-auth-library';
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -141,7 +141,7 @@ app.use("/api", userRoutes);
 
 //-------------------TEST telegram bot api --------//
 
-// import { GoogleAuth } from 'google-auth-library';
+
 
 // const FUNCTION_URL = process.env.TELEGRAM_FUNCTION_URL;
 

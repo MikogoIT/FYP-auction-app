@@ -63,31 +63,40 @@ export default function HeaderWithDrawer({ window }) {
       .catch(() => setIsAdmin(false));
   }, [pathname]);
 
-  // Poll backend for unread notifications every 5s
-  useEffect(() => {
-    let mounted = true;
+// Poll backend for unread notifications every 5s, but stop after 3 failures
+useEffect(() => {
+  let mounted = true;
+  let failureCount = 0;
+  let intervalId;
 
     const fetchUnread = async () => {
       try {
-        const res = await fetch('/api/getnotif', {
-          credentials: 'include',
-        });
+        const res = await fetch('/api/getnotif', { credentials: 'include' });
         if (!res.ok) throw new Error('Network error');
         const { unread } = await res.json();
-        if (mounted) setUnreadCount(unread);
+        if (mounted) {
+          setUnreadCount(unread);
+          failureCount = 0;           // reset on success
+        }
       } catch (err) {
         console.error('Failed to fetch unread count', err);
+        failureCount += 1;
+        if (failureCount >= 3) {
+          console.warn('Stopping polling after 3 failures');
+          clearInterval(intervalId);
+        }
       }
     };
 
     fetchUnread();
-    const intervalId = setInterval(fetchUnread, 5000);
+    intervalId = setInterval(fetchUnread, 5000);
 
     return () => {
       mounted = false;
       clearInterval(intervalId);
     };
   }, []);
+
 
   const handleDrawerToggle = () => setMobileOpen(o => !o);
   const handleLogoClick   = () => navigate(isLoggedIn ? '/dashboard' : '/');
