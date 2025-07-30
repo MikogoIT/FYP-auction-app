@@ -173,7 +173,7 @@ terraform:
 
   script:
     - terraform init
-    - terraform state push -ignore-remote-version -force tryagain.tfstate
+    # - terraform state push -ignore-remote-version -force tryagain.tfstate
     - terraform apply -auto-approve
   
   rules:
