@@ -11,6 +11,19 @@ from handlers import (
 )
 from jobs import poll_and_post_listings, poll_notifications
 import asyncio
+import requests
+
+def set_telegram_webhook():
+    if not TELEGRAM_BOT_TOKEN or not WEBHOOK_URL:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN or WEBHOOK_URL not set")
+    
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook"
+    response = requests.post(url, json={"url": WEBHOOK_URL})
+    
+    if response.status_code == 200:
+        logger.info("Telegram webhook set: %s", response.json())
+    else:
+        logger.error("Failed to set Telegram webhook: %s", response.text)
 
 async def set_commands(application):
     commands = [
@@ -62,14 +75,19 @@ async def start_bot():
     # Start the bot and webhook manually
     await application.start()
     
+    logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
+    
+    # Set Telegram webhook once per deploy/startup
+    logger.info("Setting Telegram webhook...")
+    set_telegram_webhook()
+    
     # Start webhook listener
     await application.updater.start_webhook(
         listen="0.0.0.0",
         port=PORT,
         webhook_url=WEBHOOK_URL,
+        url_path="/webhook",
     )
-    
-    logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
     
     # Keep the application running until Cloud Run shuts it down
     await application.updater.idle()
