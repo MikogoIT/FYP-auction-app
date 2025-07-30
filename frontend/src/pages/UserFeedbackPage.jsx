@@ -1,10 +1,16 @@
 // src/pages/UserFeedback.jsx
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Box, Rating, TextField, Typography, Avatar, Breadcrumbs,
-  Link as MuiLink, } from "@mui/material";
-
+import { useParams, Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Rating,
+  TextField,
+  Typography,
+  Avatar,
+  Breadcrumbs,
+  Link as MuiLink,
+} from "@mui/material";
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
@@ -110,14 +116,20 @@ export default function UserFeedback() {
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{
-            width: '100%',
-            // make all links and the final Typography 16px
-            '& a, & .MuiTypography-root': {
-                fontSize: '16px',
-          }
-        }}>
-          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
+        <Breadcrumbs
+          aria-label="breadcrumb"
+          sx={{
+            width: "100%",
+            mb: 3,
+            "& a, & .MuiTypography-root": { fontSize: "16px" },
+          }}
+        >
+          <MuiLink
+            component={RouterLink}
+            to="/dashboard"
+            underline="hover"
+            color="inherit"
+          >
             Home
           </MuiLink>
           <Typography color="text.primary">User review</Typography>
@@ -125,15 +137,18 @@ export default function UserFeedback() {
         <div id="wideTitle" className="profileTitle">
           Write review for {sellerUsername}
         </div>
+
+        {/* Auction cover image */}
         {coverImageUrl && (
-          <Box mb={3}>
+          <Box mb={3} textAlign="center">
             <img
               src={coverImageUrl}
               alt="Auction cover"
-              style={{ width: "100%", maxHeight: 200, objectFit: "cover" }}
+              style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8 }}
             />
           </Box>
         )}
+
         <Box display="flex" gap={4} mb={4} justifyContent="center">
           <Box textAlign="center">
             <Typography variant="subtitle1">Seller</Typography>
@@ -145,7 +160,7 @@ export default function UserFeedback() {
             <Typography>{sellerUsername}</Typography>
           </Box>
           <Box textAlign="center">
-            <Typography variant="subtitle1">Buyer</Typography>
+            <Typography variant="subtitle1">Auction Winner</Typography>
             <Avatar
               src={buyerProfileImageUrl}
               alt={buyerUsername}
@@ -154,8 +169,6 @@ export default function UserFeedback() {
             <Typography>{buyerUsername}</Typography>
           </Box>
         </Box>
-
-        
 
         <form onSubmit={handleSubmit}>
           <Box mb={2} display="flex" alignItems="center" gap={1}>
@@ -210,11 +223,7 @@ export default function UserFeedback() {
             <Typography
               variant="body2"
               align="center"
-              sx={{
-                mt: 2,
-                fontWeight: 600,
-                color: msg.startsWith("✅") ? "success.main" : "error.main",
-              }}
+              sx={{ mt: 2, fontWeight: 600, color: msg.startsWith("✅") ? "success.main" : "error.main" }}
               aria-live="polite"
             >
               {msg}
