@@ -333,7 +333,7 @@ export async function getAuctionPeopleController(req, res) {
         username: seller_username,
         profileImageUrl: seller_profile_image_url,
       },
-      coverImageUrl: auction_cover_image_url,
+      coverImageUrl: auction_image_url,
     });
   } catch (err) {
     console.error("Fetch auction people error:", err);
