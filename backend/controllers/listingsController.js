@@ -321,7 +321,7 @@ export async function getAuctionPeopleController(req, res) {
       buyer_profile_image_url,
       seller_username,
       seller_profile_image_url,
-      auction_cover_image_url,
+      auction_image_url,
     } = rows[0];
 
     res.json({
