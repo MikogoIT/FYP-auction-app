@@ -8,7 +8,8 @@ export async function insertBid(buyerId, auctionId, bidAmount) {
     ON CONFLICT (buyer_id, auction_id)
     DO UPDATE SET
       bid_amount = EXCLUDED.bid_amount,
-      updated_at = CURRENT_TIMESTAMP
+      updated_at = CURRENT_TIMESTAMP,
+      status = 'pending'
     RETURNING *;
   `;
 }
@@ -54,8 +55,6 @@ export async function deleteUserBid(buyerId, bidId) {
   `;
 }
 
-// models/bidModel.js
-
 export async function getBidsOnUserListings(sellerId) {
   return await sql`
     SELECT
@@ -84,5 +83,16 @@ export async function getBidsOnUserListings(sellerId) {
 
     WHERE a.seller_id = ${sellerId}
     ORDER BY b.created_at DESC
+  `;
+}
+
+// Mark all other bids as outbid
+export async function markOthersOutbid(auctionId, buyerId) {
+  return await sql`
+    UPDATE bids
+    SET status = 'outbid', updated_at = CURRENT_TIMESTAMP
+    WHERE auction_id = ${auctionId}
+      AND buyer_id <> ${buyerId}
+      AND status != 'outbid';
   `;
 }

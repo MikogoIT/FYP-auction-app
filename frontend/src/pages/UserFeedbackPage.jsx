@@ -1,9 +1,8 @@
 // src/pages/UserFeedbackPage.jsx
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Rating, TextField, Typography } from "@mui/material";
-
+import { useParams } from "react-router-dom";
+import { Box, Rating, TextField, Typography } from "@mui/material";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 
@@ -16,13 +15,12 @@ function countWords(text) {
 }
 const MAX_WORDS = 100;
 
-export default function UserFeedback({
-  auctionId,
-  recipientId,
-  authorRole = "Buyer",
-}) {
+export default function UserFeedback(){
+    const { auctionId } = useParams(); // ← gets :auctionId from the URL
+    // Debug log
+    console.log("auctionId :" + parseInt(auctionId));
 
-  const [userRating, setUserRating] = useState(5);
+    const [userRating, setUserRating] = useState(5);
     const [userComments, setUserComments] = useState("");
     const [msg, setMsg] = useState("");
     const [loading, setLoading] = useState(false);
@@ -47,8 +45,8 @@ export default function UserFeedback({
           credentials: "include",
           body: JSON.stringify({
             auction_id: auctionId,
-            recipient_id: recipientId,
-            author_role: authorRole,
+            //recipient_id: recipientId,
+            //author_role: authorRole,
             user_ratings: userRating,
             user_comments: userComments,
           }),
@@ -61,7 +59,6 @@ export default function UserFeedback({
           setMsg("✅ Thank you for your feedback!");
           setSubmitted(true);
           setUserComments("");
-          if (onSuccess) onSuccess();
         } else {
           setMsg(
             "❌ " + (data.error || data.message || "Failed to submit feedback."),

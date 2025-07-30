@@ -80,6 +80,11 @@ export async function createBid(req, res) {
         ORDER BY bid_amount DESC, created_at ASC
         LIMIT 1
       `;
+
+      // Mark all other bids as outbid
+      await bidModel.markOthersOutbid(auction_id, userId);
+
+      // Insert or update new bid
       const result = await bidModel.insertBid(userId, auction_id, bid_amount);
 
       // Notify outbid user
@@ -89,6 +94,7 @@ export async function createBid(req, res) {
           auction_id,
           `[outbid] Your bid for "${auctionTitle}" has been outbid.`
         );
+
       }
       return res.status(201).json({ bid: result[0] });
 

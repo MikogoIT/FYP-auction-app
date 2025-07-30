@@ -181,7 +181,7 @@ export default function Landing() {
       <Box className="gridCanvas">
         <h1 className="feedbackHeading">What Our Users Are Saying</h1>
         <div className="viewAll">
-          <Link to="/feedbacklist">View all</Link>
+          <Link to="/feedback-list">View all</Link>
         </div>
         <Box className="gridContainer">
           {feedback.map(fb => (

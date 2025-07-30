@@ -44,7 +44,7 @@ import Footer from "./components/Footer";
 
 
 
-const hideDrawerRoutes = ["/", "/login", "/register", "/feedbacklist", "/admin", "/admin/categoryadmin"];
+const hideDrawerRoutes = ["/", "/login", "/register", "/feedback-list", "/admin", "/admin/categoryadmin"];
 
 function AppRoutes({ isApiRoute }) {
   const { pathname } = useLocation();
@@ -58,7 +58,7 @@ function AppRoutes({ isApiRoute }) {
 
 
         <Routes>
-           <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -78,8 +78,8 @@ function AppRoutes({ isApiRoute }) {
             <Route path="/Contact" element={<ContactPage />} />
             <Route path="/Watchlist" element={<WatchedListings />} />
             <Route path="/feedback" element={<FeedbackForm />} />
-            <Route path="/feedbacklist" element={<FeedbackList />} />
-            <Route path="/feedbackuser" element={<UserFeedback />} />
+            <Route path="/feedback-list" element={<FeedbackList />} />
+            <Route path="/feedback-user/:auctionId" element={<UserFeedback />} />
             <Route path="/notif" element={<Notif />} />
             <Route path="/feedback/:userId" element={<ProfileFeedbackPage />} />
             <Route path="/mylistings/MyListingsBids" element={<MyListingsBids />} />
