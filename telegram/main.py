@@ -1,7 +1,7 @@
 # File: main.py
 
 from logger import logger
-from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT
+from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT, BOT_SECRET
 from telegram import BotCommand
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from handlers import (
@@ -88,6 +88,7 @@ async def start_bot():
             port=PORT,
             webhook_url=WEBHOOK_URL,
             url_path="/webhook",
+            secret_token=BOT_SECRET,
         )
     except Exception as e:
         logger.error("Bot crashed with error: %s", e)
