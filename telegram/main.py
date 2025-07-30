@@ -58,43 +58,44 @@ async def start_bot():
     # Set auto-complete commands after bot initializes
     await set_commands(application)
 
-    logger.info("Bot initializing webhook...")
+    try:
+        logger.info("Bot initializing webhook...")
 
-    # # Schedule listing poster every 5 minutes (300 seconds)
-    # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
-    
-    # # Schedule notification poster every 1min (60 seconds)
-    # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
+        # # Schedule listing poster every 5 minutes (300 seconds)
+        # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
+        
+        # # Schedule notification poster every 1min (60 seconds)
+        # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
 
-    # logger.info("Bot started with polling listing poster and notifications job.")
-    # application.run_polling()
-    
-    # Initialize first
-    await application.initialize()
-    
-    # Start the bot and webhook manually
-    await application.start()
-    
-    logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
-    
-    # Set Telegram webhook once per deploy/startup
-    logger.info("Setting Telegram webhook...")
-    set_telegram_webhook()
-    
-    # Start webhook listener
-    await application.updater.start_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        webhook_url=WEBHOOK_URL,
-        url_path="/webhook",
-    )
-    
-    # Keep the application running until Cloud Run shuts it down
-    await application.updater.idle()
-    
-    # Cleanup on shutdown
-    await application.stop()
-    logger.info("Bot stopped gracefully.")
+        # logger.info("Bot started with polling listing poster and notifications job.")
+        # application.run_polling()
+        
+        # Initialize first
+        await application.initialize()
+        
+        # Start the bot and webhook manually
+        await application.start()
+        
+        logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
+        
+        # Set Telegram webhook once per deploy/startup
+        logger.info("Setting Telegram webhook...")
+        set_telegram_webhook()
+        
+        # Start webhook listener
+        await application.updater.start_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            webhook_url=WEBHOOK_URL,
+            url_path="/webhook",
+        )
+    except Exception as e:
+        logger.error("Bot crashed with error: %s", e)
+    finally:
+        logger.info("Shutting down bot gracefully...")
+        await application.updater.stop()
+        await application.stop()
+        await application.shutdown()
     
 if __name__ == "__main__":
     asyncio.run(start_bot())
