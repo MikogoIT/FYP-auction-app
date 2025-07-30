@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Rating, TextField, Typography, Avatar } from "@mui/material";
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
+import { Box, Rating, TextField, Typography, Avatar, Breadcrumbs,
+  Link as MuiLink, } from "@mui/material";
+
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
@@ -108,7 +109,22 @@ export default function UserFeedback() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+            width: '100%',
+            // make all links and the final Typography 16px
+            '& a, & .MuiTypography-root': {
+                fontSize: '16px',
+          }
+        }}>
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <Typography color="text.primary">User review</Typography>
+        </Breadcrumbs>
+        <div id="wideTitle" className="profileTitle">
+          Write review for {sellerUsername}
+        </div>
         {coverImageUrl && (
           <Box mb={3}>
             <img
@@ -139,9 +155,7 @@ export default function UserFeedback() {
           </Box>
         </Box>
 
-        <div id="wideTitle" className="profileTitle">
-          Write review for {sellerUsername}
-        </div>
+        
 
         <form onSubmit={handleSubmit}>
           <Box mb={2} display="flex" alignItems="center" gap={1}>
