@@ -18,7 +18,12 @@ def set_telegram_webhook():
         raise RuntimeError("TELEGRAM_BOT_TOKEN or WEBHOOK_URL not set")
     
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook"
-    response = requests.post(url, json={"url": WEBHOOK_URL})
+    data = {
+        "url": WEBHOOK_URL,
+        "secret_token": BOT_SECRET,
+    }
+    
+    response = requests.post(url, json=data)
     
     if response.status_code == 200:
         logger.info("Telegram webhook set: %s", response.json())
