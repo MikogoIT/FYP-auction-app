@@ -1,7 +1,6 @@
 // routes/listingRoutes.js
 import express from "express";
 import * as listingsController from "../controllers/listingsController.js";
-import { getAuctionPeopleController } from "../controllers/auctionController.js";
 import { requireLogin } from "../utils/requireLogin.js";
 
 const router = express.Router();
@@ -12,7 +11,7 @@ router.get("/listings", listingsController.getAllListings);
 router.get("/listings/:id", listingsController.getListing);
 
 // ← New route to fetch buyer/seller info + cover image
-router.get("/listings/:id/people", getAuctionPeopleController);
+router.get("/listings/:id/people", listingsController.getAuctionPeopleController);
 
 router.put("/listings/:id", listingsController.putListing);
 router.delete("/listings/:id", listingsController.deleteListingById);
