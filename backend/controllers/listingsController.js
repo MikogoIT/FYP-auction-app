@@ -8,7 +8,8 @@ import {
   deleteListing,
   getMyListings,
   getListingsWithFilters,
-  getCurrentDescendingPrice
+  getCurrentDescendingPrice,
+  getAuctionPeople 
 } from "../models/listingsModel.js";
 import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
 import { sql } from "../utils/db.js";
@@ -302,3 +303,40 @@ export async function uplListingImg(req, res) {
   });
 }
 
+
+// GET /listings/:id/people
+export async function getAuctionPeopleController(req, res) {
+  try {
+    const auctionId = req.params.id;
+    const rows = await getAuctionPeople(auctionId);
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Auction or participants not found" });
+    }
+
+    const {
+      buyer_username,
+      buyer_profile_image_url,
+      seller_username,
+      seller_profile_image_url,
+      auction_cover_image_url,
+    } = rows[0];
+
+    res.json({
+      buyer: {
+        username: buyer_username,
+        profileImageUrl: buyer_profile_image_url,
+      },
+      seller: {
+        username: seller_username,
+        profileImageUrl: seller_profile_image_url,
+      },
+      coverImageUrl: auction_cover_image_url,
+    });
+  } catch (err) {
+    console.error("Fetch auction people error:", err);
+    res.status(500).json({ message: "Failed to fetch auction participants" });
+  }
+}
