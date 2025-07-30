@@ -417,10 +417,10 @@ resource "google_cloud_run_v2_service" "tele_bot" {
         value = 8443
       }
 
-      # env {
-      #   name  = "WEBHOOK_URL"
-      #   value = "${google_cloud_run_v2_service.tele_bot.uri}/webhook"
-      # }
+      env {
+        name  = "WEBHOOK_URL"
+        value = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook"
+      }
 
       resources {
         limits = {
@@ -434,9 +434,4 @@ resource "google_cloud_run_v2_service" "tele_bot" {
   depends_on = [
     google_project_service.run_api
   ]
-}
-
-output "tele_bot_url" {
-  description = "Public URL of the Telegram bot Cloud Run service"
-  value       = google_cloud_run_v2_service.tele_bot.uri
 }
