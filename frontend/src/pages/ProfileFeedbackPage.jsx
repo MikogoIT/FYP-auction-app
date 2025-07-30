@@ -1,312 +1,255 @@
-// src/pages/ProfileFeedbackPage.jsx
+// src/pages/UserFeedback.jsx
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import {
-  Avatar,
   Box,
-  Grid,
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
   Rating,
-  CircularProgress,
+  TextField,
+  Typography,
+  Avatar,
   Breadcrumbs,
   Link as MuiLink,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+
+// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-// Helper for star rating (using MUI's Rating for consistency)
-function StarRating({ rating, size = "medium", readOnly = true }) {
-  return (
-    <Rating
-      value={rating}
-      max={5}
-      readOnly={readOnly}
-      size={size}
-      precision={1}
-      sx={{ color: "#f5a623" }}
-    />
-  );
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
 }
+const MAX_WORDS = 100;
 
-export default function ProfileFeedbackPage() {
-  const { userId } = useParams();
-  const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null);
-  const [ratingInfo, setRatingInfo] = useState(null);
-  const [filter, setFilter] = useState("All");
-  const [sort, setSort] = useState("Newest");
-  const [authorInfo, setAuthorInfo] = useState({});
-  const [loading, setLoading] = useState(true);
+export default function UserFeedback() {
+  const { auctionId } = useParams();
+  console.log("UserFeedbackPage mounted with auctionId:", auctionId);
+
+  // Feedback form state
+  const [userRating, setUserRating] = useState(5);
+  const [userComments, setUserComments] = useState("");
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const wordCount = countWords(userComments);
+
+  // Auction metadata state
+  const [listingTitle, setListingTitle] = useState("");
+  const [buyerId, setBuyerId] = useState(null);
+  const [buyerUsername, setBuyerUsername] = useState("");
+  const [buyerProfileImageUrl, setBuyerProfileImageUrl] = useState("");
+  const [sellerId, setSellerId] = useState(null);
+  const [sellerUsername, setSellerUsername] = useState("");
+  const [sellerProfileImageUrl, setSellerProfileImageUrl] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
 
   useEffect(() => {
-    async function fetchFeedback(userId) {
-      setLoading(true);
+    async function fetchPeople() {
       try {
-        // Fetch User Profile
-        const userRes = await fetch(`/api/users/${userId}`);
-        const userData = await userRes.json();
-        if (!userRes.ok) throw new Error(userData.message);
-        setUser(userData);
-       // console.log("Fetched user:", userData);
-
-        // Fetch User Profile Ratings
-        const ratingRes = await fetch(`/api/feedback/ratings/${userId}`);
-        const ratingData = await ratingRes.json();
-        if (!ratingRes.ok) throw new Error(ratingData.message);
-        setRatingInfo(ratingData);
-        //console.log("Fetched user:", ratingData);
-
-        // Fetch Reviews
-        const fbRes = await fetch(`/api/feedback/user/${userId}`);
-        const fbData = await fbRes.json();
-        if (!fbRes.ok) throw new Error(fbData.message);
-        setReviews(fbData);
-        //console.log("Fetched reviews:", fbData);
-
-        // Fetch Author Review Info
-        const authorIds = [...new Set(fbData.map((r) => r.author_id))];
-        const authorInfoEntries = await Promise.all(
-          authorIds.map(async (id) => {
-            const res = await fetch(`/api/users/${id}`);
-            const data = await res.json();
-            return [id, data];
-          }),
-        );
-        setAuthorInfo(Object.fromEntries(authorInfoEntries));
-        //console.log("Unique author IDs:", authorIds);
+        const res = await fetch(`/api/listings/${auctionId}/people`, {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const data = await res.json();
+        console.log("Auction people data:", data);
+        setListingTitle(data.listingTitle);
+        setBuyerId(data.buyer.id);
+        setBuyerUsername(data.buyer.username);
+        setBuyerProfileImageUrl(data.buyer.profileImageUrl);
+        setSellerId(data.seller.id);
+        setSellerUsername(data.seller.username);
+        setSellerProfileImageUrl(data.seller.profileImageUrl);
+        setCoverImageUrl(data.coverImageUrl);
       } catch (err) {
-        console.error("Failed to load Page:", err);
-        setUser(null);
-        setRatingInfo(null);
-        setReviews([]);
-        setAuthorInfo({});
-      } finally {
-        setLoading(false);
+        console.error("Error fetching auction people:", err);
       }
     }
-    if (userId) {
-      fetchFeedback(userId);
+    fetchPeople();
+  }, [auctionId]);
+
+  const handleCommentChange = (e) => {
+    const value = e.target.value;
+    if (countWords(value) <= MAX_WORDS) {
+      setUserComments(value);
     }
-  }, [userId]);
+  };
 
-  // Filter reviews
-  const filteredReviews =
-    filter === "All"
-      ? reviews
-      : reviews.filter((r) => r.author_role === filter.slice(0, -1));
-
-  // Sort reviews
-  const sortedReviews = [...filteredReviews].sort((a, b) => {
-    if (sort === "Newest")
-      return new Date(b.created_at) - new Date(a.created_at);
-    if (sort === "Oldest")
-      return new Date(a.created_at) - new Date(b.created_at);
-    if (sort === "Highest Rating") return b.user_ratings - a.user_ratings;
-    if (sort === "Lowest Rating") return a.user_ratings - b.user_ratings;
-    return 0;
-  });
-
-  // Calculate average rating
-  const ratingScore = ratingInfo?.avg_rating ?? "N/A";
-  const numReviews = ratingInfo?.total_reviews ?? 0;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Submitting feedback payload:", {
+      auction_id: auctionId,
+      user_ratings: userRating,
+      user_comments: userComments,
+    });
+    setLoading(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/feedback/auction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          auction_id: auctionId,
+          user_ratings: userRating,
+          user_comments: userComments,
+        }),
+      });
+      console.log("Fetch response status:", res.status);
+      const data = await res.json();
+      console.log("API response data:", data);
+      if (res.status === 409) {
+        setMsg("You have already submitted your feedback!");
+        setSubmitted(true);
+      } else if (res.ok) {
+        setMsg("✅ Thank you for your feedback!");
+        setSubmitted(true);
+        setUserComments("");
+      } else {
+        setMsg(
+          "❌ " + (data.error || data.message || "Failed to submit feedback."),
+        );
+      }
+    } catch (err) {
+      console.error("Error during feedback submission:", err);
+      setMsg("❌ Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{
-            width: '100%',
-            // make all links and the final Typography 16px
-            '& a, & .MuiTypography-root': {
-                fontSize: '16px',
-          }
-        }}>
-          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
-            Home
-          </MuiLink>
-          <Typography color="text.primary">Public Profile</Typography>
-        </Breadcrumbs>
-        {/* Profile Name and Ratings Header */}
-          <div className="profileTitle">{user?.username}'s Profile</div>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Avatar
-              src={user?.profile_image_url || undefined}
-              sx={{
-                width: 80,
-                height: 80,
-                mr: 3,
-                border: "2px solid #eee",
-              }}
-              alt="User Avatar"
-            />
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <StarRating
-                    rating={Math.round(ratingInfo?.avg_rating ?? 0)}
-                    size="large"
-                />
-                <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
-                  {ratingScore !== "N/A"
-                    ? Number(ratingScore).toFixed(1)
-                    : "N/A"}
-                </Typography>
-              </Box>
-              <Typography color="text.secondary" fontSize={16}>
-                {numReviews} Review{numReviews !== 1 ? "s" : ""}
-              </Typography>
-              <Typography fontSize={16}>{user?.email || ""}</Typography>
-            </Box>
-          </Box>
-
-        
-        {/* Filters and Sorting */}
-        <Box
+        <Breadcrumbs
+          aria-label="breadcrumb"
           sx={{
-            display: "flex",
-            flexWrap: "wrap",            // allow the two boxes to wrap as a group
-            justifyContent: "space-between",
-            alignItems: "center",
+            width: "100%",
             mb: 3,
+            "& a, & .MuiTypography-root": { fontSize: "16px" },
           }}
         >
-          {/* 1️⃣ Always‑nowrap filters */}
-          <Box sx={{ whiteSpace: "nowrap" }}>
-            {filter === "All" ? (
-              <md-filled-button
-                onClick={() => setFilter("All")}
-                sx={{ mr: 1 }}
-              >
-                All Reviews
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button
-                onClick={() => setFilter("All")}
-                sx={{ mr: 1 }}
-              >
-                All Reviews
-              </md-filled-tonal-button>
-            )}
+          <MuiLink
+            component={RouterLink}
+            to="/dashboard"
+            underline="hover"
+            color="inherit"
+          >
+            Home
+          </MuiLink>
+          <Typography color="text.primary">User review</Typography>
+        </Breadcrumbs>
 
-            {filter === "Buyers" ? (
-              <md-filled-button
-                onClick={() => setFilter("Buyers")}
-                sx={{ mr: 1 }}
-              >
-                From Buyers
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button
-                onClick={() => setFilter("Buyers")}
-                sx={{ mr: 1 }}
-              >
-                From Buyers
-              </md-filled-tonal-button>
-            )}
-
-            {filter === "Sellers" ? (
-              <md-filled-button onClick={() => setFilter("Sellers")}>
-                From Sellers
-              </md-filled-button>
-            ) : (
-              <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
-                From Sellers
-              </md-filled-tonal-button>
+        {/* Auction cover image & title */}
+        {coverImageUrl && (
+          <Box mb={3} textAlign="center">
+            <img
+              src={coverImageUrl}
+              alt="Auction cover"
+              style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8 }}
+            />
+            {listingTitle && (
+              <Typography variant="h6" sx={{ mt: 1 }}>
+                {listingTitle}
+              </Typography>
             )}
           </Box>
+        )}
 
-          {/* 2️⃣ The dropdown can wrap below when needed */}
-          <Box sx={{ mt: { xs: 1, sm: 0 } }}>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              style={{
-                padding: "8px 12px",
-                borderRadius: 6,
-                border: "1px solid #ccc",
-                fontSize: 16,
-              }}
-            >
-              <option>Newest</option>
-              <option>Oldest</option>
-              <option>Highest Rating</option>
-              <option>Lowest Rating</option>
-            </select>
-          </Box>
+        {/* Seller and Buyer sections with links to profiles */}
+        <Box display="flex" gap={4} mb={4} justifyContent="center">
+          <MuiLink
+            component={RouterLink}
+            to={sellerId ? `/feedback/${sellerId}` : '#'}
+            underline="none"
+            color="inherit"
+          >
+            <Box textAlign="center">
+              <Typography variant="subtitle1">Seller</Typography>
+              <Avatar
+                src={sellerProfileImageUrl}
+                alt={sellerUsername}
+                sx={{ width: 56, height: 56, mx: "auto" }}
+              />
+              <Typography>{sellerUsername}</Typography>
+            </Box>
+          </MuiLink>
+
+          <MuiLink
+            component={RouterLink}
+            to={buyerId ? `/feedback/${buyerId}` : '#'}
+            underline="none"
+            color="inherit"
+          >
+            <Box textAlign="center">
+              <Typography variant="subtitle1">Auction Winner</Typography>
+              <Avatar
+                src={buyerProfileImageUrl}
+                alt={buyerUsername}
+                sx={{ width: 56, height: 56, mx: "auto" }}
+              />
+              <Typography>{buyerUsername}</Typography>
+            </Box>
+          </MuiLink>
         </Box>
 
-        {/* Reviews List */}
-        {loading ? (
-          <Box sx={{ textAlign: "center", py: 6 }}>
-            <CircularProgress />
+        <form onSubmit={handleSubmit}>
+          <Box mb={2} display="flex" alignItems="center" gap={1}>
+            <Rating
+              name="userRating"
+              id="userRating"
+              value={userRating}
+              onChange={(_, value) => setUserRating(value)}
+              readOnly={submitted || loading}
+              size="large"
+            />
           </Box>
-        ) : (
-          <Grid container spacing={3} sx={{ maxWidth: 1000 }}>
-            {sortedReviews.length === 0 ? (
-              <Grid item xs={12}>
-                <Box color="#888" p={4} textAlign="center">
-                  No reviews to display.
-                </Box>
-              </Grid>
-            ) : (
-              sortedReviews.map((review) => {
-                const author = authorInfo[review.author_id];
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={review.id}>
-                    <Card variant="outlined" sx={{ bgcolor: "#fafafa" }}>
-                      <CardHeader
-                        avatar={
-                          <Avatar
-                            src={author?.profile_image_url}
-                            alt={author?.username || "User"}
-                          />
-                        }
-                        title={
-                          <Typography variant="subtitle1" fontWeight={600}>
-                            {author?.username || "User"}
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ ml: 1 }}
-                            >
-                              ({review.author_role})
-                            </Typography>
-                          </Typography>
-                        }
-                        subheader={
-                          <Box display="flex" alignItems="center">
-                            <StarRating
-                              rating={review.user_ratings}
-                              size="small"
-                            />
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ ml: 1 }}
-                            >
-                              {new Date(review.created_at).toLocaleDateString()}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                      <CardContent>
-                        <Typography variant="body2">
-                          {review.user_comments}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })
-            )}
-          </Grid>
-        )}
+
+          <TextField
+            label="Review"
+            placeholder="Share your feedback about this user..."
+            multiline
+            rows={6}
+            fullWidth
+            variant="outlined"
+            value={userComments}
+            onChange={handleCommentChange}
+            disabled={submitted || loading}
+          />
+
+          <Box display="flex" justifyContent="flex-end" mt={1}>
+            <Typography variant="caption" color="text.secondary">
+              {wordCount} / {MAX_WORDS} words
+              {wordCount >= MAX_WORDS && (
+                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1 }}>
+                  (Word limit reached)
+                </Typography>
+              )}
+            </Typography>
+          </Box>
+
+          <Box sx={{ textAlign: "center" }}>
+            <md-filled-button
+              type="submit"
+              disabled={loading || submitted}
+              sx={{ padding: "0px 40px" }}
+            >
+              {loading ? "Submitting…" : "Submit"}
+            </md-filled-button>
+          </Box>
+
+          {msg && (
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{ mt: 2, fontWeight: 600, color: msg.startsWith("✅") ? "success.main" : "error.main" }}
+              aria-live="polite"
+            >
+              {msg}
+            </Typography>
+          )}
+        </form>
       </div>
       <div className="sidebarSpacer"></div>
     </div>

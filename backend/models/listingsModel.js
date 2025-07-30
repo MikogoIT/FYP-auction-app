@@ -232,20 +232,22 @@ export async function getTrendingListings(limit = 5) {
   `;
 }
 
-// returns buyer & seller info plus auction cover image
+// returns listing title, buyer & seller info plus auction cover image
 export async function getAuctionPeople(auctionId) {
   return await sql`
     SELECT
+      l.title                      AS listing_title,
       buyer.username               AS buyer_username,
       buyer.profile_image_url      AS buyer_profile_image_url,
       seller.username              AS seller_username,
       seller.profile_image_url     AS seller_profile_image_url,
-      l.image_url            AS auction_image_url
+      l.image_url                  AS auction_image_url
     FROM auction_winner aw
-    JOIN users       AS buyer  ON aw.buyer_id  = buyer.id
-    JOIN users       AS seller ON aw.seller_id = seller.id
-    JOIN auction_listings AS l ON aw.auction_id = l.id
+    JOIN users            AS buyer  ON aw.buyer_id  = buyer.id
+    JOIN users            AS seller ON aw.seller_id = seller.id
+    JOIN auction_listings AS l      ON aw.auction_id = l.id
     WHERE aw.auction_id = ${auctionId}
     LIMIT 1
   `;
 }
+
