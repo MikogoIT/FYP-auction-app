@@ -33,9 +33,12 @@ export default function UserFeedback() {
   const [submitted, setSubmitted] = useState(false);
   const wordCount = countWords(userComments);
 
-  // Auction participants & cover image state
+  // Auction metadata state
+  const [listingTitle, setListingTitle] = useState("");
+  const [buyerId, setBuyerId] = useState(null);
   const [buyerUsername, setBuyerUsername] = useState("");
   const [buyerProfileImageUrl, setBuyerProfileImageUrl] = useState("");
+  const [sellerId, setSellerId] = useState(null);
   const [sellerUsername, setSellerUsername] = useState("");
   const [sellerProfileImageUrl, setSellerProfileImageUrl] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
@@ -49,8 +52,11 @@ export default function UserFeedback() {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
         console.log("Auction people data:", data);
+        setListingTitle(data.listingTitle);
+        setBuyerId(data.buyer.id);
         setBuyerUsername(data.buyer.username);
         setBuyerProfileImageUrl(data.buyer.profileImageUrl);
+        setSellerId(data.seller.id);
         setSellerUsername(data.seller.username);
         setSellerProfileImageUrl(data.seller.profileImageUrl);
         setCoverImageUrl(data.coverImageUrl);
@@ -134,11 +140,8 @@ export default function UserFeedback() {
           </MuiLink>
           <Typography color="text.primary">User review</Typography>
         </Breadcrumbs>
-        <div id="wideTitle" className="profileTitle">
-          Write review for {sellerUsername}
-        </div>
 
-        {/* Auction cover image */}
+        {/* Auction cover image & title */}
         {coverImageUrl && (
           <Box mb={3} textAlign="center">
             <img
@@ -146,28 +149,49 @@ export default function UserFeedback() {
               alt="Auction cover"
               style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8 }}
             />
+            {listingTitle && (
+              <Typography variant="h6" sx={{ mt: 1 }}>
+                {listingTitle}
+              </Typography>
+            )}
           </Box>
         )}
 
+        {/* Seller and Buyer sections with links to profiles */}
         <Box display="flex" gap={4} mb={4} justifyContent="center">
-          <Box textAlign="center">
-            <Typography variant="subtitle1">Seller</Typography>
-            <Avatar
-              src={sellerProfileImageUrl}
-              alt={sellerUsername}
-              sx={{ width: 56, height: 56, mx: "auto" }}
-            />
-            <Typography>{sellerUsername}</Typography>
-          </Box>
-          <Box textAlign="center">
-            <Typography variant="subtitle1">Auction Winner</Typography>
-            <Avatar
-              src={buyerProfileImageUrl}
-              alt={buyerUsername}
-              sx={{ width: 56, height: 56, mx: "auto" }}
-            />
-            <Typography>{buyerUsername}</Typography>
-          </Box>
+          <MuiLink
+            component={RouterLink}
+            to={sellerId ? `/feedback/${sellerId}` : '#'}
+            underline="none"
+            color="inherit"
+          >
+            <Box textAlign="center">
+              <Typography variant="subtitle1">Seller</Typography>
+              <Avatar
+                src={sellerProfileImageUrl}
+                alt={sellerUsername}
+                sx={{ width: 56, height: 56, mx: "auto" }}
+              />
+              <Typography>{sellerUsername}</Typography>
+            </Box>
+          </MuiLink>
+
+          <MuiLink
+            component={RouterLink}
+            to={buyerId ? `/feedback/${buyerId}` : '#'}
+            underline="none"
+            color="inherit"
+          >
+            <Box textAlign="center">
+              <Typography variant="subtitle1">Auction Winner</Typography>
+              <Avatar
+                src={buyerProfileImageUrl}
+                alt={buyerUsername}
+                sx={{ width: 56, height: 56, mx: "auto" }}
+              />
+              <Typography>{buyerUsername}</Typography>
+            </Box>
+          </MuiLink>
         </Box>
 
         <form onSubmit={handleSubmit}>
@@ -198,11 +222,7 @@ export default function UserFeedback() {
             <Typography variant="caption" color="text.secondary">
               {wordCount} / {MAX_WORDS} words
               {wordCount >= MAX_WORDS && (
-                <Typography
-                  component="span"
-                  variant="caption"
-                  sx={{ color: "error.main", ml: 1 }}
-                >
+                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1 }}>
                   (Word limit reached)
                 </Typography>
               )}
