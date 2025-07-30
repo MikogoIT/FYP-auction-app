@@ -173,7 +173,7 @@ terraform:
 
   script:
     # - terraform init
-    - terraform init -reconfigure -migrate-state -input=false
+    - terraform init -migrate-state -input=false
     - terraform apply -auto-approve
   
   rules:
