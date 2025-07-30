@@ -1,6 +1,7 @@
 // src/pages/MyBids.jsx
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';       // ← add this
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box,
@@ -19,8 +20,8 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
-
 export default function MyBids() {
+  const navigate = useNavigate();                     // ← add this
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,7 +80,6 @@ export default function MyBids() {
   }));
 
   const columns = [
-    { field: 'id', headerName: 'Bid ID', width: 100 },
     { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
     { field: 'bid_amount', headerName: 'Bid Amount ($)', type: 'number', width: 130 },
     { field: 'status', headerName: 'Status', width: 120 },
@@ -97,7 +97,10 @@ export default function MyBids() {
           aria-label="delete"
           size="small"
           sx={{ color: 'text.secondary' }}
-          onClick={() => openConfirm(params.id)}
+          onClick={(event) => {
+            event.stopPropagation();              // ← prevent row click
+            openConfirm(params.id);
+          }}
         >
           <DeleteIcon fontSize="small" />
         </IconButton>
@@ -118,7 +121,7 @@ export default function MyBids() {
       <Box className="sidebarSpacer" />
       <Box className="dashboardContent" sx={{ flexGrow: 1 }}>
         <BreadcrumbsNav />
-        <div id="wideTitle" className="profileTitle">My Bids </div>
+        <div id="wideTitle" className="profileTitle">My Bids</div>
         {loading ? (
           <CircularProgress />
         ) : (
@@ -129,10 +132,13 @@ export default function MyBids() {
               columns={columns}
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
+              disableSelectionOnClick
+              onRowClick={(params) => navigate(`/bid/${params.id}`)}  // ← add this
               sx={{
                 "& .MuiDataGrid-columnHeader": { fontSize: "16px" },
                 "& .MuiDataGrid-cell": { fontSize: "16px" },
                 "& .MuiDataGrid-footerContainer": { fontSize: "16px" },
+                '& .MuiDataGrid-row:hover': { cursor: 'pointer' },     // ← pointer on hover
                 '& .actionsColumn': {
                   position: 'sticky',
                   right: 0,

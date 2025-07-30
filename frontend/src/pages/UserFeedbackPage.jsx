@@ -1,10 +1,7 @@
-// src/pages/UserFeedbackPage.jsx
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Rating, TextField, Typography } from "@mui/material";
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
-
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
@@ -15,72 +12,82 @@ function countWords(text) {
 }
 const MAX_WORDS = 100;
 
-export default function UserFeedback(){
-    const { auctionId } = useParams(); // ← gets :auctionId from the URL
-    // Debug log
-    console.log("auctionId :" + parseInt(auctionId));
+export default function UserFeedback() {
+  const { auctionId } = useParams(); // ← gets :auctionId from the URL
+  console.log("UserFeedbackPage mounted with auctionId:", auctionId);
 
-    const [userRating, setUserRating] = useState(5);
-    const [userComments, setUserComments] = useState("");
-    const [msg, setMsg] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-    const wordCount = countWords(userComments);
-  
-    const handleCommentChange = (e) => {
-      const value = e.target.value;
-      if (countWords(value) <= MAX_WORDS) {
-        setUserComments(value);
+  const [userRating, setUserRating] = useState(5);
+  const [userComments, setUserComments] = useState("");
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const wordCount = countWords(userComments);
+
+  const handleCommentChange = (e) => {
+    const value = e.target.value;
+    if (countWords(value) <= MAX_WORDS) {
+      setUserComments(value);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Log request payload
+    console.log("Submitting feedback payload:", {
+      auction_id: auctionId,
+      user_ratings: userRating,
+      user_comments: userComments,
+    });
+    setLoading(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/feedback/auction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          auction_id: auctionId,
+          user_ratings: userRating,
+          user_comments: userComments,
+        }),
+      });
+      // Log fetch status
+      console.log("Fetch response status:", res.status);
+
+      const data = await res.json();
+      // Log full API response
+      console.log("API response data:", data);
+
+      if (res.status === 409) {
+        setMsg("You have already submitted your feedback!");
+        setSubmitted(true);
+      } else if (res.ok) {
+        setMsg("✅ Thank you for your feedback!");
+        setSubmitted(true);
+        setUserComments("");
+      } else {
+        setMsg(
+          "❌ " + (data.error || data.message || "Failed to submit feedback."),
+        );
       }
-    };
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      setMsg("");
-      try {
-        const res = await fetch("/api/feedback/auction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            auction_id: auctionId,
-            //recipient_id: recipientId,
-            //author_role: authorRole,
-            user_ratings: userRating,
-            user_comments: userComments,
-          }),
-        });
-        const data = await res.json();
-        if (res.status === 409) {
-          setMsg("You have already submitted your feedback!");
-          setSubmitted(true);
-        } else if (res.ok) {
-          setMsg("✅ Thank you for your feedback!");
-          setSubmitted(true);
-          setUserComments("");
-        } else {
-          setMsg(
-            "❌ " + (data.error || data.message || "Failed to submit feedback."),
-          );
-        }
-      } catch {
-        setMsg("❌ Server error. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    } catch (err) {
+      console.error("Error during feedback submission:", err);
+      setMsg("❌ Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         <BreadcrumbsNav />
-        {/* page title */}
-        <div id="wideTitle" className="profileTitle">Write review for user X</div>
+        <div id="wideTitle" className="profileTitle">
+          Write review for user X
+        </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Rating */}
           <Box mb={2} display="flex" alignItems="center" gap={1}>
             <Rating
               name="userRating"
@@ -92,7 +99,6 @@ export default function UserFeedback(){
             />
           </Box>
 
-          {/* Comments */}
           <TextField
             label="Review"
             placeholder="Share your feedback about this user..."
@@ -105,34 +111,23 @@ export default function UserFeedback(){
             disabled={submitted || loading}
           />
 
-          {/* Word count */}
           <Box display="flex" justifyContent="flex-end" mt={1}>
             <Typography variant="caption" color="text.secondary">
-              {wordCount} / 100 words
-              {wordCount >= 100 && (
-                <Typography
-                  component="span"
-                  variant="caption"
-                  sx={{ color: "error.main", ml: 1 }}
-                >
+              {wordCount} / {MAX_WORDS} words
+              {wordCount >= MAX_WORDS && (
+                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1 }}>
                   (Word limit reached)
                 </Typography>
               )}
             </Typography>
           </Box>
 
-          {/* Submit */}
           <Box sx={{ textAlign: "center" }}>
-            <md-filled-button
-              type="submit"
-              disabled={loading || submitted}
-              sx={{ padding: "0px 40px" }}
-            >
+            <md-filled-button type="submit" disabled={loading || submitted} sx={{ padding: "0px 40px" }}>
               {loading ? "Submitting…" : "Submit"}
             </md-filled-button>
           </Box>
 
-          {/* Message */}
           {msg && (
             <Typography
               variant="body2"
@@ -148,8 +143,6 @@ export default function UserFeedback(){
             </Typography>
           )}
         </form>
-        
-    
       </div>
       <div className="sidebarSpacer"></div>
     </div>

@@ -125,7 +125,7 @@ export const getMyListings = async (userId) => {
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.seller_id = ${userId}
     GROUP BY l.id, c.name
-    ORDER BY l.end_date ASC
+    ORDER BY l.created_at ASC
   `;
 };
 

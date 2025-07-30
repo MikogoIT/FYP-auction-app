@@ -15,6 +15,13 @@ export default function Notif() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const CLICKABLE_PREFIXES = [
+    "[outbid]",
+    "[auction ending]",
+    "[bid won]",
+    "[review]"
+  ];
+
   const columns = [
     {
       field: "message",
@@ -78,11 +85,11 @@ export default function Notif() {
 
             // Highlight rows that can be clicked
             getRowClassName={(params) => {
-              const msg = params.row.message || "";
-              return msg.startsWith("[outbid]") || msg.startsWith("[review]")
-                ? "clickable-row"
-                : "";
-            }}
+                const msg = params.row.message || "";
+                return CLICKABLE_PREFIXES.some(prefix => msg.startsWith(prefix))
+                  ? "clickable-row"
+                  : "";
+              }}
 
             // Apply pointer cursor only to clickable rows
             sx={{
