@@ -84,6 +84,11 @@ export default function UserFeedback() {
       try {
         const res = await fetch(`/api/listings/${auctionId}/people`, {
           credentials: "include",
+          body: JSON.stringify({
+            auction_id: auctionId,
+            user_ratings: userRating,
+            user_comments: userComments,
+          }),
         });
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
