@@ -45,7 +45,7 @@ async def start_bot():
     # Set auto-complete commands after bot initializes
     await set_commands(application)
 
-    logger.info("Bot starting webhook...")
+    logger.info("Bot initializing webhook...")
 
     # # Schedule listing poster every 5 minutes (300 seconds)
     # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
@@ -56,8 +56,13 @@ async def start_bot():
     # logger.info("Bot started with polling listing poster and notifications job.")
     # application.run_polling()
     
+    # Initialize first
+    await application.initialize()
+    
     # Start the bot and webhook manually
     await application.start()
+    
+    # Start webhook listener
     await application.updater.start_webhook(
         listen="0.0.0.0",
         port=PORT,
