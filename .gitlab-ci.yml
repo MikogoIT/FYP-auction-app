@@ -172,8 +172,8 @@ terraform:
     TF_VAR_notif_object: "notif-${CI_COMMIT_SHORT_SHA}.zip"
 
   script:
-    # - terraform init
-    - terraform init -migrate-state -input=false
+    - terraform init
+    - terraform state push -ignore-remote-version -force tryagain.tfstate
     - terraform apply -auto-approve
   
   rules:
