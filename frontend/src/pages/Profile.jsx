@@ -178,11 +178,17 @@ export default function Profile() {
           )}
 
           {!editing ? (
-            <div style={{ width: '100%', maxWidth: 400 }}>
-              <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Phone Number:</strong> {user.phone_number}</p>
-              <p><strong>Address:</strong> {user.address}</p>
-            </div>
+            <>
+              <div style={{ width: '100%', maxWidth: 400 }}>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Phone Number:</strong> {user.phone_number}</p>
+                <p><strong>Address:</strong> {user.address}</p>
+              </div>
+
+              <div>
+                <TelegramConnect user={user}/>
+              </div>
+            </>
           ) : (
             <form style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
@@ -238,10 +244,6 @@ export default function Profile() {
               </div>
             </form>
           )}
-        </div>
-
-        <div style={{ marginTop: 32 }}>
-          <TelegramConnect user={user} />
         </div>
       </div>
       <div className="sidebarSpacer"></div>

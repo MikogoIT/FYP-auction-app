@@ -24,7 +24,7 @@ async def start_bot():
     if not TELEGRAM_BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()  
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
@@ -45,6 +45,8 @@ async def start_bot():
     # Set auto-complete commands after bot initializes
     await set_commands(application)
 
+    logger.info("Bot starting webhook...")
+
     # # Schedule listing poster every 5 minutes (300 seconds)
     # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
     
@@ -53,13 +55,23 @@ async def start_bot():
 
     # logger.info("Bot started with polling listing poster and notifications job.")
     # application.run_polling()
-    logger.info("Bot started with webhook listing poster and notifications job.")
-    await application.run_webhook(
+    
+    # Start the bot and webhook manually
+    await application.start()
+    await application.updater.start_webhook(
         listen="0.0.0.0",
         port=PORT,
         webhook_url=WEBHOOK_URL,
     )
+    
     logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
+    
+    # Keep the application running until Cloud Run shuts it down
+    await application.updater.idle()
+    
+    # Cleanup on shutdown
+    await application.stop()
+    logger.info("Bot stopped gracefully.")
     
 if __name__ == "__main__":
     asyncio.run(start_bot())
