@@ -24,6 +24,7 @@ const MAX_WORDS = 100;
 
 export default function UserFeedback() {
   const { auctionId } = useParams();
+  // console.log("UserFeedbackPage mounted with auctionId:", auctionId);
 
   // 1) Load current user
   const [currentUserId, setCurrentUserId] = useState(null);

@@ -162,12 +162,14 @@ export async function getRecentListings(limit = 5) {
   `;
 }
 
-/**
+
+
+/** SL and QY Old Code
  * get current descending price for a listing
  * @param {number} listingId
  * @returns {number|null} current price or null if not a descending auction
  */
-export async function getCurrentDescendingPrice(listingId) {
+/* export async function getCurrentDescendingPrice(listingId) {
   const result = await sql`
     SELECT 
       auction_type,
@@ -215,7 +217,75 @@ export async function getCurrentDescendingPrice(listingId) {
   // ensure price does not go below min_bid
   price = Math.max(price, Number(min_bid));
   return Number(price.toFixed(2));
+} */
+
+
+/**
+ * get and update current descending price for a listing
+ * @param {number} listingId
+ * @returns {number|null} current price or null if not a descending auction
+ */
+export async function getCurrentDescendingPrice(listingId) {
+  const result = await sql`
+    SELECT 
+      auction_type,
+      start_price,
+      min_bid,
+      discount_percentage,
+      created_at,
+      end_date,
+      current_price
+    FROM auction_listings
+    WHERE id = ${listingId}
+  `;
+  if (!result[0] || result[0].auction_type !== "descending") return null;
+
+  const {
+    start_price,
+    min_bid,
+    discount_percentage,
+    created_at,
+    end_date,
+  } = result[0];
+
+  const step_duration = 60; // seconds per step
+  const now = new Date();
+  const start = new Date(created_at);
+  const end = new Date(end_date);
+
+  // Auction hasn't started yet
+  if (now < start) return Number(start_price);
+
+  // Auction ended
+  if (now >= end) return Number(min_bid);
+
+  // Calculate elapsed steps
+  const elapsedSeconds = Math.floor((now - start) / 1000);
+  const stepsPassed = Math.floor(elapsedSeconds / step_duration);
+
+  // Price calc with percentage decrement
+  let price = Number(start_price);
+  for (let i = 0; i < stepsPassed; i++) {
+    price *= (1 - Number(discount_percentage) / 100);
+    if (price <= min_bid) {
+      price = Number(min_bid);
+      break;
+    }
+  }
+
+  price = Math.max(price, Number(min_bid));
+  price = Number(price.toFixed(2));
+
+  // 🔄 Update DB with the current_price
+  await sql`
+    UPDATE auction_listings
+    SET current_price = ${price}
+    WHERE id = ${listingId}
+  `;
+
+  return price;
 }
+
 
 // returns top 5 listings with most bids
 export async function getTrendingListings(limit = 5) {
