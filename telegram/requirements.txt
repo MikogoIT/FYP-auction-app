@@ -2,6 +2,6 @@ aiohttp==3.12.13
 httpx==0.28.1
 openai==1.97.1
 python-dotenv==1.1.1
-python-telegram-bot==22.3
+python-telegram-bot[webhooks]==22.3 # with webhook dependencies (optional by default)
 pytz==2025.2
 requests==2.32.4
