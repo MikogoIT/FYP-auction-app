@@ -43,13 +43,13 @@ async def start_bot():
     application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
 
     # Set auto-complete commands after bot initializes
-    application.post_init = set_commands
+    await set_commands(application)
 
-    # Schedule listing poster every 5 minutes (300 seconds)
-    application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
+    # # Schedule listing poster every 5 minutes (300 seconds)
+    # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
     
-    # Schedule notification poster every 1min (60 seconds)
-    application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
+    # # Schedule notification poster every 1min (60 seconds)
+    # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
 
     # logger.info("Bot started with polling listing poster and notifications job.")
     # application.run_polling()
@@ -59,6 +59,7 @@ async def start_bot():
         port=PORT,
         webhook_url=WEBHOOK_URL,
     )
+    logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
     
 if __name__ == "__main__":
     asyncio.run(start_bot())

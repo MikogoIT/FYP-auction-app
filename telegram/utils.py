@@ -121,6 +121,36 @@ def format_recommendations_message(listings):
 
     return "\n".join(lines)
 
+def format_ai_search_results(listings):
+    if not listings:
+        return "No matching listings found."
+    
+    lines = [f"in <b>Auctioneer {category} Channel (@{channel_username}):</b>\n"]
+    
+    for item in listings:
+        title = item.get("title", "Untitled")
+        auction_id = item.get("id", "N/A")
+        end_date = format_date(item.get("end_date", ""))
+        category = item.get("category_name", "Unknown")
+        message_id = item.get("message_id")
+        category_slug = category.lower().replace(" ", "_")
+        channel_username = f"{category_slug}_fypauction"
+        
+        if message_id:
+            view_link = f"https://t.me/{channel_username}/{message_id}"
+            view_text = f'<a href="{view_link}">[View in Channel]</a>'
+        else:
+            view_text = "[Not posted]"
+            
+        lines.append(
+            f"🛍️ <b>#{auction_id}</b> {title}\n"
+            f"⏰ Ends on: {end_date}\n"
+            f"{view_text}\n"
+        )
+    
+    return "\n".join(lines)
+    
+        
 def format_listing_message(listing):
     title = listing.get("title", "No title")
     description = listing.get("description", "No description provided.")
@@ -177,7 +207,7 @@ def format_listing_message(listing):
         [
             InlineKeyboardButton(
                 text="🌐 View on Web",
-                url=f"https://auctioneer.timothy-mah.com/listings/{listing_id}"
+                url=f"{BACKEND_API_URL}/listings/{listing_id}"
             )
         ]
     ] 

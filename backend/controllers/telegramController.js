@@ -129,7 +129,7 @@ export async function createBidFromTelegram(req, res) {
             return res.status(404).json({ message: "Auction not found" })
         }
 
-        const { auction_type, min_bid, start_price } = auctionInfo;
+        const { auction_type, min_bid, start_price, current_price } = auctionInfo;
         const bidAmount = parseFloat(bid_amount);
         if (isNaN(bidAmount)) {
             return res.status(400).json({ message: "Invalid bid amount" })
@@ -137,25 +137,24 @@ export async function createBidFromTelegram(req, res) {
 
         // Bid validation per auction type
         if (auction_type === "ascending") {
+
             const minBidData = await getAuctionMinBid(auction_id);
             const currentMinBid = Math.max(minBidData.min_bid, minBidData.highest_bid || 0);
+
             if (bidAmount <= currentMinBid) {
                 return res.status(400).json({ message: `Bid must be higher than current price ($${currentMinBid})` });
             }
         } else if (auction_type === "descending") {
-            const lowestBid = await getLowestBid(auction_id);
+            // Use current_price as the reference price for descending auction bids
 
-            if (lowestBid !== null && bidAmount >= lowestBid) {
-                return res.status(400).json({ message: `Bid must be lower than current lowest price ($${lowestBid})` })
+            if (current_price !== null && current_price !== undefined && bidAmount >= current_price) {
+                return res.status(400).json({ message: `Bid must be lower than current price ($${current_price})` })
             }
 
             if (bidAmount < min_bid) {
                 return res.status(400).json({ message: `Bid must be at least the minimum allowed ($${min_bid})` });
             }
 
-            if (start_price && bidAmount >= start_price) {
-                return res.status(400).json({ message: `Bid must be lower than starting price ($${start_price})` })
-            }
         } else {
             return res.status(400).json({ message: "Unsupported auction type" });
         }

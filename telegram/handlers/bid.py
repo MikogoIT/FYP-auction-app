@@ -58,7 +58,7 @@ async def start_bid_flow(chat_id, auction_id, linked_data, update):
         )
     
     elif auction_type == "descending":
-        # For descending, bids must be lower than current lowest bid but not less than min_bid
+        # For descending, bids must be lower than current bid but not less than min_bid
         lowest_bid = highest_bid if highest_bid else None
         if lowest_bid:
             message_lines.append(f"📉 Current accepted bid: ${float(lowest_bid):.2f}")
@@ -182,5 +182,6 @@ async def bid_increment_fixed(update: Update, context: ContextTypes.DEFAULT_TYPE
         new_bid = max(min_bid, base_bid - decrement)
     else:
         await update.message.reply_text("Unsupported auction type for bid increment.")
+        return
     
     await prepare_bid_confirmation(chat_id, user_id, auction_id, new_bid, auction_type, update)
