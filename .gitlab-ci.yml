@@ -173,6 +173,7 @@ terraform:
 
   script:
     - terraform init
+    # - terraform state push -force terraform.tfstate
     - terraform apply -auto-approve
   
   rules:
