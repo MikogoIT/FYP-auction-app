@@ -232,11 +232,13 @@ export async function getTrendingListings(limit = 5) {
   `;
 }
 
-// returns listing title, buyer & seller info plus auction cover image
+// returns listing title, buyer & seller info plus auction cover image, and the raw IDs
 export async function getAuctionPeople(auctionId) {
   return await sql`
     SELECT
       l.title                      AS listing_title,
+      aw.seller_id                 AS seller_id,
+      aw.buyer_id                  AS buyer_id,
       buyer.username               AS buyer_username,
       buyer.profile_image_url      AS buyer_profile_image_url,
       seller.username              AS seller_username,
@@ -250,4 +252,5 @@ export async function getAuctionPeople(auctionId) {
     LIMIT 1
   `;
 }
+
 

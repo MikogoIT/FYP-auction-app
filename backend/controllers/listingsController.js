@@ -318,6 +318,8 @@ export async function getAuctionPeopleController(req, res) {
 
     const {
       listing_title,
+      seller_id,
+      buyer_id,
       buyer_username,
       buyer_profile_image_url,
       seller_username,
@@ -328,10 +330,12 @@ export async function getAuctionPeopleController(req, res) {
     res.json({
       listingTitle: listing_title,
       buyer: {
+        id: buyer_id,
         username: buyer_username,
         profileImageUrl: buyer_profile_image_url,
       },
       seller: {
+        id: seller_id,
         username: seller_username,
         profileImageUrl: seller_profile_image_url,
       },
@@ -342,4 +346,3 @@ export async function getAuctionPeopleController(req, res) {
     res.status(500).json({ message: "Failed to fetch auction participants" });
   }
 }
-

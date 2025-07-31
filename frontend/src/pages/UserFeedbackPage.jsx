@@ -140,6 +140,10 @@ export default function UserFeedback() {
           </MuiLink>
           <Typography color="text.primary">User review</Typography>
         </Breadcrumbs>
+        <div id="wideTitle" className="profileTitle">
+          Write review for {sellerUsername}
+        </div>
+
 
         {/* Auction cover image & title */}
         {coverImageUrl && (
@@ -150,9 +154,9 @@ export default function UserFeedback() {
               style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8 }}
             />
             {listingTitle && (
-              <Typography variant="h6" sx={{ mt: 1 }}>
+              <div className="smallTitle">
                 {listingTitle}
-              </Typography>
+              </div>
             )}
           </Box>
         )}
@@ -166,13 +170,13 @@ export default function UserFeedback() {
             color="inherit"
           >
             <Box textAlign="center">
-              <Typography variant="subtitle1">Seller</Typography>
+              <div>Seller</div>
               <Avatar
                 src={sellerProfileImageUrl}
                 alt={sellerUsername}
                 sx={{ width: 56, height: 56, mx: "auto" }}
               />
-              <Typography>{sellerUsername}</Typography>
+              <div>{sellerUsername}</div>
             </Box>
           </MuiLink>
 
@@ -183,13 +187,13 @@ export default function UserFeedback() {
             color="inherit"
           >
             <Box textAlign="center">
-              <Typography variant="subtitle1">Auction Winner</Typography>
+              <div>Auction Winner</div>
               <Avatar
                 src={buyerProfileImageUrl}
                 alt={buyerUsername}
                 sx={{ width: 56, height: 56, mx: "auto" }}
               />
-              <Typography>{buyerUsername}</Typography>
+              <div>{buyerUsername}</div>
             </Box>
           </MuiLink>
         </Box>
@@ -219,10 +223,10 @@ export default function UserFeedback() {
           />
 
           <Box display="flex" justifyContent="flex-end" mt={1}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '16px' }}>
               {wordCount} / {MAX_WORDS} words
               {wordCount >= MAX_WORDS && (
-                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1 }}>
+                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1, fontSize: '16px' }}>
                   (Word limit reached)
                 </Typography>
               )}
@@ -233,7 +237,7 @@ export default function UserFeedback() {
             <md-filled-button
               type="submit"
               disabled={loading || submitted}
-              sx={{ padding: "0px 40px" }}
+              sx={{ fontSize: '16px'}}
             >
               {loading ? "Submitting…" : "Submit"}
             </md-filled-button>
@@ -243,7 +247,7 @@ export default function UserFeedback() {
             <Typography
               variant="body2"
               align="center"
-              sx={{ mt: 2, fontWeight: 600, color: msg.startsWith("✅") ? "success.main" : "error.main" }}
+              sx={{ fontSize: '16px', mt: 2, fontWeight: 600, color: msg.startsWith("✅") ? "success.main" : "error.main" }}
               aria-live="polite"
             >
               {msg}
