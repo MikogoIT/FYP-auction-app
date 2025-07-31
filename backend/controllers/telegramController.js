@@ -65,13 +65,14 @@ export async function handleTelegramWebhook(req, res) {
             return res.status(403).json({ message: "Forbidden" });
         }
 
-        const botUrl = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook";
+        const botUrl = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app";
+        const fullWebhookUrl = `${botUrl}/webhook`;
 
         const client = await getTeleBotIdTokenClient(botUrl);
 
         // Forward to the bot backend
         const botResponse = await client.request({
-            url: botUrl,
+            url: fullWebhookUrl,
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -81,14 +82,28 @@ export async function handleTelegramWebhook(req, res) {
         });
 
         if (!botResponse.status || botResponse.status >= 400) {
-            console.error("Forwarding failed: ", botResponse.data);
-            return res.status(500).json({ error: "Forwarding failed", detail: botResponse.data });
+            console.error("Failed to forward webhook", {
+                status: botResponse.status,
+                response: botResponse.data,
+            });
+            return res.status(502).json({ 
+                error: "Failed to forward webhook to Telegram Bot",
+                status: botResponse.status,
+                response: botResponse.data || "No response from bot backend" 
+            });
         }
 
-        return res.status(200).json({ message: "Forwarded to bot" });
+        return res.status(200).json({ 
+            message: "Webhook forwarded successfully", 
+            forwardedTo: fullWebhookUrl 
+        });
+
     } catch (err) {
-        console.error("Webhook handler error: ", err);
-        return res.status(500).json({ error: "Unexpected error", detail: err.message });
+        console.error("Unexpected error while handling Telegram webhook: ", err);
+        return res.status(500).json({ 
+            error: "Internal Server Error", 
+            message: err.message || "Unexpected error occurred"
+         });
     }
 }
 
