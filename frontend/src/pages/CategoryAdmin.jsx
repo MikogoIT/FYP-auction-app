@@ -126,16 +126,16 @@ export default function CategoryAdmin() {
   // datagrid column definitions
   const column = [
    // {field: 'id', headerName: 'ID'},
-    {field: 'name', headerName: 'Name', sortable: true, editable: true},
-    {field: 'description', headerName: 'Description', sortable: false, editable: true},
-    { field: 'is_suspended', headerName: 'Active Status' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_suspended} }) => {
+    {field: 'name', headerName: 'Name', width: 250, sortable: true, editable: true},
+    {field: 'description', headerName: 'Description', width: 300, sortable: false, editable: true},
+    { field: 'is_suspended', headerName: 'Active Status' , display: "flex", sortable: false, width: 200, headerAlign: "left", align: "left",  renderCell: ({ row: {is_suspended} }) => {
       return (
         <Box
         width="100%"
         m="0 auto"
         p="5px"
         display="flex"
-        justifyContent="center"
+        justifyContent="left"
         borderRadius="4px"
         >
           {is_suspended && <AcUnitOutlinedIcon />}
@@ -151,7 +151,7 @@ export default function CategoryAdmin() {
       );
       }
     }, 
-    { field: "disable_switch", headerName: "Disabled", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_suspended}, row: {id} }) => {
+    { field: "disable_switch", headerName: "Disabled", display: 'flex', width: 150, sortable: false, filterable: false, renderCell: ({ row: {is_suspended}, row: {id} }) => {
         const categoryId = id;
         const suspended = is_suspended
 
@@ -236,7 +236,7 @@ export default function CategoryAdmin() {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 8,
               },
             },
           }}
