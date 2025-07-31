@@ -189,6 +189,10 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         value = google_cloudfunctions2_function.notif.url
       }
 
+      env {
+        name  = "BOT_SECRET"
+        value = var.BOT_SECRET
+      }
 
       resources {
         limits = {
