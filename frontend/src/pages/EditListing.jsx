@@ -268,8 +268,12 @@ export default function EditListing() {
         <label>Auction Type</label>
         <input
           type="text"
-          value={listing.auction_type}
-          readOnly
+          value={
+            listing.auction_type
+              ? listing.auction_type.charAt(0).toUpperCase() + listing.auction_type.slice(1)
+              : ""
+          }
+          readOnly // Non-editable
           style={{
             width: "100%",
             padding: "8px",
@@ -313,7 +317,8 @@ export default function EditListing() {
               value={listing.start_price || ""}
               onChange={handleChange}
               required
-              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+              readOnly // Non-editable
+              style={{ width: "100%", padding: "8px", marginBottom: "12px", backgroundColor: "#f5f5f5" }}
             />
 
             <label>Discount Percentage *</label>
