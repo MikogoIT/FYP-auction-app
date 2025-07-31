@@ -174,7 +174,7 @@ export default function UserFeedback() {
               <Avatar
                 src={sellerProfileImageUrl}
                 alt={sellerUsername}
-                sx={{ width: 56, height: 56, mx: "auto" }}
+                sx={{ width: 56, height: 56, margin: '5px auto' }}
               />
               <div>{sellerUsername}</div>
             </Box>
@@ -191,14 +191,14 @@ export default function UserFeedback() {
               <Avatar
                 src={buyerProfileImageUrl}
                 alt={buyerUsername}
-                sx={{ width: 56, height: 56, mx: "auto" }}
+                sx={{ width: 56, height: 56, margin: '5px auto' }}
               />
               <div>{buyerUsername}</div>
             </Box>
           </MuiLink>
         </Box>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ width: '90%', maxWidth: '1000px', }}>
           <Box mb={2} display="flex" alignItems="center" gap={1}>
             <Rating
               name="userRating"
@@ -222,7 +222,7 @@ export default function UserFeedback() {
             disabled={submitted || loading}
           />
 
-          <Box display="flex" justifyContent="flex-end" mt={1} sx={{ width: '100%' }}>
+          <Box display="flex" justifyContent="flex-end" mt={1}>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '16px' }}>
               {wordCount} / {MAX_WORDS} words
               {wordCount >= MAX_WORDS && (
@@ -233,7 +233,7 @@ export default function UserFeedback() {
             </Typography>
           </Box>
 
-          <Box sx={{ textAlign: "center" }}>
+          <div style={{ margin: '20px 0' }}>
             <md-filled-button
               type="submit"
               disabled={loading || submitted}
@@ -241,7 +241,7 @@ export default function UserFeedback() {
             >
               {loading ? "Submitting…" : "Submit"}
             </md-filled-button>
-          </Box>
+          </div>
 
           {msg && (
             <Typography
