@@ -1,7 +1,7 @@
 # telegram/Dockerfile
 
 # 1️⃣ Choose a slim Python base
-FROM python:3.13-slim
+FROM python:3.13
 
 # 2️⃣ Set working dir
 WORKDIR /app
@@ -20,4 +20,4 @@ EXPOSE 8443
 
 # 7️⃣ Launch your bot
 #    Replace "main.py" with your main file if different.
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
