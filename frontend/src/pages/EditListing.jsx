@@ -5,7 +5,6 @@ import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import { IMG_BASE_URL } from "../global-vars.jsx";
 
-
 export default function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -57,9 +56,11 @@ export default function EditListing() {
     setError("");
     setSuccess("");
 
-    const token = localStorage.getItem("token");
-
-    // validation
+    // validations
+    if (!listing.auction_type) {
+      setError("❌ Auction type missing from listing data.");
+      return;
+    }
     if (parseFloat(listing.min_bid) <= 0) {
       setError("❌ Minimum bid must be greater than 0.");
       return;
@@ -67,6 +68,23 @@ export default function EditListing() {
     if (new Date(listing.end_date) < new Date()) {
       setError("❌ End date must be in the future.");
       return;
+    }
+
+    if (listing.auction_type === "descending") {
+      if (!listing.start_price || parseFloat(listing.start_price) <= 0) {
+        setError(
+          "❌ Start price must be greater than 0 for descending auctions.",
+        );
+        return;
+      }
+      if (
+        !listing.discount_percentage ||
+        parseFloat(listing.discount_percentage) < 0 ||
+        parseFloat(listing.discount_percentage) > 100
+      ) {
+        setError("❌ Discount percentage must be between 0 and 100.");
+        return;
+      }
     }
 
     try {
@@ -81,8 +99,14 @@ export default function EditListing() {
           description: listing.description,
           min_bid: parseFloat(listing.min_bid),
           end_date: listing.end_date,
+          auction_type: listing.auction_type,
+          ...(listing.auction_type === "descending" && {
+            start_price: parseFloat(listing.start_price),
+            discount_percentage: parseFloat(listing.discount_percentage),
+          }),
         }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
@@ -134,7 +158,15 @@ export default function EditListing() {
   }
 
   return (
-    <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "8px" }}>
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "40px auto",
+        padding: "20px",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+      }}
+    >
       <button
         onClick={() => navigate(-1)}
         style={{
@@ -144,7 +176,7 @@ export default function EditListing() {
           border: "none",
           borderRadius: "4px",
           cursor: "pointer",
-          marginBottom: "16px"
+          marginBottom: "16px",
         }}
       >
         ← Back
@@ -217,7 +249,7 @@ export default function EditListing() {
         <label>Title *</label>
         <input
           name="title"
-          value={listing.title}
+          value={listing.title || ""}
           onChange={handleChange}
           required
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
@@ -226,85 +258,152 @@ export default function EditListing() {
         <label>Description</label>
         <textarea
           name="description"
-          value={listing.description}
+          value={listing.description || ""}
           onChange={handleChange}
           rows="4"
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
-        <label>Minimum Bid *</label>
+        {/* Show auction type as readonly text or label */}
+        <label>Auction Type</label>
         <input
-          name="min_bid"
-          type="number"
-          value={listing.min_bid}
+          type="text"
+          value={listing.auction_type}
+          readOnly
+          style={{
+            width: "100%",
+            padding: "8px",
+            marginBottom: "12px",
+            backgroundColor: "#f0f0f0",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
+        />
+
+        {listing.auction_type === "ascending" && (
+          <>
+            <label>Minimum Bid *</label>
+            <input
+              name="min_bid"
+              type="number"
+              value={listing.min_bid || ""}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+          </>
+        )}
+
+        {listing.auction_type === "descending" && (
+          <>
+            <label>Minimum Bid *</label>
+            <input
+              name="min_bid"
+              type="number"
+              value={listing.min_bid || ""}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+
+            <label>Start Price *</label>
+            <input
+              name="start_price"
+              type="number"
+              value={listing.start_price || ""}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+
+            <label>Discount Percentage *</label>
+            <input
+              name="discount_percentage"
+              type="number"
+              step="0.01"
+              value={listing.discount_percentage || ""}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+            />
+          </>
+        )}
+
+        <label>End Date *</label>
+        <input
+          type="datetime-local"
+          name="end_date"
+          value={listing.end_date ? listing.end_date.slice(0, 16) : ""}
           onChange={handleChange}
           required
           style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
         />
 
-        <label>End Date *</label>
-        <input
-          name="end_date"
-          type="datetime-local"
-          value={listing.end_date.slice(0, 16)}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        />
+        {error && (
+          <p style={{ color: "red", fontWeight: "bold", marginBottom: "12px" }}>
+            {error}
+          </p>
+        )}
+        {success && (
+          <p
+            style={{ color: "green", fontWeight: "bold", marginBottom: "12px" }}
+          >
+            {success}
+          </p>
+        )}
 
         <button
           type="submit"
           style={{
-            padding: "10px",
-            width: "100%",
             backgroundColor: "#28a745",
             color: "white",
+            padding: "10px 20px",
             border: "none",
-            borderRadius: "4px",
+            borderRadius: "5px",
             cursor: "pointer",
+            width: "100%",
+            fontWeight: "bold",
           }}
         >
           Update Listing
         </button>
 
         <button
-            type="button"
-            onClick={async () => {
-                const confirmDelete = window.confirm("Are you sure you want to delete this listing?");
-                if (!confirmDelete) return;
+          type="button"
+          onClick={async () => {
+            const confirmDelete = window.confirm(
+              "Are you sure you want to delete this listing?",
+            );
+            if (!confirmDelete) return;
 
-                const token = localStorage.getItem("token");
+            try {
+              const res = await fetch(`/api/listings/${id}`, {
+                method: "DELETE",
+                credentials: "include",
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.message);
 
-                try {
-                    const res = await fetch(`/api/listings/${id}`, {
-                        method: "DELETE",
-                        credentials: "include", // 关键
-                    });
-
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message);
-
-                    alert("✅ Listing deleted successfully.");
-                    navigate("/dashboard");
-                } catch (err) {
-                    alert("❌ Failed to delete listing: " + err.message);
-                }
-            }}
-            style={{
-                marginTop: "10px",
-                padding: "10px",
-                width: "100%",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "4px"
-            }}
+              alert("✅ Listing deleted successfully.");
+              navigate("/dashboard");
+            } catch (err) {
+              alert("❌ Failed to delete listing: " + err.message);
+            }
+          }}
+          style={{
+            marginTop: "10px",
+            padding: "10px",
+            width: "100%",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
         >
           🗑️ Delete Listing
         </button>
-
-        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
-        {success && <p style={{ color: "green", marginTop: "10px" }}>{success}</p>}
       </form>
     </div>
   );
