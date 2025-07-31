@@ -11,10 +11,10 @@ from handlers import (
 )
 from jobs import poll_and_post_listings, poll_notifications
 import asyncio
-import requests
-import time
+import httpx
+import signal
 
-def set_telegram_webhook():
+async def set_telegram_webhook():
     if not TELEGRAM_BOT_TOKEN or not WEBHOOK_URL:
         raise RuntimeError("TELEGRAM_BOT_TOKEN or WEBHOOK_URL not set")
     
@@ -24,18 +24,17 @@ def set_telegram_webhook():
         "secret_token": BOT_SECRET,
     }
     
-    for attempt in range(3):
+    async with httpx.AsyncClient() as client:
         try:
-            response = requests.post(url, json=data)
+            response = await client.post(url, json=data)
             if response.status_code == 200:
-                logger.info("Telegram webhook set: %s", response.json())
-                return
+                logger.info("Telegram webhook set successfully: %s", response.json())
             else:
                 logger.error("Failed to set Telegram webhook: %s", response.text)
+                raise RuntimeError(f"Telegram API Error: {response.text}")
         except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed: {e}")
-        time.sleep(2) # Wait before retrying
-    raise RuntimeError("Failed to set Telegram webhook after retries")
+            logger.error("Error setting webhook: %s", str(e))
+            raise
 
 async def set_commands(application):
     commands = [
@@ -44,6 +43,10 @@ async def set_commands(application):
     ]
     
     await application.bot.set_my_commands(commands)
+
+def handle_shutdown(signum, frame):
+    logger.info("Received shutdown signal (SIGTERM)")
+    exit(0)
 
 async def start_bot():
     if not TELEGRAM_BOT_TOKEN:
@@ -83,9 +86,10 @@ async def start_bot():
     # Set Telegram webhook once per deploy/startup
     try:
         logger.info("Setting Telegram webhook...")
-        set_telegram_webhook()
+        await set_telegram_webhook()
     except Exception as e:
         logger.error(f"Failed to set Telegram webhook: {e}")
+        raise
     
     # Start webhook listener
     try:
@@ -103,9 +107,19 @@ async def start_bot():
         raise
     
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, handle_shutdown)
+    
     try:
         asyncio.run(start_bot())
-    except KeyboardInterrupt:
-        logger.info("Bot stopped by user")
     except Exception as e:
-        logger.error(f"Bot failed: {e}", exc_info=True)
+        logger.critical("Bot crashed: %s", str(e), exc_info=True)
+        exit(1)
+    
+    # try:
+    #     loop = asyncio.get_event_loop()
+    #     if loop.is_running():
+    #         asyncio.create_task(start_bot())
+    #     else:
+    #         loop.run_until_complete(start_bot())
+    # except Exception as e:
+    #     logger.error(f"Bot failed: {e}", exc_info=True)
