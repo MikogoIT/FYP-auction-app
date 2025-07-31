@@ -28,7 +28,7 @@ export async function getHighestBidderForAuction(auctionId) {
 
 export async function getAuctionMetadata(auctionId) {
   const result = await sql`
-    SELECT auction_type, min_bid, start_price
+    SELECT auction_type, min_bid, start_price, current_price
     FROM auction_listings
     WHERE id = ${auctionId}
   `;

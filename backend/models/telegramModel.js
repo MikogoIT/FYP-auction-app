@@ -124,7 +124,11 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
     // Build dynamic keyword conditions
     const keywordConditions = keywords.length
         ? sql`AND (${sql.join(
-            keywords.map(k => sql`(l.title ILIKE ${'%' + k + '%'} OR l.description ILIKE ${'%' + k + '%'})`),
+            keywords.map(k => sql`(
+                l.title ILIKE ${'%' + k + '%'} OR 
+                l.description ILIKE ${'%' + k + '%'}) OR
+                t.name ILIKE ${'%' + k + '%'}
+            )`),
             sql` OR`
         )})`
         : sql``;
@@ -137,17 +141,23 @@ export async function searchListingsWithFilters(category, maxPrice, keywordsCsv)
         SELECT 
             l.*,
             lc.name AS category_name,
-            COALESCE(MAX(b.bid_amount), l.min_bid) AS current_bid
+            COALESCE(MAX(b.bid_amount), l.min_bid) AS highest_bid,
+            COALESCE(string_agg(t.name, ', ' ORDER BY t.name), '') AS tags,
+            tm.message_id,
+            tm.channel_id
         FROM auction_listings l
         JOIN listing_categories lc ON lc.id = l.category_id
         LEFT JOIN bids b ON l.id = b.auction_id
+        LEFT JOIN auction_listing_tags alt ON l.id = alt.auction_id
+        LEFT JOIN tags t ON alt.tag_id = t.id
+        LEFT JOIN telegram_messages tm ON l.id = tm.auction_id
         WHERE l.is_active = TRUE
             AND (
                 ${category} = ''
                 OR lc.name ILIKE ${'%' + category + '%'}
             )
             ${keywordConditions}
-        GROUP BY l.id, lc.name
+        GROUP BY l.id, lc.name, tm.message_id, tm.channel_id
         ${havingClause}
         ORDER BY l.end_date ASC
     `;

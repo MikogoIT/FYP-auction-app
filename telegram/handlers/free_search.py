@@ -8,11 +8,34 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from config import OPENROUTER_API_KEY
 from api import search_listings
+from utils import format_ai_search_results
 
 # Simple in-memory cache with expiry (10 mins)
 # Key: user_input str, Value: parsed filters dict + timestamp
 cache = {}
 CACHE_TTL_SECONDS = 600
+
+def is_valid_filters(filters):
+    if not isinstance(filters, dict):
+        return False
+    
+    if not isinstance(filters.get("category", None), (str, type(None))):
+        return False
+    
+    if not isinstance(filters.get("max_price", None), (int, float, type(None))):
+        return False
+    
+    if not isinstance(filters.get("keywords", None), (list, type(None))):
+        return False
+    
+    if filters.get("keywords"):
+        for keyword in filters["keywords"]:
+            if not isinstance(keyword, str):
+                return False
+            if any(c in keyword for c in [";", "--", "'", '"', "\\"]): # prevent malicious tokens
+                return False
+            
+    return True
 
 """Send free-form user input to GPT and get structured filter."""
 async def parse_natural_query(user_input: str):
@@ -60,6 +83,8 @@ async def parse_natural_query(user_input: str):
             data = response.json()
             content = data["choices"][0]["message"]["content"]
             filters = json.loads(content)
+            if not is_valid_filters(filters):
+                logger.warning(f"GPT returned invalid or suspicious filters: {filters}")
     
             # Cache it
             cache[key] = {"filters": filters, "timestamp": now}
@@ -94,7 +119,7 @@ async def handle_free_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if category:
         summary += f" in category '{category}'"
     if max_price:
-        summary += f" under $${max_price}"
+        summary += f" under ${max_price}"
     if keywords:
         summary += f" with keywords: {', '.join(keywords)}"
     summary += "..."
@@ -107,12 +132,5 @@ async def handle_free_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("No results found. Try using different keywords, categories or price ranges.")
         return
     
-    for listing in listings[:5]: # limit to 5 results
-        from utils import format_listing_message
-        photo_url, caption, reply_markup = format_listing_message(listing)
-        await update.message.reply_photo(
-            photo=photo_url,
-            caption=caption,
-            parse_mode="HTML",
-            reply_markup=reply_markup
-        )
+    summary_text = format_ai_search_results(listings)
+    await update.message.reply_text(summary_text, parse_mode="HTML", disable_web_page_preview=True)

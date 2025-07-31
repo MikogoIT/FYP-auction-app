@@ -24,7 +24,7 @@ async def is_telegram_user_linked(telegram_id: int) -> dict | None:
             
     except Exception as e:
         logger.error(f"Error checking Telegram link status: {e}")
-        return False
+        return None
     
 async def save_telegram_message(auction_id: int, message_id: int, channel_id: int, caption: str):
     async with aiohttp.ClientSession() as session:
@@ -78,7 +78,7 @@ async def fetch_user_bids(user_id: int):
                     return data.get("bids", [])
                 else:
                     logger.warning(f"Failed to fetch bids for user #{user_id}: {resp.status}")
-                    return {}
+                    return []
                 
     except Exception as e:
         logger.warning(f"Error fetching bids for user {user_id}: {e}")
@@ -301,7 +301,7 @@ async def fetch_unsent_notifications():
                     return await resp.json()
                 logger.warning(f"Failed to fetch notifications: {resp.status}")
     except Exception as e:
-        logger.error(f"Failed to fetch notificiations: {e}")
+        logger.error(f"Failed to fetch notifications: {e}")
     return []
 
 # Mark notifications as sent

@@ -189,6 +189,10 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         value = google_cloudfunctions2_function.notif.url
       }
 
+      env {
+        name  = "BOT_SECRET"
+        value = var.BOT_SECRET
+      }
 
       resources {
         limits = {
@@ -417,7 +421,10 @@ resource "google_cloud_run_v2_service" "tele_bot" {
         value = 8443
       }
 
-
+      env {
+        name  = "WEBHOOK_URL"
+        value = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook"
+      }
 
       resources {
         limits = {

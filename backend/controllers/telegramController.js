@@ -5,7 +5,7 @@ import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { getAuctionMetadata, getLowestBid } from "../models/auctionModel.js";
-import { isTelegramDataValid } from "../utils/telegramUtils.js";
+import { isTelegramDataValid, getTeleBotIdTokenClient } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;
@@ -54,6 +54,56 @@ export async function unlinkTelegramAccount(req, res) {
     } catch (err) {
         console.error("Unlinking error: ", err);
         res.status(500).json({ message: "Failed to unlink Telegram account" });
+    }
+}
+
+export async function handleTelegramWebhook(req, res) {
+    try {
+        // Optional: verify Telegram secret token
+        const tgSecret = req.headers["x-telegram-bot-api-secret-token"];
+        if (tgSecret !== process.env.BOT_SECRET) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        const botUrl = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app";
+        const fullWebhookUrl = `${botUrl}/webhook`;
+
+        const client = await getTeleBotIdTokenClient(botUrl);
+
+        // Forward to the bot backend
+        const botResponse = await client.request({
+            url: fullWebhookUrl,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-telegram-bot-api-secret-token": tgSecret,
+            },
+            data: req.body,
+        });
+
+        if (!botResponse.status || botResponse.status >= 400) {
+            console.error("Failed to forward webhook", {
+                status: botResponse.status,
+                response: botResponse.data,
+            });
+            return res.status(502).json({ 
+                error: "Failed to forward webhook to Telegram Bot",
+                status: botResponse.status,
+                response: botResponse.data || "No response from bot backend" 
+            });
+        }
+
+        return res.status(200).json({ 
+            message: "Webhook forwarded successfully", 
+            forwardedTo: fullWebhookUrl 
+        });
+
+    } catch (err) {
+        console.error("Unexpected error while handling Telegram webhook: ", err);
+        return res.status(500).json({ 
+            error: "Internal Server Error", 
+            message: err.message || "Unexpected error occurred"
+         });
     }
 }
 
@@ -129,7 +179,7 @@ export async function createBidFromTelegram(req, res) {
             return res.status(404).json({ message: "Auction not found" })
         }
 
-        const { auction_type, min_bid, start_price } = auctionInfo;
+        const { auction_type, min_bid, start_price, current_price } = auctionInfo;
         const bidAmount = parseFloat(bid_amount);
         if (isNaN(bidAmount)) {
             return res.status(400).json({ message: "Invalid bid amount" })
@@ -137,25 +187,24 @@ export async function createBidFromTelegram(req, res) {
 
         // Bid validation per auction type
         if (auction_type === "ascending") {
+
             const minBidData = await getAuctionMinBid(auction_id);
             const currentMinBid = Math.max(minBidData.min_bid, minBidData.highest_bid || 0);
+
             if (bidAmount <= currentMinBid) {
                 return res.status(400).json({ message: `Bid must be higher than current price ($${currentMinBid})` });
             }
         } else if (auction_type === "descending") {
-            const lowestBid = await getLowestBid(auction_id);
+            // Use current_price as the reference price for descending auction bids
 
-            if (lowestBid !== null && bidAmount >= lowestBid) {
-                return res.status(400).json({ message: `Bid must be lower than current lowest price ($${lowestBid})` })
+            if (current_price !== null && current_price !== undefined && bidAmount >= current_price) {
+                return res.status(400).json({ message: `Bid must be lower than current price ($${current_price})` })
             }
 
             if (bidAmount < min_bid) {
                 return res.status(400).json({ message: `Bid must be at least the minimum allowed ($${min_bid})` });
             }
 
-            if (start_price && bidAmount >= start_price) {
-                return res.status(400).json({ message: `Bid must be lower than starting price ($${start_price})` })
-            }
         } else {
             return res.status(400).json({ message: "Unsupported auction type" });
         }
