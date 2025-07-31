@@ -233,7 +233,7 @@ export default function UserFeedback() {
             </Typography>
           </Box>
 
-          <div style={{ margin: '20px 0' }}>
+          <div style={{ margin: '20px 0', textAlign: 'center' }}>
             <md-filled-button
               type="submit"
               disabled={loading || submitted}
