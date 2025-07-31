@@ -163,7 +163,6 @@ export async function getRecentListings(limit = 5) {
 }
 
 
-
 /** SL and QY Old Code
  * get current descending price for a listing
  * @param {number} listingId
@@ -219,13 +218,14 @@ export async function getRecentListings(limit = 5) {
   return Number(price.toFixed(2));
 } */
 
+ 
 
-/**
+/** New Code with improved Logic
  * get and update current descending price for a listing
  * @param {number} listingId
  * @returns {number|null} current price or null if not a descending auction
  */
-export async function getCurrentDescendingPrice(listingId) {
+/* export async function getCurrentDescendingPrice(listingId) {
   const result = await sql`
     SELECT 
       auction_type,
@@ -276,7 +276,7 @@ export async function getCurrentDescendingPrice(listingId) {
   price = Math.max(price, Number(min_bid));
   price = Number(price.toFixed(2));
 
-  // 🔄 Update DB with the current_price
+  // 🔄 Updates the DB with the current_price
   await sql`
     UPDATE auction_listings
     SET current_price = ${price}
@@ -284,7 +284,8 @@ export async function getCurrentDescendingPrice(listingId) {
   `;
 
   return price;
-}
+} */
+
 
 
 // returns top 5 listings with most bids

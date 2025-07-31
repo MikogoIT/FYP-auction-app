@@ -121,9 +121,10 @@ export async function getListing(req, res) {
       listing.is_active = false;
     }
     
-    if (listing.auction_type === "descending") {
+    /*if (listing.auction_type === "descending") {
       listing.current_price = await getCurrentDescendingPrice(req.params.id);
-    }
+    } */
+   
     res.json({ listing });
   } catch (err) {
     console.error("Fetch listing error:", err);
