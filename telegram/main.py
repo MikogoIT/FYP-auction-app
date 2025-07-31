@@ -106,8 +106,12 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(start_bot())
+        logger.info("Bot is running, entering event loop...")
         loop.run_forever()
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Bot failed: {e}", exc_info=True)
     finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
