@@ -29,6 +29,7 @@ export default function EditListing() {
         const resList = await fetch(`/api/listings/${id}`);
         const listData = await resList.json();
         if (!resList.ok) throw new Error(listData.message);
+        console.log("listData:", listData);
         setListing(listData.listing);
 
         // 2) fetch existing cover

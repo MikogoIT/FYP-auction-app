@@ -90,23 +90,41 @@ export const updateListing = async (
   description,
   min_bid,
   end_date,
-  auction_type = "ascending",
-  start_price = null,
-  discount_percentage = null 
+  auction_type,
+  start_price,
+  discount_percentage
 ) => {
-  return await sql`
-    UPDATE auction_listings
-    SET 
-      title = ${title},
-      description = ${description},
-      min_bid = ${min_bid},
-      end_date = ${end_date},
-      auction_type = ${auction_type},
-      start_price = ${start_price},
-      discount_percentage = ${discount_percentage}
-    WHERE id = ${id}
-  `;
+  if (auction_type === "descending") {
+    // descending auction → update all fields
+    return await sql`
+      UPDATE auction_listings
+      SET 
+        title = ${title},
+        description = ${description},
+        min_bid = ${min_bid},
+        end_date = ${end_date},
+        auction_type = ${auction_type},
+        start_price = ${start_price},
+        discount_percentage = ${discount_percentage}
+      WHERE id = ${id}
+    `;
+  } else {
+    // ascending auction → ignore descending-only fields
+    return await sql`
+      UPDATE auction_listings
+      SET 
+        title = ${title},
+        description = ${description},
+        min_bid = ${min_bid},
+        end_date = ${end_date},
+        auction_type = ${auction_type},
+        start_price = NULL,
+        discount_percentage = NULL
+      WHERE id = ${id}
+    `;
+  }
 };
+
 
 export const deleteListing = async (id) => {
   return await sql`
