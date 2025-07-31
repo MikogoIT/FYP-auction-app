@@ -85,7 +85,7 @@ async def start_bot():
         logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
         await application.run_webhook(
             listen="0.0.0.0",
-            port=PORT,
+            port=8443,
             url_path="/webhook",
             webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
