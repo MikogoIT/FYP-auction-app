@@ -10,9 +10,10 @@ import {
   Avatar,
   Breadcrumbs,
   Link as MuiLink,
+  CircularProgress,
 } from "@mui/material";
 
-// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
+// ensure these load your Material Web buttons
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
@@ -23,17 +24,11 @@ const MAX_WORDS = 100;
 
 export default function UserFeedback() {
   const { auctionId } = useParams();
-  console.log("UserFeedbackPage mounted with auctionId:", auctionId);
 
-  // Feedback form state
-  const [userRating, setUserRating] = useState(5);
-  const [userComments, setUserComments] = useState("");
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const wordCount = countWords(userComments);
+  // 1) Load current user
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Auction metadata state
+  // 2) Load auction people
   const [listingTitle, setListingTitle] = useState("");
   const [buyerId, setBuyerId] = useState(null);
   const [buyerUsername, setBuyerUsername] = useState("");
@@ -43,6 +38,47 @@ export default function UserFeedback() {
   const [sellerProfileImageUrl, setSellerProfileImageUrl] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
 
+  // 3) Authorization flags
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isReviewerBuyer, setIsReviewerBuyer] = useState(false);
+
+  // 4) Feedback form state
+  const [userRating, setUserRating] = useState(5);
+  const [userComments, setUserComments] = useState("");
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const wordCount = countWords(userComments);
+
+  // Fetch current user
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const res = await fetch("/api/profile", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.ok) {
+          const payload = await res.json();
+          console.log("🔍 /api/profile payload:", payload);
+          const { user } = payload;                // <-- extract the wrapped user
+          console.log("🔑 Unwrapped user:", user);
+          setCurrentUserId(user.id);
+          console.log("➡️ currentUserId set to", user.id);
+        } else {
+          console.warn("⚠️ /api/profile returned", res.status);
+          setCurrentUserId(null);
+        }
+      } catch (err) {
+        console.error("❌ Failed to fetch profile:", err);
+        setCurrentUserId(null);
+      }
+    }
+    fetchCurrentUser();
+  }, []);
+
+  // Fetch buyer & seller
   useEffect(() => {
     async function fetchPeople() {
       try {
@@ -51,7 +87,8 @@ export default function UserFeedback() {
         });
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
-        console.log("Auction people data:", data);
+        console.log("🔍 Auction people data:", data);
+
         setListingTitle(data.listingTitle);
         setBuyerId(data.buyer.id);
         setBuyerUsername(data.buyer.username);
@@ -60,12 +97,74 @@ export default function UserFeedback() {
         setSellerUsername(data.seller.username);
         setSellerProfileImageUrl(data.seller.profileImageUrl);
         setCoverImageUrl(data.coverImageUrl);
+
+        console.log("➡️ buyerId =", data.buyer.id, "sellerId =", data.seller.id);
       } catch (err) {
-        console.error("Error fetching auction people:", err);
+        console.error("❌ Error fetching auction people:", err);
       }
     }
     fetchPeople();
   }, [auctionId]);
+
+  // Once we have currentUserId, buyerId, sellerId → check authorization
+  useEffect(() => {
+    // only run after all three are non-null
+    if (
+      currentUserId !== null &&
+      buyerId !== null &&
+      sellerId !== null
+    ) {
+      console.log("🔑 Auth check:", {
+        currentUserId,
+        buyerId,
+        sellerId,
+      });
+
+      if (currentUserId === buyerId) {
+        setIsAuthorized(true);
+        setIsReviewerBuyer(true);
+        console.log("✅ User is the buyer");
+      } else if (currentUserId === sellerId) {
+        setIsAuthorized(true);
+        setIsReviewerBuyer(false);
+        console.log("✅ User is the seller");
+      } else {
+        setIsAuthorized(false);
+        console.log("❌ User is neither buyer nor seller");
+      }
+      setAuthChecked(true);
+    }
+  }, [currentUserId, buyerId, sellerId]);
+
+  // Show loading spinner until we know whether they’re allowed
+  if (!authChecked) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="60vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // If they’re not the buyer or seller, block access
+  if (!isAuthorized) {
+    return (
+      <Box textAlign="center" mt={8}>
+        <Typography variant="h6" color="error">
+          You are not allowed to make this review
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Otherwise, render the form
+  const reviewTargetUsername = isReviewerBuyer
+    ? sellerUsername
+    : buyerUsername;
 
   const handleCommentChange = (e) => {
     const value = e.target.value;
@@ -76,11 +175,6 @@ export default function UserFeedback() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting feedback payload:", {
-      auction_id: auctionId,
-      user_ratings: userRating,
-      user_comments: userComments,
-    });
     setLoading(true);
     setMsg("");
     try {
@@ -94,9 +188,7 @@ export default function UserFeedback() {
           user_comments: userComments,
         }),
       });
-      console.log("Fetch response status:", res.status);
       const data = await res.json();
-      console.log("API response data:", data);
       if (res.status === 409) {
         setMsg("You have already submitted your feedback!");
         setSubmitted(true);
@@ -106,11 +198,11 @@ export default function UserFeedback() {
         setUserComments("");
       } else {
         setMsg(
-          "❌ " + (data.error || data.message || "Failed to submit feedback."),
+          "❌ " + (data.error || data.message || "Failed to submit feedback.")
         );
       }
     } catch (err) {
-      console.error("Error during feedback submission:", err);
+      console.error("❌ Error during feedback submission:", err);
       setMsg("❌ Server error. Please try again later.");
     } finally {
       setLoading(false);
@@ -119,53 +211,37 @@ export default function UserFeedback() {
 
   return (
     <div className="dashboardCanvas">
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
       <div className="dashboardContent">
-        {/* Custom breadcrumbs */}
         <Breadcrumbs
           aria-label="breadcrumb"
-          sx={{
-            width: "100%",
-            mb: 3,
-            "& a, & .MuiTypography-root": { fontSize: "16px" },
-          }}
+          sx={{ width: "100%", mb: 3, "& a, & .MuiTypography-root": { fontSize: "16px" } }}
         >
-          <MuiLink
-            component={RouterLink}
-            to="/dashboard"
-            underline="hover"
-            color="inherit"
-          >
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
             Home
           </MuiLink>
           <Typography color="text.primary">User review</Typography>
         </Breadcrumbs>
+
         <div id="wideTitle" className="profileTitle">
-          Write review for {sellerUsername}
+          Write review for {reviewTargetUsername}
         </div>
 
-
-        {/* Auction cover image & title */}
         {coverImageUrl && (
-          <Box textAlign="center" sx={{my: '24px'}}>
+          <Box textAlign="center" sx={{ my: "24px" }}>
             <img
               src={coverImageUrl}
               alt="Auction cover"
               style={{ width: "160px", objectFit: "cover", borderRadius: 8 }}
             />
-            {listingTitle && (
-              <div className="smallTitle">
-                {listingTitle}
-              </div>
-            )}
+            {listingTitle && <div className="smallTitle">{listingTitle}</div>}
           </Box>
         )}
 
-        {/* Seller and Buyer sections with links to profiles */}
         <Box display="flex" gap={4} mb={4} justifyContent="center">
           <MuiLink
             component={RouterLink}
-            to={sellerId ? `/feedback/${sellerId}` : '#'}
+            to={sellerId ? `/feedback/${sellerId}` : "#"}
             underline="none"
             color="inherit"
           >
@@ -174,7 +250,7 @@ export default function UserFeedback() {
               <Avatar
                 src={sellerProfileImageUrl}
                 alt={sellerUsername}
-                sx={{ width: 56, height: 56, margin: '5px auto' }}
+                sx={{ width: 56, height: 56, margin: "5px auto" }}
               />
               <div>{sellerUsername}</div>
             </Box>
@@ -182,7 +258,7 @@ export default function UserFeedback() {
 
           <MuiLink
             component={RouterLink}
-            to={buyerId ? `/feedback/${buyerId}` : '#'}
+            to={buyerId ? `/feedback/${buyerId}` : "#"}
             underline="none"
             color="inherit"
           >
@@ -191,18 +267,17 @@ export default function UserFeedback() {
               <Avatar
                 src={buyerProfileImageUrl}
                 alt={buyerUsername}
-                sx={{ width: 56, height: 56, margin: '5px auto' }}
+                sx={{ width: 56, height: 56, margin: "5px auto" }}
               />
               <div>{buyerUsername}</div>
             </Box>
           </MuiLink>
         </Box>
 
-        <form onSubmit={handleSubmit} style={{ width: '90%', maxWidth: '1000px', }}>
+        <form onSubmit={handleSubmit} style={{ width: "90%", maxWidth: "1000px" }}>
           <Box mb={2} display="flex" alignItems="center" gap={1}>
             <Rating
               name="userRating"
-              id="userRating"
               value={userRating}
               onChange={(_, value) => setUserRating(value)}
               readOnly={submitted || loading}
@@ -212,7 +287,7 @@ export default function UserFeedback() {
 
           <TextField
             label="Review"
-            placeholder="Share your feedback about this user..."
+            placeholder="Share your feedback about this user…"
             multiline
             rows={6}
             fullWidth
@@ -223,22 +298,18 @@ export default function UserFeedback() {
           />
 
           <Box display="flex" justifyContent="flex-end" mt={1}>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '16px' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "16px" }}>
               {wordCount} / {MAX_WORDS} words
               {wordCount >= MAX_WORDS && (
-                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1, fontSize: '16px' }}>
+                <Typography component="span" variant="caption" sx={{ color: "error.main", ml: 1, fontSize: "16px" }}>
                   (Word limit reached)
                 </Typography>
               )}
             </Typography>
           </Box>
 
-          <div style={{ margin: '20px 0', textAlign: 'center' }}>
-            <md-filled-button
-              type="submit"
-              disabled={loading || submitted}
-              sx={{ fontSize: '16px'}}
-            >
+          <div style={{ margin: "20px 0", textAlign: "center" }}>
+            <md-filled-button type="submit" disabled={loading || submitted} sx={{ fontSize: "16px" }}>
               {loading ? "Submitting…" : "Submit"}
             </md-filled-button>
           </div>
@@ -247,7 +318,12 @@ export default function UserFeedback() {
             <Typography
               variant="body2"
               align="center"
-              sx={{ fontSize: '16px', mt: 2, fontWeight: 600, color: msg.startsWith("✅") ? "success.main" : "error.main" }}
+              sx={{
+                fontSize: "16px",
+                mt: 2,
+                fontWeight: 600,
+                color: msg.startsWith("✅") ? "success.main" : "error.main",
+              }}
               aria-live="polite"
             >
               {msg}
@@ -255,7 +331,7 @@ export default function UserFeedback() {
           )}
         </form>
       </div>
-      <div className="sidebarSpacer"></div>
+      <div className="sidebarSpacer" />
     </div>
   );
 }
