@@ -310,7 +310,7 @@ export default function EditListing() {
               style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
             />
 
-            <label>Start Price *</label>
+            <label>Start Price</label>
             <input
               name="start_price"
               type="number"
@@ -318,7 +318,14 @@ export default function EditListing() {
               onChange={handleChange}
               required
               readOnly // Non-editable
-              style={{ width: "100%", padding: "8px", marginBottom: "12px", backgroundColor: "#f5f5f5" }}
+              style={{
+                width: "100%",
+                padding: "8px",
+                marginBottom: "12px",
+                backgroundColor: "#f0f0f0",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
             />
 
             <label>Discount Percentage *</label>
