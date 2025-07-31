@@ -8,7 +8,7 @@ import {
   deleteListing,
   getMyListings,
   getListingsWithFilters,
-  getCurrentDescendingPrice,
+  //getCurrentDescendingPrice,
   getAuctionPeople 
 } from "../models/listingsModel.js";
 import { getRecentListings as fetchRecentListings } from "../models/listingsModel.js";
