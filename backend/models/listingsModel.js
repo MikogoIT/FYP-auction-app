@@ -58,6 +58,7 @@ export const getListingById = async (id) => {
       a.end_date,
       a.auction_type,
       a.start_price,
+      a.current_price,
       a.discount_percentage,
       a.category_id,
       c.name             AS category_name,
