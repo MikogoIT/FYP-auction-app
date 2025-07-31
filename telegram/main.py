@@ -86,7 +86,7 @@ async def start_bot():
         await application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
-            url_path="/api/telegram/webhook",
+            url_path="/webhook",
             webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
         )
