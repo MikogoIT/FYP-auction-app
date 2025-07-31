@@ -12,6 +12,7 @@ from handlers import (
 from jobs import poll_and_post_listings, poll_notifications
 import asyncio
 import requests
+import time
 
 def set_telegram_webhook():
     if not TELEGRAM_BOT_TOKEN or not WEBHOOK_URL:
@@ -23,12 +24,18 @@ def set_telegram_webhook():
         "secret_token": BOT_SECRET,
     }
     
-    response = requests.post(url, json=data)
-    
-    if response.status_code == 200:
-        logger.info("Telegram webhook set: %s", response.json())
-    else:
-        logger.error("Failed to set Telegram webhook: %s", response.text)
+    for attempt in range(3):
+        try:
+            response = requests.post(url, json=data)
+            if response.status_code == 200:
+                logger.info("Telegram webhook set: %s", response.json())
+                return
+            else:
+                logger.error("Failed to set Telegram webhook: %s", response.text)
+        except Exception as e:
+            logger.error(f"Attempt {attempt + 1} failed: {e}")
+        time.sleep(2) # Wait before retrying
+    raise RuntimeError("Failed to set Telegram webhook after retries")
 
 async def set_commands(application):
     commands = [
@@ -85,14 +92,22 @@ async def start_bot():
         logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
         await application.run_webhook(
             listen="0.0.0.0",
-            port=8443,
+            port=PORT,
             url_path="/webhook",
             webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
         )
+        logger.info("Webhook server is running")
     except Exception as e:
         logger.error(f"Error while running webhook: {e}", exc_info=True)
         raise
     
 if __name__ == "__main__":
-    asyncio.run(start_bot())
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(start_bot())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    finally:
+        loop.close()
