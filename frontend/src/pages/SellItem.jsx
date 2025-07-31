@@ -73,13 +73,13 @@ const SellItem = () => {
   // Clear Inputs on switching Auction Type
   useEffect(() => {
     if (auctionType === "descending") {
-      setDiscountPercentage(10); // default 10%
-      setStartPrice(""); // clear start price to be safe
       setMinBid(""); // clear min bid if needed
+      setStartPrice(""); // clear start price to be safe
+      setDiscountPercentage(10); // default 10%
     } else if (auctionType === "ascending") {
-      setMinBid("");
-      setStartPrice(null);
-      setDiscountPercentage(10);
+      setMinBid(""); // clear min bid if needed
+      setStartPrice(null); // clear start price to be safe
+      setDiscountPercentage(null); // default 10%
     }
   }, [auctionType]);
 
