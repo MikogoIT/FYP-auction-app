@@ -84,14 +84,15 @@ async def start_bot():
         logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
         
         # Set Telegram webhook once per deploy/startup
-        logger.info("Setting Telegram webhook...")
-        set_telegram_webhook()
+        # logger.info("Setting Telegram webhook...")
+        # set_telegram_webhook()
         
         # Start webhook listener
         await application.updater.start_webhook(
             listen="0.0.0.0",
             port=PORT,
             url_path="/webhook",
+            webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
         )
     except Exception as e:

@@ -70,7 +70,7 @@ export async function handleTelegramWebhook(req, res) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.BOT_SECRET}`,
+                "x-telegram-bot-api-secret-token": tgSecret,
             },
             body: JSON.stringify(req.body),
         });
