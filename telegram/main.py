@@ -110,16 +110,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_shutdown)
     
     try:
-        asyncio.run(start_bot())
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        loop.create_task(start_bot())
+        loop.run_forever()
     except Exception as e:
         logger.critical("Bot crashed: %s", str(e), exc_info=True)
         exit(1)
-    
-    # try:
-    #     loop = asyncio.get_event_loop()
-    #     if loop.is_running():
-    #         asyncio.create_task(start_bot())
-    #     else:
-    #         loop.run_until_complete(start_bot())
-    # except Exception as e:
-    #     logger.error(f"Bot failed: {e}", exc_info=True)

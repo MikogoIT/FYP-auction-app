@@ -65,7 +65,7 @@ export async function handleTelegramWebhook(req, res) {
             return res.status(403).json({ message: "Forbidden" });
         }
 
-        const botUrl = "https://auctioneer-tele-bot-843502773557.asia-southeast1.run.app/";
+        const botUrl = "https://auctioneer-tele-bot-843502773557.asia-southeast1.run.app";
         const fullWebhookUrl = `${botUrl}/webhook`;
 
         const client = await getTeleBotIdTokenClient(botUrl);
