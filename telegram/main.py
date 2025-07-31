@@ -43,6 +43,7 @@ async def start_bot():
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    logger.info("Application initialized, registering handlers...")
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
@@ -63,45 +64,35 @@ async def start_bot():
     # Set auto-complete commands after bot initializes
     await set_commands(application)
 
+    # # Schedule listing poster every 5 minutes (300 seconds)
+    # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
+    
+    # # Schedule notification poster every 1min (60 seconds)
+    # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
+
+    # logger.info("Bot started with polling listing poster and notifications job.")
+    # application.run_polling()
+    
+    # Set Telegram webhook once per deploy/startup
     try:
-        logger.info("Bot initializing webhook...")
-
-        # # Schedule listing poster every 5 minutes (300 seconds)
-        # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
-        
-        # # Schedule notification poster every 1min (60 seconds)
-        # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
-
-        # logger.info("Bot started with polling listing poster and notifications job.")
-        # application.run_polling()
-        
-        # Initialize first
-        await application.initialize()
-        
-        # Start the bot and webhook manually
-        await application.start()
-        
-        logger.info(f"Telegram bot webhook URL: {WEBHOOK_URL}")
-        
-        # Set Telegram webhook once per deploy/startup
-        # logger.info("Setting Telegram webhook...")
-        # set_telegram_webhook()
-        
-        # Start webhook listener
-        await application.updater.start_webhook(
+        logger.info("Setting Telegram webhook...")
+        set_telegram_webhook()
+    except Exception as e:
+        logger.error(f"Failed to set Telegram webhook: {e}")
+    
+    # Start webhook listener
+    try:
+        logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
+        await application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
-            url_path="/webhook",
+            url_path="/api/telegram/webhook",
             webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
         )
     except Exception as e:
-        logger.error("Bot crashed with error: %s", e)
-    finally:
-        logger.info("Shutting down bot gracefully...")
-        await application.updater.stop()
-        await application.stop()
-        await application.shutdown()
+        logger.error(f"Error while running webhook: {e}", exc_info=True)
+        raise
     
 if __name__ == "__main__":
     asyncio.run(start_bot())
