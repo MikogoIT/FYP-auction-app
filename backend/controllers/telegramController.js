@@ -5,7 +5,7 @@ import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { getAuctionMetadata, getLowestBid } from "../models/auctionModel.js";
-import { isTelegramDataValid } from "../utils/telegramUtils.js";
+import { isTelegramDataValid, getTeleBotIdTokenClient } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;
@@ -65,20 +65,24 @@ export async function handleTelegramWebhook(req, res) {
             return res.status(403).json({ message: "Forbidden" });
         }
 
+        const botUrl = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook";
+
+        const client = await getTeleBotIdTokenClient(botUrl);
+
         // Forward to the bot backend
-        const botResponse = await fetch("https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook", {
+        const botResponse = await client.request({
+            url: botUrl,
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "x-telegram-bot-api-secret-token": tgSecret,
             },
-            body: JSON.stringify(req.body),
+            data: req.body,
         });
 
-        if (!botResponse.ok) {
-            const error = await botResponse.text();
-            console.error("Forwarding failed: ", error);
-            return res.status(500).json({ error: "Forwarding failed", detail: error });
+        if (!botResponse.status || botResponse.status >= 400) {
+            console.error("Forwarding failed: ", botResponse.data);
+            return res.status(500).json({ error: "Forwarding failed", detail: botResponse.data });
         }
 
         return res.status(200).json({ message: "Forwarded to bot" });

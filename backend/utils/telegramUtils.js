@@ -1,5 +1,6 @@
 // utils/telegramUtils.js
 import crypto from "crypto";
+import { GoogleAuth } from 'google-auth-library';
 
 export function isTelegramDataValid(data, botToken) {
 
@@ -21,4 +22,9 @@ export function isTelegramDataValid(data, botToken) {
                             .digest("hex");
 
     return computedHash === hash;
+}
+
+export async function getTeleBotIdTokenClient(url) {
+    const auth = new GoogleAuth();
+    return await auth.getIdTokenClient(url);
 }
