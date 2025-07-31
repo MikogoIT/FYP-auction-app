@@ -147,11 +147,11 @@ export default function UserFeedback() {
 
         {/* Auction cover image & title */}
         {coverImageUrl && (
-          <Box mb={3} textAlign="center">
+          <Box textAlign="center" sx={{my: '24px'}}>
             <img
               src={coverImageUrl}
               alt="Auction cover"
-              style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8 }}
+              style={{ width: "160px", objectFit: "cover", borderRadius: 8 }}
             />
             {listingTitle && (
               <div className="smallTitle">
@@ -222,7 +222,7 @@ export default function UserFeedback() {
             disabled={submitted || loading}
           />
 
-          <Box display="flex" justifyContent="flex-end" mt={1}>
+          <Box display="flex" justifyContent="flex-end" mt={1} sx={{ width: '100%' }}>
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '16px' }}>
               {wordCount} / {MAX_WORDS} words
               {wordCount >= MAX_WORDS && (
