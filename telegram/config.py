@@ -12,4 +12,4 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 PORT = int(os.getenv("PORT", 8443))
-WEBHOOK_URL = os.getenv("WEBHOOK_URL") # No default, must be set in prod
+WEBHOOK_URL = "https://auctioneer.timothy-mah.com/api/telegram/webhook" # No default, must be set in prod

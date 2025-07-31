@@ -57,6 +57,37 @@ export async function unlinkTelegramAccount(req, res) {
     }
 }
 
+export async function handleTelegramWebhook(req, res) {
+    try {
+        // Optional: verify Telegram secret token
+        const tgSecret = req.headers["x-telegram-bot-api-secret-token"];
+        if (tgSecret !== process.env.BOT_SECRET) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        // Forward to the bot backend
+        const botResponse = await fetch("https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.BOT_SECRET}`,
+            },
+            body: JSON.stringify(req.body),
+        });
+
+        if (!botResponse.ok) {
+            const error = await botResponse.text();
+            console.error("Forwarding failed: ", error);
+            return res.status(500).json({ error: "Forwarding failed", detail: error });
+        }
+
+        return res.status(200).json({ message: "Forwarded to bot" });
+    } catch (err) {
+        console.error("Webhook handler error: ", err);
+        return res.status(500).json({ error: "Unexpected error", detail: err.message });
+    }
+}
+
 export async function fetchUnpostedListings(req, res) {
     try {
         const result = await telegramModel.getUnpostedListings();

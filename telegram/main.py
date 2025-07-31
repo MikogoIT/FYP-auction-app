@@ -91,7 +91,6 @@ async def start_bot():
         await application.updater.start_webhook(
             listen="0.0.0.0",
             port=PORT,
-            webhook_url=WEBHOOK_URL,
             url_path="/webhook",
             secret_token=BOT_SECRET,
         )

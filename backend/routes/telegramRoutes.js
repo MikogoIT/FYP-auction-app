@@ -10,6 +10,8 @@ router.post("/linkTelegram", requireLogin, telegramController.linkTelegramAccoun
 router.post("/unlinkTelegram", requireLogin, telegramController.unlinkTelegramAccount);
 router.post("/status", requireLogin, telegramController.getTelegramStatus);
 
+router.post("/webhook", telegramController.handleTelegramWebhook);
+
 // Bot-specific routes
 router.get("/listings/unposted", requireBotAuth, telegramController.fetchUnpostedListings);
 router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markListingPosted);
