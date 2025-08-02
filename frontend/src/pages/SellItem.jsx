@@ -455,7 +455,7 @@ const SellItem = () => {
                         placeholder="Type tags and press Enter to add..."
                       />
                       <FormHelperText sx={{ ml: 0, mt: 1 }}>
-                        Add tags to help buyers find your item. Press Enter or comma to add tags. No duplicate tags or special symbols allowed.
+                        Add tags to help buyers find your item. Press Enter to add tags. No duplicate tags or special symbols allowed.
                       </FormHelperText>
                     </Box>
 
