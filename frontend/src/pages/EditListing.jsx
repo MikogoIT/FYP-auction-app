@@ -1,38 +1,86 @@
-// src/pages/EditListing.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import ImageIcon from "@mui/icons-material/Image";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Alert,
+  Card,
+  CardMedia,
+  CardContent,
+  IconButton,
+  Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+import {
+  ArrowBack,
+  CloudUpload,
+  Delete,
+  Image as ImageIcon,
+  PhotoCamera,
+} from "@mui/icons-material";
 import { IMG_BASE_URL } from "../global-vars.jsx";
+
+// Validation schema
+const validationSchema = Yup.object({
+  title: Yup.string()
+    .required("Title is required")
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title must be less than 100 characters"),
+  description: Yup.string()
+    .max(1000, "Description must be less than 1000 characters"),
+  min_bid: Yup.number()
+    .required("Minimum bid is required")
+    .positive("Minimum bid must be greater than 0")
+    .min(0.01, "Minimum bid must be at least 0.01"),
+  end_date: Yup.date()
+    .required("End date is required")
+    .min(new Date(), "End date must be in the future"),
+});
 
 export default function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // listing data
+  // States
   const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // cover image states
+  // Cover image states
   const [coverUrl, setCoverUrl] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  // fetch listing + cover
+  // Fetch listing data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1) fetch listing
+        setLoading(true);
+        
+        // Fetch listing
         const resList = await fetch(`/api/listings/${id}`);
         const listData = await resList.json();
         if (!resList.ok) throw new Error(listData.message);
+        
         console.log("listData:", listData);
         setListing(listData.listing);
 
-        // 2) fetch existing cover
-        const token = localStorage.getItem("token");
+        // Fetch existing cover image
         const resImg = await fetch(`/api/listingimg?listingId=${id}`, {
           credentials: "include",
         });
@@ -41,18 +89,23 @@ export default function EditListing() {
           setCoverUrl(imgData.imageUrl);
         }
       } catch (err) {
-        setError("❌ " + err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
+    
     fetchData();
   }, [id]);
 
-  // handlers for listing fields
-  const handleChange = (e) =>
-    setListing({ ...listing, [e.target.name]: e.target.value });
+  // Format date for datetime-local input
+  const formatDateForInput = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16);
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Handle form submission
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     setError("");
     setSuccess("");
 
@@ -95,10 +148,10 @@ export default function EditListing() {
         },
         credentials: "include",
         body: JSON.stringify({
-          title: listing.title,
-          description: listing.description,
-          min_bid: parseFloat(listing.min_bid),
-          end_date: listing.end_date,
+          title: values.title,
+          description: values.description,
+          min_bid: parseFloat(values.min_bid),
+          end_date: values.end_date,
           auction_type: listing.auction_type,
           ...(listing.auction_type === "descending" && {
             start_price: parseFloat(listing.start_price),
@@ -110,26 +163,42 @@ export default function EditListing() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setSuccess("Listing updated successfully");
-      setTimeout(() => navigate("/dashboard"), 1000);
+      setSuccess("Listing updated successfully!");
+      setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err) {
-      setError("" + err.message);
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // cover image handlers
-  const handleCoverChange = (e) => {
-    const file = e.target.files[0];
+  // Cover image handlers
+  const handleCoverChange = (event) => {
+    const file = event.target.files[0];
     if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image file must be less than 5MB");
+      return;
+    }
+
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
+    setError("");
   };
 
   const handleUploadCover = async () => {
     if (!coverFile) return;
+
     setUploadingCover(true);
     try {
-      const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("image", coverFile);
       formData.append("listingId", id);
@@ -139,284 +208,288 @@ export default function EditListing() {
         credentials: "include",
         body: formData,
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
       setCoverUrl(data.imageUrl);
       setCoverPreview(null);
       setCoverFile(null);
-      alert("✅ Cover image uploaded!");
+      setSuccess("Cover image uploaded successfully!");
     } catch (err) {
-      alert("❌ Upload failed: " + err.message);
+      setError("Upload failed: " + err.message);
     } finally {
       setUploadingCover(false);
     }
   };
 
+  // Handle listing deletion
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/listings/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setSuccess("Listing deleted successfully!");
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (err) {
+      setError("Failed to delete listing: " + err.message);
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
   if (!listing) {
-    return <p style={{ textAlign: "center" }}>Loading listing...</p>;
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">Listing not found</Alert>
+      </Container>
+    );
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "40px auto",
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginBottom: "16px",
-        }}
-      >
-        ← Back
-      </button>
-      <h2 style={{ textAlign: "center" }}>Edit Listing</h2>
+    <Container maxWidth="md" sx={{ pt: 12, pb: 4 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
+        {/* Back Button */}
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(-1)}
+          sx={{ mb: 3 }}
+          variant="outlined"
+        >
+          Back
+        </Button>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Edit Listing
+        </Typography>
 
-      {/* Cover image preview / placeholder */}
-      <div
-        style={{
-          textAlign: "center",
-          marginBottom: "20px",
-        }}
-      >
-        {coverUrl && coverUrl.startsWith(IMG_BASE_URL) ? (
-          <img
-            src={coverUrl}
-            alt="Cover"
-            style={{
-              width: "100%",
-              maxHeight: "300px",
-              objectFit: "cover",
-              borderRadius: "4px",
-            }}
-          />
-        ) : (
-          <Avatar
-            variant="square"
-            sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-          >
-            <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
-          </Avatar>
-        )}
-
-        {/* Upload new cover only when editing */}
-        <div style={{ marginTop: "10px" }}>
-          <input type="file" accept="image/*" onChange={handleCoverChange} />
-          {coverPreview && (
-            <img
-              src={coverPreview}
-              alt="Preview"
-              style={{
-                width: "100%",
-                maxHeight: "300px",
-                objectFit: "cover",
-                marginTop: "10px",
-                borderRadius: "4px",
+        {/* Cover Image Section */}
+        <Card sx={{ mb: 4 }}>
+          {coverUrl && coverUrl.startsWith(IMG_BASE_URL) ? (
+            <CardMedia
+              component="img"
+              height="300"
+              image={coverUrl}
+              alt="Cover Image"
+              sx={{
+                  width: "100%",
+                  height: "auto",
+                  objectFit: "contain",
+                  borderRadius: "4px",
+                  border: "1px solid #e0e0e0"
               }}
             />
+          ) : (
+            <Box
+              sx={{
+                height: 300,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "grey.100",
+              }}
+            >
+              <ImageIcon sx={{ fontSize: 60, color: "grey.400" }} />
+            </Box>
           )}
-          <button
-            type="button"
-            onClick={handleUploadCover}
-            disabled={uploadingCover || !coverFile}
-            style={{
-              marginTop: "8px",
-              padding: "8px 16px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            {uploadingCover ? "Uploading..." : "Upload Cover Image"}
-          </button>
-        </div>
-      </div>
 
-      <form onSubmit={handleSubmit}>
-        <label>Title *</label>
-        <input
-          name="title"
-          value={listing.title || ""}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        />
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<PhotoCamera />}
+                sx={{ flex: 1 }}
+              >
+                Choose Image
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  hidden
+                />
+              </Button>
 
-        <label>Description</label>
-        <textarea
-          name="description"
-          value={listing.description || ""}
-          onChange={handleChange}
-          rows="4"
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        />
+              <Button
+                variant="contained"
+                startIcon={<CloudUpload />}
+                onClick={handleUploadCover}
+                disabled={!coverFile || uploadingCover}
+                sx={{ flex: 1 }}
+              >
+                {uploadingCover ? "Uploading..." : "Upload"}
+              </Button>
+            </Stack>
 
-        {/* Show auction type as readonly text or label */}
-        <label>Auction Type</label>
-        <input
-          type="text"
-          value={
-            listing.auction_type
-              ? listing.auction_type.charAt(0).toUpperCase() + listing.auction_type.slice(1)
-              : ""
-          }
-          readOnly // Non-editable
-          style={{
-            width: "100%",
-            padding: "8px",
-            marginBottom: "12px",
-            backgroundColor: "#f0f0f0",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
+            {coverPreview && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Preview:
+                </Typography>
+                <img
+                  src={coverPreview}
+                  alt="Preview"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "contain",
+                    borderRadius: "4px",
+                    border: "1px solid #e0e0e0"
+                  }}
+                />
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Form Section */}
+        <Formik
+          initialValues={{
+            title: listing.title || "",
+            description: listing.description || "",
+            min_bid: listing.min_bid || "",
+            end_date: formatDateForInput(listing.end_date) || "",
           }}
-        />
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+            <Form>
+              <Stack spacing={3}>
+                <TextField
+                  name="title"
+                  label="Title"
+                  value={values.title}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.title && Boolean(errors.title)}
+                  helperText={touched.title && errors.title}
+                  required
+                  fullWidth
+                  variant="outlined"
+                />
 
-        {listing.auction_type === "ascending" && (
-          <>
-            <label>Minimum Bid *</label>
-            <input
-              name="min_bid"
-              type="number"
-              value={listing.min_bid || ""}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-            />
-          </>
-        )}
+                <TextField
+                  name="description"
+                  label="Description"
+                  value={values.description}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.description && Boolean(errors.description)}
+                  helperText={touched.description && errors.description}
+                  multiline
+                  rows={4}
+                  fullWidth
+                  variant="outlined"
+                />
 
-        {listing.auction_type === "descending" && (
-          <>
-            <label>Minimum Bid *</label>
-            <input
-              name="min_bid"
-              type="number"
-              value={listing.min_bid || ""}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-            />
+                <TextField
+                  name="min_bid"
+                  label="Minimum Bid"
+                  type="number"
+                  value={values.min_bid}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.min_bid && Boolean(errors.min_bid)}
+                  helperText={touched.min_bid && errors.min_bid}
+                  required
+                  fullWidth
+                  variant="outlined"
+                  inputProps={{
+                    step: "0.01",
+                    min: "0.01",
+                  }}
+                />
 
-            <label>Start Price</label>
-            <input
-              name="start_price"
-              type="number"
-              value={listing.start_price || ""}
-              onChange={handleChange}
-              required
-              readOnly // Non-editable
-              style={{
-                width: "100%",
-                padding: "8px",
-                marginBottom: "12px",
-                backgroundColor: "#f0f0f0",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
-            />
+                <TextField
+                  name="end_date"
+                  label="End Date"
+                  type="datetime-local"
+                  value={values.end_date}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.end_date && Boolean(errors.end_date)}
+                  helperText={touched.end_date && errors.end_date}
+                  required
+                  fullWidth
+                  variant="outlined"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
 
-            <label>Discount Percentage *</label>
-            <input
-              name="discount_percentage"
-              type="number"
-              step="0.01"
-              value={listing.discount_percentage || ""}
-              onChange={handleChange}
-              required
-              style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-            />
-          </>
-        )}
+                {/* Action Buttons */}
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    disabled={isSubmitting}
+                    sx={{ flex: 1 }}
+                  >
+                    {isSubmitting ? <CircularProgress size={24} /> : "Update Listing"}
+                  </Button>
 
-        <label>End Date *</label>
-        <input
-          type="datetime-local"
-          name="end_date"
-          value={listing.end_date ? listing.end_date.slice(0, 16) : ""}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
-        />
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="large"
+                    startIcon={<Delete />}
+                    onClick={() => setDeleteDialogOpen(true)}
+                    sx={{ flex: 1 }}
+                  >
+                    Delete
+                  </Button>
+                </Stack>
+              </Stack>
+            </Form>
+          )}
+        </Formik>
 
-        {error && (
-          <p style={{ color: "red", fontWeight: "bold", marginBottom: "12px" }}>
-            {error}
-          </p>
-        )}
+        {/* Success/Error Messages */}
         {success && (
-          <p
-            style={{ color: "green", fontWeight: "bold", marginBottom: "12px" }}
-          >
+          <Alert severity="success" sx={{ mt: 2 }}>
             {success}
-          </p>
+          </Alert>
         )}
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+      </Paper>
 
-        <button
-          type="submit"
-          style={{
-            backgroundColor: "#28a745",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            width: "100%",
-            fontWeight: "bold",
-          }}
-        >
-          Update Listing
-        </button>
-
-        <button
-          type="button"
-          onClick={async () => {
-            const confirmDelete = window.confirm(
-              "Are you sure you want to delete this listing?",
-            );
-            if (!confirmDelete) return;
-
-            try {
-              const res = await fetch(`/api/listings/${id}`, {
-                method: "DELETE",
-                credentials: "include",
-              });
-              const data = await res.json();
-              if (!res.ok) throw new Error(data.message);
-
-              alert("✅ Listing deleted successfully.");
-              navigate("/dashboard");
-            } catch (err) {
-              alert("❌ Failed to delete listing: " + err.message);
-            }
-          }}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            width: "100%",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          🗑️ Delete Listing
-        </button>
-      </form>
-    </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">Delete Listing</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this listing? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }
