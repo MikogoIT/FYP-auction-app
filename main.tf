@@ -439,3 +439,10 @@ resource "google_cloud_run_v2_service" "tele_bot" {
     google_project_service.run_api
   ]
 }
+
+resource "google_cloud_run_v2_service_iam_member" "tele_bot_public_invoker" {
+  location  = google_cloud_run_v2_service.tele_bot.location
+  name      = google_cloud_run_v2_service.tele_bot.name
+  role      = "roles/run.invoker"
+  member    = "allUsers"
+}

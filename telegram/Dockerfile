@@ -20,4 +20,4 @@ EXPOSE 8443
 
 # 7️⃣ Launch your bot
 #    Replace "main.py" with your main file if different.
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
