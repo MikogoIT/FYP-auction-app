@@ -13,6 +13,7 @@ from jobs import poll_and_post_listings, poll_notifications
 import asyncio
 import httpx
 import signal
+import sys
 
 async def set_telegram_webhook():
     if not TELEGRAM_BOT_TOKEN or not WEBHOOK_URL:
@@ -44,12 +45,49 @@ async def set_commands(application):
     
     await application.bot.set_my_commands(commands)
 
+async def start_bot(application, loop):
+    # Set auto-complete commands
+    await set_commands(application)
+    
+    # Set Telegram webhook
+    logger.info("Setting Telegram webhook...")
+    await set_telegram_webhook()
+    
+    # Start webhook server
+    logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
+    await application.run_webhook(
+        listen="0.0.0.0",
+        port=int(PORT),
+        url_path="/webhook",
+        webhook_url=WEBHOOK_URL,
+        secret_token=BOT_SECRET,
+        close_loop=False, # Prevent run_webhook() from closing the loop
+    )
+    logger.info("Webhook server is running")
+
+def handle_shutdown(loop, application):
+    logger.info("Received shutdown signal (SIGTERM/SIGINT), stopping webhook...")
+    
+    # Stop the webhook server gracefully
+    loop.run_until_complete(application.stop())
+    loop.run_until_complete(application.updater.stop())
+    
+    # Close the event loop
+    loop.run_until_complete(loop.shutdown_asyncgens())
+    loop.close()
+    logger.info("Application stopped gracefully")
+    sys.exit(0)
+
 def main():
-    setup_signals()
     
     if not TELEGRAM_BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
+    # Create the event loop manually
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # Initialize the application
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
     logger.info("Application initialized, registering handlers...")
 
@@ -69,9 +107,6 @@ def main():
     application.add_handler(CommandHandler("removewatchlist", removewatchlist))
     application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
 
-    # Set auto-complete commands after bot initializes
-    asyncio.run(set_commands(application))
-
     # # Schedule listing poster every 5 minutes (300 seconds)
     # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
     
@@ -81,36 +116,24 @@ def main():
     # logger.info("Bot started with polling listing poster and notifications job.")
     # application.run_polling()
     
-    # Set Telegram webhook once per deploy/startup
-    try:
-        logger.info("Setting Telegram webhook...")
-        asyncio.run(set_telegram_webhook())
-    except Exception as e:
-        logger.error(f"Failed to set Telegram webhook: {e}")
-        raise
+    # Set up signal handlers
+    def signal_handler(signum, frame):
+        handle_shutdown(loop, application)
+        
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
     
-    # Start webhook listener
     try:
-        logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
-        application.run_webhook(
-            listen="0.0.0.0",
-            port=int(PORT),
-            url_path="/webhook",
-            webhook_url=WEBHOOK_URL,
-            secret_token=BOT_SECRET,
-        )
-        logger.info("Webhook server is running")
+        # Run the bot in the event loop
+        loop.run_until_complete(start_bot(application, loop))
     except Exception as e:
-        logger.error(f"Error while running webhook: {e}", exc_info=True)
-        raise
-
-def handle_shutdown(signum, frame):
-    logger.info("Received shutdown signal (SIGTERM)")
-    exit(0)
-
-def setup_signals():
-    signal.signal(signal.SIGTERM, handle_shutdown)
-    signal.signal(signal.SIGINT, handle_shutdown)
+        logger.critical("Bot crashed: %s", str(e), exc_info=True)
+        handle_shutdown(loop, application)
+    finally:
+        # Ensure the loop is closed only if it's not already closed
+        if not loop.is_closed():
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.close()
 
 if __name__ == "__main__":
     main()
