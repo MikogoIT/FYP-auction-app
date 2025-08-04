@@ -2,7 +2,7 @@
 import * as telegramModel from "../models/telegramModel.js";
 import * as watchlistModel from "../models/watchlistModel.js";
 import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
-import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
+import { getListingById, getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { getAuctionMetadata, getLowestBid } from "../models/auctionModel.js";
 import { isTelegramDataValid } from "../utils/telegramUtils.js";
@@ -411,6 +411,27 @@ export async function getComprehensiveRecommendationsByUserId(req, res) {
     }
 }
 
+export async function fetchFullListingWithMessage(req, res) {
+    const { listingId } = req.params;
+
+    if (!listingId) {
+        return res.status(400).json({ message: "Missing listingId in request" });
+    }
+
+    try {
+        const result = await telegramModel.getFullListingWithMessage(listingId);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Listing not found or not posted to Telegram" });
+        }
+
+        res.status(200).json(result[0]);
+    } catch (err) {
+        console.error("Error fetching full listing with message: ", err);
+        res.status(500).json({ message: "Failed to fetch listing" });
+    }
+}
+
 export async function notifyNewListing() {
     const BOT_URL = process.env.TELE_BOT_URL;
     const BOT_SECRET = process.env.BOT_SECRET;
@@ -442,5 +463,23 @@ export async function notifyNewNotification() {
         });
     } catch (err) {
         console.error("Failed to notify Telegram bot of New Listing: ", err.message);
+    }
+}
+
+export async function notifyUpdateListingMsg(listingId) {
+    const BOT_URL = process.env.TELE_BOT_URL;
+    const BOT_SECRET = process.env.BOT_SECRET;
+
+    try {
+        await fetch(`${BOT_URL}/updateListing`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${BOT_SECRET}`,
+            },
+            body: JSON.stringify({ listingId })
+        });
+    } catch (err) {
+        console.error("Failed to notify Telegram bot of Update Listing: ", err.message);
     }
 }

@@ -199,3 +199,27 @@ export async function getListingsWithTelegramMessages() {
         ORDER BY al.end_date ASC
     `;
 }
+
+// Get specific listing with telegram messages info (for bot to overwrite existing message)
+export async function getFullListingWithMessage(listingId) {
+    return await sql`
+        SELECT
+            al.*
+            tm.message_id,
+            tm.channel_id,
+            tm.caption,
+            lc.name AS category_name,
+            COALESCE(MAX(b.bid_amount), 0) AS highest_bid,
+            ta.telegram_id AS seller_telegram_id,
+            COALESCE(string_agg(t.name, ', ' ORDER BY t.name), '') AS tags,
+        FROM auction_listings al
+        JOIN telegram_messages tm ON al.id = tm.auction_id
+        JOIN listing_categories lc ON al.category_id = lc.id
+        LEFT JOIN bids b ON al.id = b.auction_id
+        LEFT JOIN telegram_accounts ta ON al.seller_id = ta.user_id
+        LEFT JOIN auction_listing_tags alt ON al.id = alt.auction_id
+        LEFT JOIN tags t ON alt.tag_id = t.id
+        WHERE al.id ${listingId}
+        GROUP BY al.id, lc.name, ta.telegram_id, tm.message_id, tm.channel_id, tm.caption
+    `;
+}

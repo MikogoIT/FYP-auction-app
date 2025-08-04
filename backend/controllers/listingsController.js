@@ -16,7 +16,7 @@ import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
-import { notifyNewListing } from "./telegramController.js";
+import { notifyNewListing, notifyUpdateListingMsg } from "./telegramController.js";
 
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
@@ -183,6 +183,9 @@ export async function putListing(req, res) {
       start_price,
       discount_percentage 
     );
+
+    await notifyUpdateListingMsg(req.params.id);
+
     res.json({ message: "Listing updated successfully" });
   } catch (err) {
     console.error("Update listing error:", err);

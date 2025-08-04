@@ -13,7 +13,7 @@ from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, BOT_SECRET
 from handlers import (
     start, help_command, bid, mybids, bid_increment_fixed, withdraw, mylistings, mywatchlist,
     removewatchlist, handle_free_search, confirm_bid_callback, withdraw_callback_handler,
-    watchlist_callback_handler, myrecommendations
+    watchlist_callback_handler, myrecommendations, update_message_by_listing_id
 )
 from jobs import poll_and_post_listings, poll_notifications
 
@@ -88,3 +88,17 @@ async def new_listing(authorization: str = Header(None)):
         raise HTTPException(status_code=403, detail="Unauthorized")
     await poll_and_post_listings(application.bot)
     return {"status": "poll triggered"}
+
+@app.post("/updateListing")
+async def update_listing(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if auth_header != f"Bearer {BOT_SECRET}":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    data = await request.json()
+    listing_id = data.get("listingId")
+    if not listing_id:
+        raise HTTPException(status_code=400, detail="Missing listingId")
+    
+    await update_message_by_listing_id(listing_id)
+    return {"message": "Update started"}

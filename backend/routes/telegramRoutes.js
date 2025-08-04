@@ -16,6 +16,7 @@ router.post("/mark-posted/:listingId", requireBotAuth, telegramController.markLi
 router.get("/check-account/:telegramUserId", requireBotAuth, telegramController.checkTelegramAccount);
 router.get("/listings/with-messages", requireBotAuth, telegramController.fetchListingsWithTelegramMessages);
 router.post("/listings/save-message", requireBotAuth, telegramController.saveTelegramMessageData);
+router.get("/listings/full/:listingId", requireBotAuth, telegramController.fetchFullListingWithMessage);
 
 // Bot-specific notification routes
 router.get("/notifications/unsent", requireBotAuth, telegramController.fetchUnsentNotifications);
