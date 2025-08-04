@@ -132,5 +132,5 @@ async def handle_free_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("No results found. Try using different keywords, categories or price ranges.")
         return
     
-    summary_text = format_ai_search_results(listings)
+    summary_text = format_ai_search_results(listings, category)
     await update.message.reply_text(summary_text, parse_mode="HTML", disable_web_page_preview=True)

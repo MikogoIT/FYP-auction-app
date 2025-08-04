@@ -121,11 +121,11 @@ def format_recommendations_message(listings):
 
     return "\n".join(lines)
 
-def format_ai_search_results(listings):
+def format_ai_search_results(listings, search_category=None):
     if not listings:
         return "No matching listings found."
     
-    lines = [f"in <b>Auctioneer {category} Channel (@{channel_username}):</b>\n"]
+    lines = [f"in <b>Auctioneer {search_category} Channel (@{channel_username}):</b>\n"]
     
     for item in listings:
         title = item.get("title", "Untitled")
