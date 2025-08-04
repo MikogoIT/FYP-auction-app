@@ -98,9 +98,6 @@ async def update_message_by_listing_id(listing_id: int, bot) -> None:
         logger.warning(f"No listing data returned for ID #{listing_id}")
         return
     
-    category = listing.get("category_name", "").lower()
-    channel_username = f"@{category}_fypauction"
-    
     if not listing.get("image_url"):
         logger.warning(f"Listing {listing_id} has no image. Skipping update.")
         return
@@ -123,7 +120,7 @@ async def update_message_by_listing_id(listing_id: int, bot) -> None:
             logger.info(f"Succesfully updated image and caption for listing #{listing_id}")
         except Exception as media_err:
             # If media update fails (e.g., Telegram bug), fallback to just updating the caption
-            logger.warning(f"Failed to edit media for listing #{listing_id}, falling ack to caption update only: {media_err}")
+            logger.warning(f"Failed to edit media for listing #{listing_id}, falling back to caption update only: {media_err}")
             await bot.edit_message_caption(
                 chat_id=listing["channel_id"],
                 message_id=listing["message_id"],
