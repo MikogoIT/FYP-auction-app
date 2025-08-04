@@ -9,7 +9,7 @@ from telegram.ext import (
 )
 
 from logger import logger
-from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT, BOT_SECRET
+from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, BOT_SECRET
 from handlers import (
     start, help_command, bid, mybids, bid_increment_fixed, withdraw, mylistings, mywatchlist,
     removewatchlist, handle_free_search, confirm_bid_callback, withdraw_callback_handler,

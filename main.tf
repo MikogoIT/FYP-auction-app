@@ -425,11 +425,6 @@ resource "google_cloud_run_v2_service" "tele_bot" {
       }
 
       env {
-        name  = "WEBHOOK_URL"
-        value = "${google_cloud_run_v2_service.tele_bot.uri}/webhook"
-      }
-
-      env {
         name  = "BACKEND_API_URL"
         value = "https://${var.custom_domain}"
       }

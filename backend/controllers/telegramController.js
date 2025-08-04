@@ -412,7 +412,7 @@ export async function getComprehensiveRecommendationsByUserId(req, res) {
 }
 
 export async function notifyNewListing() {
-    const BOT_URL = process.env.BOT_URL;
+    const BOT_URL = process.env.TELE_BOT_URL;
     const BOT_SECRET = process.env.BOT_SECRET;
 
     try {
@@ -429,7 +429,7 @@ export async function notifyNewListing() {
 }
 
 export async function notifyNewNotification() {
-    const BOT_URL = process.env.BOT_URL;
+    const BOT_URL = process.env.TELE_BOT_URL;
     const BOT_SECRET = process.env.BOT_SECRET;
 
     try {
