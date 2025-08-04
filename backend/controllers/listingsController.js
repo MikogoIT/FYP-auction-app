@@ -34,7 +34,6 @@ const upload = multer({
 });
 
 // POST /listings
-import { createListing } from "../models/yourListingModel.js"; // adjust path if needed
 
 export async function postListing(req, res) {
   const userId = req.session.userId;
