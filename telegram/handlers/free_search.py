@@ -1,4 +1,4 @@
-# File: handlers/free_search.py
+# telegram/handlers/free_search.py
 
 from logger import logger
 import json

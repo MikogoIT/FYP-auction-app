@@ -5,7 +5,7 @@ import { insertBid, getAuctionMinBid } from "../models/bidModel.js";
 import { getSellerId, getTrendingListings } from "../models/listingsModel.js";
 import { getTagBasedRecommendations } from "../models/tagModel.js";
 import { getAuctionMetadata, getLowestBid } from "../models/auctionModel.js";
-import { isTelegramDataValid, getTeleBotIdTokenClient } from "../utils/telegramUtils.js";
+import { isTelegramDataValid } from "../utils/telegramUtils.js";
 
 export async function linkTelegramAccount(req, res) {
     const telegramData = req.body;
@@ -54,56 +54,6 @@ export async function unlinkTelegramAccount(req, res) {
     } catch (err) {
         console.error("Unlinking error: ", err);
         res.status(500).json({ message: "Failed to unlink Telegram account" });
-    }
-}
-
-export async function handleTelegramWebhook(req, res) {
-    try {
-        // Optional: verify Telegram secret token
-        const tgSecret = req.headers["x-telegram-bot-api-secret-token"];
-        if (tgSecret !== process.env.BOT_SECRET) {
-            return res.status(403).json({ message: "Forbidden" });
-        }
-
-        const botUrl = "https://auctioneer-tele-bot-843502773557.asia-southeast1.run.app";
-        const fullWebhookUrl = `${botUrl}/webhook`;
-
-        const client = await getTeleBotIdTokenClient(botUrl);
-
-        // Forward to the bot backend
-        const botResponse = await client.request({
-            url: fullWebhookUrl,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-telegram-bot-api-secret-token": tgSecret,
-            },
-            data: req.body,
-        });
-
-        if (!botResponse.status || botResponse.status >= 400) {
-            console.error("Failed to forward webhook", {
-                status: botResponse.status,
-                response: botResponse.data,
-            });
-            return res.status(502).json({ 
-                error: "Failed to forward webhook to Telegram Bot",
-                status: botResponse.status,
-                response: botResponse.data || "No response from bot backend" 
-            });
-        }
-
-        return res.status(200).json({ 
-            message: "Webhook forwarded successfully", 
-            forwardedTo: fullWebhookUrl 
-        });
-
-    } catch (err) {
-        console.error("Unexpected error while handling Telegram webhook: ", err);
-        return res.status(500).json({ 
-            error: "Internal Server Error", 
-            message: err.message || "Unexpected error occurred"
-         });
     }
 }
 
@@ -458,5 +408,39 @@ export async function getComprehensiveRecommendationsByUserId(req, res) {
     } catch (err) {
         console.error("Error getting recommendations by User ID: ", err);
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function notifyNewListing() {
+    const BOT_URL = process.env.BOT_URL;
+    const BOT_SECRET = process.env.BOT_SECRET;
+
+    try {
+        await fetch(`${BOT_URL}/newListing`,{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${BOT_SECRET}`,
+            },
+        });
+    } catch (err) {
+        console.error("Failed to notify Telegram bot of New Listing: ", err.message);
+    }
+}
+
+export async function notifyNewNotification() {
+    const BOT_URL = process.env.BOT_URL;
+    const BOT_SECRET = process.env.BOT_SECRET;
+
+    try {
+        await fetch(`${BOT_URL}/newNotification`,{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${BOT_SECRET}`,
+            },
+        });
+    } catch (err) {
+        console.error("Failed to notify Telegram bot of New Listing: ", err.message);
     }
 }

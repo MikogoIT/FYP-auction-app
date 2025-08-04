@@ -1,7 +1,7 @@
-# File: config.py
+# telegram/config.py
 
 from dotenv import load_dotenv
-import os, requests
+import os
 
 load_dotenv() # Load .env into environment variables
 

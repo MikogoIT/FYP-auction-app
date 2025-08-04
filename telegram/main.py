@@ -1,7 +1,7 @@
 # telegram/main.py
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, Header
 from telegram import Update, BotCommand
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
@@ -17,30 +17,29 @@ from handlers import (
 )
 from jobs import poll_and_post_listings, poll_notifications
 
-if not TELEGRAM_BOT_TOKEN:
-    raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
+def build_application() -> Application:
+    if not TELEGRAM_BOT_TOKEN:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
-application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-# Register handlers
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("help", help_command))
-application.add_handler(CommandHandler("bid", bid))
-application.add_handler(CommandHandler("mybids", mybids))
-application.add_handler(CommandHandler("bidinc", bid_increment_fixed))
-application.add_handler(CallbackQueryHandler(confirm_bid_callback, pattern=r"^confirm_bid_"))
-application.add_handler(CommandHandler("withdraw", withdraw))
-application.add_handler(CallbackQueryHandler(withdraw_callback_handler, pattern=r"^withdraw_"))
-application.add_handler(CommandHandler("mylistings", mylistings))
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_free_search))
-application.add_handler(CommandHandler("mywatchlist", mywatchlist))
-application.add_handler(CommandHandler("myrecommendations", myrecommendations))
-application.add_handler(CommandHandler("removewatchlist", removewatchlist))
-application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
+    # Register handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("bid", bid))
+    app.add_handler(CommandHandler("mybids", mybids))
+    app.add_handler(CommandHandler("bidinc", bid_increment_fixed))
+    app.add_handler(CallbackQueryHandler(confirm_bid_callback, pattern=r"^confirm_bid_"))
+    app.add_handler(CommandHandler("withdraw", withdraw))
+    app.add_handler(CallbackQueryHandler(withdraw_callback_handler, pattern=r"^withdraw_"))
+    app.add_handler(CommandHandler("mylistings", mylistings))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_free_search))
+    app.add_handler(CommandHandler("mywatchlist", mywatchlist))
+    app.add_handler(CommandHandler("myrecommendations", myrecommendations))
+    app.add_handler(CommandHandler("removewatchlist", removewatchlist))
+    app.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
 
-# Jobs can be added back here if needed
-# application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
-# application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
+application = build_application()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -85,3 +84,10 @@ async def webhook(request: Request):
     update = Update.de_json(data, application.bot)
     await application.process_update(update)
     return {"ok": True}
+
+@app.post("/newListing")
+async def new_listing(authorization: str = Header(None)):
+    if not authorization or authorization != f"Bearer {BOT_SECRET}":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    await poll_and_post_listings(application.bot)
+    return {"status": "poll triggered"}

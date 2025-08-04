@@ -1,4 +1,4 @@
-# File: handlers/__init__.py
+# telegram/handlers/__init__.py
 
 from .start import start
 from .bid import start_bid_flow, bid, prepare_bid_confirmation, bid_increment_fixed, mybids

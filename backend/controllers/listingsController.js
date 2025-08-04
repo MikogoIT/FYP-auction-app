@@ -16,6 +16,7 @@ import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
+import { notifyNewListing } from "./telegramController.js";
 
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
@@ -85,13 +86,17 @@ export async function postListing(req, res) {
       start_price,
       discount_percentage 
     );
+
+    // Notify Telegram bot about the new listing
+    await notifyNewListing();
+
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
     // Send detailed error message back for dev purpose (optional)
     res.status(500).json({ message: "Failed to create listing", error: err.message });
   }
-  }
+}
 
 // GET /listings
 export async function getListings(req, res) {

@@ -1,4 +1,4 @@
-# File: handlers/bid.py
+# telegram/handlers/bid.py
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes

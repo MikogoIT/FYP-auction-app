@@ -1,4 +1,4 @@
-# File: handlers/recommendations.py
+# telegram/handlers/recommendations.py
 
 from telegram import Update
 from telegram.ext import ContextTypes

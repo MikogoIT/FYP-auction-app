@@ -1,4 +1,4 @@
-# File: logger.py
+# telegram/logger.py
 
 import logging
 
