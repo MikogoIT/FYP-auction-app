@@ -319,7 +319,7 @@ export default function BidPage() {
                 color: "success.main",
               }}
             >
-              Current bid:&nbsp;
+              Current price:&nbsp;
               <strong>
                 {auctionType === "descending" ? (
                   hasDescBid()
