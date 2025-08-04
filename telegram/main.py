@@ -1,139 +1,87 @@
-# File: main.py
+# telegram/main.py
+
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, HTTPException, status
+from telegram import Update, BotCommand
+from telegram.ext import (
+    Application, CommandHandler, CallbackQueryHandler,
+    MessageHandler, filters, ContextTypes
+)
 
 from logger import logger
 from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, PORT, BOT_SECRET
-from telegram import BotCommand
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from handlers import (
     start, help_command, bid, mybids, bid_increment_fixed, withdraw, mylistings, mywatchlist,
-    removewatchlist, handle_free_search, confirm_bid_callback, withdraw_callback_handler, 
+    removewatchlist, handle_free_search, confirm_bid_callback, withdraw_callback_handler,
     watchlist_callback_handler, myrecommendations
 )
 from jobs import poll_and_post_listings, poll_notifications
-import asyncio
-import httpx
-import signal
-import sys
 
-async def set_telegram_webhook():
-    if not TELEGRAM_BOT_TOKEN or not WEBHOOK_URL:
-        raise RuntimeError("TELEGRAM_BOT_TOKEN or WEBHOOK_URL not set")
-    
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook"
-    data = {
-        "url": WEBHOOK_URL,
-        "secret_token": BOT_SECRET,
-    }
-    
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(url, json=data)
-            if response.status_code == 200:
-                logger.info("Telegram webhook set successfully: %s", response.json())
-            else:
-                logger.error("Failed to set Telegram webhook: %s", response.text)
-                raise RuntimeError(f"Telegram API Error: {response.text}")
-        except Exception as e:
-            logger.error("Error setting webhook: %s", str(e))
-            raise
+if not TELEGRAM_BOT_TOKEN:
+    raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
-async def set_commands(application):
-    commands = [
-        BotCommand("start", "Start or resume"),
-        BotCommand("help", "Show help"),
-    ]
-    
-    await application.bot.set_my_commands(commands)
+application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-async def start_bot(application, loop):
-    # Set auto-complete commands
-    await set_commands(application)
-    
-    # Set Telegram webhook
-    logger.info("Setting Telegram webhook...")
-    await set_telegram_webhook()
-    
-    # Start webhook server
-    logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
-    await application.run_webhook(
-        listen="0.0.0.0",
-        port=int(PORT),
-        url_path="/webhook",
-        webhook_url=WEBHOOK_URL,
-        secret_token=BOT_SECRET,
-        close_loop=False, # Prevent run_webhook() from closing the loop
-    )
-    logger.info("Webhook server is running")
+# Register handlers
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("help", help_command))
+application.add_handler(CommandHandler("bid", bid))
+application.add_handler(CommandHandler("mybids", mybids))
+application.add_handler(CommandHandler("bidinc", bid_increment_fixed))
+application.add_handler(CallbackQueryHandler(confirm_bid_callback, pattern=r"^confirm_bid_"))
+application.add_handler(CommandHandler("withdraw", withdraw))
+application.add_handler(CallbackQueryHandler(withdraw_callback_handler, pattern=r"^withdraw_"))
+application.add_handler(CommandHandler("mylistings", mylistings))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_free_search))
+application.add_handler(CommandHandler("mywatchlist", mywatchlist))
+application.add_handler(CommandHandler("myrecommendations", myrecommendations))
+application.add_handler(CommandHandler("removewatchlist", removewatchlist))
+application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
 
-def handle_shutdown(loop, application):
-    logger.info("Received shutdown signal (SIGTERM/SIGINT), stopping webhook...")
-    
-    # Stop the webhook server gracefully
-    loop.run_until_complete(application.stop())
-    loop.run_until_complete(application.updater.stop())
-    
-    # Close the event loop
-    loop.run_until_complete(loop.shutdown_asyncgens())
-    loop.close()
-    logger.info("Application stopped gracefully")
-    sys.exit(0)
+# Jobs can be added back here if needed
+# application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
+# application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
 
-def main():
-    
-    if not TELEGRAM_BOT_TOKEN:
-        raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
-
-    # Create the event loop manually
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    # Initialize the application
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-    logger.info("Application initialized, registering handlers...")
-
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("bid", bid))
-    application.add_handler(CommandHandler("mybids", mybids))
-    application.add_handler(CommandHandler("bidinc", bid_increment_fixed))
-    application.add_handler(CallbackQueryHandler(confirm_bid_callback, pattern=r"^confirm_bid_"))
-    application.add_handler(CommandHandler("withdraw", withdraw))
-    application.add_handler(CallbackQueryHandler(withdraw_callback_handler, pattern=r"^withdraw_"))
-    application.add_handler(CommandHandler("mylistings", mylistings))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_free_search))
-    application.add_handler(CommandHandler("mywatchlist", mywatchlist))
-    application.add_handler(CommandHandler("myrecommendations", myrecommendations))
-    application.add_handler(CommandHandler("removewatchlist", removewatchlist))
-    application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
-
-    # # Schedule listing poster every 5 minutes (300 seconds)
-    # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
-    
-    # # Schedule notification poster every 1min (60 seconds)
-    # application.job_queue.run_repeating(poll_notifications, interval=60, first=5)
-
-    # logger.info("Bot started with polling listing poster and notifications job.")
-    # application.run_polling()
-    
-    # Set up signal handlers
-    def signal_handler(signum, frame):
-        handle_shutdown(loop, application)
-        
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     try:
-        # Run the bot in the event loop
-        loop.run_until_complete(start_bot(application, loop))
-    except Exception as e:
-        logger.critical("Bot crashed: %s", str(e), exc_info=True)
-        handle_shutdown(loop, application)
+        logger.info("Starting application lifecycle...")
+        
+        await application.initialize()
+        await application.start()
+        
+        await application.bot.set_webhook(
+            url=WEBHOOK_URL,
+            secret_token=BOT_SECRET,
+        )
+        logger.info("Webhook set successfully")
+        
+        commands = [
+            BotCommand("start", "Start or resume"),
+            BotCommand("help", "Show help"),
+        ]
+        await application.bot.set_my_commands(commands)
+        logger.info("Bot commands set")
+        
+        yield # Run the app
+        
     finally:
-        # Ensure the loop is closed only if it's not already closed
-        if not loop.is_closed():
-            loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.close()
+        logger.info("Shutting down application lifecycle...")
+        await application.stop()
+        await application.shutdown()
+        logger.info("Telegram bot shut down")
+        
+app = FastAPI(lifespan=lifespan)
 
-if __name__ == "__main__":
-    main()
+@app.post("/webhook")
+async def webhook(request: Request):
+    # Verify Telegram secret token header
+    telegram_secret = request.headers.get("x-telegram-bot-api-secret-token")
+    if telegram_secret != BOT_SECRET:
+        logger.warning("Invalid secret token received in webhook")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid secret token")
+    
+    data = await request.json()
+    update = Update.de_json(data, application.bot)
+    await application.process_update(update)
+    return {"ok": True}

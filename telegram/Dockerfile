@@ -20,4 +20,4 @@ EXPOSE 8443
 
 # 7️⃣ Launch your bot
 #    Replace "main.py" with your main file if different.
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8443"]
