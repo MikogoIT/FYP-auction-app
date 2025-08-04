@@ -121,11 +121,13 @@ def format_recommendations_message(listings):
 
     return "\n".join(lines)
 
-def format_ai_search_results(listings, search_category=None):
+def format_ai_search_results(listings):
     if not listings:
         return "No matching listings found."
     
-    lines = [f"in <b>Auctioneer {search_category} Channel (@{channel_username}):</b>\n"]
+    lines = []
+    search_category = ""
+    channel_username = ""
     
     for item in listings:
         title = item.get("title", "Untitled")
@@ -134,7 +136,6 @@ def format_ai_search_results(listings, search_category=None):
         category = item.get("category_name", "Unknown")
         message_id = item.get("message_id")
         category_slug = category.lower().replace(" ", "_")
-        channel_username = f"{category_slug}_fypauction"
         
         if message_id:
             view_link = f"https://t.me/{channel_username}/{message_id}"
@@ -147,8 +148,11 @@ def format_ai_search_results(listings, search_category=None):
             f"⏰ Ends on: {end_date}\n"
             f"{view_text}\n"
         )
+        search_category = category
+        channel_username = f"{category_slug}_fypauction"
     
-    return "\n".join(lines)
+    header = f"<b>Auctioneer {search_category} Channel (@{channel_username}):</b>" 
+    return header + "\n".join(lines)
     
         
 def format_listing_message(listing):

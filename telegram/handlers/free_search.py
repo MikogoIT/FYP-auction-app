@@ -4,6 +4,8 @@ from logger import logger
 import json
 import time
 import httpx
+import asyncio
+from httpx import HTTPStatusError
 from telegram import Update
 from telegram.ext import ContextTypes
 from config import OPENROUTER_API_KEY
@@ -89,6 +91,11 @@ async def parse_natural_query(user_input: str):
             # Cache it
             cache[key] = {"filters": filters, "timestamp": now}
             return filters
+        except HTTPStatusError as e:
+            if e.response.status_code == 429:
+                logger.warning("OpenRouter rate limit hit (429 Too Many Requests)")
+                return "RATE_LIMITED"
+            logger.error(f"HTTP error from GPT: {e}")
         except json.JSONDecodeError:
             logger.error(f"Failed to decode JSON from GPT: {content}")
         except Exception as e:
@@ -96,41 +103,54 @@ async def parse_natural_query(user_input: str):
         return None
     
 async def handle_free_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = update.message.text
-    await update.message.reply_text("🤖 Let me find that for you...")
-    
-    filters = await parse_natural_query(user_text)
-    if not filters:
-        await update.message.reply_text("❌ I couldn't understand your query. Try being more specific.")
-        return
-    
-    logger.info(f"Parsed filters: {filters}")
-    
-    # Example expected output:
-    # { "category": "shoes", "max_price": 200, "keywords": ["nike", "blue"] }
-    
-    # Extract filter values safely
-    category = filters.get("category") or None
-    max_price = filters.get("max_price")
-    keywords = filters.get("keywords") or []
-    
-    # Summary message to tell users what GPT is searching for
-    summary = "Searching listings"
-    if category:
-        summary += f" in category '{category}'"
-    if max_price:
-        summary += f" under ${max_price}"
-    if keywords:
-        summary += f" with keywords: {', '.join(keywords)}"
-    summary += "..."
-    await update.message.reply_text(summary)
-    
-    data = await search_listings(category, max_price, keywords)
-    listings = data.get("listings", [])
-    
-    if not listings:
-        await update.message.reply_text("No results found. Try using different keywords, categories or price ranges.")
-        return
-    
-    summary_text = format_ai_search_results(listings, category)
-    await update.message.reply_text(summary_text, parse_mode="HTML", disable_web_page_preview=True)
+    try:
+        user_text = update.message.text
+        await update.message.reply_text("🤖 Let me find that for you...")
+        
+        try:
+            filters = await asyncio.wait_for(parse_natural_query(user_text), timeout=10)
+        except asyncio.TimeoutError:
+            await update.message.reply_text("⚠️ AI search took too long. Please try again.")
+            return
+        
+        if filters == "RATE_LIMITED":
+            await update.message.reply_text("⚠️ We're currently handling too many requests. Please wait a moment and try again.")
+            return
+        
+        if not filters:
+            await update.message.reply_text("❌ I couldn't understand your query. Try being more specific.")
+            return
+        
+        logger.info(f"Parsed filters: {filters}")
+        
+        # Example expected output:
+        # { "category": "shoes", "max_price": 200, "keywords": ["nike", "blue"] }
+        
+        # Extract filter values safely
+        category = filters.get("category") or None
+        max_price = filters.get("max_price")
+        keywords = filters.get("keywords") or []
+        
+        # Summary message to tell users what GPT is searching for
+        summary = "Searching listings"
+        if category:
+            summary += f" in category '{category}'"
+        if max_price:
+            summary += f" under ${max_price}"
+        if keywords:
+            summary += f" with keywords: {', '.join(keywords)}"
+        summary += "..."
+        await update.message.reply_text(summary)
+        
+        data = await search_listings(category, max_price, keywords)
+        listings = data.get("listings", [])
+        
+        if not listings:
+            await update.message.reply_text("No results found. Try using different keywords, categories or price ranges.")
+            return
+        
+        summary_text = format_ai_search_results(listings)
+        await update.message.reply_text(summary_text, parse_mode="HTML", disable_web_page_preview=True)
+    except Exception as e:
+        logger.error(f"Error in handle_free_search: {e}")
+        await update.message.reply_text("❌ Something went wrong while searching. Please try again later.")
