@@ -32,6 +32,42 @@ export default function Landing() {
   const [recentListings, setRecentListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
 
+  // Quick owner sync: seed from localStorage, refresh on focus, and validate via session
+  const [currentUserId, setCurrentUserId] = useState(() => {
+    const v = localStorage.getItem('userId');
+    return v ? +v : null;
+  });
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      const v = localStorage.getItem('userId');
+      setCurrentUserId(v ? +v : null);
+    };
+    window.addEventListener('focus', syncFromStorage);
+    return () => window.removeEventListener('focus', syncFromStorage);
+  }, []);
+
+  useEffect(() => {
+    // authoritative source: fetch profile to get user_id
+    fetch('/api/profile', { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('not authenticated');
+        return res.json();
+      })
+      .then(data => {
+        if (data?.user?.user_id) {
+          setCurrentUserId(data.user.user_id);
+          localStorage.setItem('userId', data.user.user_id);
+        } else {
+          setCurrentUserId(null);
+          localStorage.removeItem('userId');
+        }
+      })
+      .catch(() => {
+        // keep whatever we had; optionally clear if you want strictness
+      });
+  }, []);
+
   const handleGetStarted = () => navigate('/register');
 
   useEffect(() => {
@@ -115,9 +151,14 @@ export default function Landing() {
             className="dashboard-swiper"
           >
             {recentListings.map(item => {
-              const isOwner = item.seller_id === +localStorage.getItem('userId');
+              const isOwner =
+                currentUserId != null && item.seller_id === currentUserId;
               return (
-                <SwiperSlide key={item.id} id="listingCardSmall"className="listingCard">
+                <SwiperSlide
+                  key={item.id}
+                  id="listingCardSmall"
+                  className="listingCard"
+                >
                   <div>
                     {item.image_url ? (
                       <img
@@ -126,34 +167,32 @@ export default function Landing() {
                         className="imageStyle"
                       />
                     ) : (
-                      <Avatar 
-                          variant="square" 
-                          sx={{
-                            width: "100%",
-                            height: 200,
-                            bgcolor: "#eee",
-                          }}> 
+                      <Avatar
+                        variant="square"
+                        sx={{
+                          width: '100%',
+                          height: 200,
+                          bgcolor: '#eee',
+                        }}
+                      >
                         <ImageIcon />
                       </Avatar>
                     )}
-                    
-                    <div className='listingTitle'>
-                      {item.title}
-                    </div>
-                    
+
+                    <div className="listingTitle">{item.title}</div>
                   </div>
                   <div className="noLikeButtonStyle">
                     {isOwner ? (
                       <md-filled-button
                         onClick={() => navigate(`/edit/${item.id}`)}
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                       >
                         Edit
                       </md-filled-button>
                     ) : (
                       <md-filled-tonal-button
                         onClick={() => navigate(`/login`)}
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                       >
                         Login to bid
                       </md-filled-tonal-button>
