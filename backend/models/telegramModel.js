@@ -204,7 +204,7 @@ export async function getListingsWithTelegramMessages() {
 export async function getFullListingWithMessage(listingId) {
     return await sql`
         SELECT
-            al.*
+            al.*,
             tm.message_id,
             tm.channel_id,
             tm.caption,
