@@ -44,7 +44,9 @@ async def set_commands(application):
     
     await application.bot.set_my_commands(commands)
 
-async def start_bot():
+def main():
+    setup_signals()
+    
     if not TELEGRAM_BOT_TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN env variable not set")
 
@@ -68,7 +70,7 @@ async def start_bot():
     application.add_handler(CallbackQueryHandler(watchlist_callback_handler, pattern="^watchlist_"))
 
     # Set auto-complete commands after bot initializes
-    await set_commands(application)
+    asyncio.run(set_commands(application))
 
     # # Schedule listing poster every 5 minutes (300 seconds)
     # application.job_queue.run_repeating(poll_and_post_listings, interval=300, first=10)
@@ -82,7 +84,7 @@ async def start_bot():
     # Set Telegram webhook once per deploy/startup
     try:
         logger.info("Setting Telegram webhook...")
-        await set_telegram_webhook()
+        asyncio.run(set_telegram_webhook())
     except Exception as e:
         logger.error(f"Failed to set Telegram webhook: {e}")
         raise
@@ -90,9 +92,9 @@ async def start_bot():
     # Start webhook listener
     try:
         logger.info(f"Starting webhook on 0.0.0.0:{PORT}, URL: {WEBHOOK_URL}")
-        await application.run_webhook(
+        application.run_webhook(
             listen="0.0.0.0",
-            port=PORT,
+            port=int(PORT),
             url_path="/webhook",
             webhook_url=WEBHOOK_URL,
             secret_token=BOT_SECRET,
@@ -111,9 +113,4 @@ def setup_signals():
     signal.signal(signal.SIGINT, handle_shutdown)
 
 if __name__ == "__main__":
-    setup_signals()
-    try:
-        asyncio.run(start_bot())
-    except Exception as e:
-        logger.critical("Bot crashed: %s", str(e), exc_info=True)
-        exit(1)
+    main()
