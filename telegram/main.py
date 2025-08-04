@@ -100,5 +100,5 @@ async def update_listing(request: Request):
     if not listing_id:
         raise HTTPException(status_code=400, detail="Missing listingId")
     
-    await update_message_by_listing_id(listing_id)
+    await update_message_by_listing_id(listing_id, application.bot)
     return {"message": "Update started"}

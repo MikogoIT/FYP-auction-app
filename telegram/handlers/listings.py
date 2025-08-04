@@ -92,7 +92,7 @@ async def update_listing_message(auction_id: int, new_amount: float, context: Co
     except Exception as e:
         logger.error(f"Error in update_listing_message(): {e}")
         
-async def update_message_by_listing_id(listing_id: int, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def update_message_by_listing_id(listing_id: int, bot) -> None:
     listing = await fetch_full_listing_with_message(listing_id)
     if not listing:
         logger.warning(f"No listing data returned for ID #{listing_id}")
@@ -110,7 +110,7 @@ async def update_message_by_listing_id(listing_id: int, context: ContextTypes.DE
         
         # Attempt to update the photo & caption together
         try:
-            await context.bot.edit_message_media(
+            await bot.edit_message_media(
                 chat_id=listing["channel_id"],
                 message_id=listing["message_id"],
                 media=InputMediaPhoto(
@@ -124,7 +124,7 @@ async def update_message_by_listing_id(listing_id: int, context: ContextTypes.DE
         except Exception as media_err:
             # If media update fails (e.g., Telegram bug), fallback to just updating the caption
             logger.warning(f"Failed to edit media for listing #{listing_id}, falling ack to caption update only: {media_err}")
-            await context.bot.edit_message_caption(
+            await bot.edit_message_caption(
                 chat_id=listing["channel_id"],
                 message_id=listing["message_id"],
                 caption=caption,
@@ -142,5 +142,5 @@ async def update_message_by_listing_id(listing_id: int, context: ContextTypes.DE
         )
         
     except Exception as e:
-        logger.error(f"Failed to update listing #{listing_id}")
+        logger.error(f"Failed to update listing #{listing_id}: {e}")
     
