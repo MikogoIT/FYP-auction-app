@@ -32,42 +32,6 @@ export default function Landing() {
   const [recentListings, setRecentListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
 
-  // Quick owner sync: seed from localStorage, refresh on focus, and validate via session
-  const [currentUserId, setCurrentUserId] = useState(() => {
-    const v = localStorage.getItem('userId');
-    return v ? +v : null;
-  });
-
-  useEffect(() => {
-    const syncFromStorage = () => {
-      const v = localStorage.getItem('userId');
-      setCurrentUserId(v ? +v : null);
-    };
-    window.addEventListener('focus', syncFromStorage);
-    return () => window.removeEventListener('focus', syncFromStorage);
-  }, []);
-
-  useEffect(() => {
-    // authoritative source: fetch profile to get user_id
-    fetch('/api/profile', { credentials: 'include' })
-      .then(res => {
-        if (!res.ok) throw new Error('not authenticated');
-        return res.json();
-      })
-      .then(data => {
-        if (data?.user?.user_id) {
-          setCurrentUserId(data.user.user_id);
-          localStorage.setItem('userId', data.user.user_id);
-        } else {
-          setCurrentUserId(null);
-          localStorage.removeItem('userId');
-        }
-      })
-      .catch(() => {
-        // keep whatever we had; optionally clear if you want strictness
-      });
-  }, []);
-
   const handleGetStarted = () => navigate('/register');
 
   useEffect(() => {
@@ -151,8 +115,6 @@ export default function Landing() {
             className="dashboard-swiper"
           >
             {recentListings.map(item => {
-              const isOwner =
-                currentUserId != null && item.seller_id === currentUserId;
               return (
                 <SwiperSlide
                   key={item.id}
@@ -182,21 +144,12 @@ export default function Landing() {
                     <div className="listingTitle">{item.title}</div>
                   </div>
                   <div className="noLikeButtonStyle">
-                    {isOwner ? (
-                      <md-filled-button
-                        onClick={() => navigate(`/edit/${item.id}`)}
-                        style={{ width: '100%' }}
-                      >
-                        Edit
-                      </md-filled-button>
-                    ) : (
-                      <md-filled-tonal-button
-                        onClick={() => navigate(`/login`)}
-                        style={{ width: '100%' }}
-                      >
-                        Login to bid
-                      </md-filled-tonal-button>
-                    )}
+                    <md-filled-tonal-button
+                      onClick={() => navigate(`/login`)}
+                      style={{ width: '100%' }}
+                    >
+                      Login to bid
+                    </md-filled-tonal-button>
                   </div>
                 </SwiperSlide>
               );
