@@ -151,7 +151,7 @@ def format_ai_search_results(listings):
         search_category = category
         channel_username = f"{category_slug}_fypauction"
     
-    header = f"<b>Auctioneer {search_category} Channel (@{channel_username}):</b>" 
+    header = f"<b>Auctioneer {search_category} Channel (@{channel_username}):</b>\n\n" 
     return header + "\n".join(lines)
     
         
