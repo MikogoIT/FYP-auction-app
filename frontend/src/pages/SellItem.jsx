@@ -1,11 +1,11 @@
 import TagAutocomplete from "../components/TagAutocomplete";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  MenuItem, 
+import {
+  Box,
+  Button,
+  TextField,
+  MenuItem,
   useMediaQuery,
   Card,
   CardContent,
@@ -15,9 +15,10 @@ import {
   InputAdornment,
   FormHelperText,
   Alert,
-  Paper
+  Paper,
+  IconButton,
 } from "@mui/material";
-import { 
+import {
   Category,
   Title,
   Description,
@@ -27,31 +28,31 @@ import {
   AttachMoney,
   TrendingUp,
   TrendingDown,
-  Close
+  Close,
+  CloudUpload,
 } from "@mui/icons-material";
 import { Formik } from "formik";
 import Header from "../components/Header"; // Assuming Header component exists
 
 const SellItem = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [minBid, setMinBid] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startPrice, setStartPrice] = useState("");
+  const [discountPercentage, setDiscountPercentage] = useState("10");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [auctionType, setAuctionType] = useState("");
-  const [startPrice, setStartPrice] = useState("");
-  const [discountPercentage, setDiscountPercentage] = useState("10");
 
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [tags, setTags] = useState([]);
   const [tagOptions, setTagOptions] = useState();
-  const tagNames = tags.map((tag) =>
-    typeof tag === "string" ? tag : tag.name,
-  );
+
+  // Cover image states
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const SellItem = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.tags)) {
-          setTagOptions(data.tags); // ✅ Flat string array
+          setTagOptions(data.tags);
         }
       })
       .catch((err) => console.error("Failed to load tag options:", err));
@@ -76,45 +77,34 @@ const SellItem = () => {
   useEffect(() => {
     if (categoryName && !tags.includes(categoryName)) {
       setTags([categoryName]);
-      //console.log("Category changed →", categoryName);
     }
   }, [categoryName]);
 
-  // Console Log Tag (Debug)
-  useEffect(() => {
-    if (tags.length) {
-      //console.log("🔁 Tags Updated →", tags);
-    }
-  }, [tags]);
-
-  // Console Log Auction Type(Debug)
+  // Sync debug logs – you can remove in prod
   useEffect(() => {
     console.log("🛠 Auction Type Selected:", auctionType);
-
     if (auctionType === "ascending") {
       console.log("💰 Minimum Bid:", minBid);
     }
-
     if (auctionType === "descending") {
       console.log("🔽 Start Price:", startPrice);
       console.log("📉 Discount %:", discountPercentage);
     }
   }, [auctionType, minBid, startPrice, discountPercentage]);
 
-  // Clear Inputs on switching Auction Type
+  // Clear inputs on auction type switch
   useEffect(() => {
     if (auctionType === "descending") {
-      setMinBid(""); // clear min bid if needed
-      setStartPrice(""); // clear start price to be safe
-      setDiscountPercentage(10); // default 10%
+      setMinBid("");
+      setStartPrice("");
+      setDiscountPercentage("10");
     } else if (auctionType === "ascending") {
-      setMinBid(""); // clear min bid if needed
-      setStartPrice(null); // clear start price to be safe
-      setDiscountPercentage(null); // default 10%
+      setMinBid("");
+      setStartPrice("");
+      setDiscountPercentage("10");
     }
   }, [auctionType]);
 
-  // Category Change
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     const selectedCategory = categories.find((c) => c.id == selectedId);
@@ -122,20 +112,55 @@ const SellItem = () => {
     setCategoryName(selectedCategory?.name || "");
   };
 
-  // Handle tag deletion
   const handleDeleteTag = (tagToDelete) => {
-    if (tagToDelete === categoryName) return; // Don't allow deleting category tag
-    const newTags = tags.filter(tag => tag !== tagToDelete);
+    if (tagToDelete === categoryName) return;
+    const newTags = tags.filter((tag) => tag !== tagToDelete);
     setTags(newTags);
   };
 
+  // Cover image change handler
+  const handleCoverChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be less than 5MB");
+      return;
+    }
+
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+    setError("");
+  };
+
+  // Upload cover image for newly created listing
+  const uploadCoverForListing = async (listingId) => {
+    if (!coverFile) return;
+    const formData = new FormData();
+    formData.append("image", coverFile);
+    formData.append("listingId", listingId);
+
+    const res = await fetch("/api/listingimg", {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Cover image upload failed");
+    }
+    return data.imageUrl;
+  };
+
   const handleSubmit = async (values, { setFieldError }) => {
-    if (submitting) return; // Prevent further execution if already submitting
-    setSubmitting(true); // Sets to true right away
+    if (submitting) return;
+    setSubmitting(true);
     setError("");
     setSuccess("");
-
-    const token = localStorage.getItem("token");
 
     if (!values.title || !values.endDateTime) {
       setError("Please fill in all required fields");
@@ -155,13 +180,16 @@ const SellItem = () => {
       return;
     }
 
-    if (values.auctionType === "descending" && (!startPrice || !discountPercentage)) {
+    if (
+      values.auctionType === "descending" &&
+      (!startPrice || !discountPercentage)
+    ) {
       setError("Please enter both start price and discount percentage.");
       setSubmitting(false);
       return;
     }
 
-    if (parseFloat(minBid) <= 0) {
+    if (parseFloat(minBid) <= 0 && values.auctionType === "ascending") {
       setError("❌ Minimum bid must be greater than 0.");
       setSubmitting(false);
       return;
@@ -173,14 +201,10 @@ const SellItem = () => {
       return;
     }
 
-    // Parse tags from text input
     const tagsArray = tags.length > 0 ? tags : [];
 
-    // Debug Log for Tags Submission
-    //console.log("Tags being inserted:", tagsArray);
-
     try {
-      // 1. Create the listing first
+      // 1. Create the listing
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: {
@@ -191,7 +215,7 @@ const SellItem = () => {
           title: values.title,
           description: values.description,
           auction_type: values.auctionType,
-          end_date: new Date(values.endDateTime).toISOString(), // convert back to UTC for database
+          end_date: new Date(values.endDateTime).toISOString(),
           category_id: values.category,
           ...(values.auctionType === "ascending" && {
             min_bid: parseFloat(minBid),
@@ -212,7 +236,7 @@ const SellItem = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create listing");
 
-      // 2. Now insert tags via /api/tag
+      // 2. Insert tags if any
       if (tagsArray.length > 0) {
         const tagRes = await fetch("/api/tag", {
           method: "POST",
@@ -221,18 +245,30 @@ const SellItem = () => {
           },
           credentials: "include",
           body: JSON.stringify({
-            auction_id: data.listing.id, // ✅ use ID from first request
+            auction_id: data.listing.id,
             tags: tagsArray,
           }),
         });
-
         const tagData = await tagRes.json();
         if (!tagRes.ok)
           throw new Error(tagData.message || "Failed to insert tags");
       }
 
-      // 3. Success
-      setSuccess("Item listed successfully!");
+      // 3. Upload cover image if provided
+      let coverMsg = "";
+      if (coverFile) {
+        try {
+          setUploadingCover(true);
+          await uploadCoverForListing(data.listing.id);
+        } catch (err) {
+          coverMsg = ` (cover upload failed: ${err.message})`;
+        } finally {
+          setUploadingCover(false);
+        }
+      }
+
+      // 4. Success
+      setSuccess("Item listed successfully!" + coverMsg);
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
@@ -240,7 +276,7 @@ const SellItem = () => {
       console.error("Submit error:", err);
       setError("" + err.message);
     } finally {
-      setSubmitting(false); // Allow future submissions if the user stays
+      setSubmitting(false);
     }
   };
 
@@ -252,14 +288,14 @@ const SellItem = () => {
     auctionType: "",
     endDateTime: "",
   };
-   
+
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100vh',
-        backgroundColor: 'background.default',
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "background.default",
         pt: 12,
-        pb: 4
+        pb: 4,
       }}
     >
       <Box maxWidth="800px" mx="auto" px={3}>
@@ -267,14 +303,14 @@ const SellItem = () => {
 
         {/* Alert Messages */}
         {error && (
-          <Alert 
-            severity="error" 
-            sx={{ 
+          <Alert
+            severity="error"
+            sx={{
               mb: 3,
               borderRadius: 3,
-              '& .MuiAlert-message': {
-                fontWeight: 500
-              }
+              "& .MuiAlert-message": {
+                fontWeight: 500,
+              },
             }}
           >
             {error}
@@ -282,46 +318,43 @@ const SellItem = () => {
         )}
 
         {success && (
-          <Alert 
-            severity="success" 
-            sx={{ 
+          <Alert
+            severity="success"
+            sx={{
               mb: 3,
               borderRadius: 3,
-              '& .MuiAlert-message': {
-                fontWeight: 500
-              }
+              "& .MuiAlert-message": {
+                fontWeight: 500,
+              },
             }}
           >
             {success}
           </Alert>
         )}
 
-        <Card 
+        <Card
           elevation={0}
-          sx={{ 
+          sx={{
             borderRadius: 4,
-            border: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: 'surface.main'
+            border: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "surface.main",
           }}
         >
           <CardContent sx={{ p: 4 }}>
-            <Typography 
-              variant="h6" 
-              gutterBottom 
-              sx={{ 
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
                 fontWeight: 600,
-                color: 'text.primary',
-                mb: 3
+                color: "text.primary",
+                mb: 3,
               }}
             >
               Create Listing
             </Typography>
 
-            <Formik
-              onSubmit={handleSubmit}
-              initialValues={initialValues}
-            >
+            <Formik onSubmit={handleSubmit} initialValues={initialValues}>
               {({
                 values,
                 errors,
@@ -331,8 +364,106 @@ const SellItem = () => {
                 handleSubmit,
               }) => (
                 <form onSubmit={handleSubmit}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    
+                  {/* Cover Image Selector */}
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Cover Image (optional)
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 160,
+                          height: 160,
+                          border: "1px dashed",
+                          borderColor: "divider",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative",
+                          borderRadius: 2,
+                          overflow: "hidden",
+                          backgroundColor: "background.paper",
+                        }}
+                      >
+                        {coverPreview ? (
+                          <img
+                            src={coverPreview}
+                            alt="cover preview"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              textAlign: "center",
+                              color: "text.secondary",
+                            }}
+                          >
+                            <Typography variant="caption">
+                              No cover selected
+                            </Typography>
+                          </Box>
+                        )}
+                        {coverPreview && (
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setCoverFile(null);
+                              setCoverPreview(null);
+                            }}
+                            sx={{
+                              position: "absolute",
+                              top: 4,
+                              right: 4,
+                              bgcolor: "rgba(255,255,255,0.8)",
+                            }}
+                          >
+                            <Close fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                      <Button
+                        component="label"
+                        variant="outlined"
+                        startIcon={<CloudUpload />}
+                      >
+                        Choose Cover
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={handleCoverChange}
+                        />
+                      </Button>
+                      {uploadingCover && (
+                        <Typography variant="body2">
+                          Uploading cover...
+                        </Typography>
+                      )}
+                    </Box>
+                    <FormHelperText>
+                      Optional. This will be shown as the primary image for your
+                      listing.
+                    </FormHelperText>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 3,
+                    }}
+                  >
                     {/* Category Dropdown */}
                     <TextField
                       fullWidth
@@ -347,7 +478,10 @@ const SellItem = () => {
                       value={values.category}
                       name="category"
                       error={!!touched.category && !!errors.category}
-                      helperText={touched.category && errors.category}
+                      helperText={
+                        (touched.category && errors.category) ||
+                        "Select a category"
+                      }
                       required
                       InputProps={{
                         startAdornment: (
@@ -357,9 +491,9 @@ const SellItem = () => {
                         ),
                       }}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                           borderRadius: 3,
-                        }
+                        },
                       }}
                     >
                       {categories.map((category) => (
@@ -380,7 +514,10 @@ const SellItem = () => {
                       value={values.title}
                       name="title"
                       error={!!touched.title && !!errors.title}
-                      helperText={touched.title && errors.title || "Give your item a clear, descriptive title"}
+                      helperText={
+                        (touched.title && errors.title) ||
+                        "Give your item a clear, descriptive title"
+                      }
                       required
                       InputProps={{
                         startAdornment: (
@@ -390,9 +527,9 @@ const SellItem = () => {
                         ),
                       }}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                           borderRadius: 3,
-                        }
+                        },
                       }}
                     />
 
@@ -406,64 +543,70 @@ const SellItem = () => {
                       value={values.description}
                       name="description"
                       error={!!touched.description && !!errors.description}
-                      helperText={touched.description && errors.description || "Provide detailed information about your item"}
+                      helperText={
+                        (touched.description && errors.description) ||
+                        "Provide detailed information about your item"
+                      }
                       multiline
                       rows={4}
                       placeholder="Describe the condition, features, and any important details about your item..."
                       InputProps={{
                         startAdornment: (
-                          <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+                          <InputAdornment
+                            position="start"
+                            sx={{ alignSelf: "flex-start", mt: 1 }}
+                          >
                             <Description color="action" />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                           borderRadius: 3,
-                        }
+                        },
                       }}
                     />
 
-                    {/* Tags Input Field - Modified to not show selected tags */}
+                    {/* Tags Input Field */}
                     <Box>
                       <TagAutocomplete
                         options={tagOptions || []}
-                        value={[]} // Always empty to hide selected tags in input
+                        value={[]} // hide selected tags in input
                         onChange={(newTags) => {
-                          // Handle adding new tags to the main tags state
-                          const existingTags = tags.map(t => t.toLowerCase());
-                          const validNewTags = newTags.filter(tag => 
-                            tag && !existingTags.includes(tag.toLowerCase())
+                          const existingTags = tags.map((t) =>
+                            typeof t === "string" ? t.toLowerCase() : t.name.toLowerCase()
                           );
-                          
+                          const validNewTags = newTags.filter(
+                            (tag) => tag && !existingTags.includes(tag.toLowerCase())
+                          );
                           if (validNewTags.length > 0) {
-                            const updatedTags = categoryName && !tags.includes(categoryName)
-                              ? [categoryName, ...tags.filter(t => t !== categoryName), ...validNewTags]
-                              : [...tags, ...validNewTags];
+                            const updatedTags =
+                              categoryName && !tags.includes(categoryName)
+                                ? [categoryName, ...tags.filter((t) => t !== categoryName), ...validNewTags]
+                                : [...tags, ...validNewTags];
                             setTags(updatedTags);
                           }
-                          
-                          // Update Formik's values.tags for validation/submission
                           handleChange({
                             target: {
-                              name: 'tags',
-                              value: tags.join(', ')
-                            }
+                              name: "tags",
+                              value: tags.join(", "),
+                            },
                           });
                         }}
-                        lockedTag="" // No locked tag in input field
+                        lockedTag=""
                         placeholder="Type tags and press Enter to add..."
                       />
                       <FormHelperText sx={{ ml: 0, mt: 1 }}>
-                        Add tags to help buyers find your item. Press Enter to add tags. No duplicate tags or special symbols allowed.
+                        Add tags to help buyers find your item. Press Enter to add
+                        tags.
                       </FormHelperText>
                     </Box>
 
-                    {/* Selected Tags Display Area */}
+                    {/* Selected Tags */}
                     <Box>
-                      <Typography 
-                        variant="body2" 
-                        color="text.secondary" 
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
                         sx={{ mb: 1, fontWeight: 500 }}
                       >
                         Selected Tags
@@ -473,14 +616,20 @@ const SellItem = () => {
                         sx={{
                           p: 2,
                           borderRadius: 3,
-                          backgroundColor: 'background.paper',
+                          backgroundColor: "background.paper",
                           minHeight: 60,
-                          border: '1px solid',
-                          borderColor: 'divider'
+                          border: "1px solid",
+                          borderColor: "divider",
                         }}
                       >
                         {tags.length > 0 ? (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 1,
+                            }}
+                          >
                             {tags.map((tag, index) => {
                               const isCategory = tag === categoryName;
                               return (
@@ -488,26 +637,38 @@ const SellItem = () => {
                                   key={index}
                                   label={`#${tag}`}
                                   size="small"
-                                  onDelete={!isCategory ? () => handleDeleteTag(tag) : undefined}
-                                  deleteIcon={!isCategory ? <Close /> : undefined}
+                                  onDelete={
+                                    !isCategory
+                                      ? () => handleDeleteTag(tag)
+                                      : undefined
+                                  }
+                                  deleteIcon={
+                                    !isCategory ? <Close /> : undefined
+                                  }
                                   variant={isCategory ? "filled" : "outlined"}
                                   color={isCategory ? "primary" : "default"}
                                   sx={{
                                     borderRadius: 2,
                                     height: 28,
-                                    fontSize: '0.8rem',
+                                    fontSize: "0.8rem",
                                     fontWeight: 500,
-                                    backgroundColor: isCategory ? 'primary.main' : 'background.default',
-                                    borderColor: isCategory ? 'primary.main' : 'divider',
-                                    color: isCategory ? 'primary.contrastText' : 'text.primary',
-                                    '& .MuiChip-label': {
+                                    backgroundColor: isCategory
+                                      ? "primary.main"
+                                      : "background.default",
+                                    borderColor: isCategory
+                                      ? "primary.main"
+                                      : "divider",
+                                    color: isCategory
+                                      ? "primary.contrastText"
+                                      : "text.primary",
+                                    "& .MuiChip-label": {
                                       px: 1.5,
                                     },
-                                    '& .MuiChip-deleteIcon': {
-                                      fontSize: '16px',
-                                      color: 'inherit',
-                                      '&:hover': {
-                                        color: 'error.main',
+                                    "& .MuiChip-deleteIcon": {
+                                      fontSize: "16px",
+                                      color: "inherit",
+                                      "&:hover": {
+                                        color: "error.main",
                                       },
                                     },
                                   }}
@@ -518,40 +679,44 @@ const SellItem = () => {
                         ) : (
                           <Box
                             sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               height: 44,
-                              color: 'text.secondary',
+                              color: "text.secondary",
                             }}
                           >
-                            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                              No tags selected. Category tag will be added automatically.
+                            <Typography
+                              variant="body2"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              No tags selected. Category tag will be added
+                              automatically.
                             </Typography>
                           </Box>
                         )}
                       </Paper>
                       <FormHelperText sx={{ ml: 0, mt: 1 }}>
-                        Category tag (highlighted in blue) is automatically included and cannot be removed.
+                        Category tag (highlighted in blue) is automatically
+                        included and cannot be removed.
                       </FormHelperText>
                     </Box>
 
                     <Divider sx={{ my: 2 }} />
 
-                    {/* Auction Section */}
-                    <Typography 
-                      variant="h6" 
-                      gutterBottom 
-                      sx={{ 
+                    {/* Auction Settings */}
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
                         fontWeight: 600,
-                        color: 'text.primary',
-                        mb: 2
+                        color: "text.primary",
+                        mb: 2,
                       }}
                     >
                       Auction Settings
                     </Typography>
 
-                    {/* Auction Type Dropdown */}
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -565,7 +730,10 @@ const SellItem = () => {
                       value={values.auctionType}
                       name="auctionType"
                       error={!!touched.auctionType && !!errors.auctionType}
-                      helperText={touched.auctionType && errors.auctionType || "Choose how you want to conduct your auction"}
+                      helperText={
+                        (touched.auctionType && errors.auctionType) ||
+                        "Choose how you want to conduct your auction"
+                      }
                       required
                       InputProps={{
                         startAdornment: (
@@ -575,32 +743,50 @@ const SellItem = () => {
                         ),
                       }}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                           borderRadius: 3,
-                        }
+                        },
                       }}
                     >
                       <MenuItem value="ascending">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
                           <TrendingUp color="success" />
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
                               Ascending Auction
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               Bidders compete with increasing bids
                             </Typography>
                           </Box>
                         </Box>
                       </MenuItem>
                       <MenuItem value="descending">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
                           <TrendingDown color="warning" />
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
                               Descending Auction
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               Price decreases until someone buys
                             </Typography>
                           </Box>
@@ -608,7 +794,6 @@ const SellItem = () => {
                       </MenuItem>
                     </TextField>
 
-                    {/* Auction-specific fields */}
                     {values.auctionType === "ascending" && (
                       <TextField
                         fullWidth
@@ -628,15 +813,21 @@ const SellItem = () => {
                           ),
                         }}
                         sx={{
-                          '& .MuiOutlinedInput-root': {
+                          "& .MuiOutlinedInput-root": {
                             borderRadius: 3,
-                          }
+                          },
                         }}
                       />
                     )}
 
                     {values.auctionType === "descending" && (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
                         <TextField
                           fullWidth
                           variant="outlined"
@@ -644,7 +835,9 @@ const SellItem = () => {
                           label="Starting Price"
                           value={startPrice}
                           onChange={(e) => setStartPrice(e.target.value)}
-                          error={!startPrice && values.auctionType === "descending"}
+                          error={
+                            !startPrice && values.auctionType === "descending"
+                          }
                           helperText="Set the initial price for the descending auction"
                           required
                           InputProps={{
@@ -655,12 +848,12 @@ const SellItem = () => {
                             ),
                           }}
                           sx={{
-                            '& .MuiOutlinedInput-root': {
+                            "& .MuiOutlinedInput-root": {
                               borderRadius: 3,
-                            }
+                            },
                           }}
                         />
-                        
+
                         <TextField
                           fullWidth
                           variant="outlined"
@@ -668,7 +861,9 @@ const SellItem = () => {
                           label="Minimum Bid"
                           value={minBid}
                           onChange={(e) => setMinBid(e.target.value)}
-                          error={!minBid && values.auctionType === "descending"}
+                          error={
+                            !minBid && values.auctionType === "descending"
+                          }
                           helperText="Set the lowest acceptable bid"
                           required
                           InputProps={{
@@ -679,19 +874,21 @@ const SellItem = () => {
                             ),
                           }}
                           sx={{
-                            '& .MuiOutlinedInput-root': {
+                            "& .MuiOutlinedInput-root": {
                               borderRadius: 3,
-                            }
+                            },
                           }}
                         />
-                        
+
                         <TextField
                           fullWidth
                           variant="outlined"
                           type="number"
                           label="Discount Percentage"
                           value={discountPercentage}
-                          onChange={(e) => setDiscountPercentage(e.target.value)}
+                          onChange={(e) =>
+                            setDiscountPercentage(e.target.value)
+                          }
                           error={!discountPercentage}
                           helperText="How much can buyers bid down at each step?"
                           required
@@ -701,18 +898,19 @@ const SellItem = () => {
                                 <LocalOffer color="action" />
                               </InputAdornment>
                             ),
-                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            endAdornment: (
+                              <InputAdornment position="end">%</InputAdornment>
+                            ),
                           }}
                           sx={{
-                            '& .MuiOutlinedInput-root': {
+                            "& .MuiOutlinedInput-root": {
                               borderRadius: 3,
-                            }
+                            },
                           }}
                         />
                       </Box>
                     )}
 
-                    {/* End Date and Time */}
                     <TextField
                       fullWidth
                       variant="outlined"
@@ -723,7 +921,10 @@ const SellItem = () => {
                       value={values.endDateTime}
                       name="endDateTime"
                       error={!!touched.endDateTime && !!errors.endDateTime}
-                      helperText={touched.endDateTime && errors.endDateTime || "When should your auction end?"}
+                      helperText={
+                        (touched.endDateTime && errors.endDateTime) ||
+                        "When should your auction end?"
+                      }
                       InputLabelProps={{
                         shrink: true,
                       }}
@@ -736,39 +937,46 @@ const SellItem = () => {
                       }}
                       required
                       sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                           borderRadius: 3,
-                        }
+                        },
                       }}
                     />
                   </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
-                    <Button 
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      mt: 4,
+                      gap: 2,
+                    }}
+                  >
+                    <Button
                       variant="outlined"
                       size="large"
                       onClick={() => navigate("/dashboard")}
-                      sx={{ 
+                      sx={{
                         borderRadius: 3,
                         px: 4,
-                        textTransform: 'none',
-                        fontWeight: 500
+                        textTransform: "none",
+                        fontWeight: 500,
                       }}
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       variant="contained"
                       size="large"
                       disabled={submitting}
-                      sx={{ 
+                      sx={{
                         borderRadius: 3,
                         px: 4,
-                        textTransform: 'none',
+                        textTransform: "none",
                         fontWeight: 500,
-                        background: 'primary',
-                        boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                        background: "primary",
+                        boxShadow: "0 3px 5px 2px rgba(33, 203, 243, .3)",
                       }}
                     >
                       {submitting ? "Creating Listing..." : "Create Listing"}

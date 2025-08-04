@@ -115,9 +115,12 @@ export default function Landing() {
             className="dashboard-swiper"
           >
             {recentListings.map(item => {
-              const isOwner = item.seller_id === +localStorage.getItem('userId');
               return (
-                <SwiperSlide key={item.id} id="listingCardSmall"className="listingCard">
+                <SwiperSlide
+                  key={item.id}
+                  id="listingCardSmall"
+                  className="listingCard"
+                >
                   <div>
                     {item.image_url ? (
                       <img
@@ -126,38 +129,27 @@ export default function Landing() {
                         className="imageStyle"
                       />
                     ) : (
-                      <Avatar 
-                          variant="square" 
-                          sx={{
-                            width: "100%",
-                            height: 200,
-                            bgcolor: "#eee",
-                          }}> 
+                      <Avatar
+                        variant="square"
+                        sx={{
+                          width: '100%',
+                          height: 200,
+                          bgcolor: '#eee',
+                        }}
+                      >
                         <ImageIcon />
                       </Avatar>
                     )}
-                    
-                    <div className='listingTitle'>
-                      {item.title}
-                    </div>
-                    
+
+                    <div className="listingTitle">{item.title}</div>
                   </div>
                   <div className="noLikeButtonStyle">
-                    {isOwner ? (
-                      <md-filled-button
-                        onClick={() => navigate(`/edit/${item.id}`)}
-                        style={{ width: "100%" }}
-                      >
-                        Edit
-                      </md-filled-button>
-                    ) : (
-                      <md-filled-tonal-button
-                        onClick={() => navigate(`/login`)}
-                        style={{ width: "100%" }}
-                      >
-                        Login to bid
-                      </md-filled-tonal-button>
-                    )}
+                    <md-filled-tonal-button
+                      onClick={() => navigate(`/login`)}
+                      style={{ width: '100%' }}
+                    >
+                      Login to bid
+                    </md-filled-tonal-button>
                   </div>
                 </SwiperSlide>
               );

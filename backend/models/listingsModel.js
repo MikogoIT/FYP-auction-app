@@ -10,20 +10,22 @@ export const createListing = async (
   category_id,
   auction_type,
   start_price,
-  discount_percentage
+  discount_percentage,
+  coverImageUrl = null
 ) => {
   return await sql`
     INSERT INTO auction_listings (
       seller_id, title, description, min_bid, end_date, category_id,
-      auction_type, start_price, discount_percentage
+      auction_type, start_price, discount_percentage, image_url
     )
     VALUES (
       ${sellerId}, ${title}, ${description}, ${min_bid}, ${end_date}, ${category_id},
-      ${auction_type}, ${start_price}, ${discount_percentage}
+      ${auction_type}, ${start_price}, ${discount_percentage}, ${coverImageUrl}
     )
     RETURNING *
   `;
 };
+
 
 export const getActiveListings = async () => {
   return await sql`
