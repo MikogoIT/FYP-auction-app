@@ -22,6 +22,8 @@ import {
   DialogActions,
   CircularProgress,
   Stack,
+  InputAdornment,
+  Divider,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -29,6 +31,8 @@ import {
   Delete,
   Image as ImageIcon,
   PhotoCamera,
+  AttachMoney,
+  LocalOffer,
 } from "@mui/icons-material";
 import { IMG_BASE_URL } from "../global-vars.jsx";
 
@@ -47,6 +51,14 @@ const validationSchema = Yup.object({
   end_date: Yup.date()
     .required("End date is required")
     .min(new Date(), "End date must be in the future"),
+  discount_percentage: Yup.number().when("auction_type", {
+    is: "descending",
+    then: (schema) => schema
+      .required("Discount percentage is required for descending auctions")
+      .min(0, "Discount percentage must be at least 0")
+      .max(100, "Discount percentage cannot exceed 100"),
+    otherwise: (schema) => schema.nullable(),
+  }),
 });
 
 export default function EditListing() {
@@ -95,13 +107,14 @@ export default function EditListing() {
       }
     };
     
+    
     fetchData();
   }, [id]);
 
   // Format date for datetime-local input
   const formatDateForInput = (dateString) => {
     const date = new Date(dateString);
-    return date.toISOString().slice(0, 16);
+    return date.toISOString();
   };
 
   // Handle form submission
@@ -112,30 +125,28 @@ export default function EditListing() {
     // validations
     if (!listing.auction_type) {
       setError("❌ Auction type missing from listing data.");
+      setSubmitting(false);
       return;
     }
-    if (parseFloat(listing.min_bid) <= 0) {
+    if (parseFloat(values.min_bid) <= 0) {
       setError("❌ Minimum bid must be greater than 0.");
+      setSubmitting(false);
       return;
     }
-    if (new Date(listing.end_date) < new Date()) {
+    if (new Date(values.end_date) < new Date()) {
       setError("❌ End date must be in the future.");
+      setSubmitting(false);
       return;
     }
 
     if (listing.auction_type === "descending") {
-      if (!listing.start_price || parseFloat(listing.start_price) <= 0) {
-        setError(
-          "❌ Start price must be greater than 0 for descending auctions.",
-        );
-        return;
-      }
       if (
-        !listing.discount_percentage ||
-        parseFloat(listing.discount_percentage) < 0 ||
-        parseFloat(listing.discount_percentage) > 100
+        !values.discount_percentage ||
+        parseFloat(values.discount_percentage) < 0 ||
+        parseFloat(values.discount_percentage) > 100
       ) {
         setError("❌ Discount percentage must be between 0 and 100.");
+        setSubmitting(false);
         return;
       }
     }
@@ -154,8 +165,7 @@ export default function EditListing() {
           end_date: values.end_date,
           auction_type: listing.auction_type,
           ...(listing.auction_type === "descending" && {
-            start_price: parseFloat(listing.start_price),
-            discount_percentage: parseFloat(listing.discount_percentage),
+            discount_percentage: parseFloat(values.discount_percentage),
           }),
         }),
       });
@@ -274,6 +284,16 @@ export default function EditListing() {
           Edit Listing
         </Typography>
 
+        {/* Auction Type Display */}
+        <Alert 
+          severity="info" 
+          sx={{ mb: 3 }}
+        >
+          <Typography variant="body2">
+            <strong>Auction Type:</strong> {listing.auction_type === "ascending" ? "Ascending Auction" : "Descending Auction"}
+          </Typography>
+        </Alert>
+
         {/* Cover Image Section */}
         <Card sx={{ mb: 4 }}>
           {coverUrl && coverUrl.startsWith(IMG_BASE_URL) ? (
@@ -360,6 +380,9 @@ export default function EditListing() {
             description: listing.description || "",
             min_bid: listing.min_bid || "",
             end_date: formatDateForInput(listing.end_date) || "",
+            start_price: listing.start_price || "",
+            discount_percentage: listing.discount_percentage || "",
+            auction_type: listing.auction_type || "",
           }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
@@ -394,23 +417,121 @@ export default function EditListing() {
                   variant="outlined"
                 />
 
-                <TextField
-                  name="min_bid"
-                  label="Minimum Bid"
-                  type="number"
-                  value={values.min_bid}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.min_bid && Boolean(errors.min_bid)}
-                  helperText={touched.min_bid && errors.min_bid}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  inputProps={{
-                    step: "0.01",
-                    min: "0.01",
-                  }}
-                />
+                {/* Auction-specific fields section */}
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="h6" gutterBottom>
+                  Auction Settings
+                </Typography>
+
+                {listing.auction_type === "ascending" && (
+                  <TextField
+                    name="min_bid"
+                    label="Minimum Bid"
+                    type="number"
+                    value={values.min_bid}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.min_bid && Boolean(errors.min_bid)}
+                    helperText={touched.min_bid && errors.min_bid}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AttachMoney />
+                        </InputAdornment>
+                      ),
+                      inputProps: {
+                        step: "0.01",
+                        min: "0.01",
+                      }
+                    }}
+                  />
+                )}
+
+                {listing.auction_type === "descending" && (
+                  <Stack spacing={2}>
+                    <TextField
+                      name="start_price"
+                      label="Starting Price"
+                      type="number"
+                      value={values.start_price}
+                      disabled                    // Makes field read-only
+                      fullWidth
+                      variant="outlined"
+                      helperText="Starting price cannot be changed once the auction is created"  // Explains why it's disabled
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <AttachMoney />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputBase-input.Mui-disabled': {
+                          WebkitTextFillColor: 'text.primary',    // Makes disabled text readable
+                          color: 'text.primary',
+                        },
+                        '& .MuiInputLabel-root.Mui-disabled': {
+                          color: 'text.secondary',               // Styles disabled label
+                        },
+                      }}
+                    />
+
+                    <TextField
+                      name="min_bid"
+                      label="Minimum Bid"
+                      type="number"
+                      value={values.min_bid}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.min_bid && Boolean(errors.min_bid)}
+                      helperText={touched.min_bid && errors.min_bid || "The lowest acceptable bid"}
+                      required
+                      fullWidth
+                      variant="outlined"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <AttachMoney />
+                          </InputAdornment>
+                        ),
+                        inputProps: {
+                          step: "0.01",
+                          min: "0.01",
+                        }
+                      }}
+                    />
+
+                    <TextField
+                      name="discount_percentage"
+                      label="Discount Percentage"
+                      type="number"
+                      value={values.discount_percentage}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.discount_percentage && Boolean(errors.discount_percentage)}
+                      helperText={touched.discount_percentage && errors.discount_percentage || "How much can buyers bid down at each step?"}
+                      required
+                      fullWidth
+                      variant="outlined"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocalOffer />
+                          </InputAdornment>
+                        ),
+                        endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                        inputProps: {
+                          step: "1",
+                          min: "0",
+                          max: "100",
+                        }
+                      }}
+                    />
+                  </Stack>
+                )}
 
                 <TextField
                   name="end_date"

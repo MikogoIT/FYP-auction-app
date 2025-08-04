@@ -117,8 +117,6 @@ variable "OPENROUTER_API_KEY" {
   sensitive   = true
 }
 
-
-
 # Enable the APIs we need
 resource "google_project_service" "run_api" {
   project = var.project_id
@@ -192,6 +190,11 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
       env {
         name  = "BOT_SECRET"
         value = var.BOT_SECRET
+      }
+
+      env {
+        name  = "TELE_BOT_URL"
+        value = google_cloud_run_v2_service.tele_bot.uri
       }
 
       resources {
@@ -422,8 +425,8 @@ resource "google_cloud_run_v2_service" "tele_bot" {
       }
 
       env {
-        name  = "WEBHOOK_URL"
-        value = "https://auctioneer-tele-bot-fy2crkvg3a-as.a.run.app/webhook"
+        name  = "BACKEND_API_URL"
+        value = "https://${var.custom_domain}"
       }
 
       resources {
@@ -438,4 +441,11 @@ resource "google_cloud_run_v2_service" "tele_bot" {
   depends_on = [
     google_project_service.run_api
   ]
+}
+
+resource "google_cloud_run_v2_service_iam_member" "tele_bot_public_invoker" {
+  location  = google_cloud_run_v2_service.tele_bot.location
+  name      = google_cloud_run_v2_service.tele_bot.name
+  role      = "roles/run.invoker"
+  member    = "allUsers"
 }

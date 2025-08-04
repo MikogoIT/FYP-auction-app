@@ -1,4 +1,4 @@
-# File: handlers/withdraw.py
+# telegram/handlers/withdraw.py
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes

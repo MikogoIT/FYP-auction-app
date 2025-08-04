@@ -1,4 +1,4 @@
-# File: jobs.py
+# telegram/jobs.py
 
 from telegram.ext import ContextTypes
 from logger import logger
@@ -34,8 +34,7 @@ async def poll_notifications(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as e:
         logger.error(f"Polling error: {e}")
 
-async def poll_and_post_listings(context: ContextTypes.DEFAULT_TYPE) -> None:
-    bot = context.bot  # get bot instance from context
+async def poll_and_post_listings(bot) -> None:
     try:
         listings = await fetch_unposted_listings()
     except Exception as e:
