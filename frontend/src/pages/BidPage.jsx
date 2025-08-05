@@ -69,12 +69,12 @@ export default function BidPage() {
           })
           .catch((e) => console.error("Rating fetch error:", e));
 
-        // Set descending auction’s current price
-        if (
-          listing.auction_type === "descending" &&
-          typeof listing.current_price === "number"
-        ) {
-          setCurrentDescPrice(listing.current_price);
+        // Set descending auction’s current price (API returns it as a string)
+        if (listing.auction_type === "descending" && listing.current_price != null) {
+          const parsed = parseFloat(listing.current_price);
+          if (!isNaN(parsed)) {
+            setCurrentDescPrice(parsed);
+          }
         }
       } catch (err) {
         console.error("fetchListing error:", err);
