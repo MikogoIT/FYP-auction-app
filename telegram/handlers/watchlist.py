@@ -1,4 +1,4 @@
-# File: handlers/watchlist.py
+# telegram/handlers/watchlist.py
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes

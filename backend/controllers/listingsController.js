@@ -16,6 +16,7 @@ import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
+import { notifyNewListing, notifyUpdateListingMsg } from "./telegramController.js";
 
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
@@ -34,6 +35,7 @@ const upload = multer({
 });
 
 // POST /listings
+
 export async function postListing(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
@@ -46,7 +48,8 @@ export async function postListing(req, res) {
     category_id,
     auction_type,
     start_price,
-    discount_percentage 
+    discount_percentage,
+    cover_image_url, // new
   } = req.body;
 
   // Basic required fields
@@ -62,16 +65,30 @@ export async function postListing(req, res) {
   if (auction_type === "ascending") {
     // ascending requires min_bid
     if (!min_bid) {
-      return res.status(400).json({ message: "Missing min_bid for ascending auction" });
+      return res
+        .status(400)
+        .json({ message: "Missing min_bid for ascending auction" });
     }
   }
 
   // descending auction only requires validation for start_price and discount_percentage
   if (auction_type === "descending") {
-    if (!start_price || !min_bid || !discount_percentage || discount_percentage < 10) {
-      return res.status(400).json({ message: "Missing or invalid descending auction fields" });
+    if (
+      !start_price ||
+      !min_bid ||
+      !discount_percentage ||
+      discount_percentage < 10
+    ) {
+      return res
+        .status(400)
+        .json({
+          message: "Missing or invalid descending auction fields",
+        });
     }
   }
+
+  // normalize cover image param for model
+  const coverImageUrl = cover_image_url || null;
 
   try {
     const result = await createListing(
@@ -83,15 +100,20 @@ export async function postListing(req, res) {
       category_id,
       auction_type,
       start_price,
-      discount_percentage 
+      discount_percentage,
+      coverImageUrl
     );
+
+    // Notify Telegram bot about the new listing
+    await notifyNewListing();
+
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
     // Send detailed error message back for dev purpose (optional)
     res.status(500).json({ message: "Failed to create listing", error: err.message });
   }
-  }
+}
 
 // GET /listings
 export async function getListings(req, res) {
@@ -178,6 +200,9 @@ export async function putListing(req, res) {
       start_price,
       discount_percentage 
     );
+
+    await notifyUpdateListingMsg(req.params.id);
+
     res.json({ message: "Listing updated successfully" });
   } catch (err) {
     console.error("Update listing error:", err);

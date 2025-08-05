@@ -129,14 +129,14 @@ export default function ListingCard({
             width: "fit-content",
           }}
         >
-          Current bid:&nbsp;
+          Current price:&nbsp;
           <strong>
             {item.auction_type === "descending"
               ? item.current_price != null
-                ? `$${Number(item.current_price).toFixed(2)}`
+                ? `${Number(item.current_price).toFixed(2)}`
                 : "No bids yet"
               : item.current_bid != null
-              ? `$${Number(item.current_bid).toFixed(2)}`
+              ? `${Number(item.current_bid).toFixed(2)}`
               : "No bids yet"}
           </strong>
         </Typography>

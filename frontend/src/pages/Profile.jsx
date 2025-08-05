@@ -185,7 +185,7 @@ export default function Profile() {
                 <p><strong>Address:</strong> {user.address}</p>
               </div>
 
-              <div>
+              <div style={{display: 'flex', justifyContent: 'center', textAlign: 'center'}}>
                 <TelegramConnect user={user}/>
               </div>
             </>

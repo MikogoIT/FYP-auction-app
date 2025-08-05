@@ -1,10 +1,10 @@
-# File: handlers/listing.py
+# telegram/handlers/listing.py
 
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from telegram.ext import ContextTypes
-from api import is_telegram_user_linked, save_telegram_message, fetch_user_listings, fetch_listings_with_messages
+from api import is_telegram_user_linked, save_telegram_message, fetch_user_listings, fetch_listings_with_messages, fetch_full_listing_with_message
 from logger import logger
-from utils import format_seller_listings
+from utils import format_seller_listings, format_listing_message
 import re
 
 async def mylistings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -40,9 +40,6 @@ async def update_listing_message(auction_id: int, new_amount: float, context: Co
     
     # Get the original message
     original_text = telegram_entry.get("caption", "")
-    
-    print(original_text)
-    print(new_amount)
     
     if not original_text:
         logger.warning(f"No caption stored for auction #{auction_id}")
@@ -94,3 +91,53 @@ async def update_listing_message(auction_id: int, new_amount: float, context: Co
         await save_telegram_message(auction_id, telegram_entry["message_id"], telegram_entry["channel_id"], updated_text)
     except Exception as e:
         logger.error(f"Error in update_listing_message(): {e}")
+        
+async def update_message_by_listing_id(listing_id: int, bot) -> None:
+    listing = await fetch_full_listing_with_message(listing_id)
+    if not listing:
+        logger.warning(f"No listing data returned for ID #{listing_id}")
+        return
+    
+    if not listing.get("image_url"):
+        logger.warning(f"Listing {listing_id} has no image. Skipping update.")
+        return
+    
+    try:
+        photo_url, caption, reply_markup = format_listing_message(listing)
+        
+        # Attempt to update the photo & caption together
+        try:
+            await bot.edit_message_media(
+                chat_id=listing["channel_id"],
+                message_id=listing["message_id"],
+                media=InputMediaPhoto(
+                    media=photo_url,
+                    caption=caption,
+                    parse_mode="HTML"
+                ),
+                reply_markup=reply_markup
+            )
+            logger.info(f"Succesfully updated image and caption for listing #{listing_id}")
+        except Exception as media_err:
+            # If media update fails (e.g., Telegram bug), fallback to just updating the caption
+            logger.warning(f"Failed to edit media for listing #{listing_id}, falling back to caption update only: {media_err}")
+            await bot.edit_message_caption(
+                chat_id=listing["channel_id"],
+                message_id=listing["message_id"],
+                caption=caption,
+                reply_markup=reply_markup,
+                parse_mode="HTML"
+            )
+            logger.info(f"Updated caption only for listing #{listing_id}")
+            
+        # Save updated message in database
+        await save_telegram_message(
+            listing_id,
+            listing["message_id"],
+            listing["channel_id"],
+            caption
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to update listing #{listing_id}: {e}")
+    

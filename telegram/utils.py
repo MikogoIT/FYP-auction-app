@@ -1,4 +1,4 @@
-# File: utils.py
+# telegram/utils.py
 
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -125,16 +125,18 @@ def format_ai_search_results(listings):
     if not listings:
         return "No matching listings found."
     
-    lines = [f"in <b>Auctioneer {category} Channel (@{channel_username}):</b>\n"]
+    lines = []
+    
+    # Assume first listing's category for header
+    first_category = listings[0].get("category_name", "Unknown")
+    category_slug = first_category.lower().replace(" ", "_")
+    channel_username = f"{category_slug}_fypauction"
     
     for item in listings:
         title = item.get("title", "Untitled")
         auction_id = item.get("id", "N/A")
         end_date = format_date(item.get("end_date", ""))
-        category = item.get("category_name", "Unknown")
         message_id = item.get("message_id")
-        category_slug = category.lower().replace(" ", "_")
-        channel_username = f"{category_slug}_fypauction"
         
         if message_id:
             view_link = f"https://t.me/{channel_username}/{message_id}"
@@ -148,7 +150,8 @@ def format_ai_search_results(listings):
             f"{view_text}\n"
         )
     
-    return "\n".join(lines)
+    header = f"<b>Auctioneer {first_category} Channel (@{channel_username}):</b>\n\n"
+    return header + "\n".join(lines)
     
         
 def format_listing_message(listing):

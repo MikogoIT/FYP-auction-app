@@ -1,4 +1,4 @@
-# File: handlers/bid.py
+# telegram/handlers/bid.py
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
@@ -20,7 +20,7 @@ async def start_bid_flow(chat_id, auction_id, linked_data, update):
     seller_id = listing.get("seller_id")
     highest_bid = bid_data.get("highest_bid")
     auction_type = listing.get("auction_type", "ascending")
-    discount_percentage = bid_data.get("discount_percentage", 10)
+    discount_percentage = float(bid_data.get("discount_percentage", 10))
         
     # Check if user is the seller
     if seller_id == user_id:

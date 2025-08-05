@@ -5,4 +5,5 @@ python-dotenv==1.1.1
 python-telegram-bot[webhooks]==22.3 # with webhook dependencies (optional by default)
 pytz==2025.2
 requests==2.32.4
-flask
+fastapi==0.100.0
+uvicorn[standard]==0.23.2
