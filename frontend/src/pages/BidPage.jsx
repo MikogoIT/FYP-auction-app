@@ -79,6 +79,8 @@ export default function BidPage() {
           })
           .catch((e) => console.error("Rating fetch error:", e));
 
+          // TODO
+        // page is receiving correct current price but not displaying it. need to check data type
         if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
           setCurrentDescPrice(listing.current_price);
         }

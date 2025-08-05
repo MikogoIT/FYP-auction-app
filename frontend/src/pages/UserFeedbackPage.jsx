@@ -85,6 +85,7 @@ export default function UserFeedback() {
       try {
         const res = await fetch(`/api/listings/${auctionId}/people`, {
           credentials: "include",
+          // pls fix here
           body: JSON.stringify({
             auction_id: auctionId,
             user_ratings: userRating,

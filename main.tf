@@ -197,6 +197,13 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         value = google_cloud_run_v2_service.tele_bot.uri
       }
 
+      env {
+        name  = "TELEGRAM_BOT_TOKEN"
+        value = var.TELEGRAM_BOT_TOKEN
+      }
+
+      
+
       resources {
         limits = {
           cpu    = "1"
