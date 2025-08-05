@@ -1,4 +1,5 @@
 // src/pages/BidPage.jsx
+
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import {
@@ -26,26 +27,18 @@ export default function BidPage() {
   const [avgRating, setAvgRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
 
-  // Derived helpers
+  // Helpers to detect whether there has been a bid
   const hasAscBid = useCallback(() => {
-    if (!listing) return false;
-    const listingMinBidNum = Number(listing.min_bid);
-    const minPriceNum = Number(minPrice);
-    if (isNaN(minPriceNum)) return false;
-    // If minPrice is strictly greater than initial min bid, there's been a bid
-    return minPriceNum > listingMinBidNum + 1e-9;
+    if (!listing || minPrice === null) return false;
+    return Number(minPrice) > Number(listing.min_bid) + 1e-9;
   }, [listing, minPrice]);
 
   const hasDescBid = useCallback(() => {
-    if (!listing) return false;
-    const startPriceNum = Number(listing.start_price);
-    const currentNum = Number(currentDescPrice);
-    if (isNaN(currentNum)) return false;
-    // In descending, a bid lowers price; only show current if it's strictly less than start
-    return currentNum < startPriceNum - 1e-9;
+    if (!listing || currentDescPrice === null) return false;
+    return Number(currentDescPrice) < Number(listing.start_price) - 1e-9;
   }, [listing, currentDescPrice]);
 
-  // Log internal state for debugging whenever key pieces change
+  // Debug logging
   useEffect(() => {
     console.log("=== BidPage state ===");
     console.log("auctionType:", auctionType);
@@ -57,20 +50,17 @@ export default function BidPage() {
     console.log("=====================");
   }, [auctionType, listing, minPrice, currentDescPrice, hasAscBid, hasDescBid]);
 
-  // Fetch listing details (including category_id & category_name)
+  // Fetch listing details
   useEffect(() => {
     async function fetchListing() {
       try {
         const res = await fetch(`/api/listings/${id}`);
-        if (!res.ok) {
-          const t = await res.text();
-          throw new Error(`Failed to load listing: ${t}`);
-        }
+        if (!res.ok) throw new Error(await res.text());
         const { listing } = await res.json();
         setListing(listing);
         setAuctionType(listing.auction_type);
 
-        // once we know the seller, fetch their rating
+        // Fetch seller rating
         fetch(`/api/feedback/ratings/${listing.seller_id}`)
           .then((res) => res.json())
           .then(({ avg_rating, total_reviews }) => {
@@ -79,10 +69,12 @@ export default function BidPage() {
           })
           .catch((e) => console.error("Rating fetch error:", e));
 
-          // TODO
-        // page is receiving correct current price but not displaying it. need to check data type
-        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
-          setCurrentDescPrice(listing.current_price);
+        // Set descending auction’s current price (API returns it as a string)
+        if (listing.auction_type === "descending" && listing.current_price != null) {
+          const parsed = parseFloat(listing.current_price);
+          if (!isNaN(parsed)) {
+            setCurrentDescPrice(parsed);
+          }
         }
       } catch (err) {
         console.error("fetchListing error:", err);
@@ -91,15 +83,12 @@ export default function BidPage() {
     fetchListing();
   }, [id]);
 
-  // Fetch highest bid so far (min allowed)
+  // Fetch current highest bid (min allowed)
   useEffect(() => {
     async function fetchMinAllowed() {
       try {
         const res = await fetch(`/api/auctions/${id}/min-bid`);
-        if (!res.ok) {
-          const t = await res.text();
-          throw new Error(`Failed to load min bid: ${t}`);
-        }
+        if (!res.ok) throw new Error(await res.text());
         const { min_allowed } = await res.json();
         setMinPrice(min_allowed);
       } catch (err) {
@@ -129,16 +118,15 @@ export default function BidPage() {
       return;
     }
 
+    // --- validation logic ---
     if (auctionType === "ascending") {
       if (!hasAscBid()) {
-        // no existing bid; compare against listing.min_bid
         const base = Number(listing.min_bid);
         if (amount <= base) {
           setMessage(`❌ Your bid must be higher than $${base.toFixed(2)}`);
           return;
         }
       } else {
-        // there is an existing bid; compare against minPrice (which is the current highest)
         const current = Number(minPrice);
         if (amount <= current) {
           setMessage(`❌ Your bid must be higher than $${current.toFixed(2)}`);
@@ -148,7 +136,6 @@ export default function BidPage() {
     } else if (auctionType === "descending") {
       if (typeof currentDescPrice === "number") {
         const currentNum = Number(currentDescPrice);
-        // descending: bids must be lower than current (or start) but not below listing.min_bid
         const floor = Number(listing.min_bid);
         const compareBase = hasDescBid() ? currentNum : Number(listing.start_price);
 
@@ -168,6 +155,7 @@ export default function BidPage() {
       return;
     }
 
+    // --- send to server ---
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -182,7 +170,7 @@ export default function BidPage() {
       // Optimistic update
       if (auctionType === "ascending") {
         setMinPrice(amount);
-      } else if (auctionType === "descending") {
+      } else {
         setCurrentDescPrice(amount);
       }
       setBidAmount("");
@@ -217,15 +205,9 @@ export default function BidPage() {
             },
           }}
         >
-          <Link
-            component={RouterLink}
-            to="/dashboard"
-            underline="hover"
-            color="inherit"
-          >
+          <Link component={RouterLink} to="/dashboard" underline="hover" color="inherit">
             Home
           </Link>
-
           <Link
             component={RouterLink}
             to={`/listings?category=${encodeURIComponent(listing.category_id)}`}
@@ -234,13 +216,13 @@ export default function BidPage() {
           >
             {listing.category_name}
           </Link>
-
           <Typography color="text.primary">{listing.title}</Typography>
         </Breadcrumbs>
 
         <div className="profileTitle">{listing.title}</div>
 
         <div className="twoboxes">
+          {/* Left box: image & description */}
           <div className="listingDeets">
             {listing.image_url ? (
               <img
@@ -254,10 +236,7 @@ export default function BidPage() {
                 }}
               />
             ) : (
-              <Avatar
-                variant="square"
-                sx={{ width: "100%", height: 200, bgcolor: "#eee" }}
-              >
+              <Avatar variant="square" sx={{ width: "100%", height: 200, bgcolor: "#eee" }}>
                 <ImageIcon sx={{ fontSize: 40, color: "#aaa" }} />
               </Avatar>
             )}
@@ -270,11 +249,7 @@ export default function BidPage() {
                 avgRating={avgRating}
                 totalReviews={totalReviews}
               />
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1, fontSize: 16 }}
-              >
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: 16 }}>
                 Ends: {new Date(listing.end_date).toLocaleString("en-SG")}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
@@ -283,7 +258,12 @@ export default function BidPage() {
             </div>
           </div>
 
+          {/* Right box: bidding details */}
           <div className="bidDeets">
+            <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
+              Auction type: <strong>{auctionType}</strong>
+            </Typography>
+
             <Typography
               variant="subtitle2"
               component="span"
@@ -324,7 +304,7 @@ export default function BidPage() {
               Current price:&nbsp;
               <strong>
                 {auctionType === "descending" ? (
-                  hasDescBid()
+                  currentDescPrice != null
                     ? Number(currentDescPrice).toFixed(2)
                     : "No bids yet"
                 ) : (
@@ -336,7 +316,6 @@ export default function BidPage() {
             </Typography>
 
             <h2>Place your bid</h2>
-
             <form onSubmit={handleSubmit}>
               <label htmlFor="bidAmount">Bid Amount ($):</label>
               <input
@@ -382,9 +361,7 @@ export default function BidPage() {
                 align="center"
                 sx={{
                   mt: 2,
-                  color: message.startsWith("✅")
-                    ? "success.main"
-                    : "error.main",
+                  color: message.startsWith("✅") ? "success.main" : "error.main",
                 }}
               >
                 {message}

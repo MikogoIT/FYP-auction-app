@@ -104,9 +104,6 @@ export async function postListing(req, res) {
       coverImageUrl
     );
 
-    // Notify Telegram bot about the new listing
-    await notifyNewListing();
-
     res.status(201).json({ listing: result[0] });
   } catch (err) {
     console.error("Create listing error:", err);
@@ -320,6 +317,10 @@ export async function uplListingImg(req, res) {
         SET image_url = ${publicUrl}
         WHERE id = ${req.body.listingId}
       `;
+
+      // Notify Telegram bot about the new listing
+      // called AFTER image is set
+      await notifyNewListing();
 
       return res.json({ imageUrl: publicUrl });
     } catch (err) {
