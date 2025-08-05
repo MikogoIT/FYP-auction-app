@@ -92,7 +92,7 @@ export async function createBid(req, res) {
         await notificationModel.insertNotification(
           prevHighest[0].buyer_id,
           auction_id,
-          `[outbid] Your bid for "${auctionTitle}" has been outbid.`
+          //`[outbid] Your bid for "${auctionTitle}" has been outbid.`
         );
 
       }
@@ -109,10 +109,11 @@ export async function createBid(req, res) {
       `;
 
       // Notify buyer and seller
+      /*
       await notificationModel.insertNotification(
         userId,
         auction_id,
-        `[bid won] 🏆 You won "${auctionTitle}" in the descending auction.`
+        //`[bid won] 🏆 You won "${auctionTitle}" in the descending auction.`
       );
 
       const sellerInfo = await sql`
@@ -140,7 +141,7 @@ export async function createBid(req, res) {
       }
 
       return res.status(201).json({ bid: result[0] });
-
+      */
     } else {
       // Fallback for any other auction types
       const result = await bidModel.insertBid(userId, auction_id, bid_amount);
