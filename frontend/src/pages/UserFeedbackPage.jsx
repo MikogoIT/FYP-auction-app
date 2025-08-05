@@ -83,14 +83,8 @@ export default function UserFeedback() {
   useEffect(() => {
     async function fetchPeople() {
       try {
-        const res = await fetch(`/api/listings/${auctionId}/people`, {
-          credentials: "include",
-          // pls fix here
-          body: JSON.stringify({
-            auction_id: auctionId,
-            user_ratings: userRating,
-            user_comments: userComments,
-          }),
+              const res = await fetch(`/api/listings/${auctionId}/people`, {
+              credentials: "include"
         });
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
