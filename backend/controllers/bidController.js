@@ -92,7 +92,7 @@ export async function createBid(req, res) {
         await notificationModel.insertNotification(
           prevHighest[0].buyer_id,
           auction_id,
-          `[outbid] Your bid for "${auctionTitle}" has been outbid.`
+          //`[outbid] Your bid for "${auctionTitle}" has been outbid.`
         );
 
       }
@@ -112,7 +112,7 @@ export async function createBid(req, res) {
       await notificationModel.insertNotification(
         userId,
         auction_id,
-        `[bid won] 🏆 You won "${auctionTitle}" in the descending auction.`
+        //`[bid won] 🏆 You won "${auctionTitle}" in the descending auction.`
       );
 
       const sellerInfo = await sql`
