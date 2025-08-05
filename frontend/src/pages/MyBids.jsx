@@ -1,7 +1,7 @@
 // src/pages/MyBids.jsx
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';       // ← add this
+import { useNavigate } from 'react-router-dom';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Box,
@@ -21,7 +21,8 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import BreadcrumbsNav from "../components/BreadcrumbsNav";
 
 export default function MyBids() {
-  const navigate = useNavigate();                     // ← add this
+  const navigate = useNavigate();
+
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,6 +71,7 @@ export default function MyBids() {
     }
   };
 
+  // Map API data into DataGrid rows
   const rows = bids.map((bid) => ({
     id: bid.bid_id,
     listing_name: bid.listing_name,
@@ -78,6 +80,13 @@ export default function MyBids() {
     created_at: bid.created_at ? new Date(bid.created_at) : null,
     end_date: bid.end_date ? new Date(bid.end_date) : null,
   }));
+
+  // **NEW**: filter out any row whose end_date is before now
+  const now = new Date();
+  const activeRows = rows.filter(row => {
+    // if there's no end_date, keep it; otherwise only keep if in the future
+    return row.end_date === null || row.end_date > now;
+  });
 
   const columns = [
     { field: 'listing_name', headerName: 'Listing', flex: 1, minWidth: 150 },
@@ -98,7 +107,7 @@ export default function MyBids() {
           size="small"
           sx={{ color: 'text.secondary' }}
           onClick={(event) => {
-            event.stopPropagation();              // ← prevent row click
+            event.stopPropagation(); // prevent row click
             openConfirm(params.id);
           }}
         >
@@ -122,23 +131,24 @@ export default function MyBids() {
       <Box className="dashboardContent" sx={{ flexGrow: 1 }}>
         <BreadcrumbsNav />
         <div id="wideTitle" className="profileTitle">My Bids</div>
+
         {loading ? (
           <CircularProgress />
         ) : (
           <Box sx={{ width: '100%' }}>
             <DataGrid
               autoHeight
-              rows={rows}
+              rows={activeRows}    // ← only show non-expired bids
               columns={columns}
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
               disableSelectionOnClick
-              onRowClick={(params) => navigate(`/bid/${params.id}`)}  // ← add this
+              onRowClick={(params) => navigate(`/bid/${params.id}`)}
               sx={{
                 "& .MuiDataGrid-columnHeader": { fontSize: "16px" },
                 "& .MuiDataGrid-cell": { fontSize: "16px" },
                 "& .MuiDataGrid-footerContainer": { fontSize: "16px" },
-                '& .MuiDataGrid-row:hover': { cursor: 'pointer' },     // ← pointer on hover
+                '& .MuiDataGrid-row:hover': { cursor: 'pointer' },
                 '& .actionsColumn': {
                   position: 'sticky',
                   right: 0,
