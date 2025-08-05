@@ -70,7 +70,10 @@ export default function BidPage() {
           .catch((e) => console.error("Rating fetch error:", e));
 
         // Set descending auction’s current price
-        if (listing.auction_type === "descending" && typeof listing.current_price === "number") {
+        if (
+          listing.auction_type === "descending" &&
+          typeof listing.current_price === "number"
+        ) {
           setCurrentDescPrice(listing.current_price);
         }
       } catch (err) {
@@ -105,6 +108,7 @@ export default function BidPage() {
       return;
     }
     // (Your existing validation logic here…)
+
     // On success, optimistically update:
     if (auctionType === "ascending") {
       setMinPrice(amount);
@@ -195,7 +199,7 @@ export default function BidPage() {
 
           {/* Right box: bidding details */}
           <div className="bidDeets">
-            {/* New: Auction type display */}
+            {/* Auction type display */}
             <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
               Auction type: <strong>{auctionType}</strong>
             </Typography>
@@ -224,7 +228,7 @@ export default function BidPage() {
               </strong>
             </Typography>
 
-            {/* Current price pill (null-check logic) */}
+            {/* Current price pill */}
             <Typography
               variant="subtitle2"
               component="span"
@@ -254,8 +258,44 @@ export default function BidPage() {
             </Typography>
 
             <h2>Place your bid</h2>
+
             <form onSubmit={handleSubmit}>
-              {/* … your bid form inputs/buttons here … */}
+              <label htmlFor="bidAmount">Bid Amount ($):</label>
+              <input
+                id="bidAmount"
+                type="number"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                required
+                min={
+                  auctionType === "ascending"
+                    ? minPrice
+                    : listing && typeof listing.min_bid === "number"
+                    ? listing.min_bid
+                    : 1
+                }
+                max={
+                  auctionType === "descending"
+                    ? hasDescBid()
+                      ? currentDescPrice
+                      : Number(listing.start_price)
+                    : undefined
+                }
+                step="0.01"
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  margin: "8px 0 16px",
+                  boxSizing: "border-box",
+                }}
+              />
+              <md-filled-button
+                type="submit"
+                disabled={message.startsWith("✅")}
+                style={{ width: "100%", padding: "10px" }}
+              >
+                Submit Bid
+              </md-filled-button>
             </form>
 
             {message && (
