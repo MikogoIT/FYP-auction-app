@@ -98,28 +98,89 @@ export default function BidPage() {
     fetchMinAllowed();
   }, [id]);
 
-  // Bid submission handler...
+  // Submit a new bid
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+
     const amount = parseFloat(bidAmount);
+    console.log("Submitting bid:", {
+      bidAmount,
+      parsedAmount: amount,
+      auctionType,
+      listing,
+      minPrice,
+      currentDescPrice,
+    });
+
     if (isNaN(amount)) {
       setMessage("Please enter a valid number");
       return;
     }
-    // (Your existing validation logic here…)
 
-    // On success, optimistically update:
+    // --- validation logic ---
     if (auctionType === "ascending") {
-      setMinPrice(amount);
-    } else {
-      setCurrentDescPrice(amount);
+      if (!hasAscBid()) {
+        const base = Number(listing.min_bid);
+        if (amount <= base) {
+          setMessage(`❌ Your bid must be higher than $${base.toFixed(2)}`);
+          return;
+        }
+      } else {
+        const current = Number(minPrice);
+        if (amount <= current) {
+          setMessage(`❌ Your bid must be higher than $${current.toFixed(2)}`);
+          return;
+        }
+      }
+    } else if (auctionType === "descending") {
+      if (typeof currentDescPrice === "number") {
+        const currentNum = Number(currentDescPrice);
+        const floor = Number(listing.min_bid);
+        const compareBase = hasDescBid() ? currentNum : Number(listing.start_price);
+
+        if (amount >= compareBase) {
+          setMessage(`❌ Your bid must be lower than $${compareBase.toFixed(2)}`);
+          return;
+        }
+        if (amount < floor) {
+          setMessage(`❌ Your bid must be at least $${floor.toFixed(2)}`);
+          return;
+        }
+      }
     }
-    setBidAmount("");
-    setMessage("✅ Bid submitted!");
+
+    if (amount > 99999999.99) {
+      alert("The bid amount cannot exceed 99,999,999.99");
+      return;
+    }
+
+    // --- send to server ---
+    try {
+      const res = await fetch("/api/bids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ auction_id: id, bid_amount: amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Bid failed");
+
+      setMessage("✅ Bid submitted!");
+      // Optimistic update
+      if (auctionType === "ascending") {
+        setMinPrice(amount);
+      } else {
+        setCurrentDescPrice(amount);
+      }
+      setBidAmount("");
+    } catch (err) {
+      console.error("bid submit error:", err);
+      setMessage(err.message);
+    }
   };
 
-  // Loading state
+  // Loading fallback
   if (!listing || minPrice === null) {
     return (
       <Box sx={{ textAlign: "center", mt: 5 }}>
@@ -199,12 +260,10 @@ export default function BidPage() {
 
           {/* Right box: bidding details */}
           <div className="bidDeets">
-            {/* Auction type display */}
             <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
               Auction type: <strong>{auctionType}</strong>
             </Typography>
 
-            {/* Starting bid pill */}
             <Typography
               variant="subtitle2"
               component="span"
@@ -228,7 +287,6 @@ export default function BidPage() {
               </strong>
             </Typography>
 
-            {/* Current price pill */}
             <Typography
               variant="subtitle2"
               component="span"
@@ -258,7 +316,6 @@ export default function BidPage() {
             </Typography>
 
             <h2>Place your bid</h2>
-
             <form onSubmit={handleSubmit}>
               <label htmlFor="bidAmount">Bid Amount ($):</label>
               <input
