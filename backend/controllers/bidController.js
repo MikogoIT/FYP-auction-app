@@ -109,6 +109,7 @@ export async function createBid(req, res) {
       `;
 
       // Notify buyer and seller
+      /*
       await notificationModel.insertNotification(
         userId,
         auction_id,
@@ -140,7 +141,7 @@ export async function createBid(req, res) {
       }
 
       return res.status(201).json({ bid: result[0] });
-
+      */
     } else {
       // Fallback for any other auction types
       const result = await bidModel.insertBid(userId, auction_id, bid_amount);
