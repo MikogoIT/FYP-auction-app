@@ -130,7 +130,7 @@ useEffect(() => {
 
             else if (message.startsWith("[item sold]") && winnerId) {
              // item sold → go to the winner’s profile
-              navigate(`/feedback-user/${winnerId}`);
+              navigate(`/feedback/${winnerId}`);
             }
             
 
