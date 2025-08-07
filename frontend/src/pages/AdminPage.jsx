@@ -4,11 +4,6 @@ import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
 import { 
   Box, 
   Typography, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Button as MuiButton,
   Alert,
   Snackbar
 } from "@mui/material";
@@ -19,8 +14,6 @@ import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import Header from "../components/Header";
-// import ModeEditIcon from '@mui/icons-material/ModeEdit';
-// import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
@@ -32,12 +25,12 @@ const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAdminWarning, setShowAdminWarning] = useState(false);
-  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
-  const [updatedUserName, setUpdatedUserName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showDuplicateError, setShowDuplicateError] = useState(false);
-  const [duplicateErrorMessage, setDuplicateErrorMessage] = useState("");
+
+  // State for notifications (Snackbar)
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'warning'
 
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -48,6 +41,31 @@ const AdminPage = () => {
   const USERS_PER_PAGE = 10;
 
   const navigate = useNavigate(); 
+
+  // Show notification (success or warning)
+  const showNotification = (message, type = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setNotificationOpen(true);
+  };
+
+  // Show success notification (for backward compatibility)
+  const showSuccessNotification = (message) => {
+    showNotification(message, 'success');
+  };
+
+  // Show admin warning notification
+  const showAdminWarning = () => {
+    showNotification('Admin users cannot be edited or suspended for security reasons', 'warning');
+  };
+
+  // Close notification
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotificationOpen(false);
+  };
 
   // update user's name, phone number, and address
 
@@ -120,7 +138,7 @@ const AdminPage = () => {
   const handleEditUser = async (newRow, oldRow) => {
     // Check if the user being edited is an admin
     if (oldRow.is_admin) {
-      setShowAdminWarning(true);
+      showAdminWarning();
       return Promise.reject(oldRow); // Reject the promise to prevent the edit
     }
 
@@ -130,15 +148,11 @@ const AdminPage = () => {
 
     // Check for empty username
     if (!newRow.username || newRow.username.trim() === "") {
-      setDuplicateErrorMessage("Username cannot be empty.");
-      setShowDuplicateError(true);
       return Promise.reject(oldRow);
     }
 
-    // Check for empty email
+    // Check for empty email 
     if (!newRow.email || newRow.email.trim() === "") {
-      setDuplicateErrorMessage("Email cannot be empty.");
-      setShowDuplicateError(true);
       return Promise.reject(oldRow);
     }
 
@@ -147,8 +161,6 @@ const AdminPage = () => {
       user => user.id !== newRow.id && user.username === newRow.username
     );
     if (duplicateUsername) {
-      setDuplicateErrorMessage(`Username "${newRow.username}" is already taken by another user.`);
-      setShowDuplicateError(true);
       return Promise.reject(oldRow); // Reject the promise to prevent the edit
     }
 
@@ -157,8 +169,6 @@ const AdminPage = () => {
       user => user.id !== newRow.id && user.email === newRow.email
     );
     if (duplicateEmail) {
-      setDuplicateErrorMessage(`Email "${newRow.email}" is already taken by another user.`);
-      setShowDuplicateError(true);
       return Promise.reject(oldRow); // Reject the promise to prevent the edit
     }
 
@@ -182,16 +192,13 @@ const AdminPage = () => {
         const updatedRowFromDB = await res.json();
         console.log("Status updated");
         
-        // Show success notification only if not already showing
-        if (!showUpdateSuccess) {
-          setUpdatedUserName(updatedRowFromDB.username || newRow.username);
-          setShowUpdateSuccess(true);
-        }
+        // Show success notification using Snackbar
+        showSuccessNotification(`User "${updatedRowFromDB.username || newRow.username}" has been successfully updated`);
         
         // Reload data while maintaining current search and page state
         await fetchUsers(searchQuery, page);
         
-        // Reset updating flag after a short delay to allow for the dialog
+        // Reset updating flag after a short delay
         setTimeout(() => {
           setIsUpdating(false);
         }, 500);
@@ -220,7 +227,7 @@ const AdminPage = () => {
     // Find the user to check if they're an admin
     const user = users.find(u => u.id === userId);
     if (user && user.is_admin) {
-      setShowAdminWarning(true);
+      showAdminWarning();
       return;
     }
 
@@ -267,7 +274,7 @@ const AdminPage = () => {
     // Find the user to check if they're an admin
     const user = users.find(u => u.id === id);
     if (user && user.is_admin) {
-      setShowAdminWarning(true);
+      showAdminWarning();
       return;
     }
 
@@ -278,29 +285,10 @@ const AdminPage = () => {
     setRows(updatedRows);
   };
 
-  const handleCloseWarning = () => {
-    setShowAdminWarning(false);
-  };
-
-  const handleCloseDuplicateError = () => {
-    setShowDuplicateError(false);
-    setDuplicateErrorMessage("");
-  };
-
-  const handleCloseUpdateSuccess = () => {
-    setShowUpdateSuccess(false);
-    setUpdatedUserName(""); // Clear the username to prevent re-showing
-    setIsUpdating(false); // Reset the updating flag when dialog is closed
-  };
-
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
 
-  // Check if a cell should be editable (disable editing for admin users)
-  const isCellEditable = (params) => {
-    return !params.row.is_admin;
-  };
 
   const column = [
     { 
@@ -319,7 +307,6 @@ const AdminPage = () => {
           error: isDuplicate || isEmpty,
         };
       },
-      isCellEditable: isCellEditable
     },
     { 
       field: 'email', 
@@ -338,21 +325,18 @@ const AdminPage = () => {
           error: isDuplicate || isEmpty,
         };
       },
-      isCellEditable: isCellEditable
     }, 
     { 
       field: 'phone_number', 
       headerName: 'Phone', 
       sortable: false, 
       editable: true,
-      isCellEditable: isCellEditable
     }, 
     { 
       field: 'address', 
       headerName: 'Address', 
       width: 200, 
       editable: true,
-      isCellEditable: isCellEditable
     }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
@@ -415,28 +399,7 @@ const AdminPage = () => {
       );
     }
   },
-  /* delete user, kept code just in case
- {
-    field: 'id',
-    type: 'actions',
-    headerName: 'Actions',
-    display: "flex",
-    cellClassName: 'actions',
-    getActions: ({ id }) => {
-
-
-      return [
-        <GridActionsCellItem
-          icon={<DeleteOutlinedIcon />}
-          label="Delete User"
-          onClick={handleDeleteClick(id)}
-        />,
-      ];
-    },
-  },
-  */
 ]
-
 
   return (
     <div className="dashboardCanvas">
@@ -504,8 +467,8 @@ const AdminPage = () => {
           editMode="row"
           columns={column}
           processRowUpdate={handleEditUser}
+          getRowId={(row) => row.username}
           onProcessRowUpdateError={handleProcessRowUpdateError}
-          isCellEditable={isCellEditable}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[5, 8, 10]}
@@ -519,196 +482,44 @@ const AdminPage = () => {
         />
       </Box>
 
-      {/* Admin Warning Dialog - Material Design 3 */}
-      <Dialog
-        open={showAdminWarning}
-        onClose={handleCloseWarning}
-        aria-labelledby="admin-warning-dialog-title"
-        aria-describedby="admin-warning-dialog-description"
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            minWidth: 320,
-            maxWidth: 512,
-            padding: 2,
-            boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.08)'
-          }
-        }}
+      {/* Unified notification system using Snackbar */}
+      <Snackbar 
+        open={notificationOpen} 
+        autoHideDuration={4000} 
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <DialogTitle 
-          id="admin-warning-dialog-title"
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notificationType}
+          variant="filled"
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            padding: '16px 0',
-            fontSize: '1.375rem',
-            fontWeight: 600,
-            color: '#DC362E'
+            width: '100%',
+            backgroundColor: notificationType === 'success' ? '#4CAF50' : '#FF9800',
+            color: '#fff',
+            '& .MuiAlert-message': {
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              letterSpacing: '0.0178571429em',
+            },
+            '& .MuiAlert-icon': {
+              fontSize: '20px',
+            },
+            '& .MuiAlert-action': {
+              '& .MuiIconButton-root': {
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                }
+              }
+            },
+            boxShadow: '0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12)',
+            borderRadius: '12px',
           }}
         >
-          <WarningIcon sx={{ color: '#DC362E', fontSize: 28 }} />
-          Admin Protection
-        </DialogTitle>
-        <DialogContent sx={{ padding: '0 0 24px 0' }}>
-          <Typography 
-            id="admin-warning-dialog-description"
-            sx={{
-              color: 'rgba(0, 0, 0, 0.87)',
-              fontSize: '1rem',
-              lineHeight: 1.5
-            }}
-          >
-            Admin users cannot be edited or suspended for security reasons. Only non-admin users can be modified.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ padding: 0, justifyContent: 'flex-end' }}>
-          <MuiButton 
-            onClick={handleCloseWarning}
-            variant="contained"
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500,
-              padding: '10px 24px',
-              backgroundColor: '#DC362E',
-              '&:hover': {
-                backgroundColor: '#B71C1C'
-              }
-            }}
-          >
-            Understood
-          </MuiButton>
-        </DialogActions>
-      </Dialog>
-
-      {/* User Update Success Dialog - Material Design 3 */}
-      <Dialog
-        open={showUpdateSuccess}
-        onClose={handleCloseUpdateSuccess}
-        aria-labelledby="update-success-dialog-title"
-        aria-describedby="update-success-dialog-description"
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            minWidth: 320,
-            maxWidth: 512,
-            padding: 2,
-            boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.08)'
-          }
-        }}
-      >
-        <DialogTitle 
-          id="update-success-dialog-title"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            padding: '16px 0',
-            fontSize: '1.375rem',
-            fontWeight: 600,
-            color: '#0F7B0F'
-          }}
-        >
-          <CheckCircleIcon sx={{ color: '#0F7B0F', fontSize: 28 }} />
-          User Updated
-        </DialogTitle>
-        <DialogContent sx={{ padding: '0 0 24px 0' }}>
-          <Typography 
-            id="update-success-dialog-description"
-            sx={{
-              color: 'rgba(0, 0, 0, 0.87)',
-              fontSize: '1rem',
-              lineHeight: 1.5
-            }}
-          >
-            User "{updatedUserName}" has been successfully updated.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ padding: 0, justifyContent: 'flex-end' }}>
-          <MuiButton 
-            onClick={handleCloseUpdateSuccess}
-            variant="contained"
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500,
-              padding: '10px 24px',
-              backgroundColor: '#e8def8',
-              color: '#000000',
-              '&:hover': {
-                backgroundColor: '#6750a4',
-                color: "#FFFFFF",
-              }
-            }}
-          >
-            OK
-          </MuiButton>
-        </DialogActions>
-      </Dialog>
-
-      {/* Duplicate Value Error Dialog - Material Design 3 (Same style as Admin Warning) */}
-      <Dialog
-        open={showDuplicateError}
-        onClose={handleCloseDuplicateError}
-        aria-labelledby="duplicate-error-dialog-title"
-        aria-describedby="duplicate-error-dialog-description"
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            minWidth: 320,
-            maxWidth: 512,
-            padding: 2,
-            boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.08)'
-          }
-        }}
-      >
-        <DialogTitle 
-          id="duplicate-error-dialog-title"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            padding: '16px 0',
-            fontSize: '1.375rem',
-            fontWeight: 600,
-            color: '#DC362E'
-          }}
-        >
-          <WarningIcon sx={{ color: '#DC362E', fontSize: 28 }} />
-          Duplicate Value Warning
-        </DialogTitle>
-        <DialogContent sx={{ padding: '0 0 24px 0' }}>
-          <Typography 
-            id="duplicate-error-dialog-description"
-            sx={{
-              color: 'rgba(0, 0, 0, 0.87)',
-              fontSize: '1rem',
-              lineHeight: 1.5
-            }}
-          >
-            {duplicateErrorMessage}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ padding: 0, justifyContent: 'flex-end' }}>
-          <MuiButton 
-            onClick={handleCloseDuplicateError}
-            variant="contained"
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500,
-              padding: '10px 24px',
-              backgroundColor: '#DC362E',
-              '&:hover': {
-                backgroundColor: '#B71C1C'
-              }
-            }}
-          >
-            Understood
-          </MuiButton>
-        </DialogActions>
-      </Dialog>
+          {notificationMessage}
+        </Alert>
+      </Snackbar>
 
       </div>
       <div className="sidebarSpacer"></div>
