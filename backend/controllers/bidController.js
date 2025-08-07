@@ -88,7 +88,7 @@ export async function createBid(req, res) {
       const result = await bidModel.insertBid(userId, auction_id, bid_amount);
 
       // Notify outbid user
-      /*
+      
   if (prevHighest[0]?.buyer_id && prevHighest[0].buyer_id !== userId) {
     await notificationModel.insertNotification(
       prevHighest[0].buyer_id,
@@ -96,7 +96,7 @@ export async function createBid(req, res) {
       `[outbid] Your bid for "${auctionTitle}" has been outbid.`
     );
   }
-  */
+  
       return res.status(201).json({ bid: result[0] });
     } else if (auctionType === "descending") {
       const result = await bidModel.insertBid(userId, auction_id, bid_amount);
