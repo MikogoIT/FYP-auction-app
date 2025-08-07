@@ -1,6 +1,6 @@
 // src/pages/BidPage.jsx
 
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { Typography, Avatar, Breadcrumbs, Link } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
