@@ -178,6 +178,9 @@ export default function BidPage() {
     );
   }
 
+  const now = new Date();
+  const hasExpired = listing && new Date(listing.end_date) <= now;
+
   return (
     <div className="dashboardCanvas">
       <div className="sidebarSpacer" />
@@ -404,10 +407,15 @@ export default function BidPage() {
 
               <md-filled-button
                 type="submit"
-                disabled={message.startsWith("✅")}
-                style={{ width: "100%", padding: 10 }}
+                disabled={hasExpired || message.startsWith("✅")}
+                style={{
+                  width: "100%",
+                  padding: 10,
+                  opacity: hasExpired ? 0.5 : 1,          // grey-out
+                  cursor: hasExpired ? "not-allowed" : "" // show forbidden cursor
+                }}
               >
-                Submit Bid
+                {hasExpired ? "AUCTION EXPIRED" : "Submit Bid"}
               </md-filled-button>
             </form>
 
