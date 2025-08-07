@@ -220,3 +220,18 @@ def format_listing_message(listing):
     reply_markup = InlineKeyboardMarkup(buttons)
     
     return photo_url, caption, reply_markup
+
+def is_listing_expired(end_date_str: str) -> bool:
+    try:
+        dt = datetime.fromisoformat(end_date_str)
+        now = datetime.now(SG_TZ)
+        
+        # Convert to Singapore timezone if needed
+        if dt.tzinfo:
+            dt = dt.astimezone(SG_TZ)
+        else:
+            dt = SG_TZ.localize(dt)
+            
+        return now > dt
+    except Exception:
+        return False # If date is invalid, treat as not expired

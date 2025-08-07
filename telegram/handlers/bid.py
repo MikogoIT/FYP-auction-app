@@ -3,7 +3,7 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from api import fetch_user_bids, fetch_listing_details, fetch_auction_bid_details
-from utils import format_bid_list, require_telegram_link
+from utils import format_bid_list, require_telegram_link, is_listing_expired
 
 user_bid_context = {}
 pending_bids = {}
@@ -13,6 +13,11 @@ async def start_bid_flow(chat_id, auction_id, linked_data, update):
     user_id = linked_data.get("user_id")
     
     listing = await fetch_listing_details(auction_id)
+    
+    if is_listing_expired(listing.get("end_date", "")):
+        await update.message.reply_text("⚠️ This auction has expired and is no longer accepting bids.")
+        return
+    
     bid_data = await fetch_auction_bid_details(auction_id)
     
     listing_title = listing.get("title")
