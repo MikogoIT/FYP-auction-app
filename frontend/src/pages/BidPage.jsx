@@ -127,7 +127,7 @@ export default function BidPage() {
         ? Number(currentDescPrice)
         : Number(listing.start_price);
 
-      if (amount >= cap) {
+      if (amount > cap) {
         setMessage(`❌ Your bid must be lower than $${cap.toFixed(2)}`);
         return;
       }
