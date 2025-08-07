@@ -10,7 +10,7 @@ export async function addToWatchlist(buyerId, auctionId) {
 }
 
 // get list, including separate current_price & highest_bid columns
-export async function getWatchlistListingsByBuyer(buyerId) {
+export async function getWatchlistByBuyer(buyerId) {
   return await sql`
     SELECT
       l.*,
