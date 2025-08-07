@@ -120,7 +120,7 @@ export async function findTopBid(auctionId){
 export async function setBidPending(bidId) {
   await sql`
     UPDATE bids
-    SET status = 'pending'
+    SET status = 'pending', updated_at = CURRENT_TIMESTAMP
     WHERE id = ${bidId};
   `;
 }
