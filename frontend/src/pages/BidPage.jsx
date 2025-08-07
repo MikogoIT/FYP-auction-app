@@ -85,41 +85,65 @@ export default function BidPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    const amount = parseFloat(bidAmount);
 
-    if (isNaN(amount)) {
-      setMessage("Please enter a valid number");
-      return;
+    // 1) Choose the correct "amount" depending on auction type
+    let amount;
+    if (auctionType === "descending") {
+      // descending auctions always bid at currentDescPrice
+      if (typeof currentDescPrice !== "number") {
+        setMessage("Unable to determine current price for bidding");
+        return;
+      }
+      amount = currentDescPrice;
+    } else {
+      // ascending auctions read from the input field
+      amount = parseFloat(bidAmount);
+      if (isNaN(amount)) {
+        setMessage("Please enter a valid number");
+        return;
+      }
     }
 
-    // validation
+    console.log("Submitting bid:", {
+      auctionType,
+      amount,
+      listing,
+      minPrice,
+      currentDescPrice,
+    });
+
+    // 2) Validation logic
     if (auctionType === "ascending") {
-      const base = hasAscBid() ? Number(minPrice) : Number(listing.min_bid);
+      const floor = Number(listing.min_bid);
+      const base = hasAscBid() ? Number(minPrice) : floor;
       if (amount <= base) {
         setMessage(`❌ Your bid must be higher than $${base.toFixed(2)}`);
         return;
       }
     } else {
+      // descending
       const floor = Number(listing.min_bid);
       const cap = hasDescBid()
         ? Number(currentDescPrice)
         : Number(listing.start_price);
-      if (amount < floor || amount >= cap) {
-        setMessage(
-          `❌ For descending you must bid between $${floor.toFixed(
-            2
-          )} and below $${cap.toFixed(2)}`
-        );
+
+      if (amount >= cap) {
+        setMessage(`❌ Your bid must be lower than $${cap.toFixed(2)}`);
+        return;
+      }
+      if (amount < floor) {
+        setMessage(`❌ Your bid must be at least $${floor.toFixed(2)}`);
         return;
       }
     }
 
-    if (amount > 99999999.99) {
+    // 3) Extreme upper bound sanity check
+    if (amount > 99_999_999.99) {
       alert("The bid amount cannot exceed 99,999,999.99");
       return;
     }
 
-    // send
+    // 4) Send to server
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -131,6 +155,7 @@ export default function BidPage() {
       if (!res.ok) throw new Error(data.message || "Bid failed");
 
       setMessage("✅ Bid submitted!");
+      // optimistic update
       if (auctionType === "ascending") {
         setMinPrice(amount);
         setBidAmount("");
@@ -138,10 +163,11 @@ export default function BidPage() {
         setCurrentDescPrice(amount);
       }
     } catch (err) {
-      console.error(err);
+      console.error("bid submit error:", err);
       setMessage(err.message);
     }
   };
+
 
   // Loading state
   if (!listing || minPrice === null) {
