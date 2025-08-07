@@ -71,7 +71,7 @@ async def update_listing_message(auction_id: int, new_amount: float, context: Co
         [
             InlineKeyboardButton(
                 text="🌐 View on Web",
-                url=f"https://auctioneer.timothy-mah.com/listings/{listing_id}"
+                url=f"https://auctioneer.timothy-mah.com/bid/{listing_id}"
             )
         ]
     ] 
