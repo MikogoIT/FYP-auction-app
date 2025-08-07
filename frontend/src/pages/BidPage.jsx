@@ -233,9 +233,11 @@ export default function BidPage() {
                 display: "flex",
                 alignItems: "center",
                 marginBottom: 16,
+                flexWrap: "wrap",   // ➜  wrap to a new line
+                gap: 8,               // ➜ 8px space between each pill
               }}
             >
-              {/* Starting bid */}
+              {/* Starting bid pill */}
               <Typography
                 variant="subtitle2"
                 component="span"
@@ -248,7 +250,7 @@ export default function BidPage() {
                   borderColor: "grey.800",
                   borderRadius: "999px",
                   color: "grey.800",
-                  marginRight: auctionType === "descending" ? 8 : 16,
+                  whiteSpace: "nowrap", // ➜ prevent text‐inside‐the‐pill from breaking
                 }}
               >
                 Starting bid:&nbsp;
@@ -273,7 +275,7 @@ export default function BidPage() {
                     borderColor: "grey.800",
                     borderRadius: "999px",
                     color: "grey.800",
-                    marginRight: 8,
+                    whiteSpace: "nowrap",
                   }}
                 >
                   Minimum bid:&nbsp;
@@ -281,7 +283,7 @@ export default function BidPage() {
                 </Typography>
               )}
 
-              {/* Current price */}
+              {/* Current price pill */}
               <Typography
                 variant="subtitle2"
                 component="span"
@@ -294,6 +296,7 @@ export default function BidPage() {
                   borderColor: "success.main",
                   borderRadius: "999px",
                   color: "success.main",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Current price:&nbsp;
