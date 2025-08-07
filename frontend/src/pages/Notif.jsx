@@ -19,7 +19,8 @@ export default function Notif() {
     "[outbid]",
     "[auction ending]",
     "[bid won]",
-    "[review]"
+    "[review]",
+    "[item sold]"
   ];
 
   const columns = [
@@ -42,27 +43,35 @@ export default function Notif() {
     },
   ];
 
-  useEffect(() => {
-    fetch("/api/notifications/all", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load");
-        return res.json();
-      })
-      .then(({ notifications }) => {
-        const data = notifications.map((n) => ({
-          id:         n.id,
-          message:    n.content,
-          createdAt:  n.created_at,
-          auctionId:  n.auction_id,
-          sellerId:   n.seller_id,
-        }));
-        setRows(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  fetch("/api/notifications/all", { credentials: "include" })
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to load");
+      return res.json();
+    })
+    .then(({ notifications }) => {
+      const data = notifications.map((n) => {
+        const row = {
+          id:        n.id,
+          message:   n.content,
+          createdAt: n.created_at,
+          auctionId: n.auction_id,
+          sellerId:  n.seller_id,
+        };
+        // only include winnerId if it's been set
+        if (n.winner_id !== null) {
+          row.winnerId = n.winner_id;
+        }
+        return row;
+      });
+      setRows(data);
+    })
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => setLoading(false));
+}, []);
+
 
   return (
     <div className="dashboardCanvas">
@@ -100,7 +109,7 @@ export default function Notif() {
 
            // Navigate based on message prefix
           onRowClick={(params) => {
-            const { message, auctionId, sellerId } = params.row;
+            const { message, auctionId, sellerId, winnerId } = params.row;
 
             if (message.startsWith("[outbid]") && auctionId) {
               // someone has out‑bid you → go to that auction page
@@ -118,6 +127,14 @@ export default function Notif() {
               // review prompt → sends auctionId to UserFeedbackPage.jsx
               navigate(`/feedback-user/${auctionId}`);
             }
+
+            else if (message.startsWith("[item sold]") && winnerId) {
+             // item sold → go to the winner’s profile
+              navigate(`/feedback/${winnerId}`);
+            }
+            
+
+            
 
           }}
           />

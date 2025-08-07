@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
-import { Box, Typography } from "@mui/material";
+import { 
+  Box, 
+  Typography, 
+  Alert,
+  Snackbar
+} from "@mui/material";
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Person4OutlinedIcon from '@mui/icons-material/Person4Outlined';
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
 import Header from "../components/Header";
-// import ModeEditIcon from '@mui/icons-material/ModeEdit';
-// import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
 import Switch from "@mui/material/Switch";
@@ -20,15 +25,49 @@ const AdminPage = () => {
   const [rows, setRows] = React.useState([]);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // State for notifications (Snackbar)
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'warning'
 
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 8,
+  });
   const USERS_PER_PAGE = 10;
 
   const navigate = useNavigate(); 
 
-  // update user's name, phone number, and address
+  // Show notification (success or warning)
+  const showNotification = (message, type = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setNotificationOpen(true);
+  };
 
+  // Show success notification (for backward compatibility)
+  const showSuccessNotification = (message) => {
+    showNotification(message, 'success');
+  };
+
+  // Show admin warning notification
+  const showAdminWarning = () => {
+    showNotification('Admin users cannot be edited or suspended for security reasons', 'warning');
+  };
+
+  // Close notification
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotificationOpen(false);
+  };
+
+  // update user's name, phone number, and address
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -97,9 +136,48 @@ const AdminPage = () => {
   };
   
   const handleEditUser = async (newRow, oldRow) => {
+    // Check if the user being edited is an admin
+    if (oldRow.is_admin) {
+      showAdminWarning();
+      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+    }
+
     if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
       return newRow;
     }
+
+    // Check for empty username
+    if (!newRow.username || newRow.username.trim() === "") {
+      return Promise.reject(oldRow);
+    }
+
+    // Check for empty email 
+    if (!newRow.email || newRow.email.trim() === "") {
+      return Promise.reject(oldRow);
+    }
+
+    // Check for duplicate username
+    const duplicateUsername = users.find(
+      user => user.id !== newRow.id && user.username === newRow.username
+    );
+    if (duplicateUsername) {
+      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+    }
+
+    // Check for duplicate email
+    const duplicateEmail = users.find(
+      user => user.id !== newRow.id && user.email === newRow.email
+    );
+    if (duplicateEmail) {
+      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+    }
+
+    // Prevent duplicate updates
+    if (isUpdating) {
+      return Promise.reject(oldRow);
+    }
+
+    setIsUpdating(true);
 
     try {
       const res = await fetch(`/api/admin/update/${newRow.id}`, {
@@ -113,17 +191,46 @@ const AdminPage = () => {
       if (res.ok) {
         const updatedRowFromDB = await res.json();
         console.log("Status updated");
+        
+        // Show success notification using Snackbar
+        showSuccessNotification(`User "${updatedRowFromDB.username || newRow.username}" has been successfully updated`);
+        
+        // Reload data while maintaining current search and page state
+        await fetchUsers(searchQuery, page);
+        
+        // Reset updating flag after a short delay
+        setTimeout(() => {
+          setIsUpdating(false);
+        }, 500);
+        
         return updatedRowFromDB;
       } else {
+        const data = await res.json();
         console.error("Error: " + data.message);
-        return oldRow;
+        setIsUpdating(false);
+        return Promise.reject(oldRow);
       }
     } catch (err) {
       console.error("Request failed");
+      setIsUpdating(false);
+      return Promise.reject(oldRow);
     }
   };
 
+  // Add error handler for processRowUpdate
+  const handleProcessRowUpdateError = (error) => {
+    console.log("Row update error handled:", error);
+    // The dialogs are already shown in handleEditUser, so we just need to handle the error gracefully
+  };
+
   const toggleFreeze = async (userId) => {
+    // Find the user to check if they're an admin
+    const user = users.find(u => u.id === userId);
+    if (user && user.is_admin) {
+      showAdminWarning();
+      return;
+    }
+
     try {
       const res = await fetch(`/api/admin/freeze/${userId}`, {
         method: "PUT",
@@ -164,23 +271,73 @@ const AdminPage = () => {
   };
 
   const handleSwitch = (id) => (event) => {
+    // Find the user to check if they're an admin
+    const user = users.find(u => u.id === id);
+    if (user && user.is_admin) {
+      showAdminWarning();
+      return;
+    }
+
     const updatedRows = rows.map((row) => 
       row.id === id ? { ...row, is_frozen: event.target.checked }: row
     );
     toggleFreeze(id)
     setRows(updatedRows);
   };
-  
+
   useEffect(() => {
     fetchUsers(); // Initial load
   }, []);
 
 
   const column = [
-    { field: 'username', headerName: 'Username', editable: true },
-    { field: 'email', headerName: 'Email', width: 200 }, 
-    { field: 'phone_number', headerName: 'Phone', sortable: false, editable: true }, 
-    { field: 'address', headerName: 'Address', width: 200, editable: true }, 
+    { 
+      field: 'username', 
+      headerName: 'Username', 
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        const { props, row } = params;
+        const isEmpty = !props.value || props.value.trim() === "";
+        const isDuplicate = users.some(
+          (user) => user.id !== row.id && user.username === props.value
+        );
+        
+        return {
+          ...props,
+          error: isDuplicate || isEmpty,
+        };
+      },
+    },
+    { 
+      field: 'email', 
+      headerName: 'Email', 
+      width: 200,
+      editable: true,
+      preProcessEditCellProps: (params) => {
+        const { props, row } = params;
+        const isEmpty = !props.value || props.value.trim() === "";
+        const isDuplicate = users.some(
+          (user) => user.id !== row.id && user.email === props.value
+        );
+        
+        return {
+          ...props,
+          error: isDuplicate || isEmpty,
+        };
+      },
+    }, 
+    { 
+      field: 'phone_number', 
+      headerName: 'Phone', 
+      sortable: false, 
+      editable: true,
+    }, 
+    { 
+      field: 'address', 
+      headerName: 'Address', 
+      width: 200, 
+      editable: true,
+    }, 
     { field: 'access', headerName: 'Access' , display: "flex", sortable: false, width: 150, renderCell: ({ row: {is_frozen} }) => {
       return (
         <Box
@@ -204,16 +361,16 @@ const AdminPage = () => {
       );
       }
     }, 
-    // working switch
-    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen}, row: {id} }) => {
+    // working switch - disabled for admin users
+    { field: "access_switch", headerName: "Suspended", display: 'flex', width: 100, sortable: false, filterable: false, renderCell: ({ row: {is_frozen, is_admin}, row: {id} }) => {
         const userId = id;
         const suspended = is_frozen
-
 
         return(
           <Switch
           checked={suspended}
           onChange={handleSwitch(userId)}
+          disabled={is_admin} // Disable switch for admin users
           />
           
         );
@@ -242,28 +399,7 @@ const AdminPage = () => {
       );
     }
   },
-  /* delete user, kept code just in case
- {
-    field: 'id',
-    type: 'actions',
-    headerName: 'Actions',
-    display: "flex",
-    cellClassName: 'actions',
-    getActions: ({ id }) => {
-
-
-      return [
-        <GridActionsCellItem
-          icon={<DeleteOutlinedIcon />}
-          label="Delete User"
-          onClick={handleDeleteClick(id)}
-        />,
-      ];
-    },
-  },
-  */
 ]
-
 
   return (
     <div className="dashboardCanvas">
@@ -312,6 +448,18 @@ const AdminPage = () => {
             },
             "& .MuiCheckbox-root": {
             },
+            // Style for non-editable cells (admin users)
+            "& .MuiDataGrid-cell--editable": {
+              backgroundColor: "transparent",
+            },
+            "& .MuiDataGrid-row": {
+              "&:has([data-field='is_admin'][data-value='true'])": {
+                "& .MuiDataGrid-cell--editable": {
+                  backgroundColor: "#f5f5f5",
+                  cursor: "not-allowed",
+                }
+              }
+            }
           }}
       >
         <DataGrid 
@@ -319,14 +467,11 @@ const AdminPage = () => {
           editMode="row"
           columns={column}
           processRowUpdate={handleEditUser}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 8,
-              },
-            },
-          }}
-          pageSizeOptions={[5]}
+          getRowId={(row) => row.username}
+          onProcessRowUpdateError={handleProcessRowUpdateError}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5, 8, 10]}
           sx={{
             color: "#000000",
           }}
@@ -336,6 +481,46 @@ const AdminPage = () => {
           showToolbar
         />
       </Box>
+
+      {/* Unified notification system using Snackbar */}
+      <Snackbar 
+        open={notificationOpen} 
+        autoHideDuration={4000} 
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notificationType}
+          variant="filled"
+          sx={{
+            width: '100%',
+            backgroundColor: notificationType === 'success' ? '#4CAF50' : '#FF9800',
+            color: '#fff',
+            '& .MuiAlert-message': {
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              letterSpacing: '0.0178571429em',
+            },
+            '& .MuiAlert-icon': {
+              fontSize: '20px',
+            },
+            '& .MuiAlert-action': {
+              '& .MuiIconButton-root': {
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                }
+              }
+            },
+            boxShadow: '0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12)',
+            borderRadius: '12px',
+          }}
+        >
+          {notificationMessage}
+        </Alert>
+      </Snackbar>
+
       </div>
       <div className="sidebarSpacer"></div>
     </div>

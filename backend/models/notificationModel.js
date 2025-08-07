@@ -61,10 +61,13 @@ export async function getAllNotifications(userId) {
       n.auction_id,
       n.content,
       n.created_at,
-      a.seller_id
+      a.seller_id,
+      w.buyer_id AS winner_id
     FROM notifications AS n
     LEFT JOIN auction_listings AS a
       ON a.id = n.auction_id
+    LEFT JOIN auction_winner AS w
+      ON w.auction_id = n.auction_id
     WHERE n.user_id = ${userId}
     ORDER BY n.created_at DESC;
   `;

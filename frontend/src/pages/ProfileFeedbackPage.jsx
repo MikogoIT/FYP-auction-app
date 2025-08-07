@@ -177,19 +177,24 @@ export default function ProfileFeedbackPage() {
             mb: 3,
         }}
         >
-        <Box>
+        <Box 
+          sx={{
+              display: "flex",
+              flexWrap: 'wrap',
+              gap: "8px"
+          }}>
             {/* All Reviews */}
             {filter === "All" ? (
             <md-filled-button
                 onClick={() => setFilter("All")}
-                style={{ marginRight: 8 }}
+               
             >
                 All Reviews
             </md-filled-button>
             ) : (
             <md-filled-tonal-button
                 onClick={() => setFilter("All")}
-                style={{ marginRight: 8 }}
+             
             >
                 All Reviews
             </md-filled-tonal-button>
@@ -199,14 +204,14 @@ export default function ProfileFeedbackPage() {
             {filter === "Buyers" ? (
             <md-filled-button
                 onClick={() => setFilter("Buyers")}
-                style={{ marginRight: 8 }}
+                
             >
                 From Buyers
             </md-filled-button>
             ) : (
             <md-filled-tonal-button
                 onClick={() => setFilter("Buyers")}
-                style={{ marginRight: 8 }}
+                
             >
                 From Buyers
             </md-filled-tonal-button>

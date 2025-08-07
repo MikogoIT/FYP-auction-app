@@ -53,6 +53,7 @@ def format_seller_listings(listings):
         end_date = format_date(listing.get("end_date", ""))
         min_bid = float(listing.get("min_bid", 0))
         highest_bid = float(listing.get("highest_bid", 0))
+        num_bids = int(listing.get("num_bids", 0))
         is_active = listing.get("is_active", False)
         status = "🟢 Active" if is_active else "🔴 Closed"
         auction_type = listing.get("auction_type", "ascending").capitalize()
@@ -66,7 +67,8 @@ def format_seller_listings(listings):
             f"✅ <b>Status:</b> {status}\n"
             f"⏰ <b>Ends On:</b> {end_date}\n"
             f"💰 <b>Min Bid:</b> ${min_bid:.2f}\n"
-            f"💵 <b>Highest Bid:</b> ${highest_bid_display}\n"
+            f"💵 <b>Highest Bid:</b> {highest_bid_display}\n"
+            f"🔢 <b># of Bids:</b> {num_bids}\n"
             "━━━━━━━━━━━━━━━━━━━━━━━"
         )
         
@@ -210,7 +212,7 @@ def format_listing_message(listing):
         [
             InlineKeyboardButton(
                 text="🌐 View on Web",
-                url=f"{BACKEND_API_URL}/listings/{listing_id}"
+                url=f"{BACKEND_API_URL}/bid/{listing_id}"
             )
         ]
     ] 
@@ -218,3 +220,18 @@ def format_listing_message(listing):
     reply_markup = InlineKeyboardMarkup(buttons)
     
     return photo_url, caption, reply_markup
+
+def is_listing_expired(end_date_str: str) -> bool:
+    try:
+        dt = datetime.fromisoformat(end_date_str)
+        now = datetime.now(SG_TZ)
+        
+        # Convert to Singapore timezone if needed
+        if dt.tzinfo:
+            dt = dt.astimezone(SG_TZ)
+        else:
+            dt = SG_TZ.localize(dt)
+            
+        return now > dt
+    except Exception:
+        return False # If date is invalid, treat as not expired

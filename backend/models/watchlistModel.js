@@ -9,25 +9,28 @@ export async function addToWatchlist(buyerId, auctionId) {
   `;
 }
 
-// get list, now including category name
+// get list, including separate current_price & highest_bid columns
 export async function getWatchlistByBuyer(buyerId) {
-  return sql`
+  return await sql`
     SELECT
-      wl.*,
-      al.title,
-      al.description,
-      al.min_bid,
-      al.end_date,
-      al.category_id,
-      lc.name AS category_name
+      l.id            AS auction_id,   -- <— new
+      l.*,                             
+      u.username     AS seller,
+      MAX(b.bid_amount)  AS current_bid
     FROM watchlist wl
-    JOIN auction_listings al
-      ON wl.auction_id = al.id
-    LEFT JOIN listing_categories lc
-      ON al.category_id = lc.id
-    WHERE wl.buyer_id = ${buyerId};
+    JOIN auction_listings l
+      ON wl.auction_id = l.id
+    JOIN users u
+      ON l.seller_id = u.id
+    LEFT JOIN bids b
+      ON b.auction_id = l.id
+    WHERE wl.buyer_id = ${buyerId}
+      AND l.is_active = true
+    GROUP BY l.id, u.username
+    ORDER BY l.created_at DESC
   `;
 }
+
 
 // delete 
 export async function removeFromWatchlist(buyerId, auctionId) {
