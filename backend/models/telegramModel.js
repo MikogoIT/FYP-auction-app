@@ -84,7 +84,19 @@ export async function getBidsByUserId(userId) {
 }
 
 export async function getSellerListingsByUserId(userId) {
-    return getMyListings(userId);
+    return await sql`
+        SELECT
+            l.*,
+            c.name AS category_name,
+            COALESCE(MAX(b.bid_amount), 0) AS highest_bid,
+            COUNT(b.id) AS num_bids
+        FROM auction_listings l
+        LEFT JOIN listing_categories c ON l.category_id = c.id
+        LEFT JOIN bids b ON l.id = b.auction_id
+        WHERE l.seller_id = ${userId}
+        GROUP BY l.id, c.name
+        ORDER BY l.created_at DESC
+    `;
 }
 
 export async function getUnsentNotifications() {
