@@ -1,16 +1,10 @@
 // src/pages/BidPage.jsx
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
-import {
-  Box,
-  Typography,
-  Avatar,
-  Breadcrumbs,
-  Link,
-} from "@mui/material";
+import { Typography, Avatar, Breadcrumbs, Link } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
-import SoldBy from '../components/SoldBy';
+import SoldBy from "../components/SoldBy";
 
 import "@material/web/button/filled-button.js";
 
@@ -38,18 +32,6 @@ export default function BidPage() {
     return Number(currentDescPrice) < Number(listing.start_price) - 1e-9;
   }, [listing, currentDescPrice]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("=== BidPage state ===");
-    console.log("auctionType:", auctionType);
-    console.log("listing:", listing);
-    console.log("minPrice (ascending):", minPrice);
-    console.log("currentDescPrice (descending):", currentDescPrice);
-    console.log("hasAscBid:", hasAscBid());
-    console.log("hasDescBid:", hasDescBid());
-    console.log("=====================");
-  }, [auctionType, listing, minPrice, currentDescPrice, hasAscBid, hasDescBid]);
-
   // Fetch listing details
   useEffect(() => {
     async function fetchListing() {
@@ -60,24 +42,25 @@ export default function BidPage() {
         setListing(listing);
         setAuctionType(listing.auction_type);
 
-        // Fetch seller rating
+        // seller rating
         fetch(`/api/feedback/ratings/${listing.seller_id}`)
-          .then((res) => res.json())
+          .then((r) => r.json())
           .then(({ avg_rating, total_reviews }) => {
             setAvgRating(avg_rating);
             setTotalReviews(total_reviews);
           })
-          .catch((e) => console.error("Rating fetch error:", e));
+          .catch((e) => console.error(e));
 
-        // Set descending auction’s current price (API returns it as a string)
-        if (listing.auction_type === "descending" && listing.current_price != null) {
-          const parsed = parseFloat(listing.current_price);
-          if (!isNaN(parsed)) {
-            setCurrentDescPrice(parsed);
-          }
+        // descending current price
+        if (
+          listing.auction_type === "descending" &&
+          listing.current_price != null
+        ) {
+          const p = parseFloat(listing.current_price);
+          if (!isNaN(p)) setCurrentDescPrice(p);
         }
       } catch (err) {
-        console.error("fetchListing error:", err);
+        console.error(err);
       }
     }
     fetchListing();
@@ -92,7 +75,7 @@ export default function BidPage() {
         const { min_allowed } = await res.json();
         setMinPrice(min_allowed);
       } catch (err) {
-        console.error("fetchMinAllowed error:", err);
+        console.error(err);
       }
     }
     fetchMinAllowed();
@@ -102,51 +85,32 @@ export default function BidPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-
     const amount = parseFloat(bidAmount);
-    console.log("Submitting bid:", {
-      bidAmount,
-      parsedAmount: amount,
-      auctionType,
-      listing,
-      minPrice,
-      currentDescPrice,
-    });
 
     if (isNaN(amount)) {
       setMessage("Please enter a valid number");
       return;
     }
 
-    // --- validation logic ---
+    // validation
     if (auctionType === "ascending") {
-      if (!hasAscBid()) {
-        const base = Number(listing.min_bid);
-        if (amount <= base) {
-          setMessage(`❌ Your bid must be higher than $${base.toFixed(2)}`);
-          return;
-        }
-      } else {
-        const current = Number(minPrice);
-        if (amount <= current) {
-          setMessage(`❌ Your bid must be higher than $${current.toFixed(2)}`);
-          return;
-        }
+      const base = hasAscBid() ? Number(minPrice) : Number(listing.min_bid);
+      if (amount <= base) {
+        setMessage(`❌ Your bid must be higher than $${base.toFixed(2)}`);
+        return;
       }
-    } else if (auctionType === "descending") {
-      if (typeof currentDescPrice === "number") {
-        const currentNum = Number(currentDescPrice);
-        const floor = Number(listing.min_bid);
-        const compareBase = hasDescBid() ? currentNum : Number(listing.start_price);
-
-        if (amount >= compareBase) {
-          setMessage(`❌ Your bid must be lower than $${compareBase.toFixed(2)}`);
-          return;
-        }
-        if (amount < floor) {
-          setMessage(`❌ Your bid must be at least $${floor.toFixed(2)}`);
-          return;
-        }
+    } else {
+      const floor = Number(listing.min_bid);
+      const cap = hasDescBid()
+        ? Number(currentDescPrice)
+        : Number(listing.start_price);
+      if (amount < floor || amount >= cap) {
+        setMessage(
+          `❌ For descending you must bid between $${floor.toFixed(
+            2
+          )} and below $${cap.toFixed(2)}`
+        );
+        return;
       }
     }
 
@@ -155,7 +119,7 @@ export default function BidPage() {
       return;
     }
 
-    // --- send to server ---
+    // send
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -167,25 +131,24 @@ export default function BidPage() {
       if (!res.ok) throw new Error(data.message || "Bid failed");
 
       setMessage("✅ Bid submitted!");
-      // Optimistic update
       if (auctionType === "ascending") {
         setMinPrice(amount);
+        setBidAmount("");
       } else {
         setCurrentDescPrice(amount);
       }
-      setBidAmount("");
     } catch (err) {
-      console.error("bid submit error:", err);
+      console.error(err);
       setMessage(err.message);
     }
   };
 
-  // Loading fallback
+  // Loading state
   if (!listing || minPrice === null) {
     return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
+      <div style={{ textAlign: "center", marginTop: 40 }}>
         <Typography>Loading auction info…</Typography>
-      </Box>
+      </div>
     );
   }
 
@@ -222,7 +185,7 @@ export default function BidPage() {
         <div className="profileTitle">{listing.title}</div>
 
         <div className="twoboxes">
-          {/* Left box: image & description */}
+          {/* Left column */}
           <div className="listingDeets">
             {listing.image_url ? (
               <img
@@ -232,7 +195,7 @@ export default function BidPage() {
                   width: "100%",
                   objectFit: "cover",
                   borderRadius: 24,
-                  maxHeight: "400px",
+                  maxHeight: 400,
                 }}
               />
             ) : (
@@ -258,98 +221,162 @@ export default function BidPage() {
             </div>
           </div>
 
-          {/* Right box: bidding details */}
+          {/* Right column */}
           <div className="bidDeets">
             <Typography variant="body1" sx={{ mb: 1, fontSize: 16 }}>
               Auction type: <strong>{auctionType}</strong>
             </Typography>
 
-            <Typography
-              variant="subtitle2"
-              component="span"
-              sx={{
-                fontSize: 16,
-                display: "inline-block",
-                px: 1.5,
-                py: 0.5,
-                border: "1px solid",
-                borderColor: "grey.800",
-                borderRadius: "999px",
-                color: "grey.800",
-                mr: 1,
+            {/* Pills */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 16,
               }}
             >
-              Starting bid:&nbsp;
-              <strong>
-                {auctionType === "descending"
-                  ? Number(listing.start_price).toFixed(2)
-                  : Number(listing.min_bid).toFixed(2)}
-              </strong>
-            </Typography>
+              {/* Starting bid */}
+              <Typography
+                variant="subtitle2"
+                component="span"
+                sx={{
+                  fontSize: 16,
+                  display: "inline-block",
+                  px: 1.5,
+                  py: 0.5,
+                  border: "1px solid",
+                  borderColor: "grey.800",
+                  borderRadius: "999px",
+                  color: "grey.800",
+                  marginRight: auctionType === "descending" ? 8 : 16,
+                }}
+              >
+                Starting bid:&nbsp;
+                <strong>
+                  {auctionType === "descending"
+                    ? Number(listing.start_price).toFixed(2)
+                    : Number(listing.min_bid).toFixed(2)}
+                </strong>
+              </Typography>
 
-            <Typography
-              variant="subtitle2"
-              component="span"
-              sx={{
-                fontSize: 16,
-                display: "inline-block",
-                px: 1.5,
-                py: 0.5,
-                border: "1px solid",
-                borderColor: "success.main",
-                borderRadius: "999px",
-                color: "success.main",
-              }}
-            >
-              Current price:&nbsp;
-              <strong>
-                {auctionType === "descending" ? (
-                  currentDescPrice != null
-                    ? Number(currentDescPrice).toFixed(2)
-                    : "No bids yet"
-                ) : (
-                  hasAscBid()
+              {/* Minimum bid (descending only) */}
+              {auctionType === "descending" && (
+                <Typography
+                  variant="subtitle2"
+                  component="span"
+                  sx={{
+                    fontSize: 16,
+                    display: "inline-block",
+                    px: 1.5,
+                    py: 0.5,
+                    border: "1px solid",
+                    borderColor: "grey.800",
+                    borderRadius: "999px",
+                    color: "grey.800",
+                    marginRight: 8,
+                  }}
+                >
+                  Minimum bid:&nbsp;
+                  <strong>{Number(listing.min_bid).toFixed(2)}</strong>
+                </Typography>
+              )}
+
+              {/* Current price */}
+              <Typography
+                variant="subtitle2"
+                component="span"
+                sx={{
+                  fontSize: 16,
+                  display: "inline-block",
+                  px: 1.5,
+                  py: 0.5,
+                  border: "1px solid",
+                  borderColor: "success.main",
+                  borderRadius: "999px",
+                  color: "success.main",
+                }}
+              >
+                Current price:&nbsp;
+                <strong>
+                  {auctionType === "descending"
+                    ? currentDescPrice != null
+                      ? Number(currentDescPrice).toFixed(2)
+                      : "No bids yet"
+                    : hasAscBid()
                     ? Number(minPrice).toFixed(2)
-                    : "No bids yet"
-                )}
-              </strong>
-            </Typography>
+                    : "No bids yet"}
+                </strong>
+              </Typography>
+            </div>
 
             <h2>Place your bid</h2>
             <form onSubmit={handleSubmit}>
               <label htmlFor="bidAmount">Bid Amount ($):</label>
-              <input
-                id="bidAmount"
-                type="number"
-                value={bidAmount}
-                onChange={(e) => setBidAmount(e.target.value)}
-                required
-                min={
-                  auctionType === "ascending"
-                    ? minPrice
-                    : listing && typeof listing.min_bid === "number"
-                    ? listing.min_bid
-                    : 1
-                }
-                max={
-                  auctionType === "descending"
-                    ? hasDescBid()
-                      ? currentDescPrice
-                      : Number(listing.start_price)
-                    : undefined
-                }
-                step="0.01"
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  margin: "8px 0 16px",
-                  boxSizing: "border-box",
-                }}
-              />
+
+              {auctionType === "descending" ? (
+                <>
+                  <input
+                    id="bidAmount"
+                    type="number"
+                    value={
+                      currentDescPrice != null
+                        ? currentDescPrice.toFixed(2)
+                        : ""
+                    }
+                    readOnly
+                    style={{
+                      width: "100%",
+                      padding: 8,
+                      margin: "8px 0 4px",
+                      boxSizing: "border-box",
+                      color: "green",
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ marginBottom: 2 }}
+                  >
+                    For descending auctions, you can only bid at the
+                    current price. This field is pre-filled and cannot
+                    be changed.
+                  </Typography>
+                </>
+              ) : (
+                <input
+                  id="bidAmount"
+                  type="number"
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  required
+                  min={
+                    auctionType === "ascending"
+                      ? minPrice
+                      : typeof listing.min_bid === "number"
+                      ? listing.min_bid
+                      : 1
+                  }
+                  max={
+                    auctionType === "descending"
+                      ? hasDescBid()
+                        ? currentDescPrice
+                        : Number(listing.start_price)
+                      : undefined
+                  }
+                  step="0.01"
+                  style={{
+                    width: "100%",
+                    padding: 8,
+                    margin: "8px 0 16px",
+                    boxSizing: "border-box",
+                  }}
+                />
+              )}
+
               <md-filled-button
                 type="submit"
                 disabled={message.startsWith("✅")}
-                style={{ width: "100%", padding: "10px" }}
+                style={{ width: "100%", padding: 10 }}
               >
                 Submit Bid
               </md-filled-button>
@@ -360,8 +387,10 @@ export default function BidPage() {
                 variant="body2"
                 align="center"
                 sx={{
-                  mt: 2,
-                  color: message.startsWith("✅") ? "success.main" : "error.main",
+                  marginTop: 2,
+                  color: message.startsWith("✅")
+                    ? "success.main"
+                    : "error.main",
                 }}
               >
                 {message}
