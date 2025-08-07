@@ -96,3 +96,31 @@ export async function markOthersOutbid(auctionId, buyerId) {
       AND status != 'outbid';
   `;
 }
+
+// Delete Bid
+export async function getAuctionIdByBid(bid_id, userId){
+  return await sql`
+      SELECT auction_id
+      FROM bids
+      WHERE buyer_id = ${userId}
+      AND id = ${bid_id};
+  `;
+}
+
+export async function findTopBid(auctionId){
+  return await sql`
+      SELECT id ,buyer_id , bid_amount
+      FROM bids
+      WHERE auction_id = ${auctionId}
+      ORDER BY bid_amount DESC, created_at ASC
+      LIMIT 1;
+  `;
+}
+
+export async function setBidPending(bidId) {
+  await sql`
+    UPDATE bids
+    SET status = 'pending'
+    WHERE id = ${bidId};
+  `;
+}

@@ -72,13 +72,14 @@ export async function createBid(req, res) {
 
     // Place the bid
     if (auctionType === "ascending") {
+      /*
       const prevHighest = await sql`
-    SELECT buyer_id
-    FROM bids
-    WHERE auction_id = ${auction_id}
-    ORDER BY bid_amount DESC, created_at ASC
-    LIMIT 1
-  `;
+      SELECT buyer_id
+      FROM bids
+      WHERE auction_id = ${auction_id}
+      ORDER BY bid_amount DESC, created_at ASC
+      LIMIT 1`;
+      */
 
       // Mark all other bids as outbid
       await bidModel.markOthersOutbid(auction_id, userId);
@@ -170,24 +171,46 @@ export async function viewUserBids(req, res) {
 export async function deleteBid(req, res) {
   const userId = req.session.userId;
   const { bid_id } = req.params;
+
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
+
   try {
+    // Step 1: Get auction ID from the bid
+    const auctionRes = await bidModel.getAuctionIdByBid(bid_id, userId);
+    if (auctionRes.length === 0) {
+      return res.status(404).json({ message: "Bid not found or not owned by you" });
+    }
+
+    const auctionId = auctionRes[0].auction_id;
+
+    // Step 2: Delete the bid
     const result = await bidModel.deleteUserBid(userId, bid_id);
     if (result.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Bid not found or not owned by you" });
+      return res.status(404).json({ message: "Bid not found or not owned by you" });
     }
-    return res
-      .status(200)
-      .json({ message: "Bid withdrawn successfully", bid: result[0] });
+
+    // Step 3: Find new top bid after deletion
+    const topBidRes = await bidModel.findTopBid(auctionId);
+    if (topBidRes.length > 0) {
+      const newTopBidId = topBidRes[0].id;
+
+      // Step 4: Set top bid status to pending
+      await bidModel.setBidPending(newTopBidId);
+    }
+
+    return res.status(200).json({
+      message: "Bid withdrawn successfully",
+      bid: result[0]
+    });
+
   } catch (err) {
     console.error("Delete bid error:", err);
     return res.status(500).json({ message: "Failed to delete bid" });
   }
 }
+
 
 export async function viewBidsOnUserListings(req, res) {
   const userId = req.session.userId;
