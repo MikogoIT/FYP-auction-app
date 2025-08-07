@@ -13,8 +13,9 @@ export async function addToWatchlist(buyerId, auctionId) {
 export async function getWatchlistByBuyer(buyerId) {
   return await sql`
     SELECT
-      l.*,
-      u.username AS seller,
+      l.id            AS auction_id,   -- <— new
+      l.*,                             
+      u.username     AS seller,
       MAX(b.bid_amount)  AS current_bid
     FROM watchlist wl
     JOIN auction_listings l
