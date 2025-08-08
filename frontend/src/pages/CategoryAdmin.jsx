@@ -3,22 +3,22 @@ import { useNavigate } from "react-router-dom";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
-import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridRowEditStopReasons } from "@mui/x-data-grid";
 import { Box, Typography, Snackbar, Alert } from "@mui/material";
 import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
 import Switch from "@mui/material/Switch";
 import AddCategoryModal from '../components/AddCategoryModal';
-
-// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
-import "@material/web/button/filled-button.js";
-import "@material/web/button/filled-tonal-button.js";
 
 export default function CategoryAdmin() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [rows, setRows] = React.useState([]);
   const [page, setPage] = useState(1);
+  const [rowModesModel, setRowModesModel] = React.useState({});
   
   // State for success notification
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -37,12 +37,9 @@ export default function CategoryAdmin() {
     }
     setNotificationOpen(false);
   };
-  
-
 
   // Validate name field
   const validateName = (newName, currentId, allCategories) => {
-    // Check for empty value
     if (!newName || newName.trim() === '') {
       return {
         isValid: false,
@@ -50,7 +47,6 @@ export default function CategoryAdmin() {
       };
     }
 
-    // Check for duplicates (case-insensitive)
     const trimmedNewName = newName.trim().toLowerCase();
     const isDuplicate = allCategories.some(category => 
       category.id !== currentId && 
@@ -70,6 +66,31 @@ export default function CategoryAdmin() {
     };
   };
 
+  // Handle row edit stop
+  const handleRowEditStop = (params, event) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
+
+  // Handle edit click
+  const handleEditClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: 'edit' } });
+  };
+
+  // Handle save click
+  const handleSaveClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: 'view' } });
+  };
+
+  // Handle cancel click
+  const handleCancelClick = (id) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: 'view', ignoreModifications: true },
+    });
+  };
+
   // calling categories from database
   const fetchCategories = async (query = "", page = 1) => {
     setLoading(true);
@@ -85,6 +106,7 @@ export default function CategoryAdmin() {
       const data = await res.json();
       if (res.ok) {
         setCategories(data.categories);
+        setRows(data.categories); // Make sure rows state is updated
         setPage(page);
       } else {
         console.log(data.message || "Failed to fetch categories");
@@ -127,6 +149,8 @@ export default function CategoryAdmin() {
   };
 
   // Edit categories handler with validation
+
+  // Edit categories handler with validation
   const handleEditCategories = async (newRow, oldRow) => {
     if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
       return newRow;
@@ -136,7 +160,6 @@ export default function CategoryAdmin() {
     if (newRow.name !== oldRow.name) {
       const validation = validateName(newRow.name, newRow.id, categories);
       if (!validation.isValid) {
-        // Prevent the edit by throwing an error
         throw new Error(validation.message);
       }
     }
@@ -151,12 +174,11 @@ export default function CategoryAdmin() {
         body: JSON.stringify(newRow),
       });
       
+      
       if (res.ok) {
         const updatedRowFromDB = await res.json();
         console.log("Category Updated");
-        // Show success notification
         showSuccessNotification(`Category "${newRow.name}" has been successfully updated`);
-        // Refresh categories to ensure consistency
         await fetchCategories();
         return updatedRowFromDB;
       } else {
@@ -170,7 +192,9 @@ export default function CategoryAdmin() {
     }
   };
 
-
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   useEffect(() => {
     fetchCategories(); // Initial load
@@ -189,41 +213,98 @@ export default function CategoryAdmin() {
         return { ...params.props, error: !validation.isValid };
       },
     },
-    {field: 'description', headerName: 'Description', width: 300, sortable: false, editable: true},
-    { field: 'is_suspended', headerName: 'Active Status' , display: "flex", sortable: false, width: 200, headerAlign: "left", align: "left",  renderCell: ({ row: {is_suspended} }) => {
-      return (
-        <Box
-        width="100%"
-        m="0 auto"
-        p="5px"
-        display="flex"
-        justifyContent="left"
-        borderRadius="4px"
-        >
-          {is_suspended && <AcUnitOutlinedIcon />}
-          {!is_suspended && <ThumbUpOutlinedIcon />}
-          <Typography sx={{ ml: "5px" }}>
-            {
-              is_suspended
-                ? "Disabled"
-                : "Available"
-            }
-          </Typography>
-        </Box>
-      );
+    {
+      field: 'description', 
+      headerName: 'Description', 
+      width: 300, 
+      sortable: false, 
+      editable: true
+    },
+    { 
+      field: 'is_suspended', 
+      headerName: 'Active Status', 
+      display: "flex", 
+      sortable: false, 
+      width: 200, 
+      headerAlign: "left", 
+      align: "left",  
+      renderCell: ({ row: {is_suspended} }) => {
+        return (
+          <Box
+            width="100%"
+            m="0 auto"
+            p="5px"
+            display="flex"
+            justifyContent="left"
+            borderRadius="4px"
+          >
+            {is_suspended && <AcUnitOutlinedIcon />}
+            {!is_suspended && <ThumbUpOutlinedIcon />}
+            <Typography sx={{ ml: "5px" }}>
+              {is_suspended ? "Disabled" : "Available"}
+            </Typography>
+          </Box>
+        );
       }
     }, 
-    { field: "disable_switch", headerName: "Disabled", display: 'flex', width: 150, sortable: false, filterable: false, renderCell: ({ row: {is_suspended}, row: {id} }) => {
+    { 
+      field: "disable_switch", 
+      headerName: "Disabled", 
+      display: 'flex', 
+      width: 150, 
+      sortable: false, 
+      filterable: false, 
+      renderCell: ({ row: {is_suspended}, row: {id} }) => {
         const categoryId = id;
         const suspended = is_suspended
 
         return(
           <Switch
-          checked={suspended}
-          onChange={handleSuspend(categoryId)}
+            checked={suspended}
+            onChange={handleSuspend(categoryId)}
           />
         );
       }
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        const isInEditMode = rowModesModel[id]?.mode === 'edit';
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              sx={{
+                color: 'primary.main',
+              }}
+              onClick={handleSaveClick(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            color="inherit"
+          />,
+        ];
+      },
     },
   ]
 
@@ -234,37 +315,39 @@ export default function CategoryAdmin() {
         {/* page title */}
         <div className="profileTitle">Admin Dashboard
           <Stack 
-          direction="row" 
-          spacing={2}
-          justifyContent="space-between"
-          alignItems="center"
+            direction="row" 
+            spacing={2}
+            justifyContent="space-between"
+            alignItems="center"
           >
             <Box
-            sx={{
-              display: "flex",
-              gap: 2
-            }}
+              sx={{
+                display: "flex",
+                gap: 2
+              }}
             >
               <Button 
-              variant="outlined"
-              component={Link}
-              to="/admin"
-              sx={{
-                borderColor: "grey.400",
-                color: "grey.500",
-                "&:hover": {borderColor: "grey.600"}
-              }}
+                variant="outlined"
+                component={Link}
+                to="/admin"
+                sx={{
+                  borderColor: "grey.400",
+                  color: "grey.500",
+                  "&:hover": {borderColor: "grey.600"}
+                }}
               >
-                User Management</Button>
+                User Management
+              </Button>
               <Button
-              variant="contained"
-              component={Link}
-              to="/admin/categoryadmin"
-              color="primary"
+                variant="contained"
+                component={Link}
+                to="/admin/categoryadmin"
+                color="primary"
               >
-                Category Management</Button>
+                Category Management
+              </Button>
             </Box>
-              <AddCategoryModal onCategoryAdded={handleAddCategory}/>
+            <AddCategoryModal onCategoryAdded={handleAddCategory}/>
           </Stack>
         </div> 
         <Box
@@ -289,10 +372,13 @@ export default function CategoryAdmin() {
           }}
         >
           <DataGrid 
-            rows={categories}
+            rows={rows}
             editMode="row"
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={handleRowModesModelChange}
+            onRowEditStop={handleRowEditStop}
             columns={column}
-            getRowId={(row) => row.name}
+            getRowId={(row) => row.id} // Fixed: use row.id instead of row.name
             processRowUpdate={handleEditCategories}
             onProcessRowUpdateError={(error) => {
               console.error('Row update error:', error);
@@ -311,7 +397,7 @@ export default function CategoryAdmin() {
             width="100%"
             disableRowSelectionOnClick
             loading={loading}
-            showToolbar
+            showToolBar
           />
         </Box>
         
