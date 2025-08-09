@@ -14,7 +14,6 @@ import {
   CardMedia,
   CardContent,
   IconButton,
-  Fab,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,16 +22,24 @@ import {
   CircularProgress,
   Stack,
   InputAdornment,
-  Divider,
+  FormHelperText,
 } from "@mui/material";
 import {
-  ArrowBack,
   CloudUpload,
   Delete,
   Image as ImageIcon,
   PhotoCamera,
+  Title,
+  Description,
+  Close,
 } from "@mui/icons-material";
 import { IMG_BASE_URL } from "../global-vars.jsx";
+import BreadcrumbsNav from "../components/BreadcrumbsNav";
+import Header from "../components/Header";
+
+// make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
+import "@material/web/button/filled-button.js";
+import "@material/web/button/filled-tonal-button.js";
 
 // Simplified validation schema - only title and description
 const validationSchema = Yup.object({
@@ -93,12 +100,35 @@ export default function EditListing() {
     fetchData();
   }, [id]);
 
-  // Handle form submission - only title and description
+  // Handle form submission - including cover image upload
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     setError("");
     setSuccess("");
 
     try {
+      // First upload the cover image if there's a new one
+      if (coverFile) {
+        setUploadingCover(true);
+        const formData = new FormData();
+        formData.append("image", coverFile);
+        formData.append("listingId", id);
+
+        const imgRes = await fetch("/api/listingimg", {
+          method: "PUT",
+          credentials: "include",
+          body: formData,
+        });
+
+        const imgData = await imgRes.json();
+        if (!imgRes.ok) throw new Error("Image upload failed: " + imgData.message);
+
+        setCoverUrl(imgData.imageUrl);
+        setCoverPreview(null);
+        setCoverFile(null);
+        setUploadingCover(false);
+      }
+
+      // Then update the listing details
       const res = await fetch(`/api/listings/${id}`, {
         method: "PUT",
         headers: {
@@ -118,6 +148,7 @@ export default function EditListing() {
       setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err) {
       setError(err.message);
+      setUploadingCover(false);
     } finally {
       setSubmitting(false);
     }
@@ -145,35 +176,6 @@ export default function EditListing() {
     setError("");
   };
 
-  const handleUploadCover = async () => {
-    if (!coverFile) return;
-
-    setUploadingCover(true);
-    try {
-      const formData = new FormData();
-      formData.append("image", coverFile);
-      formData.append("listingId", id);
-
-      const res = await fetch("/api/listingimg", {
-        method: "PUT",
-        credentials: "include",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setCoverUrl(data.imageUrl);
-      setCoverPreview(null);
-      setCoverFile(null);
-      setSuccess("Cover image uploaded successfully!");
-    } catch (err) {
-      setError("Upload failed: " + err.message);
-    } finally {
-      setUploadingCover(false);
-    }
-  };
-
   // Handle listing deletion
   const handleDelete = async () => {
     try {
@@ -195,224 +197,399 @@ export default function EditListing() {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Container>
+      <div className="dashboardCanvas">
+        <div className="sidebarSpacer"></div>
+        <div className="dashboardContent">
+          <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <CircularProgress />
+          </Container>
+        </div>
+        <div className="sidebarSpacer"></div>
+      </div>
     );
   }
 
   if (!listing) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert severity="error">Listing not found</Alert>
-      </Container>
+      <div className="dashboardCanvas">
+        <div className="sidebarSpacer"></div>
+        <div className="dashboardContent">
+          <Container maxWidth="md" sx={{ mt: 4 }}>
+            <Alert severity="error">Listing not found</Alert>
+          </Container>
+        </div>
+        <div className="sidebarSpacer"></div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ pt: 12, pb: 4 }}>
-      <Paper elevation={2} sx={{ p: 4 }}>
-        {/* Back Button */}
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
-          sx={{ mb: 3 }}
-          variant="outlined"
-        >
-          Back
-        </Button>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Edit Listing
-        </Typography>
+    <div className="dashboardCanvas">
+      <div className="sidebarSpacer"></div>
+      <div className="dashboardContent">
+        <BreadcrumbsNav />
+        {/* page title */}
+        <div className="profileTitle">Edit Listing</div>
 
-        {/* Auction Type Display */}
-        <Alert 
-          severity="info" 
-          sx={{ mb: 3 }}
+        <Box
+          sx={{
+            minHeight: "100vh",
+            backgroundColor: "background.default",
+            pt: 12,
+            pb: 4,
+          }}
         >
-          <Typography variant="body2">
-            <strong>Auction Type:</strong> {listing.auction_type === "ascending" ? "Ascending Auction" : "Descending Auction"}
-          </Typography>
-        </Alert>
+          <Box maxWidth="800px" mx="auto" px={3}>
+            <Header subtitle="Update your auction listing" />
 
-        {/* Cover Image Section */}
-        <Card sx={{ mb: 4 }}>
-          {coverUrl && coverUrl.startsWith(IMG_BASE_URL) ? (
-            <CardMedia
-              component="img"
-              height="300"
-              image={coverUrl}
-              alt="Cover Image"
+            {/* Alert Messages */}
+            {error && (
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 3,
+                  borderRadius: 3,
+                  "& .MuiAlert-message": {
+                    fontWeight: 500,
+                  },
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+
+            {success && (
+              <Alert
+                severity="success"
+                sx={{
+                  mb: 3,
+                  borderRadius: 3,
+                  "& .MuiAlert-message": {
+                    fontWeight: 500,
+                  },
+                }}
+              >
+                {success}
+              </Alert>
+            )}
+
+            <Card
+              elevation={0}
               sx={{
-                  width: "100%",
-                  height: "auto",
-                  objectFit: "contain",
-                  borderRadius: "4px",
-                  border: "1px solid #e0e0e0"
-              }}
-            />
-          ) : (
-            <Box
-              sx={{
-                height: 300,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "grey.100",
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+                backgroundColor: "surface.main",
               }}
             >
-              <ImageIcon sx={{ fontSize: 60, color: "grey.400" }} />
-            </Box>
-          )}
+              <CardContent sx={{ p: 4 }}>
 
-          <CardContent>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<PhotoCamera />}
-                sx={{ flex: 1 }}
-              >
-                Choose Image
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverChange}
-                  hidden
-                />
-              </Button>
-
-              <Button
-                variant="contained"
-                startIcon={<CloudUpload />}
-                onClick={handleUploadCover}
-                disabled={!coverFile || uploadingCover}
-                sx={{ flex: 1 }}
-              >
-                {uploadingCover ? "Uploading..." : "Upload"}
-              </Button>
-            </Stack>
-
-            {coverPreview && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Preview:
-                </Typography>
-                <img
-                  src={coverPreview}
-                  alt="Preview"
-                  style={{
-                    width: 788,
-                    height: 300,
-                    objectFit: "contain",
-                    borderRadius: "4px"
+                {/* Auction Type Display */}
+                <Alert 
+                  severity="info" 
+                  sx={{ 
+                    mb: 3,
+                    borderRadius: 3,
                   }}
-                />
-              </Box>
-            )}
-          </CardContent>
-        </Card>
+                >
+                  <Typography variant="body2">
+                    <strong>Auction Type:</strong> {listing.auction_type === "ascending" ? "Ascending Auction" : "Descending Auction"}
+                  </Typography>
+                </Alert>
 
-        {/* Form Section - Only Title and Description */}
-        <Formik
-          initialValues={{
-            title: listing.title || "",
-            description: listing.description || "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
-            <Form>
-              <Stack spacing={3}>
-                <TextField
-                  name="title"
-                  label="Title"
-                  value={values.title}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.title && Boolean(errors.title)}
-                  helperText={touched.title && errors.title}
-                  required
-                  fullWidth
-                  variant="outlined"
-                />
-
-                <TextField
-                  name="description"
-                  label="Description"
-                  value={values.description}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.description && Boolean(errors.description)}
-                  helperText={touched.description && errors.description}
-                  multiline
-                  rows={4}
-                  fullWidth
-                  variant="outlined"
-                />
-
-                {/* Action Buttons */}
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    size="large"
-                    disabled={isSubmitting}
-                    sx={{ flex: 1 }}
+                {/* Cover Image Section */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Cover Image
+                  </Typography>
+                  
+                  {/* Full-width image preview */}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: 300,
+                      border: "1px dashed",
+                      borderColor: "divider",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      backgroundColor: "background.paper",
+                      mb: 2,
+                    }}
                   >
-                    {isSubmitting ? <CircularProgress size={24} /> : "Update Listing"}
-                  </Button>
+                    {(coverUrl && coverUrl.startsWith(IMG_BASE_URL)) || coverPreview ? (
+                      <img
+                        src={coverPreview || coverUrl}
+                        alt="Cover Image"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          textAlign: "center",
+                          color: "text.secondary",
+                        }}
+                      >
+                        <ImageIcon sx={{ fontSize: 60, mb: 1 }} />
+                        <Typography variant="h6">
+                          No cover image
+                        </Typography>
+                        <Typography variant="body2">
+                          Choose an image below to add a cover photo
+                        </Typography>
+                      </Box>
+                    )}
+                    {coverPreview && (
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setCoverFile(null);
+                          setCoverPreview(null);
+                        }}
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          bgcolor: "rgba(255,255,255,0.9)",
+                          "&:hover": {
+                            bgcolor: "rgba(255,255,255,1)",
+                          },
+                        }}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
 
+                  {/* Choose Image Button - Full Width */}
                   <Button
+                    component="label"
                     variant="outlined"
-                    color="error"
-                    size="large"
-                    startIcon={<Delete />}
-                    onClick={() => setDeleteDialogOpen(true)}
-                    sx={{ flex: 1 }}
+                    startIcon={<PhotoCamera />}
+                    fullWidth
+                    sx={{
+                      borderRadius: 3,
+                      textTransform: "none",
+                      py: 1.5,
+                    }}
                   >
-                    Delete
+                    {coverFile ? "Change Image" : "Choose Image"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverChange}
+                      hidden
+                    />
                   </Button>
-                </Stack>
-              </Stack>
-            </Form>
-          )}
-        </Formik>
 
-        {/* Success/Error Messages */}
-        {success && (
-          <Alert severity="success" sx={{ mt: 2 }}>
-            {success}
-          </Alert>
-        )}
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
-      </Paper>
+                  <FormHelperText sx={{ ml: 0, mt: 1 }}>
+                    {coverFile 
+                      ? "New image selected. Click 'Update Listing' to save changes."
+                      : "Select an image file (max 5MB) to use as the cover image."
+                    }
+                  </FormHelperText>
+                </Box>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">Delete Listing</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this listing? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+                {/* Form Section - Only Title and Description */}
+                <Formik
+                  initialValues={{
+                    title: listing.title || "",
+                    description: listing.description || "",
+                  }}
+                  validationSchema={validationSchema}
+                  onSubmit={handleSubmit}
+                >
+                  {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+                    <Form>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 3,
+                        }}
+                      >
+                        {/* Title */}
+                        <TextField
+                          name="title"
+                          label="Listing Name"
+                          value={values.title}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={touched.title && Boolean(errors.title)}
+                          helperText={
+                            (touched.title && errors.title) ||
+                            "Give your item a clear, descriptive title"
+                          }
+                          required
+                          fullWidth
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Title color="action" />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 3,
+                            },
+                          }}
+                        />
+
+                        {/* Description */}
+                        <TextField
+                          name="description"
+                          label="Description"
+                          value={values.description}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={touched.description && Boolean(errors.description)}
+                          helperText={
+                            (touched.description && errors.description) ||
+                            "Provide detailed information about your item"
+                          }
+                          multiline
+                          rows={4}
+                          fullWidth
+                          variant="outlined"
+                          placeholder="Describe the condition, features, and any important details about your item..."
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment
+                                position="start"
+                                sx={{ alignSelf: "flex-start", mt: 1 }}
+                              >
+                                <Description color="action" />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 3,
+                            },
+                          }}
+                        />
+
+                        {/* Action Buttons */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            mt: 4,
+                            gap: 2,
+                          }}
+                        >
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="large"
+                            startIcon={<Delete />}
+                            onClick={() => setDeleteDialogOpen(true)}
+                            sx={{
+                              borderRadius: 3,
+                              px: 4,
+                              textTransform: "none",
+                              fontWeight: 500,
+                            }}
+                          >
+                            Delete
+                          </Button>
+
+                          <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={() => navigate("/dashboard")}
+                            sx={{
+                              borderRadius: 3,
+                              px: 4,
+                              textTransform: "none",
+                              fontWeight: 500,
+                            }}
+                          >
+                            Cancel
+                          </Button>
+
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            size="large"
+                            disabled={isSubmitting || uploadingCover}
+                            sx={{
+                              borderRadius: 3,
+                              px: 4,
+                              textTransform: "none",
+                              fontWeight: 500,
+                              background: "primary",
+                              boxShadow: "0 3px 5px 2px rgba(33, 203, 243, .3)",
+                            }}
+                          >
+                            {isSubmitting || uploadingCover ? (
+                              <CircularProgress size={24} />
+                            ) : (
+                              "Update Listing"
+                            )}
+                          </Button>
+                        </Box>
+                      </Box>
+                    </Form>
+                  )}
+                </Formik>
+              </CardContent>
+            </Card>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+              open={deleteDialogOpen}
+              onClose={() => setDeleteDialogOpen(false)}
+              aria-labelledby="delete-dialog-title"
+              aria-describedby="delete-dialog-description"
+              PaperProps={{
+                sx: {
+                  borderRadius: 3,
+                },
+              }}
+            >
+              <DialogTitle id="delete-dialog-title">Delete Listing</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="delete-dialog-description">
+                  Are you sure you want to delete this listing? This action cannot be undone.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button 
+                  onClick={() => setDeleteDialogOpen(false)}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleDelete} 
+                  color="error" 
+                  variant="contained"
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                  }}
+                >
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Box>
+        </Box>
+      </div>
+      <div className="sidebarSpacer"></div>
+    </div>
   );
 }
