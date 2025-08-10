@@ -87,45 +87,14 @@ export const getSellerId = async (id) => {
   `;
 };
 
-export const updateListing = async (
-  id,
-  title,
-  description,
-  min_bid,
-  end_date,
-  auction_type,
-  start_price,
-  discount_percentage
-) => {
-  if (auction_type === "descending") {
-    // descending auction → update all fields
-    return await sql`
-      UPDATE auction_listings
-      SET 
-        title = ${title},
-        description = ${description},
-        min_bid = ${min_bid},
-        end_date = ${end_date},
-        auction_type = ${auction_type},
-        start_price = ${start_price},
-        discount_percentage = ${discount_percentage}
-      WHERE id = ${id}
-    `;
-  } else {
-    // ascending auction → ignore descending-only fields
-    return await sql`
-      UPDATE auction_listings
-      SET 
-        title = ${title},
-        description = ${description},
-        min_bid = ${min_bid},
-        end_date = ${end_date},
-        auction_type = ${auction_type},
-        start_price = NULL,
-        discount_percentage = NULL
-      WHERE id = ${id}
-    `;
-  }
+export const updateListing = async (id, title, description) => {
+  return await sql`
+    UPDATE auction_listings
+    SET
+      title = ${title},
+      description = ${description}
+    WHERE id = ${id}
+  `;
 };
 
 

@@ -1,7 +1,7 @@
 # telegram/main.py
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status, Header
+from fastapi import FastAPI, Request, HTTPException, status, Header, Body
 from telegram import Update, BotCommand
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
@@ -13,7 +13,7 @@ from config import TELEGRAM_BOT_TOKEN, WEBHOOK_URL, BOT_SECRET
 from handlers import (
     start, help_command, bid, mybids, bid_increment_fixed, withdraw, mylistings, mywatchlist,
     removewatchlist, handle_free_search, confirm_bid_callback, withdraw_callback_handler,
-    watchlist_callback_handler, myrecommendations, update_message_by_listing_id
+    watchlist_callback_handler, myrecommendations, update_message_by_listing_id, delete_message_by_listing_id
 )
 from jobs import poll_and_post_listings, poll_notifications
 
@@ -102,6 +102,25 @@ async def update_listing(request: Request):
     
     await update_message_by_listing_id(listing_id, application.bot)
     return {"message": "Update started"}
+
+@app.post("/deleteListing")
+async def delete_listing(
+    data: dict = Body(...),
+    authorization: str = Header(None)
+):
+    if not authorization or authorization != f"Bearer {BOT_SECRET}":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    listing_id = data.get("listingId")
+    if not listing_id:
+        raise HTTPException(status_code=400, detail="Missing listingId")
+    
+    try:
+        await delete_message_by_listing_id(listing_id, application.bot)
+        return {"message": f"Telegram message for listing {listing_id} deleted"}
+    except Exception as e:
+        logger.error(f"Error deleting Telegram message for listing {listing_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete Telegram message")
 
 @app.post("/newNotification")
 async def new_notification(authorization: str = Header(None)):

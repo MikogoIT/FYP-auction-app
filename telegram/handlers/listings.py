@@ -2,7 +2,8 @@
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from telegram.ext import ContextTypes
-from api import is_telegram_user_linked, save_telegram_message, fetch_user_listings, fetch_listings_with_messages, fetch_full_listing_with_message
+from telegram.error import TelegramError
+from api import is_telegram_user_linked, save_telegram_message, fetch_user_listings, fetch_listings_with_messages, fetch_full_listing_with_message, delete_telegram_message
 from logger import logger
 from utils import format_seller_listings, format_listing_message
 import re
@@ -140,4 +141,29 @@ async def update_message_by_listing_id(listing_id: int, bot) -> None:
         
     except Exception as e:
         logger.error(f"Failed to update listing #{listing_id}: {e}")
+        
+async def delete_message_by_listing_id(listing_id: int, bot) -> None:
+    listing = await fetch_full_listing_with_message(listing_id)
+    if not listing:
+        logger.warning(f"No listing data returned for ID #{listing_id}")
+        return
+    
+    if not listing.get("channel_id") or not listing.get("message_id"):
+        logger.warning(f"Listing {listing_id} missing channel_id or message_id. Cannot delete message.")
+        return
+    
+    try:
+        await bot.delete_message(
+            chat_id=listing["channel_id"],
+            message_id=listing["message_id"]
+        )
+        logger.info(f"Successfully deleted Telegram message for listing #{listing_id}")
+        
+        #clear stored message_id and channel_id in DB, or mark as deleted
+        await delete_telegram_message(listing_id)
+        
+    except TelegramError as te:
+        logger.error(f"Telegram API error deleting message for listing #{listing_id}: {te}")
+    except Exception as e:
+        logger.error(f"Failed to delete Telegram message for listing #{listing_id}: {e}")
     

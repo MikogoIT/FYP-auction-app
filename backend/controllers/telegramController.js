@@ -300,6 +300,22 @@ export async function saveTelegramMessageData(req, res) {
     }
 }
 
+export async function deleteTelegramMessageData(req, res) {
+    const { auctionId } = req.body;
+
+    if (!auctionId) {
+        return res.status(400).json({ message: "Missing auctionId" });
+    }
+
+    try {
+        await telegramModel.deleteTelegramMessageRecord(auctionId);
+        return res.status(200).json({ message: "Telegram message info deleted" });
+    } catch (err) {
+        console.error("Failed to delete telegram message info: ", err);
+        return res.status(500).json({ message: "Failed to delete telegram message info" });
+    }
+}
+
 export async function addWatchlistItem(req, res) {
     const { user_id, auction_id } = req.body;
     if (!user_id || !auction_id) {

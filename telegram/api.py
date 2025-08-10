@@ -47,6 +47,22 @@ async def save_telegram_message(auction_id: int, message_id: int, channel_id: in
         except Exception as e:
             logger.error(f"Error saving message: {e}")
             
+async def delete_telegram_message(auction_id: int):
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(
+                f"{BACKEND_API_URL}/api/telegram/listings/delete-message",
+                headers=JSON_HEADERS,
+                json={"auctionId": auction_id},
+            ) as resp:
+                if resp.status == 200:
+                    return await resp.json()
+                else:
+                    text = await resp.text()
+                    logger.error(f"Failed deleting telegram message: Status {resp.status}, Response: {text}")
+        except Exception as e:
+            logger.error(f"Error deleting telegram message: {e}")
+            
 async def fetch_recommendations(user_id: int, limit: int = 5):
     try:
         async with aiohttp.ClientSession() as session:
