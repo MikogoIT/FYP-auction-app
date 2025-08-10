@@ -190,12 +190,7 @@ export async function putListing(req, res) {
     await updateListing(
       req.params.id,
       title,
-      description,
-      min_bid,
-      end_date,
-      auction_type,
-      start_price,
-      discount_percentage 
+      description 
     );
 
     await notifyUpdateListingMsg(req.params.id);
