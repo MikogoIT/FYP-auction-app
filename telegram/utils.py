@@ -52,8 +52,6 @@ def format_seller_listings(listings):
         auction_id = listing.get("id", "N/A")
         end_date = format_date(listing.get("end_date", ""))
         min_bid = float(listing.get("min_bid", 0))
-        start_price = float(listing.get("start_price", 0))
-        current_price = float(listing.get("current_price", 0))
         highest_bid = float(listing.get("highest_bid", 0))
         num_bids = int(listing.get("num_bids", 0))
         is_active = listing.get("is_active", False)
@@ -68,6 +66,8 @@ def format_seller_listings(listings):
                 f"💵 <b>Highest Bid:</b> {highest_bid_display}\n"                
             )
         elif auction_type.lower() == "descending":
+            start_price = float(listing.get("start_price", 0))
+            current_price = float(listing.get("current_price", 0))
             price_info = (
                 f"💰 <b>Min Price:</b> ${min_bid:.2f}\n"
                 f"🚀 <b>Start Price:</b> ${start_price:.2f}\n"
