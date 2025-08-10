@@ -73,7 +73,8 @@ export default function MyBids() {
 
   // Map API data into DataGrid rows
   const rows = bids.map((bid) => ({
-    id: bid.bid_id,
+    id: bid.bid_id,                        // keep bid id for delete action
+    auction_id: bid.auction_id,           
     listing_name: bid.listing_name,
     bid_amount: parseFloat(bid.bid_amount),
     status: bid.status,
@@ -143,7 +144,10 @@ export default function MyBids() {
               pageSize={10}
               rowsPerPageOptions={[10, 25, 50]}
               disableSelectionOnClick
-              onRowClick={(params) => navigate(`/bid/${params.id}`)}
+              onRowClick={(params) => {
+              // use auction_id for navigation
+              navigate(`/bid/${params.row.auction_id}`);
+            }}
               sx={{
                 "& .MuiDataGrid-columnHeader": { fontSize: "16px" },
                 "& .MuiDataGrid-cell": { fontSize: "16px" },

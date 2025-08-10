@@ -28,16 +28,17 @@ export async function getAuctionMinBid(auctionId) {
 }
 
 
-// Get all bids + auction information of the current user
+// Get all bids + auction information of the current user (includes auction_id)
 export async function getUserBidsWithListing(buyerId) {
   return await sql`
     SELECT 
-      b.id AS bid_id,
+      b.id           AS bid_id,
+      b.auction_id   AS auction_id,
       b.bid_amount,
       b.created_at,
       b.updated_at,
       b.status,
-      a.title AS listing_name,
+      a.title        AS listing_name,
       a.end_date
     FROM bids b
     JOIN auction_listings a ON b.auction_id = a.id
@@ -45,6 +46,7 @@ export async function getUserBidsWithListing(buyerId) {
     ORDER BY b.created_at DESC
   `;
 }
+
 
 // Delete bid
 export async function deleteUserBid(buyerId, bidId) {
