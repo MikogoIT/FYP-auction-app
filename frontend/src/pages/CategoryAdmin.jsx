@@ -207,11 +207,7 @@ export default function CategoryAdmin() {
       headerName: 'Name', 
       width: 250, 
       sortable: true, 
-      editable: true,
-      preProcessEditCellProps: (params) => {
-        const validation = validateName(params.props.value, params.id, categories);
-        return { ...params.props, error: !validation.isValid };
-      },
+      editable: false,
     },
     {
       field: 'description', 

@@ -79,6 +79,7 @@ export async function getRecommendedItems(buyerId, limit = 10) {
       al.auction_type,
       al.start_price,
       al.discount_percentage,
+      al.is_active,
       MAX(b.bid_amount) AS current_bid,
       COUNT(b.id) AS bid_count
     FROM auction_listings al
@@ -89,7 +90,7 @@ export async function getRecommendedItems(buyerId, limit = 10) {
     WHERE al.is_active = true
       AND al.end_date > NOW()
       AND al.seller_id != ${buyerId}
-      AND al.id NOT IN (SELECT auction_id FROM user_watchlist_items)
+      AND NOT EXISTS (SELECT 1 FROM user_watchlist_items WHERE auction_id = al.id)
     GROUP BY 
       al.id, al.title, al.description, al.min_bid, al.end_date, 
       al.category_id, lc.name, al.seller_id, u.username, al.image_url,

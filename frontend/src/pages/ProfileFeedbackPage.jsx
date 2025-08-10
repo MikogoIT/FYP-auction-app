@@ -18,6 +18,16 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
+import ListingCard from "../components/ListingCard";
+
+// Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination as SwiperPagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+const ITEMS_PER_PAGE = 12;
 
 // Helper for star rating (using MUI's Rating for consistency)
 function StarRating({ rating, size = "medium", readOnly = true }) {
@@ -42,6 +52,29 @@ export default function ProfileFeedbackPage() {
   const [sort, setSort] = useState("Newest");
   const [authorInfo, setAuthorInfo] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showListings, setShowListings] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [likedMap, setLikedMap] = useState({});
+
+  // Load watchlist for liked status
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/watchlist/", { credentials: "include" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load watchlist");
+
+        const map = {};
+        data.forEach((item) => {
+          map[item.auction_id] = true;
+        });
+        setLikedMap(map);
+      } catch (err) {
+        console.error("Could not load watchlist:", err);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     async function fetchFeedback(userId) {
@@ -93,6 +126,84 @@ export default function ProfileFeedbackPage() {
       fetchFeedback(userId);
     }
   }, [userId]);
+
+  // Fetch user listings
+  const fetchUserListings = async () => {
+    setListingsLoading(true);
+    try {
+      // Get all listings and filter by user
+      const res = await fetch("/api/listings");
+      if (!res.ok) throw new Error("Failed to fetch listings");
+      const { listings: allListings } = await res.json();
+      
+      // Filter listings by the current profile user
+      const userListings = allListings.filter(listing => 
+        listing.seller_id === parseInt(userId)
+      );
+
+      // Enrich with images
+      const enriched = await Promise.all(
+        userListings.map(async item => {
+          try {
+            const imgRes = await fetch(
+              `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+            );
+            const { imageUrl } = await imgRes.json();
+            return { ...item, image_url: imageUrl };
+          } catch {
+            return { ...item, image_url: null };
+          }
+        })
+      );
+
+      setListings(enriched);
+    } catch (err) {
+      console.error("Failed to fetch user listings:", err);
+      setListings([]);
+    } finally {
+      setListingsLoading(false);
+    }
+  };
+
+  // Handle showing listings
+  const handleShowListings = () => {
+    setShowListings(true);
+    if (listings.length === 0) {
+      fetchUserListings();
+    }
+  };
+
+  const currentUserId = Number(localStorage.getItem("userId"));
+
+  const handleToggleLike = async (listingId) => {
+    const isLiked = !!likedMap[listingId];
+    const url = isLiked ? "/api/watchlist/remove" : "/api/watchlist/add";
+    const method = isLiked ? "DELETE" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ auction_id: listingId }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `${method} ${url} failed`);
+      }
+      setLikedMap((m) => ({ ...m, [listingId]: !isLiked }));
+    } catch (err) {
+      console.error("Error toggling watchlist:", err);
+    }
+  };
+
+  const handleBidClick = (id) => {
+    window.location.href = `/bid/${id}`;
+  };
+
+  const handleEditClick = (id) => {
+    window.location.href = `/edit/${id}`;
+  };
 
   // Filter reviews
   const filteredReviews =
@@ -184,33 +295,33 @@ export default function ProfileFeedbackPage() {
               gap: "8px"
           }}>
             {/* All Reviews */}
-            {filter === "All" ? (
+            {filter === "All" && !showListings ? (
             <md-filled-button
-                onClick={() => setFilter("All")}
+                onClick={() => {setFilter("All"); setShowListings(false);}}
                
             >
                 All Reviews
             </md-filled-button>
             ) : (
             <md-filled-tonal-button
-                onClick={() => setFilter("All")}
+                onClick={() => {setFilter("All"); setShowListings(false);}}
              
             >
                 All Reviews
             </md-filled-tonal-button>
             )}
-
+            
             {/* From Buyers */}
-            {filter === "Buyers" ? (
+            {filter === "Buyers" && !showListings ? (
             <md-filled-button
-                onClick={() => setFilter("Buyers")}
+                onClick={() => {setFilter("Buyers"); setShowListings(false);}}
                 
             >
                 From Buyers
             </md-filled-button>
             ) : (
             <md-filled-tonal-button
-                onClick={() => setFilter("Buyers")}
+                onClick={() => {setFilter("Buyers"); setShowListings(false);}}
                 
             >
                 From Buyers
@@ -218,43 +329,90 @@ export default function ProfileFeedbackPage() {
             )}
 
             {/* From Sellers */}
-            {filter === "Sellers" ? (
-            <md-filled-button onClick={() => setFilter("Sellers")}>
+            {filter === "Sellers" && !showListings ? (
+            <md-filled-button onClick={() => {setFilter("Sellers"); setShowListings(false);}}>
                 From Sellers
             </md-filled-button>
             ) : (
-            <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
+            <md-filled-tonal-button onClick={() => {setFilter("Sellers"); setShowListings(false);}}>
                 From Sellers
             </md-filled-tonal-button>
             )}
+
+            {/* View Listings */}
+            {showListings ? (
+            <md-filled-button onClick={handleShowListings}>
+                View Listings
+            </md-filled-button>
+            ) : (
+            <md-filled-tonal-button onClick={handleShowListings}>
+                View Listings
+            </md-filled-tonal-button>
+            )}
+
         </Box>
 
-        <Box>
-            <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            style={{
-                padding: "8px 12px",
-                borderRadius: 6,
-                border: "1px solid #ccc",
-                fontSize: 16,
-                marginLeft: 5,
-            }}
-            >
-            <option>Newest</option>
-            <option>Oldest</option>
-            <option>Highest Rating</option>
-            <option>Lowest Rating</option>
-            </select>
-        </Box>
+        {!showListings && (
+          <Box>
+              <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              style={{
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #ccc",
+                  fontSize: 16,
+                  marginLeft: 5,
+              }}
+              >
+              <option>Newest</option>
+              <option>Oldest</option>
+              <option>Highest Rating</option>
+              <option>Lowest Rating</option>
+              </select>
+          </Box>
+        )}
         </Box>
 
-        {/* Reviews List */}
+        {/* Content - either Reviews or Listings */}
         {loading ? (
           <Box sx={{ textAlign: "center", py: 6 }}>
             <CircularProgress />
           </Box>
+        ) : showListings ? (
+          // Show Listings using Swiper (same style as Dashboard)
+          <div>
+            <div className="profileTitle">Listings by {user?.username}</div>
+            {listingsLoading ? (
+              <p className="centerText">Loading listings…</p>
+            ) : listings.length === 0 ? (
+              <p className="centerText">No listings available for this user!</p>
+            ) : (
+              <Swiper
+                modules={[Navigation, SwiperPagination]}
+                navigation
+                pagination={{ clickable: true }}
+                spaceBetween={20}
+                slidesPerView="auto"
+                className="dashboard-swiper"
+              >
+                {listings.map(item => (
+                  <SwiperSlide key={item.id} style={{ width: 300}}>
+                    <ListingCard
+                      item={item}
+                      currentUserId={currentUserId}
+                      isLiked={!!likedMap[item.id]}
+                      onToggleLike={handleToggleLike}
+                      onBidClick={handleBidClick}
+                      onEditClick={handleEditClick}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
+          </div>
         ) : (
+          // Show Reviews
           <Grid container spacing={3} sx={{ maxWidth: 1000 }}>
             {sortedReviews.length === 0 ? (
               <Grid item xs={12}>

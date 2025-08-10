@@ -94,7 +94,7 @@ export async function getTagBasedRecommendations(buyerId, limit = 10) {
       WHERE al.is_active = true
         AND al.end_date > NOW()
         AND al.seller_id != ${buyerId}
-        AND al.id NOT IN (SELECT auction_id FROM user_watchlist_items)
+        AND NOT EXISTS (SELECT 1 FROM user_watchlist_items WHERE auction_id = al.id)
       GROUP BY al.id
     )
     SELECT DISTINCT
