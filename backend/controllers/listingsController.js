@@ -16,7 +16,7 @@ import { sql } from "../utils/db.js";
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
-import { notifyNewListing, notifyUpdateListingMsg } from "./telegramController.js";
+import { notifyNewListing, notifyUpdateListingMsg, notifyDeleteListingMsg } from "./telegramController.js";
 
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
@@ -193,6 +193,9 @@ export async function deleteListingById(req, res) {
     }
 
     await deleteListing(req.params.id);
+
+    // Notify Telegram bot to delete listing's message from channel
+    await notifyDeleteListingMsg(req.params.id);
     res.json({ message: "Listing deleted successfully" });
   } catch (err) {
     console.error("Delete listing error:", err);

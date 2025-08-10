@@ -499,3 +499,21 @@ export async function notifyUpdateListingMsg(listingId) {
         console.error("Failed to notify Telegram bot of Update Listing: ", err.message);
     }
 }
+
+export async function notifyDeleteListingMsg(listingId) {
+    const BOT_URL = process.env.TELE_BOT_URL;
+    const BOT_SECRET = process.env.BOT_SECRET;
+
+    try {
+        await fetch(`${BOT_URL}/deleteListing`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${BOT_SECRET}`,
+            },
+            body: JSON.stringify({ listingId })
+        });
+    } catch (err) {
+        console.error("Failed to notify Telegram bot of Delete Listing: ", err.message);
+    }
+}
