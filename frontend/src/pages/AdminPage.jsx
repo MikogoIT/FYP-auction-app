@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { DataGrid, GridActionsCellItem, } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridRowEditStopReasons } from "@mui/x-data-grid";
 import { 
   Box, 
   Typography, 
@@ -13,6 +13,9 @@ import AcUnitOutlinedIcon from '@mui/icons-material/AcUnitOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
 import Header from "../components/Header";
 import { Link } from "react-router";
 import Button from "@mui/material/Button"
@@ -26,6 +29,7 @@ const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [rowModesModel, setRowModesModel] = React.useState({});
 
   // State for notifications (Snackbar)
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -65,6 +69,42 @@ const AdminPage = () => {
       return;
     }
     setNotificationOpen(false);
+  };
+
+  // Handle row edit stop
+  const handleRowEditStop = (params, event) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
+
+  // Handle edit click
+  const handleEditClick = (id) => () => {
+    // Check if the user being edited is an admin
+    const user = users.find(u => u.id === id);
+    if (user && user.is_admin) {
+      showAdminWarning();
+      return;
+    }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: 'edit' } });
+  };
+
+  // Handle save click
+  const handleSaveClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: 'view' } });
+  };
+
+  // Handle cancel click
+  const handleCancelClick = (id) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: 'view', ignoreModifications: true },
+    });
+  };
+
+  // Handle row modes model change
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
   };
 
   // update user's name, phone number, and address
@@ -115,6 +155,7 @@ const AdminPage = () => {
       const data = await res.json();
       if (res.ok) {
         setUsers(data.users);
+        setRows(data.users); // Update rows state as well
         setPage(page);
       } else {
         console.log(data.message || "Failed to fetch users");
@@ -139,7 +180,7 @@ const AdminPage = () => {
     // Check if the user being edited is an admin
     if (oldRow.is_admin) {
       showAdminWarning();
-      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+      throw new Error('Admin users cannot be edited');
     }
 
     if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
@@ -148,12 +189,13 @@ const AdminPage = () => {
 
     // Check for empty username
     if (!newRow.username || newRow.username.trim() === "") {
-      return Promise.reject(oldRow);
+      throw new Error('Username cannot be empty');
     }
 
     // Check for empty email 
+    // Check for empty email 
     if (!newRow.email || newRow.email.trim() === "") {
-      return Promise.reject(oldRow);
+      throw new Error('Email cannot be empty');
     }
 
     // Check for duplicate username
@@ -161,7 +203,7 @@ const AdminPage = () => {
       user => user.id !== newRow.id && user.username === newRow.username
     );
     if (duplicateUsername) {
-      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+      throw new Error('Username already exists');
     }
 
     // Check for duplicate email
@@ -169,12 +211,12 @@ const AdminPage = () => {
       user => user.id !== newRow.id && user.email === newRow.email
     );
     if (duplicateEmail) {
-      return Promise.reject(oldRow); // Reject the promise to prevent the edit
+      throw new Error('Email already exists');
     }
 
     // Prevent duplicate updates
     if (isUpdating) {
-      return Promise.reject(oldRow);
+      throw new Error('Update in progress');
     }
 
     setIsUpdating(true);
@@ -188,13 +230,14 @@ const AdminPage = () => {
         },
         body: JSON.stringify(newRow),
       });
+      
       if (res.ok) {
         const updatedRowFromDB = await res.json();
-        console.log("Status updated");
+        console.log("User updated");
         
         // Show success notification using Snackbar
         showSuccessNotification(`User "${updatedRowFromDB.username || newRow.username}" has been successfully updated`);
-        
+          
         // Reload data while maintaining current search and page state
         await fetchUsers(searchQuery, page);
         
@@ -208,12 +251,12 @@ const AdminPage = () => {
         const data = await res.json();
         console.error("Error: " + data.message);
         setIsUpdating(false);
-        return Promise.reject(oldRow);
+        throw new Error(data.message);
       }
     } catch (err) {
-      console.error("Request failed");
+      console.error("Request failed:", err);
       setIsUpdating(false);
-      return Promise.reject(oldRow);
+      throw err;
     }
   };
 
@@ -289,12 +332,12 @@ const AdminPage = () => {
     fetchUsers(); // Initial load
   }, []);
 
-
   const column = [
     { 
       field: 'username', 
       headerName: 'Username', 
       editable: true,
+      width: 200,
       preProcessEditCellProps: (params) => {
         const { props, row } = params;
         const isEmpty = !props.value || props.value.trim() === "";
@@ -399,6 +442,52 @@ const AdminPage = () => {
       );
     }
   },
+  {
+    field: 'actions',
+    type: 'actions',
+    headerName: 'Actions',
+    width: 100,
+    cellClassName: 'actions',
+    getActions: ({ id, row }) => {
+      const isInEditMode = rowModesModel[id]?.mode === 'edit';
+      const isAdmin = row.is_admin;
+
+      if (isInEditMode) {
+        return [
+          <GridActionsCellItem
+            icon={<SaveIcon />}
+            label="Save"
+            sx={{
+              color: 'primary.main',
+            }}
+            onClick={handleSaveClick(id)}
+          />,
+          <GridActionsCellItem
+            icon={<CancelIcon />}
+            label="Cancel"
+            className="textPrimary"
+            onClick={handleCancelClick(id)}
+            color="inherit"
+          />,
+        ];
+      }
+
+      return [
+        <GridActionsCellItem
+          icon={<EditIcon />}
+          label="Edit"
+          className="textPrimary"
+          onClick={handleEditClick(id)}
+          color="inherit"
+          disabled={isAdmin} // Disable edit for admin users
+          sx={{
+            opacity: isAdmin ? 0.5 : 1,
+            cursor: isAdmin ? 'not-allowed' : 'pointer'
+          }}
+        />,
+      ];
+    },
+  },
 ]
 
   return (
@@ -465,9 +554,12 @@ const AdminPage = () => {
         <DataGrid 
           rows={users}
           editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
           columns={column}
           processRowUpdate={handleEditUser}
-          getRowId={(row) => row.username}
+          getRowId={(row) => row.id} // Changed from username to id for consistency
           onProcessRowUpdateError={handleProcessRowUpdateError}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}

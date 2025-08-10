@@ -45,7 +45,7 @@ export async function updateCategoryModel(id, name, description) {
     WHERE id = ${id}
     RETURNING id, name, description, "is_suspended"
   `;
-  return result[0];
+  return result;
 }
 
 // suspend category

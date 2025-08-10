@@ -72,14 +72,14 @@ export async function createBid(req, res) {
 
     // Place the bid
     if (auctionType === "ascending") {
-      /*
+      
       const prevHighest = await sql`
       SELECT buyer_id
       FROM bids
       WHERE auction_id = ${auction_id}
       ORDER BY bid_amount DESC, created_at ASC
       LIMIT 1`;
-      */
+      
 
       // Mark all other bids as outbid
       await bidModel.markOthersOutbid(auction_id, userId);
