@@ -163,9 +163,6 @@ async def delete_message_by_listing_id(listing_id: int, bot) -> None:
         )
         logger.info(f"Successfully deleted Telegram message for listing #{listing_id}")
         
-        #clear stored message_id and channel_id in DB, or mark as deleted
-        await delete_telegram_message(listing_id)
-        
     except TelegramError as te:
         logger.error(f"Telegram API error deleting message for listing #{listing_id}: {te}")
     except Exception as e:

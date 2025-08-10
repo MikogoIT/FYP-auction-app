@@ -17,6 +17,7 @@ import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
 import { notifyNewListing, notifyUpdateListingMsg, notifyDeleteListingMsg } from "./telegramController.js";
+import { getTelegramMessageByAuctionId } from "../models/telegramModel.js";
 
 // FOR LISTING COVER PHOTO UPLOAD
 // ——— configure GCS bucket ———
@@ -186,16 +187,23 @@ export async function deleteListingById(req, res) {
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
   try {
+    // Get Telegram message info BEFORE deleting listing
+    const telegramMessage = await getTelegramMessageByAuctionId(req.params.id);
+
     const existing = await getSellerId(req.params.id);
     if (existing.length === 0) return res.status(404).json({ message: "Listing not found" });
     if (Number(existing[0].seller_id) !== Number(userId)) {
       return res.status(403).json({ message: "Unauthorized to delete this listing" });
     }
 
+    // Notify Telegram bot to delete listing's message from channel first
+    if (telegramMessage) {
+      await notifyDeleteListingMsg(req.params.id);
+    }
+
+    // Now delete the listing (cascade deletes telegram_messages row)
     await deleteListing(req.params.id);
 
-    // Notify Telegram bot to delete listing's message from channel
-    await notifyDeleteListingMsg(req.params.id);
     res.json({ message: "Listing deleted successfully" });
   } catch (err) {
     console.error("Delete listing error:", err);
