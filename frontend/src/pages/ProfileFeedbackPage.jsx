@@ -85,7 +85,7 @@ export default function ProfileFeedbackPage() {
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error(userData.message);
         setUser(userData);
-       // console.log("Fetched user:", userData);
+        // console.log("Fetched user:", userData);
 
         // Fetch User Profile Ratings
         const ratingRes = await fetch(`/api/feedback/ratings/${userId}`);
@@ -231,147 +231,132 @@ export default function ProfileFeedbackPage() {
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
         {/* Custom breadcrumbs */}
-        <Breadcrumbs aria-label="breadcrumb" sx={{
-            width: '100%',
+        <Breadcrumbs
+          aria-label="breadcrumb"
+          sx={{
+            width: "100%",
             // make all links and the final Typography 16px
-            '& a, & .MuiTypography-root': {
-                fontSize: '16px',
-          }
-        }}>
-          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
+            "& a, & .MuiTypography-root": {
+              fontSize: "16px",
+            },
+          }}
+        >
+          <MuiLink
+            component={RouterLink}
+            to="/dashboard"
+            underline="hover"
+            color="inherit"
+          >
             Home
           </MuiLink>
           <Typography color="text.primary">Public Profile</Typography>
         </Breadcrumbs>
         {/* Profile Name and Ratings Header */}
-          <div className="profileTitle">{user?.username}'s Profile</div>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Avatar
-              src={user?.profile_image_url || undefined}
-              sx={{
-                width: 80,
-                height: 80,
-                mr: 3,
-                border: "2px solid #eee",
-              }}
-              alt="User Avatar"
-            />
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <StarRating
-                  rating={
-                    ratingInfo?.avg_rating
-                      ? Math.round(ratingInfo.avg_rating)
-                      : 0
-                  }
-                  size="large"
-                />
-                <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
-                  {ratingScore !== "N/A"
-                    ? Number(ratingScore).toFixed(1)
-                    : "N/A"}
+        <div className="profileTitle">{user?.username}'s Profile</div>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Avatar
+            src={user?.profile_image_url || undefined}
+            sx={{
+              width: 80,
+              height: 80,
+              mr: 3,
+              border: "2px solid #eee",
+            }}
+            alt="User Avatar"
+          />
+          <Box>
+            {numReviews > 0 ? (
+              <>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <StarRating
+                    rating={Math.round(ratingInfo.avg_rating)}
+                    size="large"
+                  />
+                  <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
+                    {Number(ratingScore).toFixed(1)}
+                  </Typography>
+                </Box>
+                <Typography color="text.secondary" fontSize={16}>
+                  {numReviews} Review{numReviews !== 1 ? "s" : ""}
                 </Typography>
-              </Box>
+              </>
+            ) : (
               <Typography color="text.secondary" fontSize={16}>
-                {numReviews} Review{numReviews !== 1 ? "s" : ""}
+                No ratings yet
               </Typography>
-              <Typography fontSize={16}>{user?.email || ""}</Typography>
-            </Box>
+            )}
+            <Typography fontSize={16}>{user?.email || ""}</Typography>
           </Box>
+        </Box>
 
         {/* Filters and Sorting */}
         <Box
-        sx={{
+          sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
-        }}
+          }}
         >
-        <Box 
-          sx={{
+          <Box
+            sx={{
               display: "flex",
-              flexWrap: 'wrap',
-              gap: "8px"
-          }}>
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
             {/* All Reviews */}
-            {filter === "All" && !showListings ? (
-            <md-filled-button
-                onClick={() => {setFilter("All"); setShowListings(false);}}
-               
-            >
+            {filter === "All" ? (
+              <md-filled-button onClick={() => setFilter("All")}>
                 All Reviews
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button
-                onClick={() => {setFilter("All"); setShowListings(false);}}
-             
-            >
+              <md-filled-tonal-button onClick={() => setFilter("All")}>
                 All Reviews
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
             
             {/* From Buyers */}
-            {filter === "Buyers" && !showListings ? (
-            <md-filled-button
-                onClick={() => {setFilter("Buyers"); setShowListings(false);}}
-                
-            >
+            {filter === "Buyers" ? (
+              <md-filled-button onClick={() => setFilter("Buyers")}>
                 From Buyers
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button
-                onClick={() => {setFilter("Buyers"); setShowListings(false);}}
-                
-            >
+              <md-filled-tonal-button onClick={() => setFilter("Buyers")}>
                 From Buyers
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
 
             {/* From Sellers */}
-            {filter === "Sellers" && !showListings ? (
-            <md-filled-button onClick={() => {setFilter("Sellers"); setShowListings(false);}}>
+            {filter === "Sellers" ? (
+              <md-filled-button onClick={() => setFilter("Sellers")}>
                 From Sellers
-            </md-filled-button>
+              </md-filled-button>
             ) : (
-            <md-filled-tonal-button onClick={() => {setFilter("Sellers"); setShowListings(false);}}>
+              <md-filled-tonal-button onClick={() => setFilter("Sellers")}>
                 From Sellers
-            </md-filled-tonal-button>
+              </md-filled-tonal-button>
             )}
+          </Box>
 
-            {/* View Listings */}
-            {showListings ? (
-            <md-filled-button onClick={handleShowListings}>
-                View Listings
-            </md-filled-button>
-            ) : (
-            <md-filled-tonal-button onClick={handleShowListings}>
-                View Listings
-            </md-filled-tonal-button>
-            )}
-
-        </Box>
-
-        {!showListings && (
           <Box>
-              <select
+            <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
               style={{
-                  padding: "8px 12px",
-                  borderRadius: 6,
-                  border: "1px solid #ccc",
-                  fontSize: 16,
-                  marginLeft: 5,
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid #ccc",
+                fontSize: 16,
+                marginLeft: 5,
               }}
-              >
+            >
               <option>Newest</option>
               <option>Oldest</option>
               <option>Highest Rating</option>
               <option>Lowest Rating</option>
-              </select>
+            </select>
           </Box>
-        )}
         </Box>
 
         {/* Content - either Reviews or Listings */}
