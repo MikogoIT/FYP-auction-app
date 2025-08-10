@@ -132,7 +132,7 @@ export async function postAuctionFeedback(req, res) {
       return res.status(409).json({ error: "Feedback already submitted." });
     }
 
-    // Update summary
+    // Update of User's Rating
     await updateUserRatings(recipient_id);
 
     res.status(201).json(feedback[0]);

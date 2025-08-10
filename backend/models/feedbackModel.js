@@ -137,7 +137,7 @@ export async function updateUserRatings(recipient_id) {
     FROM user_feedback
     WHERE recipient_id = ${recipient_id}
       AND user_ratings IS NOT NULL
-      AND comments IS NOT NULL
+      AND user_comments IS NOT NULL
     GROUP BY recipient_id
     ON CONFLICT (user_id) DO UPDATE
     SET
