@@ -124,6 +124,8 @@ export async function retrieveWinnerInfo(auction_id){
     `;
 }
 
+/*
+
 // Update recipient's rating summary after new feedback
 export async function updateUserRatings(recipient_id) {
   return await sql`
@@ -145,3 +147,31 @@ export async function updateUserRatings(recipient_id) {
         updated_at = CURRENT_TIMESTAMP;
   `;
 }
+*/
+
+
+
+// Update recipient's rating summary after new feedback (new)
+export async function updateUserRatings(recipient_id) {
+  return await sql`
+    INSERT INTO user_ratings (user_id, avg_rating, total_reviews, total_rating_points, updated_at)
+    SELECT
+      recipient_id AS user_id,
+      ROUND(AVG(user_ratings)::numeric, 1) AS avg_rating,
+      COUNT(user_ratings) AS total_reviews, -- only counts non-null ratings
+      SUM(user_ratings) AS total_rating_points,
+      CURRENT_TIMESTAMP
+    FROM user_feedback
+    WHERE recipient_id = ${recipient_id}
+      AND user_ratings IS NOT NULL  -- ignore null ratings
+      AND comments IS NOT NULL      -- optional: ignore null comments
+    GROUP BY recipient_id
+    ON CONFLICT (user_id) DO UPDATE 
+    SET 
+      avg_rating = EXCLUDED.avg_rating,
+      total_reviews = EXCLUDED.total_reviews,
+      total_rating_points = EXCLUDED.total_rating_points,
+      updated_at = CURRENT_TIMESTAMP;
+  `;
+}
+
