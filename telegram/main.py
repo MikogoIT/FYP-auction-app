@@ -1,7 +1,7 @@
 # telegram/main.py
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status, Header
+from fastapi import FastAPI, Request, HTTPException, status, Header, Body
 from telegram import Update, BotCommand
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
