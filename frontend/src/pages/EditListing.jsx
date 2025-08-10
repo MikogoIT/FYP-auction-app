@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import {
@@ -23,6 +23,8 @@ import {
   Stack,
   InputAdornment,
   FormHelperText,
+  Breadcrumbs,
+  Link as MuiLink,
 } from "@mui/material";
 import {
   CloudUpload,
@@ -34,19 +36,16 @@ import {
   Close,
 } from "@mui/icons-material";
 import { IMG_BASE_URL } from "../global-vars.jsx";
-import BreadcrumbsNav from "../components/BreadcrumbsNav";
 import Header from "../components/Header";
 
 // make sure you have these so <md-filled-button> and <md-filled-tonal-button> work
 import "@material/web/button/filled-button.js";
 import "@material/web/button/filled-tonal-button.js";
 
-// Simplified validation schema - only title and description
+// No required fields - all optional with only length validation
 const validationSchema = Yup.object({
   title: Yup.string()
-    .required("Title is required")
-    .min(3, "Title must be at least 3 characters")
-    .max(100, "Title must be less than 100 characters"),
+    .max(200, "Title must be less than 200 characters"),
   description: Yup.string()
     .max(1000, "Description must be less than 1000 characters"),
 });
@@ -119,9 +118,12 @@ export default function EditListing() {
           body: formData,
         });
 
-        const imgData = await imgRes.json();
-        if (!imgRes.ok) throw new Error("Image upload failed: " + imgData.message);
+        if (!imgRes.ok) {
+          const imgData = await imgRes.json();
+          throw new Error("Image upload failed: " + (imgData.message || imgRes.statusText));
+        }
 
+        const imgData = await imgRes.json();
         setCoverUrl(imgData.imageUrl);
         setCoverPreview(null);
         setCoverFile(null);
@@ -141,12 +143,16 @@ export default function EditListing() {
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || res.statusText);
+      }
 
+      const data = await res.json();
       setSuccess("Listing updated successfully!");
       setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err) {
+      console.error("Submit error:", err);
       setError(err.message);
       setUploadingCover(false);
     } finally {
@@ -176,6 +182,17 @@ export default function EditListing() {
     setError("");
   };
 
+  // Handle removing cover image
+  const handleRemoveCoverImage = () => {
+    setCoverFile(null);
+    setCoverPreview(null);
+    // Reset the file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
   // Handle listing deletion
   const handleDelete = async () => {
     try {
@@ -184,12 +201,16 @@ export default function EditListing() {
         credentials: "include",
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || res.statusText);
+      }
 
+      const data = await res.json();
       setSuccess("Listing deleted successfully!");
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (err) {
+      console.error("Delete error:", err);
       setError("Failed to delete listing: " + err.message);
     }
     setDeleteDialogOpen(false);
@@ -227,7 +248,19 @@ export default function EditListing() {
     <div className="dashboardCanvas">
       <div className="sidebarSpacer"></div>
       <div className="dashboardContent">
-        <BreadcrumbsNav />
+        {/* Custom breadcrumbs */}
+        <Breadcrumbs aria-label="breadcrumb" sx={{
+          width: '100%',
+          // make all links and the final Typography 16px
+          '& a, & .MuiTypography-root': {
+            fontSize: '16px',
+          }
+        }}>
+          <MuiLink component={RouterLink} to="/dashboard" underline="hover" color="inherit">
+            Home
+          </MuiLink>
+          <Typography color="text.primary">Edit Listing</Typography>
+        </Breadcrumbs>
         {/* page title */}
         <div className="profileTitle">Edit Listing</div>
 
@@ -297,10 +330,10 @@ export default function EditListing() {
                   </Typography>
                 </Alert>
 
-                {/* Cover Image Section */}
+                {/* Cover Image Section - Optional */}
                 <Box sx={{ mb: 3 }}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Cover Image
+                    Cover Image <Typography component="span" variant="body2" color="text.secondary">(Optional)</Typography>
                   </Typography>
                   
                   {/* Full-width image preview */}
@@ -342,17 +375,14 @@ export default function EditListing() {
                           No cover image
                         </Typography>
                         <Typography variant="body2">
-                          Choose an image below to add a cover photo
+                          Choose an image below to add a cover photo (optional)
                         </Typography>
                       </Box>
                     )}
                     {coverPreview && (
                       <IconButton
                         size="small"
-                        onClick={() => {
-                          setCoverFile(null);
-                          setCoverPreview(null);
-                        }}
+                        onClick={handleRemoveCoverImage}
                         sx={{
                           position: "absolute",
                           top: 8,
@@ -392,7 +422,7 @@ export default function EditListing() {
                   <FormHelperText sx={{ ml: 0, mt: 1 }}>
                     {coverFile 
                       ? "New image selected. Click 'Update Listing' to save changes."
-                      : "Select an image file (max 5MB) to use as the cover image."
+                      : "Optionally select an image file (max 5MB) to use as the cover image."
                     }
                   </FormHelperText>
                 </Box>
@@ -418,16 +448,15 @@ export default function EditListing() {
                         {/* Title */}
                         <TextField
                           name="title"
-                          label="Listing Name"
+                          label="Listing Name (Optional)"
                           value={values.title}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={touched.title && Boolean(errors.title)}
                           helperText={
                             (touched.title && errors.title) ||
-                            "Give your item a clear, descriptive title"
+                            "Give your item a clear, descriptive title (optional)"
                           }
-                          required
                           fullWidth
                           variant="outlined"
                           InputProps={{
@@ -447,14 +476,14 @@ export default function EditListing() {
                         {/* Description */}
                         <TextField
                           name="description"
-                          label="Description"
+                          label="Description (Optional)"
                           value={values.description}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={touched.description && Boolean(errors.description)}
                           helperText={
                             (touched.description && errors.description) ||
-                            "Provide detailed information about your item"
+                            "Provide detailed information about your item (optional)"
                           }
                           multiline
                           rows={4}
