@@ -21,6 +21,7 @@ export default function Dashboard() {
   const theme = useTheme();
 
   const [recentListings, setRecentListings] = useState([]);
+  const [recommendedListings, setRecommendedListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedMap, setLikedMap] = useState({});
 
@@ -78,8 +79,8 @@ export default function Dashboard() {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/listings/recent");
-        if (!res.ok) throw new Error("Failed to fetch listings");
+        const res = await fetch("/api/watchlist/recommendations/comprehensive");
+        if (!res.ok) throw new Error("Failed to fetch recommended listings");
         const { listings } = await res.json();
 
         const enriched = await Promise.all(
@@ -96,10 +97,10 @@ export default function Dashboard() {
           })
         );
 
-        setRecentListings(enriched);
+        setRecommendedListings(enriched);
       } catch (err) {
-        console.error("Failed to fetch recent listings:", err);
-        setRecentListings([]);
+        console.error("Failed to fetch recommended listings:", err);
+        setRecommendedListings([]);
       } finally {
         setLoading(false);
       }
@@ -164,8 +165,8 @@ export default function Dashboard() {
 
         {loading ? (
           <p className="centerText">Loading listings…</p>
-        ) : recentListings.length === 0 ? (
-          <p className="centerText">No recent listings available!</p>
+        ) : recommendedListings.length === 0 ? (
+          <p className="centerText">No recommended listings available!</p>
         ) : (
           <Swiper
             modules={[Navigation, SwiperPagination]}
@@ -175,7 +176,7 @@ export default function Dashboard() {
             slidesPerView="auto"
             className="dashboard-swiper"
           >
-            {recentListings.map(item => (
+            {recommendedListings.map(item => (
               <SwiperSlide key={item.id} style={{ width: 300}}>
                 <ListingCard
                   item={item}

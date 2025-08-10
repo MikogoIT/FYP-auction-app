@@ -114,6 +114,8 @@ export const getMyListings = async (userId) => {
     LEFT JOIN listing_categories c ON l.category_id = c.id
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.seller_id = ${userId}
+      AND l.is_active = true
+      AND l.end_date > NOW()
     GROUP BY l.id, c.name
     ORDER BY l.created_at DESC
   `;
@@ -129,6 +131,7 @@ export async function getListingsWithFilters(searchTerm, categoryId) {
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
+      AND l.end_date > NOW()
       AND (${searchTerm} = '' OR l.title ILIKE ${'%' + searchTerm + '%'} OR l.description ILIKE ${'%' + searchTerm + '%'})
       AND (${categoryId} = '' OR l.category_id::text = ${categoryId})
     GROUP BY l.id, u.username
@@ -146,6 +149,7 @@ export async function getRecentListings(limit = 5) {
     JOIN users u ON l.seller_id = u.id
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
+      AND l.end_date > NOW()
     GROUP BY l.id, u.username
     ORDER BY l.created_at DESC
     LIMIT ${limit}
@@ -287,6 +291,7 @@ export async function getTrendingListings(limit = 5) {
     FROM auction_listings l
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.is_active = true
+      AND l.end_date > NOW()
     GROUP BY l.id
     ORDER BY bid_count DESC
     LIMIT ${limit}

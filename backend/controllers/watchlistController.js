@@ -154,7 +154,7 @@ export async function handleGetComprehensiveRecommendations(req, res) {
     }
 
     res.json({
-      recommendations: finalRecommendations,
+      listings: finalRecommendations,
       total: finalRecommendations.length,
       category_count: finalRecommendations.filter(r => r.recommendation_type === 'category').length,
       tag_count: finalRecommendations.filter(r => r.recommendation_type === 'tag').length,
