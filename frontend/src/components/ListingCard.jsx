@@ -151,16 +151,13 @@ export default function ListingCard({
           {actionText}
         </md-filled-button>
 
-        <IconButton
-          onClick={() => onToggleLike(item.id)}
-          size="large"
-        >
-          {isLiked ? (
-            <FavoriteIcon color="error" />
-          ) : (
-            <FavoriteBorderIcon />
-          )}
-        </IconButton>
+        {/* Hide like button if expired */}
+        {!isExpired && (
+          <IconButton onClick={() => onToggleLike(item.id)} size="large">
+            {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          </IconButton>
+        )}
+
       </div>
     </div>
   );
