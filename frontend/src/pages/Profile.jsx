@@ -203,6 +203,7 @@ export default function Profile() {
                 label="Email"
                 type="email"
                 fullWidth
+                disabled                          
                 value={editableUser.email}
                 onChange={(e) => setEditableUser({ ...editableUser, email: e.target.value })}
                 InputProps={{ style: { fontSize: '16px' } }}
