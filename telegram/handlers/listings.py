@@ -3,7 +3,11 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from telegram.ext import ContextTypes
 from telegram.error import TelegramError
-from api import is_telegram_user_linked, save_telegram_message, fetch_user_listings, fetch_listings_with_messages, fetch_full_listing_with_message, delete_telegram_message
+from api import (
+    is_telegram_user_linked, save_telegram_message, fetch_user_listings, 
+    fetch_listings_with_messages, fetch_full_listing_with_message, delete_telegram_message,
+    fetch_listing_message_info
+)
 from logger import logger
 from utils import format_seller_listings, format_listing_message
 import re
@@ -143,7 +147,7 @@ async def update_message_by_listing_id(listing_id: int, bot) -> None:
         logger.error(f"Failed to update listing #{listing_id}: {e}")
         
 async def delete_message_by_listing_id(listing_id: int, bot) -> None:
-    listing = await fetch_full_listing_with_message(listing_id)
+    listing = await fetch_listing_message_info(listing_id)
     if not listing:
         logger.warning(f"No listing data returned for ID #{listing_id}")
         return

@@ -184,6 +184,22 @@ async def fetch_full_listing_with_message(listing_id: int):
         logger.error(f"Error fetching full listing with messages by id: {e}")
         return []
 
+async def fetch_listing_message_info(listing_id: int):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{BACKEND_API_URL}/api/telegram/listings/get-tele-message/{listing_id}",
+                headers=HEADERS
+            ) as resp:
+                if resp.status == 200:
+                    return await resp.json()
+                else:
+                    logger.warning(f"Failed to fetch full listings with messages by id: {resp.status}")
+                    return []
+    except Exception as e:
+        logger.error(f"Error fetching full listing with messages by id: {e}")
+        return []
+
 # Add a listing to the user's watchlist
 async def add_to_watchlist(user_id: int, listing_id: int) -> dict:
     try:

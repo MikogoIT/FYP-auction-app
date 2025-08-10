@@ -300,6 +300,27 @@ export async function saveTelegramMessageData(req, res) {
     }
 }
 
+export async function getTelegramMessageInfo(req, res) {
+    const auctionId = req.params.auctionId;
+
+    if (!auctionId) {
+        return res.status(400).json({ error: "Missing auctionId parameter" });
+    }
+
+    try {
+        const messageInfo = await telegramModel.getTelegramMessageByAuctionId(auctionId);
+
+        if (!messageInfo) {
+            return res.status(404).json({ error: "Telegram message info not found for this auction ID" });
+        }
+
+        return res.json(messageInfo);
+    } catch (err) {
+        console.error("Error fetching telegram message info: ", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 export async function deleteTelegramMessageData(req, res) {
     const { auctionId } = req.body;
 
