@@ -102,3 +102,11 @@ async def update_listing(request: Request):
     
     await update_message_by_listing_id(listing_id, application.bot)
     return {"message": "Update started"}
+
+@app.post("/newNotification")
+async def new_notification(authorization: str = Header(None)):
+    if not authorization or authorization != f"Bearer {BOT_SECRET}":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    await poll_notifications(application)
+    return {"status": "notifications poll triggered"}

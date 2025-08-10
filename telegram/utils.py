@@ -52,22 +52,37 @@ def format_seller_listings(listings):
         auction_id = listing.get("id", "N/A")
         end_date = format_date(listing.get("end_date", ""))
         min_bid = float(listing.get("min_bid", 0))
+        start_price = float(listing.get("start_price", 0))
+        current_price = float(listing.get("current_price", 0))
         highest_bid = float(listing.get("highest_bid", 0))
         num_bids = int(listing.get("num_bids", 0))
         is_active = listing.get("is_active", False)
-        status = "🟢 Active" if is_active else "🔴 Closed"
+        status = "🟢 Active" if is_active else "🔴 Expired"
         auction_type = listing.get("auction_type", "ascending").capitalize()
         
-        highest_bid_display = "No bids yet" if highest_bid == 0 else f"${highest_bid:.2f}"
+        
+        if auction_type.lower() == "ascending":
+            highest_bid_display = "No bids yet" if highest_bid == 0 else f"${highest_bid:.2f}"
+            price_info = (
+                f"💰 <b>Min Bid:</b> ${min_bid:.2f}\n"
+                f"💵 <b>Highest Bid:</b> {highest_bid_display}\n"                
+            )
+        elif auction_type.lower() == "descending":
+            price_info = (
+                f"💰 <b>Min Price:</b> ${min_bid:.2f}\n"
+                f"🚀 <b>Start Price:</b> ${start_price:.2f}\n"
+                f"📉 <b>Current Price:</b> ${current_price:.2f}\n"
+            )
+        else:
+            # Fallback just in case auction_type is unknown
+            price_info = f"💰 <b>Min Bid:</b> ${min_bid:.2f}\n"            
         
         lines.append(
-            f"📦 <b>Item:</b> {title}\n"
-            f"🆔 <b>Listing ID:</b> #{auction_id}\n"
+            f"#{auction_id} {title}\n"
             f"📈 <b>Auction Type:</b> {auction_type}\n"
             f"✅ <b>Status:</b> {status}\n"
             f"⏰ <b>Ends On:</b> {end_date}\n"
-            f"💰 <b>Min Bid:</b> ${min_bid:.2f}\n"
-            f"💵 <b>Highest Bid:</b> {highest_bid_display}\n"
+            f"{price_info}"
             f"🔢 <b># of Bids:</b> {num_bids}\n"
             "━━━━━━━━━━━━━━━━━━━━━━━"
         )
@@ -119,7 +134,12 @@ def format_recommendations_message(listings):
         title = item.get("title", "Untitled")
         auction_id = item.get("id", "N/A")
         end_date = format_date(item.get("end_date", ""))
-        lines.append(f"🛍️ <b>#{auction_id}</b> {title}\n⏰ Ends on: {end_date}\n")
+        view_url = f"{BACKEND_API_URL}/bid/{auction_id}"
+        lines.append(
+            f"🛍️ <b>#{auction_id}</b> {title}\n"
+            f"⏰ Ends on: {end_date}\n"
+            f"🔗 <a href='{view_url}'>View here</a>\n"
+        )
 
     return "\n".join(lines)
 

@@ -13,7 +13,7 @@ async def send_help(update: Update) -> None:
         "/bid `<amount>` - Place a bid\n"
         "/bidinc - Quick bid +$10\n"
         "/mybids - View your bids\n"
-        "/withdraw - Withdraw your most recent bid\n"
+        "/withdraw - Withdraw your bids\n"
         "/mywatchlist - View your watchlist\n"
         "/removewatchlist - Removes your most recent watchlisted listing\n"
         "/myrecommendations - View recommended listings\n\n"
