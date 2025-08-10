@@ -73,6 +73,38 @@ export default function Dashboard() {
     })();
   }, []);
 
+  // Fetch recommended listings and enrich with images
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/listings/recent");
+        if (!res.ok) throw new Error("Failed to fetch listings");
+        const { listings } = await res.json();
+
+        const enriched = await Promise.all(
+          listings.map(async item => {
+            try {
+              const imgRes = await fetch(
+                `/api/listingimg?listingId=${encodeURIComponent(item.id)}`
+              );
+              const { imageUrl } = await imgRes.json();
+              return { ...item, image_url: imageUrl };
+            } catch {
+              return { ...item, image_url: null };
+            }
+          })
+        );
+
+        setRecentListings(enriched);
+      } catch (err) {
+        console.error("Failed to fetch recent listings:", err);
+        setRecentListings([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
   const currentUserId = Number(localStorage.getItem("userId"));
 
   const handleToggleLike = async id => {
@@ -100,6 +132,35 @@ export default function Dashboard() {
       <div className="sidebarSpacer" />
       <div className="dashboardContent">
         <div className="profileTitle">Recent Listings</div>
+
+        {loading ? (
+          <p className="centerText">Loading listings…</p>
+        ) : recentListings.length === 0 ? (
+          <p className="centerText">No recent listings available!</p>
+        ) : (
+          <Swiper
+            modules={[Navigation, SwiperPagination]}
+            navigation
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            slidesPerView="auto"
+            className="dashboard-swiper"
+          >
+            {recentListings.map(item => (
+              <SwiperSlide key={item.id} style={{ width: 300}}>
+                <ListingCard
+                  item={item}
+                  currentUserId={currentUserId}
+                  isLiked={!!likedMap[item.id]}
+                  onToggleLike={handleToggleLike}
+                  onBidClick={handleBidClick}
+                  onEditClick={handleEditClick}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
+        <div className="profileTitle">Recommended Listings</div>
 
         {loading ? (
           <p className="centerText">Loading listings…</p>
