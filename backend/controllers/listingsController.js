@@ -156,28 +156,10 @@ export async function putListing(req, res) {
   const userId = req.session.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-  const {
-    title,
-    description,
-    min_bid,
-    end_date,
-    auction_type = "ascending",
-    start_price,
-    discount_percentage 
-  } = req.body;
+  const { title, description } = req.body;
 
-  if (!title || !min_bid || !end_date) {
+  if (!title || !description) {
     return res.status(400).json({ message: "Missing required fields" });
-  }
-
-  if (!["ascending", "descending"].includes(auction_type)) {
-    return res.status(400).json({ message: "Invalid auction_type" });
-  }
-
-  if (auction_type === "descending") {
-    if (!start_price || !discount_percentage) {
-      return res.status(400).json({ message: "Missing descending auction fields" });
-    }
   }
 
   try {
@@ -187,11 +169,7 @@ export async function putListing(req, res) {
       return res.status(403).json({ message: "Unauthorized to edit this listing" });
     }
 
-    await updateListing(
-      req.params.id,
-      title,
-      description 
-    );
+    await updateListing(req.params.id, title, description);
 
     await notifyUpdateListingMsg(req.params.id);
 

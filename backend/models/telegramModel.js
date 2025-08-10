@@ -192,6 +192,14 @@ export async function saveTelegramMessage(auctionId, messageId, channelId, capti
     return result[0];
 }
 
+// Delete telegram message info for a listing (after listing is deleted)
+export async function deleteTelegramMessageRecord(auctionId) {
+    await sql`
+        DELETE FROM telegram_messages
+        WHERE auction_id = ${auctionId}
+    `;
+}
+
 // Get telegram message info by auction id
 export async function getTelegramMessageByAuctionId(auctionId) {
     const result = await sql`
