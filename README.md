@@ -1,63 +1,57 @@
-# FYP-auction-app
+# AUCTIONEER - an online auction platform with telegram integration. Final Year Project (FYP)
 
 
-fyp auction app i had pasta for dinner :D
+CSIT321 - PROJECT
 
-app deployed to dockerhub
-https://hub.docker.com/r/boiledsteak/infinity-cleaner-app
+Project ID: CSIT-25-S2-12
 
-start docker container with
+Group ID: FYP-25-S2-23
+
+Timothy (8750634), Saud (8576919), Shi Long (8552186), Qing Yuan (8561655), Raydon (8466385), Yang Run (7771642)
+
+Assessor: Mr Premarajan
+
+Supervisor: Mr Aaron Yeo
+
+# Run
+To run this app, you need these pre requisites
+- secrets to GCP
+- secrets to Terraform Cloud
+- secrets to Supabase
+
+This source code is not enough to run the app locally. This is a cloud native app with many micro services and dependencies.
+
+Our technical document explains the codebase structure in depth
+
+
+
+## File structure
+
+
 ```
-docker-compose up
+├───backend
+│   ├───controllers
+│   ├───docs
+│   ├───models
+│   ├───routes
+│   ├───ScheduledJob
+│   └───utils
+├───frontend
+│   ├───favicon
+│   └───src
+│       ├───components
+│       ├───mds
+│       ├───pages
+│       └───styles
+├───images
+├───notif
+└───telegram
+    └───handlers
 ```
-access the app
-```
-http://localhost:4433
-```
+Only ***backend*** and ***frontend*** is bundled into the main website docker image
 
-## codebase structure
+***images*** are the fixed images we use such as website logo
 
-```
-/app
-├── backend
-│   ├── server.js
-│   ├── package.json
-│   └── ...
-├── frontend
-│   ├── public
-│   ├── src
-│   ├── package.json
-│   ├── dist (generated after build)
-│   └── ...
-├── Dockerfile
-└── docker-compose.yml
-```
+***notif*** holds code for our notifications bot
 
-## the app start up process:
-- npm update
-- npm install
-- npm run build
-(npm run start when ready)
-
-### npm update:
-```package.json```: Checks for updates to dependencies based on version ranges defined.
-
-```package-lock.json```: Updates to reflect the exact versions of dependencies, ensuring consistency across environments.
-
-```node_modules/```: Dependencies are updated or installed according to the version ranges and package-lock.json.
-
-### npm install:
-```package.json```: Identifies dependencies to install.
-
-```package-lock.json```: Ensures that the exact versions from package-lock.json are installed (if it exists), providing consistency across all installations.
-
-```node_modules/```: The actual dependencies are installed or updated to match the definitions in the package.json and package-lock.json.
-
-### npm run build:
-```frontend/src/``` and ```frontend/public/```: Source code (React components, assets, etc.) and static assets are processed by Vite.
-
-```frontend/dist/```: The production-ready files are created, optimized for performance (minified JS, CSS, HTML) and placed in the dist/ folder. This folder is ready to be deployed.
-
-### npm run start (When Ready):
-```backend/server.js```: Starts the Express server, which serves the production build from frontend/dist/ and handles backend API routes.
-
+***telegram*** holds code for our telegram bot
