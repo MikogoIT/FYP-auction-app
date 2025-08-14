@@ -114,8 +114,6 @@ export const getMyListings = async (userId) => {
     LEFT JOIN listing_categories c ON l.category_id = c.id
     LEFT JOIN bids b ON l.id = b.auction_id
     WHERE l.seller_id = ${userId}
-      AND l.is_active = true
-      AND l.end_date > NOW()
     GROUP BY l.id, c.name
     ORDER BY l.created_at DESC
   `;
