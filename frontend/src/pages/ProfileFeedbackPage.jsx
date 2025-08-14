@@ -243,39 +243,41 @@ export default function ProfileFeedbackPage() {
         </Breadcrumbs>
         {/* Profile Name and Ratings Header */}
           <div className="profileTitle">{user?.username}'s Profile</div>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Avatar
-              src={user?.profile_image_url || undefined}
-              sx={{
-                width: 80,
-                height: 80,
-                mr: 3,
-                border: "2px solid #eee",
-              }}
-              alt="User Avatar"
-            />
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <StarRating
-                  rating={
-                    ratingInfo?.avg_rating
-                      ? Math.round(ratingInfo.avg_rating)
-                      : 0
-                  }
-                  size="large"
-                />
-                <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
-                  {ratingScore !== "N/A"
-                    ? Number(ratingScore).toFixed(1)
-                    : "N/A"}
+           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Avatar
+            src={user?.profile_image_url || undefined}
+            sx={{
+              width: 80,
+              height: 80,
+              mr: 3,
+              border: "2px solid #eee",
+            }}
+            alt="User Avatar"
+          />
+          <Box>
+            {numReviews > 0 ? (
+              <>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <StarRating
+                    rating={Math.round(ratingInfo.avg_rating)}
+                    size="large"
+                  />
+                  <Typography sx={{ ml: 1, color: "#222", fontWeight: 600 }}>
+                    {Number(ratingScore).toFixed(1)}
+                  </Typography>
+                </Box>
+                <Typography color="text.secondary" fontSize={16}>
+                  {numReviews} Review{numReviews !== 1 ? "s" : ""}
                 </Typography>
-              </Box>
+              </>
+            ) : (
               <Typography color="text.secondary" fontSize={16}>
-                {numReviews} Review{numReviews !== 1 ? "s" : ""}
+                No ratings yet
               </Typography>
-              <Typography fontSize={16}>{user?.email || ""}</Typography>
-            </Box>
+            )}
+            <Typography fontSize={16}>{user?.email || ""}</Typography>
           </Box>
+        </Box>
 
         {/* Filters and Sorting */}
         <Box
