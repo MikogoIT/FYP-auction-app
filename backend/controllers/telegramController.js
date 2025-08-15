@@ -147,8 +147,8 @@ export async function createBidFromTelegram(req, res) {
         } else if (auction_type === "descending") {
             // Use current_price as the reference price for descending auction bids
 
-            if (current_price !== null && current_price !== undefined && bidAmount >= current_price) {
-                return res.status(400).json({ message: `Bid must be lower than current price ($${current_price})` })
+            if (current_price !== null && current_price !== undefined && bidAmount > current_price) {
+                return res.status(400).json({ message: `Bid cannot be higher than ($${current_price})` })
             }
 
             if (bidAmount < min_bid) {
