@@ -211,6 +211,11 @@ resource "google_cloud_run_v2_service" "cloud_run_app" {
         }
       }
     }
+
+    scaling {
+      max_instance_count = 1  # 👈 set your maximum here
+      min_instance_count = 0  # 👈 optional (can keep 0 to scale to zero)
+    }
   }
   depends_on = [google_project_service.run_api]
 }
@@ -294,7 +299,7 @@ resource "google_storage_bucket_iam_member" "dev_assets_public_read" {
 #   service_config {
 #     # Scale from 0 up to 10 instances
 #     min_instance_count             = 0
-#     max_instance_count             = 3
+#     max_instance_count             = 1
 
 #     # Function timeout
 #     timeout_seconds                = 60
