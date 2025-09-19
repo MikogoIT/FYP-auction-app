@@ -1,9 +1,9 @@
 stages:
   # - security test
-  - build
-  - deploy 1     # Docker → GAR
+  # - build
+  # - deploy 1     # Docker → GAR
   - deploy 2     # Terraform
-  - deploy 3     # GCS upload
+  # - deploy 3     # GCS upload
 
 variables:
   # Docker-in-Docker driver
@@ -60,99 +60,99 @@ variables:
 
 
 
-#----------------------------------------------------------------
-# 1. Build frontend (always runs)
-#----------------------------------------------------------------
-build-app:
-  stage: build
-  # tags: ["runz"]
-  image: node:23.11.0-alpine3.21
-  before_script:
-    # ensure the cache path exists
-    - mkdir -p frontend/node_modules
+# #----------------------------------------------------------------
+# # 1. Build frontend (always runs)
+# #----------------------------------------------------------------
+# build-app:
+#   stage: build
+#   # tags: ["runz"]
+#   image: node:23.11.0-alpine3.21
+#   before_script:
+#     # ensure the cache path exists
+#     - mkdir -p frontend/node_modules
 
-  cache:
-    key: cache-frontend-${CI_COMMIT_REF_SLUG}
-    paths:
-      - frontend/node_modules/
+#   cache:
+#     key: cache-frontend-${CI_COMMIT_REF_SLUG}
+#     paths:
+#       - frontend/node_modules/
 
-  script:
-    - npm install --prefix frontend
-    - npm run build --prefix frontend
+#   script:
+#     - npm install --prefix frontend
+#     - npm run build --prefix frontend
 
-  artifacts:
-    paths:
-      - frontend/dist
-    expire_in: 1 hour
+#   artifacts:
+#     paths:
+#       - frontend/dist
+#     expire_in: 1 hour
 
 #----------------------------------------------------------------
 # 1.5 Build tele bot
 #----------------------------------------------------------------
 
 
-#----------------------------------------------------------------
-# 2. Build & Push to GAR (all branches → same repo)
-#----------------------------------------------------------------
-docker-push:
-  stage: deploy 1
-  # tags: ["runz"]
-  image: google/cloud-sdk:slim
-  services:
-    - docker:dind
-  id_tokens:
-    GITLAB_OIDC_TOKEN:
-      aud: "https://gitlab.com"
-  variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - apt-get update && apt-get install -y jq docker.io      # ← install docker client and jq
-    # Exchange OIDC → short-lived GCP token
-    - |
-      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -d '{
-          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
-          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
-          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
-          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
-          "scope":"https://www.googleapis.com/auth/cloud-platform",
-          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
-        }' | jq -r .access_token)
-    - |
-      ACCESS_TOKEN=$(curl -s -X POST \
-        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -H "Authorization: Bearer $FED_TOKEN" \
-        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
-        | jq -r .accessToken)
-    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
-    - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
+# #----------------------------------------------------------------
+# # 2. Build & Push to GAR (all branches → same repo)
+# #----------------------------------------------------------------
+# docker-push:
+#   stage: deploy 1
+#   # tags: ["runz"]
+#   image: google/cloud-sdk:slim
+#   services:
+#     - docker:dind
+#   id_tokens:
+#     GITLAB_OIDC_TOKEN:
+#       aud: "https://gitlab.com"
+#   variables:
+#     DOCKER_HOST: "tcp://docker:2375"
+#     DOCKER_TLS_CERTDIR: ""
+#   before_script:
+#     - apt-get update && apt-get install -y jq docker.io      # ← install docker client and jq
+#     # Exchange OIDC → short-lived GCP token
+#     - |
+#       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+#         -H "Content-Type: application/json; charset=utf-8" \
+#         -d '{
+#           "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+#           "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+#           "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+#           "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+#           "scope":"https://www.googleapis.com/auth/cloud-platform",
+#           "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
+#         }' | jq -r .access_token)
+#     - |
+#       ACCESS_TOKEN=$(curl -s -X POST \
+#         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+#         -H "Content-Type: application/json; charset=utf-8" \
+#         -H "Authorization: Bearer $FED_TOKEN" \
+#         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+#         | jq -r .accessToken)
+#     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+#     - gcloud auth configure-docker "$GAR_REGISTRY" --quiet
 
-  script:
-    - |
-      # determine tag (short SHA on main, sanitized branch name otherwise)
-      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        TAG="$CI_COMMIT_SHORT_SHA"
-      else
-        TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
-      fi
+#   script:
+#     - |
+#       # determine tag (short SHA on main, sanitized branch name otherwise)
+#       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+#         TAG="$CI_COMMIT_SHORT_SHA"
+#       else
+#         TAG=$(echo "$CI_COMMIT_BRANCH" | sed 's/[^a-zA-Z0-9_.-]/-/g')
+#       fi
 
-      # base repo path
-      REPO="$GAR_REPO_BASE"
+#       # base repo path
+#       REPO="$GAR_REPO_BASE"
 
-      # image names
-      APP_IMAGE="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-app"
-      BOT_IMAGE="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-tele-bot"
+#       # image names
+#       APP_IMAGE="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-app"
+#       BOT_IMAGE="$GAR_REGISTRY/$GCP_PROJECT_ID/$REPO/auctioneer-tele-bot"
 
-      echo "Building & pushing ${APP_IMAGE}:${TAG}"
-      docker build -t "${APP_IMAGE}:${TAG}" .
-      docker push "${APP_IMAGE}:${TAG}"
+#       echo "Building & pushing ${APP_IMAGE}:${TAG}"
+#       docker build -t "${APP_IMAGE}:${TAG}" .
+#       docker push "${APP_IMAGE}:${TAG}"
 
-      echo "Building & pushing ${BOT_IMAGE}:${TAG}"
-      # assumes there's a Dockerfile at telegram/Dockerfile
-      docker build -t "${BOT_IMAGE}:${TAG}" -f telegram/Dockerfile telegram
-      docker push "${BOT_IMAGE}:${TAG}"
+#       echo "Building & pushing ${BOT_IMAGE}:${TAG}"
+#       # assumes there's a Dockerfile at telegram/Dockerfile
+#       docker build -t "${BOT_IMAGE}:${TAG}" -f telegram/Dockerfile telegram
+#       docker push "${BOT_IMAGE}:${TAG}"
 
 #----------------------------------------------------------------
 # 3. Terraform apply (only on main)
@@ -172,9 +172,11 @@ terraform:
     TF_VAR_notif_object: "notif-${CI_COMMIT_SHORT_SHA}.zip"
 
   script:
+    # - terraform init
+    # # - terraform state push -ignore-remote-version -force tryagain.tfstate
+    # - terraform apply -auto-approve
     - terraform init
-    # - terraform state push -ignore-remote-version -force tryagain.tfstate
-    - terraform apply -auto-approve
+    - terraform destroy
   
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -182,70 +184,70 @@ terraform:
     - when: never
 
 
-#----------------------------------------------------------------
-# 4. Upload images folder to GCS + zip & upload telegram code
-#----------------------------------------------------------------
-upload-assets:
-  stage: deploy 2
-  # tags: ["runz"]
-  image: google/cloud-sdk:slim
-  id_tokens:
-    GITLAB_OIDC_TOKEN:
-      aud: "https://gitlab.com"
-  before_script:
-    - apt-get update && apt-get install -y jq zip docker.io
-    - |
-      FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -d '{
-          "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
-          "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
-          "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
-          "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
-          "scope":"https://www.googleapis.com/auth/cloud-platform",
-          "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
-        }' | jq -r .access_token)
-    - |
-      ACCESS_TOKEN=$(curl -s -X POST \
-        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -H "Authorization: Bearer $FED_TOKEN" \
-        -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
-        | jq -r .accessToken)
-    - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
-    - gcloud config set project "$GCP_PROJECT_ID"
-    - gcloud config set run/region "$GCP_REGION"
-    - gcloud config set run/platform managed
+# #----------------------------------------------------------------
+# # 4. Upload images folder to GCS + zip & upload telegram code
+# #----------------------------------------------------------------
+# upload-assets:
+#   stage: deploy 2
+#   # tags: ["runz"]
+#   image: google/cloud-sdk:slim
+#   id_tokens:
+#     GITLAB_OIDC_TOKEN:
+#       aud: "https://gitlab.com"
+#   before_script:
+#     - apt-get update && apt-get install -y jq zip docker.io
+#     - |
+#       FED_TOKEN=$(curl -s -X POST https://sts.googleapis.com/v1/token \
+#         -H "Content-Type: application/json; charset=utf-8" \
+#         -d '{
+#           "grantType":"urn:ietf:params:oauth:grant-type:token-exchange",
+#           "requestedTokenType":"urn:ietf:params:oauth:token-type:access_token",
+#           "subjectTokenType":"urn:ietf:params:oauth:token-type:jwt",
+#           "subjectToken":"'"$GITLAB_OIDC_TOKEN"'",
+#           "scope":"https://www.googleapis.com/auth/cloud-platform",
+#           "audience":"//iam.googleapis.com/projects/'"$GCP_PROJECT_NUMBER"'/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab"
+#         }' | jq -r .access_token)
+#     - |
+#       ACCESS_TOKEN=$(curl -s -X POST \
+#         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT_EMAIL}:generateAccessToken" \
+#         -H "Content-Type: application/json; charset=utf-8" \
+#         -H "Authorization: Bearer $FED_TOKEN" \
+#         -d '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+#         | jq -r .accessToken)
+#     - export CLOUDSDK_AUTH_ACCESS_TOKEN="$ACCESS_TOKEN"
+#     - gcloud config set project "$GCP_PROJECT_ID"
+#     - gcloud config set run/region "$GCP_REGION"
+#     - gcloud config set run/platform managed
 
 
-  script:
-    # — Static assets
-    - echo "Uploading images/ → gs://$GCS_DEV_BUCKET_NAME"
-    - gcloud storage cp --recursive images/* gs://"$GCS_DEV_BUCKET_NAME"
-    - echo "Cleaning up local images/"
-    - find images/ -type f -delete
+#   script:
+#     # — Static assets
+#     - echo "Uploading images/ → gs://$GCS_DEV_BUCKET_NAME"
+#     - gcloud storage cp --recursive images/* gs://"$GCS_DEV_BUCKET_NAME"
+#     - echo "Cleaning up local images/"
+#     - find images/ -type f -delete
 
-    # # — Telegram FaaS code
-    # - echo "Zipping telegram/ folder (flattened)"
-    # - cd telegram
-    # - zip -r ../telegram.zip .
-    # - cd -
-    # - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
-    # - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
-    # - find telegram/ -type f -delete
+#     # # — Telegram FaaS code
+#     # - echo "Zipping telegram/ folder (flattened)"
+#     # - cd telegram
+#     # - zip -r ../telegram.zip .
+#     # - cd -
+#     # - echo "Uploading telegram.zip → gs://$GCS_TELE_BUCKET_NAME/telegram.zip"
+#     # - gcloud storage cp telegram.zip gs://"$GCS_TELE_BUCKET_NAME"/telegram.zip
+#     # - find telegram/ -type f -delete
 
-    # — Notifications bot FaaS code
-    - echo "Zipping telegram/ folder (flattened)"
-    - cd notif
-    - zip -r ../notif.zip .
-    - cd -
-    - export ZIP_NAME="notif-${CI_COMMIT_SHORT_SHA}.zip"
-    - echo "Uploading notif.zip as $ZIP_NAME → gs://$GCS_NOTIF_BUCKET_NAME/$ZIP_NAME"
-    - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/"$ZIP_NAME"
+#     # — Notifications bot FaaS code
+#     - echo "Zipping telegram/ folder (flattened)"
+#     - cd notif
+#     - zip -r ../notif.zip .
+#     - cd -
+#     - export ZIP_NAME="notif-${CI_COMMIT_SHORT_SHA}.zip"
+#     - echo "Uploading notif.zip as $ZIP_NAME → gs://$GCS_NOTIF_BUCKET_NAME/$ZIP_NAME"
+#     - gcloud storage cp notif.zip gs://"$GCS_NOTIF_BUCKET_NAME"/"$ZIP_NAME"
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: on_success
-    - when: never
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       when: on_success
+#     - when: never
 
 
