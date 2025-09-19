@@ -1,9 +1,9 @@
 stages:
   # - security test
   # - build
-  # - deploy 1     # Docker → GAR
-  - deploy 2     # Terraform
-  # - deploy 3     # GCS upload
+  # - deploy 1     
+  # - deploy 2     
+  - deploy 3     
 
 variables:
   # Docker-in-Docker driver
